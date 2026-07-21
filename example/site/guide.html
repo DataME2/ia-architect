@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guide — archreator</title>
+  <meta name="description" content="The EA-first process and the human/AI/hybrid actor notation, walked step by step — how a requirement becomes a reviewed, documented change." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='4' rx='1.5' fill='%237e57c2'/%3E%3Crect x='6' y='12' width='20' height='4' rx='1.5' fill='%23c8a24a'/%3E%3Crect x='6' y='18' width='20' height='4' rx='1.5' fill='%230288d1'/%3E%3Crect x='6' y='24' width='20' height='4' rx='1.5' fill='%23558b2f'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./index.html">
+        <svg class="logo" width="24" height="24" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="6" y="6" width="20" height="4" rx="1.5" fill="#7e57c2" />
+          <rect x="6" y="12" width="20" height="4" rx="1.5" fill="#c8a24a" />
+          <rect x="6" y="18" width="20" height="4" rx="1.5" fill="#0288d1" />
+          <rect x="6" y="24" width="20" height="4" rx="1.5" fill="#558b2f" />
+        </svg>
+        archreator
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="./start.html">Start here</a>
+        <a href="./guide.html">Guide</a>
+        <a class="hide-narrow" href="./walkthrough.html">Walkthrough</a>
+        <a class="hide-narrow" href="./architecture.html">Architecture</a>
+        <a class="nav-cta" href="https://github.com/roanboc/archreator">Use the template ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section style="padding-bottom:0">
+      <div class="wrap prose">
+        <span class="eyebrow">The method, walked</span>
+        <h1>Guide</h1>
+        <p class="lede">
+          How a requirement becomes an implemented, documented change — and
+          how an AI system fits into that as more than the tool executing it.
+        </p>
+      </div>
+    </section>
+
+    <section style="padding-top:clamp(1.5rem,4vw,2.5rem)">
+      <div class="wrap prose">
+        <h2 id="layers">1. Walk the layers, top-down</h2>
+        <p>
+          Every change is checked against five layers, in this order, before
+          any code is written. A layer with nothing to say still gets an
+          explicit "no change" — silence isn't a decision.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Layer</th><th>Answers</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Strategy &amp; Motivation</td><td>Why does this exist? Who cares? Does it hold up against the project's principles?</td></tr>
+              <tr><td>2</td><td>Business</td><td>Who does what — people and AI agents — through which service and process?</td></tr>
+              <tr><td>3</td><td>Information</td><td>What information exists, how does it flow and persist?</td></tr>
+              <tr><td>4</td><td>Application</td><td>Which software services and components realize the business services?</td></tr>
+              <tr><td>5</td><td>Technology</td><td>What runtimes, hosting, and CI/CD does it run on?</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="source-note">
+          Full process:
+          <a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/ea-first-change/SKILL.md">ea-first-change</a> ·
+          notation and grounding rules:
+          <a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/ea-doc-style/SKILL.md">ea-doc-style</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="section-tint">
+      <div class="wrap prose">
+        <h2 id="actors" style="margin-top:0;border:0;padding-top:0">2. Actors: human, AI, and hybrid</h2>
+        <p>
+          A business actor no longer defaults to human by omission. Every
+          actor states its kind — Human, AI, or Hybrid (a person and an AI
+          sharing one role) — and an AI or Hybrid actor carries three more
+          things: how much it can do without a human, exactly what it's
+          authorized to decide, and who it hands off to when it can't.
+        </p>
+
+        <figure class="archi-diagram">
+          <div class="archi-flow" style="align-items:center">
+            <span class="node" data-layer="business" style="flex:1 1 9rem">
+              <span class="stereo">«Business Actor (Human)»</span>
+              <span class="node-name">Pilot</span>
+            </span>
+            <span class="flow-arrow"><span class="rel">assigned to</span><span aria-hidden="true">→</span></span>
+            <span class="node" data-layer="business" style="flex:1 1 8rem">
+              <span class="stereo">«Business Role»</span>
+              <span class="node-name">Guidance author</span>
+            </span>
+            <span class="flow-arrow"><span class="rel">assigned to</span><span aria-hidden="true">←</span></span>
+            <span class="node" data-layer="business" style="flex:1 1 9rem">
+              <span class="stereo">«Business Actor (AI)»</span>
+              <span class="node-name">Copilot</span>
+            </span>
+          </div>
+          <figcaption>
+            One role, two actors — a human and an AI — distinguished by their
+            autonomy and decision rights, not by a separate role each. Full
+            table on the <a href="./architecture.html#business">architecture page</a>.
+          </figcaption>
+        </figure>
+
+        <h3 style="margin-top:2rem">Autonomy levels</h3>
+        <p class="muted">How much an AI or hybrid actor may do before a human is involved. This site's Copilot sits at <strong>co-pilot</strong>.</p>
+        <div class="autonomy">
+          <div class="lvl" data-fill="1">
+            <span class="bar" aria-hidden="true"></span>
+            <span>
+              <span class="name">Advisory</span>
+              <span class="desc">Suggests; a human decides and acts.</span>
+            </span>
+          </div>
+          <div class="lvl current" data-fill="2">
+            <span class="bar" aria-hidden="true"></span>
+            <span>
+              <span class="name">Co-pilot <span class="tag">this site</span></span>
+              <span class="desc">Acts — drafts a complete change; a human reviews before it takes effect.</span>
+            </span>
+          </div>
+          <div class="lvl" data-fill="3">
+            <span class="bar" aria-hidden="true"></span>
+            <span>
+              <span class="name">Autonomous with checkpoint</span>
+              <span class="desc">Acts independently; a human is notified and can intervene after the fact.</span>
+            </span>
+          </div>
+          <div class="lvl" data-fill="4">
+            <span class="bar" aria-hidden="true"></span>
+            <span>
+              <span class="name">Fully autonomous</span>
+              <span class="desc">Acts independently; no routine human checkpoint.</span>
+            </span>
+          </div>
+        </div>
+        <p class="source-note">
+          Notation reference:
+          <a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/ea-doc-style/SKILL.md#actors-human-ai-and-hybrid">ea-doc-style § Actors</a>
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap prose">
+        <h2 id="decisions" style="margin-top:0;border:0;padding-top:0">3. Record why, not just what</h2>
+        <p>
+          A scope document explains an entire initiative's alignment across
+          the layers. A <strong>decision record</strong> is smaller: one
+          call — usually "why is this AI actor's autonomy set here and not
+          somewhere else" — recorded once, linked from the row it explains,
+          and never rewritten. A changed call gets a new record that
+          supersedes the old one.
+        </p>
+        <div class="callout">
+          <p class="callout-label">This site's own examples</p>
+          <p>
+            <a href="https://github.com/roanboc/archreator/blob/main/example/docs/decisions/1_docs-agent-autonomy.md">Decision 1 — Copilot autonomy level</a>:
+            why co-pilot over advisory-only or fully autonomous.
+            <br />
+            <a href="https://github.com/roanboc/archreator/blob/main/example/docs/decisions/2_site-diagram-rendering.md">Decision 2 — how this site renders its diagrams</a>:
+            why the pages use self-contained CSS instead of a diagramming library.
+          </p>
+        </div>
+        <p class="source-note">
+          <a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/decision-record/SKILL.md">decision-record skill</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="section-tint">
+      <div class="wrap prose">
+        <h2 id="everything-else" style="margin-top:0;border:0;padding-top:0">4. Everything else, briefly</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Skill</th><th>Used for</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/scope-doc/SKILL.md">scope-doc</a></td>
+                <td>The scope-document template: EA-alignment table, plateaus, work packages, in/out of scope</td>
+              </tr>
+              <tr>
+                <td><a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/pr-description/SKILL.md">pr-description</a></td>
+                <td>PR bodies describe the whole branch, not just the latest commit</td>
+              </tr>
+              <tr>
+                <td><a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/story-sharding/SKILL.md">story-sharding</a></td>
+                <td>Splitting a work package too large for one sitting into self-contained story files — <a href="./walkthrough.html#story-sharding">walked through here</a></td>
+              </tr>
+              <tr>
+                <td><a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/stack-selection/SKILL.md">stack-selection</a></td>
+                <td>A decision framework and concrete defaults for a small app's technology stack — <a href="./walkthrough.html#stack-selection">walked through here</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pill-row">
+          <a class="pill" href="./walkthrough.html">Walk a change end to end →</a>
+          <a class="pill" href="./architecture.html">See it applied to this project →</a>
+          <a class="pill" href="https://github.com/roanboc/archreator">Use the template ↗</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>
+        Published from
+        <a href="https://github.com/roanboc/archreator/tree/main/example">example/</a>
+        in the archreator repository.
+      </span>
+      <span>
+        <a href="./index.html">Home</a> ·
+        <a href="./architecture.html">Architecture</a>
+      </span>
+    </div>
+  </footer>
+</body>
+</html>

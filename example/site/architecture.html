@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Architecture — archreator</title>
+  <meta name="description" content="This guidance site's own EA layers, including its AI actor, rendered as the concrete example of the method — every element links to its canonical source in the repo." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='4' rx='1.5' fill='%237e57c2'/%3E%3Crect x='6' y='12' width='20' height='4' rx='1.5' fill='%23c8a24a'/%3E%3Crect x='6' y='18' width='20' height='4' rx='1.5' fill='%230288d1'/%3E%3Crect x='6' y='24' width='20' height='4' rx='1.5' fill='%23558b2f'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./index.html">
+        <svg class="logo" width="24" height="24" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="6" y="6" width="20" height="4" rx="1.5" fill="#7e57c2" />
+          <rect x="6" y="12" width="20" height="4" rx="1.5" fill="#c8a24a" />
+          <rect x="6" y="18" width="20" height="4" rx="1.5" fill="#0288d1" />
+          <rect x="6" y="24" width="20" height="4" rx="1.5" fill="#558b2f" />
+        </svg>
+        archreator
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="./start.html">Start here</a>
+        <a href="./guide.html">Guide</a>
+        <a class="hide-narrow" href="./walkthrough.html">Walkthrough</a>
+        <a class="hide-narrow" href="./architecture.html">Architecture</a>
+        <a class="nav-cta" href="https://github.com/roanboc/archreator">Use the template ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section style="padding-bottom:0">
+      <div class="wrap prose">
+        <span class="eyebrow">A filled-in example</span>
+        <h1>This site's own architecture</h1>
+        <p class="lede">
+          This site is itself an archreator project. Its EA layers, below,
+          are the concrete "what does a filled-in <code>docs/ea/</code> look
+          like" answer — including its one AI actor, modeled with a stated
+          autonomy level rather than left implicit. Every diagram and table
+          links to the canonical source in the repo.
+        </p>
+      </div>
+    </section>
+
+    <section style="padding-top:clamp(1.5rem,4vw,2.5rem)">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="overview">Layered overview</h2>
+          <p>Each layer realizes the one above it. Read it top-down, the same order you'd assess a change.</p>
+        </div>
+
+        <figure class="archi-diagram">
+          <div class="archi-layers">
+            <div class="archi-band" style="--layer-fill:var(--motivation);--layer-ink:var(--motivation-ink);--layer-line:var(--motivation-line)">
+              <span class="band-label">Motivation &amp; Strategy</span>
+              <div class="band-nodes">
+                <span class="node" data-layer="motivation"><span class="stereo">«Goal»</span><span class="node-name">Adopters learn &amp; correctly apply the method</span></span>
+                <span class="node" data-layer="strategy"><span class="stereo">«Value Stream»</span><span class="node-name">Discover → Understand → Adopt</span></span>
+              </div>
+            </div>
+            <div class="archi-band" style="--layer-fill:var(--business);--layer-ink:var(--business-ink);--layer-line:var(--business-line)">
+              <span class="band-label">Business</span>
+              <div class="band-nodes">
+                <span class="node" data-layer="business"><span class="stereo">«Business Service»</span><span class="node-name">EA-first method guidance</span></span>
+                <span class="node" data-layer="business"><span class="stereo">«Actor (Human)»</span><span class="node-name">Pilot</span></span>
+                <span class="node" data-layer="business"><span class="stereo">«Actor (AI)»</span><span class="node-name">Copilot</span></span>
+              </div>
+            </div>
+            <div class="archi-band" style="--layer-fill:var(--application);--layer-ink:var(--application-ink);--layer-line:var(--application-line)">
+              <span class="band-label">Application</span>
+              <div class="band-nodes">
+                <span class="node" data-layer="application"><span class="stereo">«Application Component»</span><span class="node-name">Guidance site (site/*.html)</span></span>
+              </div>
+            </div>
+            <div class="archi-band" style="--layer-fill:var(--technology);--layer-ink:var(--technology-ink);--layer-line:var(--technology-line)">
+              <span class="band-label">Technology</span>
+              <div class="band-nodes">
+                <span class="node" data-layer="technology"><span class="stereo">«Technology Service»</span><span class="node-name">GitHub Pages</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="legend" aria-hidden="true">
+            <span><span class="swatch" style="--sw-fill:var(--motivation);--sw-line:var(--motivation-line)"></span>Motivation</span>
+            <span><span class="swatch" style="--sw-fill:var(--strategy);--sw-line:var(--strategy-line)"></span>Strategy</span>
+            <span><span class="swatch" style="--sw-fill:var(--business);--sw-line:var(--business-line)"></span>Business</span>
+            <span><span class="swatch" style="--sw-fill:var(--application);--sw-line:var(--application-line)"></span>Application</span>
+            <span><span class="swatch" style="--sw-fill:var(--technology);--sw-line:var(--technology-line)"></span>Technology</span>
+          </div>
+          <figcaption>
+            The goal is <em>realized by</em> the value stream, <em>realized by</em>
+            the business service (which the Pilot and Copilot are
+            <em>assigned to</em>), <em>realized by</em> the application
+            component, which <em>runs on</em> GitHub Pages. Same colour = same
+            ArchiMate layer as in the repo's Mermaid source.
+            Source: <a href="https://github.com/roanboc/archreator/blob/main/example/docs/ea/README.md">example/docs/ea/README.md</a>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section-tint">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="strategy" style="margin-top:0;border:0;padding-top:0">Strategy: the value stream</h2>
+          <p>Three stages a visitor moves through, each realized by one page of this site.</p>
+        </div>
+        <figure class="archi-diagram">
+          <div class="archi-flow">
+            <span class="node" data-layer="strategy">
+              <span class="stereo">«Stage»</span>
+              <span class="node-name">Discover<br />lands on the site</span>
+            </span>
+            <span class="flow-arrow"><span aria-hidden="true">→</span></span>
+            <span class="node" data-layer="strategy">
+              <span class="stereo">«Stage»</span>
+              <span class="node-name">Understand<br />reads method &amp; actor notation</span>
+            </span>
+            <span class="flow-arrow"><span aria-hidden="true">→</span></span>
+            <span class="node" data-layer="strategy">
+              <span class="stereo">«Stage»</span>
+              <span class="node-name">Adopt<br />uses "Use this template"</span>
+            </span>
+          </div>
+          <figcaption>
+            Source:
+            <a href="https://github.com/roanboc/archreator/blob/main/example/docs/ea/1_strategy/3_value-stream.md">1_strategy/3_value-stream.md</a>
+            · Principles:
+            <a href="https://github.com/roanboc/archreator/blob/main/example/docs/ea/1_strategy/1_motivation.md">1_strategy/1_motivation.md</a>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="business">Business: actors and roles</h2>
+          <p>Who acts on this project — and, for the AI actor, exactly how much it may do on its own.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Actor</th><th>Kind</th><th>Autonomy</th><th>Decision rights</th><th>Escalation path</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Pilot</td>
+                <td class="kind kind-human">Human</td>
+                <td>—</td>
+                <td>Approves/merges any change; sole authority over Pages/repo settings</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>Copilot</td>
+                <td class="kind kind-ai">AI</td>
+                <td>Co-pilot</td>
+                <td>May draft and commit changes to site/docs within <code>example/</code>, open a PR. No merge rights, no settings access</td>
+                <td>Opens a PR to Pilot; on a Principle conflict, stops and surfaces it instead of proceeding</td>
+              </tr>
+              <tr>
+                <td>Template adopter</td>
+                <td class="kind kind-human">Human, external</td>
+                <td>—</td>
+                <td>None — read-only visitor</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="source-note">
+          Source:
+          <a href="https://github.com/roanboc/archreator/blob/main/example/docs/ea/2_business/1_business-actors-and-roles.md">2_business/1_business-actors-and-roles.md</a>
+          · rationale for the autonomy level:
+          <a href="https://github.com/roanboc/archreator/blob/main/example/docs/decisions/1_docs-agent-autonomy.md">docs/decisions/1_docs-agent-autonomy.md</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="section-tint">
+      <div class="wrap">
+        <div class="grid-2">
+          <div>
+            <h2 id="information" style="margin-top:0;border:0;padding-top:0">Information</h2>
+            <p class="muted">
+              A "Guidance page" is explicitly a <strong>derived</strong>
+              representation — the canonical source is this project's own
+              <code>docs/ea/</code> and the template's
+              <code>.claude/skills/</code>, not the page itself. If a page and
+              its linked source ever disagree, the source wins. That's why
+              every diagram and table here carries a source link back to the
+              repo.
+            </p>
+            <p class="source-note">
+              Source:
+              <a href="https://github.com/roanboc/archreator/blob/main/example/docs/ea/3_information/1_data-objects.md">3_information/1_data-objects.md</a>
+            </p>
+          </div>
+          <div>
+            <h2 id="application" style="margin-top:0;border:0;padding-top:0">Application: components</h2>
+            <div class="table-wrap" style="margin-top:0">
+              <table>
+                <thead>
+                  <tr><th>Component</th><th>Realizes</th><th>Source</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Landing page</td><td>Entry point</td><td><a href="https://github.com/roanboc/archreator/blob/main/example/site/index.html">index.html</a></td></tr>
+                  <tr><td>Setup page</td><td>Beginner zero-to-first-change setup (free-first)</td><td><a href="https://github.com/roanboc/archreator/blob/main/example/site/start.html">start.html</a></td></tr>
+                  <tr><td>Guide page</td><td>Process + notation reference</td><td><a href="https://github.com/roanboc/archreator/blob/main/example/site/guide.html">guide.html</a></td></tr>
+                  <tr><td>Walkthrough page</td><td>A change end to end + situational skills</td><td><a href="https://github.com/roanboc/archreator/blob/main/example/site/walkthrough.html">walkthrough.html</a></td></tr>
+                  <tr><td>Architecture page</td><td>This page</td><td><a href="https://github.com/roanboc/archreator/blob/main/example/site/architecture.html">architecture.html</a></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="source-note">Shared, dependency-free <a href="https://github.com/roanboc/archreator/blob/main/example/site/styles.css">styles.css</a> — nothing is fetched at request time.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="technology">Technology: deployment</h2>
+          <p>Merging to <code>main</code> publishes the site — no manual step, no build.</p>
+        </div>
+        <figure class="archi-diagram">
+          <div class="archi-flow">
+            <span class="node" data-layer="implementation">
+              <span class="stereo">«Trigger»</span>
+              <span class="node-name">Push / merge to main touching site/</span>
+            </span>
+            <span class="flow-arrow"><span class="rel">triggers</span><span aria-hidden="true">→</span></span>
+            <span class="node" data-layer="technology">
+              <span class="stereo">«Workflow»</span>
+              <span class="node-name">deploy-example-site.yml</span>
+            </span>
+            <span class="flow-arrow"><span class="rel">uploads</span><span aria-hidden="true">→</span></span>
+            <span class="node" data-layer="technology">
+              <span class="stereo">«Artifact»</span>
+              <span class="node-name">Pages artifact</span>
+            </span>
+            <span class="flow-arrow"><span class="rel">deployed to</span><span aria-hidden="true">→</span></span>
+            <span class="node" data-layer="technology">
+              <span class="stereo">«Node»</span>
+              <span class="node-name">GitHub Pages</span>
+            </span>
+          </div>
+          <figcaption>
+            Source:
+            <a href="https://github.com/roanboc/archreator/blob/main/example/docs/ea/5_technology/2_deployment.md">5_technology/2_deployment.md</a>
+            · pipeline:
+            <a href="https://github.com/roanboc/archreator/blob/main/.github/workflows/deploy-example-site.yml">deploy-example-site.yml</a>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section-tint">
+      <div class="wrap prose">
+        <h2 id="process" style="margin-top:0;border:0;padding-top:0">How this page came to exist</h2>
+        <p>
+          Built as one initiative, following <code>ea-first-change</code>.
+          The scope documents record the EA-alignment table, plateaus, work
+          packages, and the gaps deliberately left open:
+        </p>
+        <div class="callout">
+          <p>
+            <a href="https://github.com/roanboc/archreator/blob/main/example/docs/scope/1_publish-guidance-site.md">Scope 1 — Publish guidance site</a>
+            built the pages and the AI-actor model.
+            <br />
+            <a href="https://github.com/roanboc/archreator/blob/main/example/docs/scope/2_redesign-guidance-site.md">Scope 2 — Redesign guidance site</a>
+            gave it this design system and made the pages fully self-contained.
+          </p>
+        </div>
+        <div class="pill-row">
+          <a class="pill" href="./guide.html">← Back to the guide</a>
+          <a class="pill" href="https://github.com/roanboc/archreator">Use the template ↗</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>
+        Published from
+        <a href="https://github.com/roanboc/archreator/tree/main/example">example/</a>
+        in the archreator repository.
+      </span>
+      <span>
+        <a href="./index.html">Home</a> ·
+        <a href="./guide.html">Guide</a>
+      </span>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Walkthrough — archreator</title>
+  <meta name="description" content="Your first change, start to finish: one requirement climbing the five-layer ladder — exactly what you (Requester and Reviewer) do and what your AI Agent produces at each step." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='4' rx='1.5' fill='%237e57c2'/%3E%3Crect x='6' y='12' width='20' height='4' rx='1.5' fill='%23c8a24a'/%3E%3Crect x='6' y='18' width='20' height='4' rx='1.5' fill='%230288d1'/%3E%3Crect x='6' y='24' width='20' height='4' rx='1.5' fill='%23558b2f'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./index.html">
+        <svg class="logo" width="24" height="24" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="6" y="6" width="20" height="4" rx="1.5" fill="#7e57c2" />
+          <rect x="6" y="12" width="20" height="4" rx="1.5" fill="#c8a24a" />
+          <rect x="6" y="18" width="20" height="4" rx="1.5" fill="#0288d1" />
+          <rect x="6" y="24" width="20" height="4" rx="1.5" fill="#558b2f" />
+        </svg>
+        archreator
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="./start.html">Start here</a>
+        <a href="./guide.html">Guide</a>
+        <a class="hide-narrow" href="./walkthrough.html">Walkthrough</a>
+        <a class="hide-narrow" href="./architecture.html">Architecture</a>
+        <a class="nav-cta" href="https://github.com/roanboc/archreator">Use the template ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section style="padding-bottom:0">
+      <div class="wrap prose">
+        <span class="eyebrow">Watch a change climb the ladder</span>
+        <h1>Your first change, start to finish</h1>
+        <p class="lede">
+          One requirement, from "I want this" to a merged, deployed, documented
+          change — showing exactly what <strong>you</strong> (Requester and
+          Reviewer) do and what your <strong>AI Agent</strong> produces at each
+          step. Same steps whether the Agent is an AI or a person.
+        </p>
+        <div class="callout">
+          <p class="callout-label">The example we'll follow</p>
+          <p>
+            Say you want to add a short, plain-language <strong>FAQ</strong> to
+            this guidance site. Small, realistic, and it touches just enough
+            layers to see the shape. Watch where <span class="kind kind-ai">you barely do anything</span>
+            and where your review is the thing that matters.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding-top:clamp(1.5rem,4vw,2.5rem)">
+      <div class="wrap prose">
+        <div class="timeline">
+          <!-- Requirement -->
+          <div class="tl-step">
+            <span class="tl-marker" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 8l7-5 7 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <div class="tl-body">
+              <span class="tl-phase">Requirement</span>
+              <h3>You say what you want</h3>
+              <div class="actor-line"><span class="who you">Requester</span><span>"People keep asking the same handful of questions — let's add a short FAQ to the site." A need, not a diff.</span></div>
+              <div class="actor-line"><span class="who ai">Agent</span><span>Recognizes this as a change in requirements, so it does <em>not</em> jump to code. It opens the <code>ea-first-change</code> process.</span></div>
+              <p class="source-note"><a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/ea-first-change/SKILL.md">ea-first-change</a> · check the open-questions log first (this project keeps none, so there's nothing to reconcile)</p>
+            </div>
+          </div>
+
+          <!-- Layer 1 -->
+          <div class="tl-step" data-layer="motivation">
+            <span class="tl-marker" aria-hidden="true">1</span>
+            <div class="tl-body">
+              <span class="tl-phase">Layer 1 · Strategy &amp; Motivation</span>
+              <h3>Why does this exist? Does it hold up?</h3>
+              <div class="actor-line"><span class="who ai">Agent</span><span>Checks the requirement against the goals and Principles. An FAQ serves <strong>Goal G1 — legible guidance</strong>, and violates no Principle (it links to sources, it won't publish unreviewed).</span></div>
+              <div class="actor-line"><span class="who you">Requester</span><span>Confirm the "why." If the agent had found a Principle conflict, it would stop here and surface it to you instead of proceeding.</span></div>
+              <p class="source-note"><a href="https://github.com/roanboc/archreator/blob/main/example/docs/ea/1_strategy/1_motivation.md">1_strategy/1_motivation.md</a></p>
+            </div>
+          </div>
+
+          <!-- Layer 2 -->
+          <div class="tl-step" data-layer="business">
+            <span class="tl-marker" aria-hidden="true">2</span>
+            <div class="tl-body">
+              <span class="tl-phase">Layer 2 · Business</span>
+              <h3>Who does what, through which service?</h3>
+              <div class="actor-line"><span class="who ai">Agent</span><span>The FAQ is part of the existing <em>EA-first method guidance</em> service — no new actor, no new process. The <strong>Copilot</strong> drafts it at co-pilot autonomy; the <strong>Pilot</strong> reviews and merges.</span></div>
+              <p class="source-note"><a href="https://github.com/roanboc/archreator/blob/main/example/docs/ea/2_business/1_business-actors-and-roles.md">2_business/1_business-actors-and-roles.md</a></p>
+            </div>
+          </div>
+
+          <!-- Layer 3 -->
+          <div class="tl-step" data-layer="strategy">
+            <span class="tl-marker" aria-hidden="true">3</span>
+            <div class="tl-body">
+              <span class="tl-phase">Layer 3 · Information</span>
+              <h3>What information exists, and how does it persist?</h3>
+              <div class="actor-line"><span class="who ai">Agent</span><span>The FAQ is one more <em>Guidance page</em> data object — a <strong>derived</strong> view whose answers link back to the real skills/EA docs, never a second source of truth.</span></div>
+              <p class="source-note"><a href="https://github.com/roanboc/archreator/blob/main/example/docs/ea/3_information/1_data-objects.md">3_information/1_data-objects.md</a></p>
+            </div>
+          </div>
+
+          <!-- Layer 4 -->
+          <div class="tl-step" data-layer="application">
+            <span class="tl-marker" aria-hidden="true">4</span>
+            <div class="tl-body">
+              <span class="tl-phase">Layer 4 · Application</span>
+              <h3>Which components realize it?</h3>
+              <div class="actor-line"><span class="who ai">Agent</span><span>A new <code>faq.html</code> component (or a section on an existing page), sharing <code>styles.css</code> and fetching nothing at request time — matching the rest of the site.</span></div>
+              <p class="source-note"><a href="https://github.com/roanboc/archreator/blob/main/example/docs/ea/4_application/2_application-components.md">4_application/2_application-components.md</a></p>
+            </div>
+          </div>
+
+          <!-- Layer 5 -->
+          <div class="tl-step" data-layer="technology">
+            <span class="tl-marker" aria-hidden="true">5</span>
+            <div class="tl-body">
+              <span class="tl-phase">Layer 5 · Technology</span>
+              <h3>Any impact on how it runs?</h3>
+              <div class="actor-line"><span class="who ai">Agent</span><span><strong>No change</strong> — same GitHub Pages hosting, same Actions deploy. A layer with nothing to change still gets an explicit "no change"; silence isn't a decision.</span></div>
+              <p class="source-note"><a href="https://github.com/roanboc/archreator/blob/main/example/docs/ea/5_technology/1_technology-services.md">5_technology/1_technology-services.md</a></p>
+            </div>
+          </div>
+
+          <!-- Scope doc -->
+          <div class="tl-step">
+            <span class="tl-marker" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7 3h7l4 4v14H7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v4h4M9.5 12h5M9.5 15.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <div class="tl-body">
+              <span class="tl-phase">Record · before any code</span>
+              <h3>Write the scope document</h3>
+              <div class="actor-line"><span class="who ai">Agent</span><span>Writes the next-numbered <code>docs/scope/</code> doc: the five-layer verdict table above, plateaus, work packages, and — just as important — what's <em>out</em> of scope. This happens <strong>before</strong> implementation.</span></div>
+              <p class="source-note"><a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/scope-doc/SKILL.md">scope-doc</a></p>
+            </div>
+          </div>
+
+          <!-- Implement + verify -->
+          <div class="tl-step">
+            <span class="tl-marker" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m9 8-5 4 5 4M15 8l5 4-5 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <div class="tl-body">
+              <span class="tl-phase">Implement &amp; verify</span>
+              <h3>Only now, write the code</h3>
+              <div class="actor-line"><span class="who ai">Agent</span><span>Builds <code>faq.html</code>, keeping the EA and scope docs true to what's actually shipped. Then verifies: every element is named by a doc, every link resolves, the page renders.</span></div>
+              <p class="source-note">Grounding rule: every code artifact is named by a doc, every doc element names its code — see <a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/ea-doc-style/SKILL.md">ea-doc-style</a></p>
+            </div>
+          </div>
+
+          <!-- PR -->
+          <div class="tl-step">
+            <span class="tl-marker" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="6" cy="6" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="18" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="18" r="2.5" stroke="currentColor" stroke-width="2"/><path d="M6 8.5v7M18 15.5V12a4 4 0 0 0-4-4h-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <div class="tl-body">
+              <span class="tl-phase">Hand off</span>
+              <h3>Open a pull request</h3>
+              <div class="actor-line"><span class="who ai">Agent</span><span>Opens a PR whose description covers the <em>whole branch</em> and mirrors the scope doc's layer table — so the review is a quick yes/no, not archaeology.</span></div>
+              <p class="source-note"><a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/pr-description/SKILL.md">pr-description</a></p>
+            </div>
+          </div>
+
+          <!-- Review + merge -->
+          <div class="tl-step" data-layer="technology">
+            <span class="tl-marker" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12.5 10 17l9-10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <div class="tl-body">
+              <span class="tl-phase">Reviewer</span>
+              <h3>You review and merge</h3>
+              <div class="actor-line"><span class="who you">Reviewer</span><span>Read the PR, request changes or approve, and merge. <strong>This is the only step that ships anything</strong> — the agent has no merge rights. Speed with a seatbelt.</span></div>
+              <p class="source-note">Principle P2 — no unreviewed content reaches the public site (<a href="https://github.com/roanboc/archreator/blob/main/example/docs/decisions/1_docs-agent-autonomy.md">why the agent stops at co-pilot</a>)</p>
+            </div>
+          </div>
+
+          <!-- Deploy -->
+          <div class="tl-step">
+            <span class="tl-marker" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3c3 2 5 5 5 9l-5 3-5-3c0-4 2-7 5-9Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="10" r="1.6" fill="currentColor"/><path d="m9 17-2 4 5-2 5 2-2-4" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            </span>
+            <div class="tl-body">
+              <span class="tl-phase">Ship</span>
+              <h3>It deploys itself</h3>
+              <div class="actor-line"><span class="who ai">CI/CD</span><span>Merging to <code>main</code> triggers the Pages workflow; the FAQ is live minutes later. Your total hands-on: describe it, review it, merge it.</span></div>
+              <p class="source-note"><a href="https://github.com/roanboc/archreator/blob/main/example/docs/ea/5_technology/2_deployment.md">5_technology/2_deployment.md</a></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout principle">
+          <p class="callout-label">Not hypothetical</p>
+          <p>
+            This page you're reading was built exactly this way. Its real
+            paper trail — the layer verdicts, the deliverables, the gaps left
+            open — is
+            <a href="https://github.com/roanboc/archreator/blob/main/example/docs/scope/3_deepen-guidance-coverage.md">scope document 3</a>.
+            The process isn't a diagram about the work; it <em>is</em> the work.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Situational skills -->
+    <section class="section-tint">
+      <div class="wrap prose">
+        <div class="section-head" style="max-width:none">
+          <span class="eyebrow">Two skills for when it gets bigger</span>
+          <h2 style="margin:0">The happy path isn't the only path</h2>
+          <p>Most changes look like the walkthrough above. Two situations bend it — and each has a skill your agent reaches for automatically.</p>
+        </div>
+
+        <div class="callout" id="stack-selection">
+          <h3>
+            <span class="ic-badge" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 7 12 3l9 4-9 4-9-4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m3 12 9 4 9-4M3 17l9 4 9-4" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            </span>
+            stack-selection — you're at layer 5 with no stack chosen yet
+          </h3>
+          <p><strong>When it triggers:</strong> bootstrapping a brand-new project, or reaching the Technology layer of a small app and finding no runtime, hosting, or CI decision on record.</p>
+          <p><strong>What it does:</strong> instead of re-deriving a stack from scratch every time, it gives a decision framework with concrete defaults — <em>static-only</em> (GitHub / Cloudflare Pages, no backend) versus <em>needs data or auth</em> (managed Postgres + Auth like Supabase, hosted on Vercel) — and the reasoning for picking one.</p>
+          <p><strong>What it produces:</strong> a recorded choice in <code>docs/ea/5_technology/</code>, so the next change inherits it instead of re-litigating it. This very site took the static-only branch — <a href="./architecture.html#technology">see its Technology layer</a>.</p>
+          <p class="source-note"><a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/stack-selection/SKILL.md">stack-selection skill</a></p>
+        </div>
+
+        <div class="callout" id="story-sharding">
+          <h3>
+            <span class="ic-badge" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="13" y="4" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="8" y="14" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/></svg>
+            </span>
+            story-sharding — a work package too big for one sitting
+          </h3>
+          <p><strong>When it triggers:</strong> the scope document is written, but one of its work packages is too large or long-running to finish in a single session — the kind of thing where an agent (or a person) resuming later would have to re-derive the whole plan from the EA tree.</p>
+          <p><strong>What it does:</strong> shards that work package into small, self-contained <em>story files</em>, each carrying enough context to be picked up cold — adapted from <a href="https://github.com/bmadcode/BMAD-METHOD">BMAD-METHOD</a>'s context-engineered development.</p>
+          <p><strong>What it produces:</strong> a set of story files an agent or teammate can execute one at a time without losing the thread — so a big initiative survives being paused, handed off, or spread across many short sessions.</p>
+          <p class="source-note"><a href="https://github.com/roanboc/archreator/blob/main/.claude/skills/story-sharding/SKILL.md">story-sharding skill</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <div class="wrap">
+        <h2>That's the whole method.</h2>
+        <p class="lede" style="margin-inline:auto">You described a change and approved it. The ladder, the scope doc, and the paper trail happened around you — not in your way.</p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="https://github.com/roanboc/archreator">Use the template ↗</a>
+          <a class="btn btn-ghost" href="./architecture.html">See a finished example →</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>
+        Published from
+        <a href="https://github.com/roanboc/archreator/tree/main/example">example/</a>
+        in the archreator repository.
+      </span>
+      <span>
+        <a href="./index.html">Home</a> ·
+        <a href="./guide.html">Guide</a> ·
+        <a href="./architecture.html">Architecture</a>
+      </span>
+    </div>
+  </footer>
+</body>
+</html>
