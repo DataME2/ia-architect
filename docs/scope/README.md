@@ -53,8 +53,6 @@ the `decision-record` skill.
 
 ## Initiatives
 
-<!-- TEMPLATE — add one row per initiative as it's delivered. -->
-
 | #   | Scope document | Delivered as | Summary |
 | --- | --------------- | ------------ | ------- |
-|     |                 |              |         |
+| 1   | [1_bootstrap-strategy-and-business-architecture.md](./1_bootstrap-strategy-and-business-architecture.md) | branch `claude/new-session-oizu88` | Converts the Let'sDataTalk discovery document into `docs/ea/1_strategy/` and `docs/ea/2_business/`; no code yet |
