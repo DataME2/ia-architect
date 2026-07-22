@@ -1,12 +1,10 @@
 # CLAUDE.md
 
-<!--
-  TEMPLATE — replace this comment block and the placeholders below when you
-  bootstrap a new project from archreator. Keep the "rule that governs
-  everything else" section; it's the whole point of this template.
--->
-
-<One or two sentences: what this project is, what state it's in.>
+Let'sDataTalk is a multiclub, multitenant, AI-assisted platform centralizing
+player registration, finance, documents, and match-official management for
+football clubs in Australia and New Zealand, built around a single `Person`
+identity. It is pre-MVP: strategy and business architecture are drafted
+(see [`docs/ea/`](./docs/ea/README.md)); no application code exists yet.
 
 ## The rule that governs everything else
 
@@ -22,32 +20,31 @@ documented behavior can skip the alignment, but still keep the docs true.
 
 ## Layout
 
-<!-- Replace with the real source layout once the project has code, e.g.:
-- `src/` — ...
-- `tests/` — ...
--->
-
-- `docs/ea/` — the documentation home (numbered ArchiMate layers);
-  `docs/scope/` — one document per initiative.
+- `docs/ea/` — the documentation home (numbered ArchiMate layers, only
+  `1_strategy` and `2_business` populated so far); `docs/scope/` — one
+  document per initiative, plus `open-questions.md` (kept: the pilot club
+  and other stakeholders can't always be consulted synchronously);
+  `docs/decisions/` — kept: starts with the AI assistant's autonomy level.
 
 ## Commands
 
-<!-- Replace with the project's real commands once they exist, e.g.:
-```bash
-npm run lint
-npm run typecheck
-npm test
-npm run build
-```
-All of them must be green before pushing; CI runs the same.
--->
+No source code exists yet. This section, and `CONTRIBUTING.md`'s
+Development workflow, get filled in once a technology stack is chosen for
+the MVP-build initiative — see the `stack-selection` skill.
 
 ## Conventions
 
-<!-- Project-specific conventions go here as they're established —
-     glossary location, code language, naming rules, single point of
-     enforcement for business rules, etc. Keep this section short; link to
-     the EA docs for anything that has a canonical home there instead of
-     restating it. -->
-
+- Documentation language: **English**. The originating discovery document
+  was written in Spanish; EA docs, scope docs, commit messages, and future
+  code identifiers use the English terms established in
+  [`docs/ea/2_business/5_domain-context-and-rules.md`](./docs/ea/2_business/5_domain-context-and-rules.md)'s
+  glossary.
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, …).
+- The domain is centered on `Person`: a player, referee, coach, guardian,
+  and committee member are roles a `Person` can hold — never separate,
+  duplicated identities. See Principle P1 in
+  [`docs/ea/1_strategy/1_motivation.md`](./docs/ea/1_strategy/1_motivation.md).
+- The AI assistant only ever drafts, summarizes, or flags for a human — it
+  never approves documents, rejects players, changes debts, approves
+  payments, or promotes referees. See
+  [`docs/decisions/1_ai-assistant-autonomy-level.md`](./docs/decisions/1_ai-assistant-autonomy-level.md).

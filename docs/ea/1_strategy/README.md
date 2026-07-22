@@ -26,20 +26,15 @@ determines access", not "be secure").
 
 ## Layer view
 
-<!--
-  TEMPLATE — replace with the project's real stakeholder(s), driver(s),
-  goal, value stream, capability, and resource once known.
--->
-
 ```mermaid
 flowchart TB
-  stakeholder["«Stakeholder»<br><Who cares>"]:::motivation
-  driver["«Driver»<br><What pressures them>"]:::motivation
-  goal["«Goal»<br><What must become true>"]:::motivation
+  stakeholder["«Stakeholder»<br>Club admin staff,<br>families, referees, pilot club"]:::motivation
+  driver["«Driver»<br>Fragmented data across<br>SQUADI, sheets, email, WhatsApp"]:::motivation
+  goal["«Goal»<br>G1 Single identity per person"]:::motivation
 
-  vs["«Value Stream»<br><Stage 1 → Stage 2 → …>"]:::strategy
-  cap["«Capability»<br><What we must be able to do>"]:::strategy
-  res["«Resource»<br><What it's built with>"]:::strategy
+  vs["«Value Stream»<br>Discover → Profile → Unify →<br>Operate → Validate → Scale"]:::strategy
+  cap["«Capability»<br>C1 Identity & role management"]:::strategy
+  res["«Resource»<br>Pilot club's 3-year<br>historical dataset"]:::strategy
 
   stakeholder -->|concerned with| driver
   driver -->|influences| goal
@@ -50,3 +45,8 @@ flowchart TB
   classDef motivation fill:#e6d6f5,stroke:#7e57c2,color:#333
   classDef strategy fill:#f5deaa,stroke:#c8a24a,color:#333
 ```
+
+See [1_motivation.md](./1_motivation.md) for the full stakeholder/driver/goal/
+Principle set and
+[2_capabilities-and-resources.md](./2_capabilities-and-resources.md) for
+all ten capabilities.

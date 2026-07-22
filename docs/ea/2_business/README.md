@@ -36,21 +36,14 @@ values, consider a `decision-record` alongside the scope document.
 
 ## Layer view
 
-<!--
-  TEMPLATE — replace with the project's real actors, roles, services, and
-  business objects once known. Keep at least one actor's kind explicit
-  (Human/AI/Hybrid) even if every actor in this project turns out to be
-  human — an explicit "(Human)" beats a silent default.
--->
-
 ```mermaid
 flowchart TB
-  actorH["«Business Actor (Human)»<br><Who>"]:::business
-  actorAI["«Business Actor (AI)»<br><Who, and at what autonomy>"]:::business
-  role["«Business Role»<br><Role they play>"]:::business
-  svc["«Business Service»<br><What's offered>"]:::business
-  proc["«Business Process»<br><How it's delivered>"]:::business
-  obj["«Business Object»<br><What's handled>"]:::business
+  actorH["«Business Actor (Human)»<br>Registrar, Referee Coordinator,<br>Finance Admin, …"]:::business
+  actorAI["«Business Actor (AI)»<br>Assistant — advisory autonomy"]:::business
+  role["«Business Role»<br>Registration officer,<br>referee operations lead, …"]:::business
+  svc["«Business Service»<br>Player registration,<br>referee management, …"]:::business
+  proc["«Business Process»<br>Player registration process,<br>referee appointment process, …"]:::business
+  obj["«Business Object»<br>Person, Player Registration,<br>Match Official Appointment, …"]:::business
 
   actorH -->|assigned to| role
   actorAI -->|assigned to| role
@@ -60,6 +53,12 @@ flowchart TB
 
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
+
+See [1_business-actors-and-roles.md](./1_business-actors-and-roles.md) for
+the full actor/role table (20 human roles plus the AI Assistant),
+[2_business-services.md](./2_business-services.md) for all twelve
+services, and [4_business-objects.md](./4_business-objects.md) for the
+full object inventory.
 
 Every business service is realized by application services — the mapping is
 in [4_application/1_application-services.md](../4_application/1_application-services.md).

@@ -1,4 +1,4 @@
-# Enterprise Architecture — <Project Name>
+# Enterprise Architecture — Let'sDataTalk
 
 _[← Repository README](../../README.md) · [Scope documents](../scope/README.md)_
 
@@ -17,13 +17,19 @@ this order — strategy first, technology last — and captured in a
 
 ## Layers, in assessment order
 
-| #   | Layer                                       | ArchiMate viewpoint      | Answers                                                                       |
-| --- | -------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------ |
-| 1   | [1_strategy/](./1_strategy/README.md)       | Motivation + Strategy    | Why does this exist? Who cares? What capabilities and value stream?           |
-| 2   | [2_business/](./2_business/README.md)       | Business layer           | Who does what? Which services are offered, through which processes?          |
-| 3   | [3_information/](./3_information/README.md) | Passive structure (data) | What information exists, where does it live, how does it flow?               |
-| 4   | [4_application/](./4_application/README.md) | Application layer        | Which software services and components realize the business services?       |
-| 5   | [5_technology/](./5_technology/README.md)   | Technology layer         | What runs it all — runtimes, tooling, build, hosting, deployment?            |
+| #   | Layer                                       | ArchiMate viewpoint      | Answers                                                                       | Status |
+| --- | -------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------ | ------ |
+| 1   | [1_strategy/](./1_strategy/README.md)       | Motivation + Strategy    | Why does this exist? Who cares? What capabilities and value stream?           | Drafted |
+| 2   | [2_business/](./2_business/README.md)       | Business layer           | Who does what? Which services are offered, through which processes?          | Drafted |
+| 3   | [3_information/](./3_information/README.md) | Passive structure (data) | What information exists, where does it live, how does it flow?               | Not started |
+| 4   | [4_application/](./4_application/README.md) | Application layer        | Which software services and components realize the business services?       | Not started |
+| 5   | [5_technology/](./5_technology/README.md)   | Technology layer         | What runs it all — runtimes, tooling, build, hosting, deployment?            | Not started |
+
+Layers 3–5 have nothing to say yet: no MVP-build initiative has been
+scoped, so there is no data model, no code, and no stack to document (see
+[docs/scope/1_bootstrap-strategy-and-business-architecture.md](../scope/1_bootstrap-strategy-and-business-architecture.md)).
+Their folders keep the template's placeholder content until that
+initiative assesses them.
 
 Files inside each layer folder are numbered the same way; each layer README
 explains its own analysis order. Delivered initiatives (ArchiMate
@@ -70,31 +76,24 @@ relation types, the label is authoritative.
 
 ## Layered overview
 
-<!--
-  TEMPLATE — replace with the project's real stakeholders, goal, value
-  stream, business service(s), application component(s), and technology
-  node(s) once they're known. Keep the shape (one subgraph per layer, a
-  classDef per layer, ArchiMate relationship labels on the edges).
--->
-
 ```mermaid
 flowchart TB
   subgraph MOT["Motivation & Strategy"]
-    goal["«Goal»<br><Why this exists>"]:::motivation
-    vs["«Value Stream»<br><Stage 1 → Stage 2 → …>"]:::strategy
+    goal["«Goal»<br>G1 Single identity per person"]:::motivation
+    vs["«Value Stream»<br>Discover → Profile → Unify →<br>Operate → Validate → Scale"]:::strategy
   end
 
   subgraph BUS["Business layer"]
-    svc["«Business Service»<br><What's offered>"]:::business
-    actor["«Business Actor»<br><Who uses it>"]:::business
+    svc["«Business Service»<br>Player registration,<br>referee management, …"]:::business
+    actor["«Business Actor»<br>Club staff, families,<br>referees, Assistant (AI)"]:::business
   end
 
-  subgraph APP["Application layer"]
-    app["«Application Component»<br><What realizes the service>"]:::application
+  subgraph APP["Application layer — not started"]
+    app["«Application Component»<br>Pending — no MVP-build<br>initiative scoped yet"]:::application
   end
 
-  subgraph TEC["Technology layer"]
-    tech["«Node»<br><What it runs on>"]:::technology
+  subgraph TEC["Technology layer — not started"]
+    tech["«Node»<br>Pending — no stack<br>chosen yet"]:::technology
   end
 
   goal -->|realized by| vs
@@ -115,12 +114,17 @@ flowchart TB
 Top-down (recommended for newcomers — the same order as the folder numbers):
 [1_strategy/1_motivation.md](./1_strategy/1_motivation.md)
 → [1_strategy/3_value-stream.md](./1_strategy/3_value-stream.md)
+→ [2_business/1_business-actors-and-roles.md](./2_business/1_business-actors-and-roles.md)
 → [2_business/2_business-services.md](./2_business/2_business-services.md)
-→ [3_information/1_data-objects.md](./3_information/1_data-objects.md)
-→ [4_application/2_application-components.md](./4_application/2_application-components.md)
-→ [5_technology/2_deployment.md](./5_technology/2_deployment.md).
+→ [2_business/5_domain-context-and-rules.md](./2_business/5_domain-context-and-rules.md).
+Layers 3–5 (`3_information/1_data-objects.md`,
+`4_application/2_application-components.md`, `5_technology/2_deployment.md`)
+are not started yet — see the Status column above.
 
-Bottom-up (for developers verifying alignment): start from
-[4_application/2_application-components.md](./4_application/2_application-components.md),
-which links each component to its source file, then trace upward via the
-"realizes" relationships.
+Bottom-up (for developers verifying alignment, once layers 3–5 exist):
+start from `4_application/2_application-components.md`, which links each
+component to its source file, then trace upward via the "realizes"
+relationships. Until then, the business layer is the deepest verifiable
+point — every "Pending" row in
+[2_business/2_business-services.md](./2_business/2_business-services.md)
+is exactly what a future MVP-build initiative needs to resolve.
