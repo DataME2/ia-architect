@@ -24,15 +24,29 @@ Referee across both, simultaneously or over time.
 | ----- | ---- | ---- | ------- |
 | Club administrator | Human | **Club Admin** | Owns a club's tenant configuration, users, and branding |
 | Club officer | Human | **President** | Club leadership and oversight |
-| Club officer | Human | **Secretary** | Club records and governance administration |
+| Club officer | Human | **Vice President** | Deputizes for the President; club leadership continuity (Optional role) |
+| Club officer | Human | **Secretary / Member Protection Officer** | Club records and governance administration; club's member protection (child safety) officer |
 | Club officer | Human | **Treasurer** | Approves referee payment batches; owns overall club finance |
+| Club officer | Human | **Digital Technology Manager** | Club-side technology liaison; co-owns tenant configuration and data quality with Club Admin |
 | Registration officer | Human | **Registrar** | Reviews and approves season registrations, documents, and exceptions |
 | Football operations lead | Human | **Director of Football** | Team, category, and program structure |
+| Football operations lead | Human | **Head of Performance** | Player and team performance programs across football operations |
+| Football operations lead | Human | **Head of Community Football** | Community-level (grassroots/non-elite) football program structure |
 | Football operations lead | Human | **Head of Women's Football** | Women's program structure and oversight |
+| Football operations lead | Human | **Technical Director** | Coaching pathway and playing-technical standards across all programs |
 | Committee member | Human | **Committee Member** | Club governance decisions |
 | Committee member | Human | **Subcommittee Member** | Delegated governance within a subcommittee |
+| Committee member | Human | **Grants Committee Member** | Reviews and decides grant funding applications |
+| Committee member | Human | **Appeals Panel Member** | Reviews and decides appeals against registration or compliance decisions escalated by the Registrar or Finance Admin (see [open questions](../../scope/open-questions.md)) |
 | Finance officer | Human | **Finance Admin** | Day-to-day fees, payments, vouchers, and reconciliation |
+| Finance officer | Human | **Grants Coordinator** | Tracks grant funding applications and reporting; supports the Grants Committee |
 | Referee operations lead | Human | **Referee Coordinator** | Proposes designations, manages referee compliance and payment approval workflow |
+| Referee operations lead | Human | **Referee Coordinator Admin** | Administrative support for referee designations and compliance record-keeping, reporting to the Referee Coordinator |
+| Referee operations lead | Human | **Referee Admin Back-Up** | Back-up cover for referee administration when the Referee Coordinator/Admin is unavailable (Optional role) |
+| Compliance officer | Human | **Blue Card Administration** | Verifies and records Working with Children Checks for paid staff and volunteers (Queensland Blue Card and interstate equivalents — see [5_domain-context-and-rules.md](./5_domain-context-and-rules.md)) |
+| Compliance officer | Human | **Volunteer Coordinator** | Registers volunteer Persons and their roles; tracks their Working with Children Check compliance |
+| Welfare officer | Human | **Player Welfare Officer** | Player safeguarding and welfare concerns; escalation point for member protection issues |
+| Communications officer | Human | **Social Media Communication and Club Photographer** | Club social media content and match-day photography — supports the Communications business service |
 
 ## Football operations actors
 
@@ -40,6 +54,27 @@ Referee across both, simultaneously or over time.
 | ----- | ---- | ---- | ------- |
 | Team staff | Human | **Coach** | Team coaching; may also hold a referee or committee role |
 | Team staff | Human | **Team Manager** | Team-level administration |
+
+## Football program coordinators
+
+Category/age-group-level administration under a Football operations lead;
+each concerns the Player Registration business service
+([2_business-services.md](./2_business-services.md)) for its own program.
+
+| Actor | Kind | Role | Concern |
+| ----- | ---- | ---- | ------- |
+| Program coordinator | Human | **FQPL Mens and U23s Coordinator** | Football Queensland Premier League Men's and U23 team administration |
+| Program coordinator | Human | **Academy Coordinator (U13–U18)** | Academy program administration for U13–U18 age groups |
+| Program coordinator | Human | **Academy Assessment Coordinator** | Academy player assessment and selection administration |
+| Program coordinator | Human | **Academy Game Day Coordinator** | Academy match-day operations |
+| Program coordinator | Human | **Academy Coordinator (U8–U12 Junior)** | Academy program administration for U8–U12 junior age groups |
+| Program coordinator | Human | **Development Coordinator (U8–U12 Junior)** | Junior development program administration for U8–U12 |
+| Program coordinator | Human | **Masters Men Coordinator** | Masters men's team administration |
+| Program coordinator | Human | **Senior Metro Coordinator** | Senior metro competition team administration |
+| Program coordinator | Human | **Junior Metro Coordinator** | Junior metro competition team administration |
+| Program coordinator | Human | **Women's/Girls Teams Coordinator** | Women's and girls' team program administration |
+| Program coordinator | Human | **MiniRoos Coordinator** | MiniRoos (youngest participant) program administration |
+| Program coordinator | Human | **Little Stars and Rising Stars Coordinator** | Little Stars and Rising Stars program administration |
 
 ## Participant actors
 
@@ -68,13 +103,28 @@ this is set at **advisory** rather than a stronger autonomy level.
 
 ## Roles this project does not yet model
 
-Working with Children Check verification, banking-detail custody for minor
-referees, and association/federation-level actors (Football Queensland,
-Football Australia) are mentioned in the source discovery material as
-external constraints but are not modeled as actors here — they are open
-questions (see
+Banking-detail custody for minor referees and association/federation-level
+actors (Football Queensland, Football Australia) are mentioned in the
+source discovery material as external constraints but are not modeled as
+actors here — they are open questions (see
 [docs/scope/open-questions.md](../../scope/open-questions.md)) pending
-confirmation of exactly how they interact with the platform.
+confirmation of exactly how they interact with the platform. (Working with
+Children Check verification is now modeled — see the **Blue Card
+Administration** actor above and
+[5_domain-context-and-rules.md](./5_domain-context-and-rules.md).)
+
+The discovery document's full club org chart also names several purely
+facility, hospitality, and venue-operations roles — **Uniform Shop
+Coordinator**, **Grounds Coordinator**, **Grounds Maintenance**, **Club
+Physio**, **Strength and Conditioning Coach**, **Canteen Manager**,
+**Sponsorship Coordinator**, **Fundraising Coordinator**, **Venue Hire
+Coordinator**, **Events Coordinator**, **Club Facilities Coordinator**,
+**Bar Coordinator**, and **Cleaner**. None of their concerns touch a
+modeled capability (C1–C10,
+[1_strategy/2_capabilities-and-resources.md](../1_strategy/2_capabilities-and-resources.md)) —
+they are recorded here for completeness rather than modeled as actors, and
+would only need a row above if a future capability (e.g. venue/facility
+booking) brought them into the platform's scope.
 
 ## Mapping to the process roles
 

@@ -56,3 +56,4 @@ the `decision-record` skill.
 | #   | Scope document | Delivered as | Summary |
 | --- | --------------- | ------------ | ------- |
 | 1   | [1_bootstrap-strategy-and-business-architecture.md](./1_bootstrap-strategy-and-business-architecture.md) | branch `claude/new-session-oizu88` | Converts the Let'sDataTalk discovery document into `docs/ea/1_strategy/` and `docs/ea/2_business/`; no code yet |
+| 2   | [2_business-actors-and-open-questions.md](./2_business-actors-and-open-questions.md) | branch `claude/business-actors-pr-76khxv` | Expands business actors from a follow-up discovery document, adds referee-payment and WWCC business rules, corrects Stripe→Square, resolves 11 of 18 open questions; no code yet |

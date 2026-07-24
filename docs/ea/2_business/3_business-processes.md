@@ -39,7 +39,7 @@ flowchart LR
   total["Registration<br>total"]:::business
   plan["Payment plan<br>selected"]:::business
   installments["Installments<br>created"]:::business
-  paid["Paid via<br>provider (Stripe)"]:::business
+  paid["Paid via<br>provider (Square)"]:::business
   reconcile["Reconciled"]:::business
   balance["Balance & guardian<br>notified"]:::business
 

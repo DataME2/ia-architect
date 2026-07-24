@@ -64,6 +64,8 @@ material.
 | **Remittance** | The record of a referee payment batch actually paid out |
 | **Voucher** | A discount instrument applied to an invoice, including the PlayOn Sports Voucher |
 | **RAW / STAGING / Unified model** | The three stages historical data passes through during consolidation (see [3_business-processes.md](./3_business-processes.md#historical-data-consolidation-process)) |
+| **Working with Children Check (WWCC)** | A mandatory clearance for adults working with children in child-related sectors; state-specific in Australia (e.g. Queensland's Blue Card), verified in real time through state government online portals using the worker's clearance number, surname, and date of birth. New Zealand's equivalent is unconfirmed (open question 14, [docs/scope/open-questions.md](../../scope/open-questions.md)) |
+| **Appointing party** | Whichever body designates a referee to a match — the club itself, or an association/competition body (e.g. Football Queensland) — determines who is financially responsible for that designation (see BR16) |
 
 ## Business rules
 
@@ -88,6 +90,10 @@ get a row here, with rationale, before they get code (`ea-first-change`).
 | BR13 | A referee payment claim requires a verified match before it can be created | Referee finance | Prevents paying for unverified/undisputed matches |
 | BR14 | A referee cannot be paid twice for the same verified match | Referee finance | Prevents duplicate payment |
 | BR15 | The AI Assistant's output on any of the above never itself changes a status, approves a document, or executes a payment — only a human role does | Cross-cutting | Principle P3; see [1_business-actors-and-roles.md](./1_business-actors-and-roles.md#ai-actor) |
+| BR16 | The appointing party pays the referee: the club pays when the club made the designation; an association or government entity (e.g. Football Queensland) pays when it made the appointment | Referee finance | Stakeholder confirmation (see [docs/scope/open-questions.md](../../scope/open-questions.md)) |
+| BR17 | No referee payment claim is generated for a cancelled match | Referee finance | Stakeholder confirmation — no service was delivered, so no payment is owed |
+| BR18 | A referee payment claim for an abandoned match requires the referee's explanation of the reason for abandonment before it can be approved | Referee finance | Stakeholder confirmation — payment eligibility depends on why the match was abandoned |
+| BR19 | A paid or volunteer worker in a child-related role must hold a current Working with Children Check (state-specific, e.g. Queensland's "no card, no start" Blue Card requirement) before starting, verified through the relevant state government portal | Identity / compliance | Legal requirement in Australia; duty of care (see the **Blue Card Administration** actor, [1_business-actors-and-roles.md](./1_business-actors-and-roles.md)) |
 
 Rule parameters that vary by classification, competition, or season
 (availability weeks, decline-rate thresholds, confirmation/verification
