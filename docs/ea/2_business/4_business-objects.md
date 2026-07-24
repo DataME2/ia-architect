@@ -42,7 +42,9 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Guardianship** | The link between a minor Player and their Parent/Guardian |
 | **Fee / Invoice** | What a registration or program costs |
 | **Payment Plan / Installment** | How a fee is scheduled and paid down |
-| **Voucher** | A discount instrument, including the Queensland **PlayOn Sports Voucher** (A$200, tracked by code, beneficiary, value, issue/use dates, status, applied invoice, and duplicate risk) |
+| **Voucher Program** | A state government youth-sport discount scheme a club may choose to accept (e.g. Queensland Play On!/FairPlay, NSW Active and Creative Kids, SA Sports Vouchers, WA KidSport, Victoria Get Active Kids, Tasmania Ticket to Play), with jurisdiction, per-child value, frequency, and eligibility criteria; shared reference data, not tenant-owned, until a Club enables it |
+| **Club Voucher Program Enablement** | A Club's decision to accept a Voucher Program for its own invoices — records the Committee's approval and date (BR21); gates whether Finance Admin can apply that program's Vouchers |
+| **Voucher** | A discount instrument redeemed against an invoice under a Club's enabled Voucher Program (e.g. a Queensland Play On! voucher), tracked by code, beneficiary, value, issue/use dates, status, applied invoice, and duplicate risk |
 
 ## Match officials
 

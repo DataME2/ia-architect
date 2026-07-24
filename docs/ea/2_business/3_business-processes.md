@@ -48,6 +48,36 @@ flowchart LR
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
 
+## Voucher program enablement process
+
+```mermaid
+flowchart LR
+  publish["State government publishes<br>a Voucher Program<br>for the season"]:::business
+  propose["Finance Admin proposes<br>enabling it for the club"]:::business
+  approve["Committee<br>approves"]:::business
+  enabled["Program enabled<br>for the club"]:::business
+  apply["Finance Admin applies a<br>Voucher to an eligible<br>invoice"]:::business
+
+  publish --> propose --> approve --> enabled --> apply
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+A Voucher Program (see
+[4_business-objects.md](./4_business-objects.md#player-registration--finance))
+only becomes available to reduce a family's invoice once the club's
+Committee approves it — a Club governance decision, the same concern
+already held by the **Committee Member** role
+([1_business-actors-and-roles.md](./1_business-actors-and-roles.md)). A
+program the Committee has not (yet) approved is simply unavailable; it
+does not block or change any registration or payment plan already in
+progress (BR21,
+[5_domain-context-and-rules.md](./5_domain-context-and-rules.md)). New
+Zealand has no equivalent nationwide government voucher; comparable
+alternative funding (Tū Manawa Active Aotearoa, local council grants,
+gaming/philanthropic trusts) runs through the existing Grants Committee
+Member / Grants Coordinator roles instead of this process.
+
 ## Season competition setup process
 
 ```mermaid

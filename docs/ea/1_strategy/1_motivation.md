@@ -26,7 +26,12 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   season registrations are complete, and exactly what's missing (documents,
   payment, external registration) for the rest.
 - **G3 — Consolidated player finance control.** Fees, payment plans,
-  installments, vouchers (including the Queensland PlayOn Sports Voucher),
+  installments, vouchers (state government youth-sport voucher programs
+  such as Queensland's Play On!/FairPlay, NSW's Active and Creative Kids,
+  SA's Sports Vouchers, WA's KidSport, Victoria's Get Active Kids, and
+  Tasmania's Ticket to Play — each enabled for a club only with Committee
+  approval, see BR21 in
+  [2_business/5_domain-context-and-rules.md](../2_business/5_domain-context-and-rules.md)),
   and reconciliation are tracked in one place instead of across Stripe,
   Square, Xero, and spreadsheets.
 - **G4 — Full referee lifecycle management.** Classification history,

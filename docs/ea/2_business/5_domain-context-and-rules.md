@@ -67,7 +67,8 @@ material.
 | **Match** | A single fixture within a Competition, on the Competition Calendar, that a referee can be designated to and paid for |
 | **Claim** | A referee's request for payment for a verified match |
 | **Remittance** | The record of a referee payment batch actually paid out |
-| **Voucher** | A discount instrument applied to an invoice, including the PlayOn Sports Voucher |
+| **Voucher Program** | A state government (or other) youth-sport discount scheme a club may choose to accept for its invoices, subject to Committee approval (BR21) — e.g. Queensland Play On!/FairPlay, NSW Active and Creative Kids, SA Sports Vouchers, WA KidSport, Victoria Get Active Kids, Tasmania Ticket to Play |
+| **Voucher** | A discount instrument applied to an invoice, redeemed under a Committee-approved Voucher Program (BR21) |
 | **RAW / STAGING / Unified model** | The three stages historical data passes through during consolidation (see [3_business-processes.md](./3_business-processes.md#historical-data-consolidation-process)) |
 | **Working with Children Check (WWCC)** | A mandatory clearance for adults working with children in child-related sectors; state-specific in Australia (e.g. Queensland's Blue Card), verified in real time through state government online portals using the worker's clearance number, surname, and date of birth. New Zealand's equivalent is unconfirmed (open question 14, [docs/scope/open-questions.md](../../scope/open-questions.md)) |
 | **Appointing party** | Whichever body designates a referee to a match — the club itself, or an association/competition body (e.g. Football Queensland) — determines who is financially responsible for that designation (see BR16) |
@@ -100,13 +101,15 @@ get a row here, with rationale, before they get code (`ea-first-change`).
 | BR18 | A referee payment claim for an abandoned match requires the referee's explanation of the reason for abandonment before it can be approved | Referee finance | Stakeholder confirmation — payment eligibility depends on why the match was abandoned |
 | BR19 | A paid or volunteer worker in a child-related role must hold a current Working with Children Check (state-specific, e.g. Queensland's "no card, no start" Blue Card requirement) before starting, verified through the relevant state government portal | Identity / compliance | Legal requirement in Australia; duty of care (see the **Blue Card Administration** actor, [1_business-actors-and-roles.md](./1_business-actors-and-roles.md)) |
 | BR20 | A Match Official Appointment must reference a Match that exists in the club's Competition Calendar for the current Season | Referee appointment | Closes the gap between "Match played" ([3_business-processes.md](./3_business-processes.md#referee-appointment-process)) and where a Match actually comes from ([Season competition setup process](./3_business-processes.md#season-competition-setup-process)) — an appointment cannot be proposed for a fixture that was never entered/published |
+| BR21 | A Voucher Program cannot be applied to a club's invoices until the club's Committee approves it (Club Voucher Program Enablement) | Player finance / Club governance | Which discount programs a club participates in is a Club governance decision, not an automatic default — state programs carry different eligibility rules, values, and reimbursement mechanics the Committee must knowingly accept before families rely on them |
 
 Rule parameters that vary by classification, competition, association, or
 season (availability weeks, decline-rate thresholds, confirmation/verification
-hour limits, fee schedules, competition classification minimums) are
-**configuration data, not code** — see
+hour limits, fee schedules, competition classification minimums, voucher
+program values/frequency/eligibility) are **configuration data, not code**
+— see
 [1_strategy/2_capabilities-and-resources.md](../1_strategy/README.md)'s
-note on the Football Queensland pathway resource and the competitions-per-state
-resource, and
+note on the Football Queensland pathway resource, the competitions-per-state
+resource, and the state voucher-programs resource, and
 [docs/scope/open-questions.md](../../scope/open-questions.md) for the ones
 whose actual values are still unconfirmed.
