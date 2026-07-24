@@ -55,8 +55,9 @@ flowchart TB
 ```
 
 See [1_business-actors-and-roles.md](./1_business-actors-and-roles.md) for
-the full actor/role table (20 human roles plus the AI Assistant),
-[2_business-services.md](./2_business-services.md) for all twelve
+the full actor/role table (46 human roles, the AI Assistant, and the
+external Governing Body / Association actor),
+[2_business-services.md](./2_business-services.md) for all thirteen
 services, and [4_business-objects.md](./4_business-objects.md) for the
 full object inventory.
 

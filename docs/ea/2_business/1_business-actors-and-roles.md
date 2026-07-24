@@ -101,17 +101,35 @@ each concerns the Player Registration business service
 See [decision 1](../../decisions/1_ai-assistant-autonomy-level.md) for why
 this is set at **advisory** rather than a stronger autonomy level.
 
+## External actor
+
+Not a role a `Person` holds (the pattern every actor above follows) — an
+organisation external to every tenant, whose competition structure and
+calendar clubs consume rather than control.
+
+| Actor | Kind | Role | Concern |
+| ----- | ---- | ---- | ------- |
+| State/regional football association | Organisation (external) | **Governing Body / Association** | Defines competition structure, tiers, format, and publishes the season calendar for its jurisdiction (Football Queensland, Football NSW, Northern NSW Football, Capital Football, Football South Australia, Football West, New Zealand Football, …); shared reference data across every club in that jurisdiction, not owned by any one tenant (Principle P5 still applies to how a club's own Season Competition Entries are isolated) |
+
+Read-only, like every other external source in
+[5_domain-context-and-rules.md](./5_domain-context-and-rules.md#system-context)
+(Principle P2) — Let'sDataTalk consumes published competition/calendar data,
+it does not write back into an association's systems.
+
 ## Roles this project does not yet model
 
-Banking-detail custody for minor referees and association/federation-level
-actors (Football Queensland, Football Australia) are mentioned in the
-source discovery material as external constraints but are not modeled as
-actors here — they are open questions (see
+Banking-detail custody for minor referees is mentioned in the source
+discovery material as an external constraint but is not modeled as an
+actor here — it is an open question (see
 [docs/scope/open-questions.md](../../scope/open-questions.md)) pending
-confirmation of exactly how they interact with the platform. (Working with
+confirmation of exactly how it interacts with the platform. (Working with
 Children Check verification is now modeled — see the **Blue Card
 Administration** actor above and
-[5_domain-context-and-rules.md](./5_domain-context-and-rules.md).)
+[5_domain-context-and-rules.md](./5_domain-context-and-rules.md).) The
+Governing Body / Association is now modeled at the structural level
+(competition catalog and calendar, above); *how* its data actually reaches
+the platform (a live feed vs. manual/CSV entry, per association) is still
+open — see [open question #19](../../scope/open-questions.md).
 
 The discovery document's full club org chart also names several purely
 facility, hospitality, and venue-operations roles — **Uniform Shop
@@ -120,7 +138,7 @@ Physio**, **Strength and Conditioning Coach**, **Canteen Manager**,
 **Sponsorship Coordinator**, **Fundraising Coordinator**, **Venue Hire
 Coordinator**, **Events Coordinator**, **Club Facilities Coordinator**,
 **Bar Coordinator**, and **Cleaner**. None of their concerns touch a
-modeled capability (C1–C10,
+modeled capability (C1–C11,
 [1_strategy/2_capabilities-and-resources.md](../1_strategy/2_capabilities-and-resources.md)) —
 they are recorded here for completeness rather than modeled as actors, and
 would only need a row above if a future capability (e.g. venue/facility

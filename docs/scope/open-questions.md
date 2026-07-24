@@ -27,6 +27,7 @@ initiative more than this one.
 | 16 | What level of support will each club purchase? | None yet — commercial question, out of scope for the EA | [1_bootstrap-strategy-and-business-architecture.md](./1_bootstrap-strategy-and-business-architecture.md) |
 | 17 | What will the commercial pricing be? | None yet — commercial question, out of scope for the EA | [1_bootstrap-strategy-and-business-architecture.md](./1_bootstrap-strategy-and-business-architecture.md) |
 | 18 | What metrics will the pilot club accept as evidence of success? | None yet — candidate metrics listed in the discovery document (registration completeness, reconciliation time, referee coverage, …) are not yet confirmed as the agreed success criteria | [1_bootstrap-strategy-and-business-architecture.md](./1_bootstrap-strategy-and-business-architecture.md) |
+| 19 | Which Governing Body / Association does the pilot club's competitions actually run under, and is any machine-readable fixture feed available, or is manual/CSV entry the only option for the season calendar? | None yet — mirrors question #7's SQUADI/PlayFootball situation; CSV import assumed as the MVP mechanism until confirmed otherwise | [3_competitions-and-calendar-per-season.md](./3_competitions-and-calendar-per-season.md) |
 
 ## Resolved
 

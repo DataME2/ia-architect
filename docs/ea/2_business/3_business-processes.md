@@ -48,6 +48,30 @@ flowchart LR
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
 
+## Season competition setup process
+
+```mermaid
+flowchart LR
+  publish["Governing Body publishes<br>competition structure<br>& season calendar"]:::business
+  enter["Club enters team(s) into<br>competition(s) for the season"]:::business
+  calendar["Match calendar<br>populated"]:::business
+  ready["Matches available for<br>referee appointment"]:::business
+
+  publish --> enter --> calendar --> ready
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+The Governing Body / Association publishes competition structure (tiers,
+format) and the season calendar for its jurisdiction — read-only, like
+every other external source (Principle P2,
+[1_strategy/1_motivation.md](../1_strategy/README.md)). Until a live feed
+per association is confirmed (see
+[open question #19](../../scope/open-questions.md)), entry is manual or
+CSV-based, the same pattern as SQUADI/PlayFootball. This process is what
+populates the Match objects the Referee appointment process below
+designates referees to.
+
 ## Referee appointment process
 
 ```mermaid
@@ -65,6 +89,10 @@ flowchart LR
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
 
+A designation can only be proposed against a Match already in the club's
+Competition Calendar (see [Season competition setup
+process](#season-competition-setup-process) above, and BR20 in
+[5_domain-context-and-rules.md](./5_domain-context-and-rules.md)).
 Eligibility/conflict checks (deterministic, before any designation is
 proposed) block on: the referee playing in one of the two teams, a second
 simultaneous designation, insufficient classification, an active
