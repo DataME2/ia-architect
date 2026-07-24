@@ -29,6 +29,7 @@ flowchart LR
     sheets["Spreadsheets /<br>forms"]:::business
     pay["Stripe / Square"]:::business
     acct["Xero / accounting"]:::business
+    assoc["Governing Body /<br>Association<br>(competitions & calendar)"]:::business
   end
 
   ldt["Let'sDataTalk<br>platform"]:::business
@@ -60,6 +61,10 @@ material.
 | **Availability** | A referee's declared window of matches they can be designated to |
 | **Designation / Appointment** | The assignment of a referee (or Assistant Referee, Fourth Official, …) to a specific match |
 | **Decline rate** | The proportion of designations a referee declines, subject to a classification/competition-specific maximum |
+| **Governing Body / Association** | The external football association per state/region that defines competition structure and publishes the season calendar (Football Queensland, Football NSW, Northern NSW Football, Capital Football, Football South Australia, Football West, New Zealand Football, …) |
+| **Competition** | A named league or cup run by a Governing Body for a season, with a type, format, and tier — see [4_business-objects.md](./4_business-objects.md#competitions--calendar) |
+| **Competition Format** | How a Competition's rounds are structured: Knock Out, Round Robin, Double Round Robin, or Enhanced Round Robin (Fixed Number of Rounds or Full Rounds Only) |
+| **Match** | A single fixture within a Competition, on the Competition Calendar, that a referee can be designated to and paid for |
 | **Claim** | A referee's request for payment for a verified match |
 | **Remittance** | The record of a referee payment batch actually paid out |
 | **Voucher** | A discount instrument applied to an invoice, including the PlayOn Sports Voucher |
@@ -94,11 +99,14 @@ get a row here, with rationale, before they get code (`ea-first-change`).
 | BR17 | No referee payment claim is generated for a cancelled match | Referee finance | Stakeholder confirmation — no service was delivered, so no payment is owed |
 | BR18 | A referee payment claim for an abandoned match requires the referee's explanation of the reason for abandonment before it can be approved | Referee finance | Stakeholder confirmation — payment eligibility depends on why the match was abandoned |
 | BR19 | A paid or volunteer worker in a child-related role must hold a current Working with Children Check (state-specific, e.g. Queensland's "no card, no start" Blue Card requirement) before starting, verified through the relevant state government portal | Identity / compliance | Legal requirement in Australia; duty of care (see the **Blue Card Administration** actor, [1_business-actors-and-roles.md](./1_business-actors-and-roles.md)) |
+| BR20 | A Match Official Appointment must reference a Match that exists in the club's Competition Calendar for the current Season | Referee appointment | Closes the gap between "Match played" ([3_business-processes.md](./3_business-processes.md#referee-appointment-process)) and where a Match actually comes from ([Season competition setup process](./3_business-processes.md#season-competition-setup-process)) — an appointment cannot be proposed for a fixture that was never entered/published |
 
-Rule parameters that vary by classification, competition, or season
-(availability weeks, decline-rate thresholds, confirmation/verification
-hour limits, fee schedules) are **configuration data, not code** — see
+Rule parameters that vary by classification, competition, association, or
+season (availability weeks, decline-rate thresholds, confirmation/verification
+hour limits, fee schedules, competition classification minimums) are
+**configuration data, not code** — see
 [1_strategy/2_capabilities-and-resources.md](../1_strategy/README.md)'s
-note on the Football Queensland pathway resource, and
+note on the Football Queensland pathway resource and the competitions-per-state
+resource, and
 [docs/scope/open-questions.md](../../scope/open-questions.md) for the ones
 whose actual values are still unconfirmed.

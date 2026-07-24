@@ -22,7 +22,17 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | Object | What it represents |
 | ------ | -------------------- |
 | **Club / Organisation** | A tenant — the unit of logical data separation (Principle P5) |
-| **Season** | A club's operating period; registrations, fees, and referee designations are scoped to one |
+| **Season** | A club's operating period; registrations, fees, competition entries, and referee designations are scoped to one |
+
+## Competitions & calendar
+
+| Object | What it represents |
+| ------ | -------------------- |
+| **Governing Body / Association** | The external football association for a state/region (Football Queensland, Football NSW, Northern NSW Football, Capital Football, Football South Australia, Football West, New Zealand Football, …) that defines competition structure and publishes the season calendar; not a tenant — shared reference data across every club in its jurisdiction |
+| **Competition** | A named competition run by a Governing Body for a season (e.g. NPL Queensland, FQPL 1, Kappa Queensland Cup), with a type (Weekly Competition or Tournament), a format (Knock Out, Round Robin, Double Round Robin, or Enhanced Round Robin), and a tier/division |
+| **Season Competition Entry** | A club's team entered into a Competition for a given Season — links Club, Team, Competition, and Season |
+| **Match** | A single scheduled fixture between two teams within a Competition, with a date, venue, round, and status (scheduled, played, postponed, abandoned); what a Match Official Appointment designates a referee to, and what a Referee Payment Claim's verified match refers to |
+| **Competition Calendar** | The ordered set of Matches (rounds and dates) for a Competition in a Season |
 
 ## Player registration & finance
 
@@ -42,7 +52,7 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Official Classification / Classification History** | A referee's current and past classification on the Football Queensland pathway (MiniRefs 5.0 through FIFA Referee / AFC Elite), kept as history, never a single overwritten value |
 | **Fitness Test / Training Attendance / Course Completion** | Evidence that a referee meets the requirements for their classification and competition |
 | **Referee Availability** | A referee's declared availability window |
-| **Match Official Appointment** | A proposed, accepted, or declined designation to a match |
+| **Match Official Appointment** | A proposed, accepted, or declined designation to a **Match** (see Competitions & calendar, above) |
 | **Appointment Conflict** | A detected blocking conflict or warning for a proposed appointment (see [3_business-processes.md](./3_business-processes.md#referee-appointment-process)) |
 | **Referee Payment Claim** | A claim for payment tied to a verified match, moving through approval to a payment batch |
 

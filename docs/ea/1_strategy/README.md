@@ -49,4 +49,4 @@ flowchart TB
 See [1_motivation.md](./1_motivation.md) for the full stakeholder/driver/goal/
 Principle set and
 [2_capabilities-and-resources.md](./2_capabilities-and-resources.md) for
-all ten capabilities.
+all eleven capabilities.
