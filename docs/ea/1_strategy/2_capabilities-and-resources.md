@@ -34,6 +34,7 @@ What Let'sDataTalk must be able to do to realize the goals in
 | CSV import/export tooling | No official SQUADI or Football Australia API is available; C2/C4/C9 depend on CSV-based reconciliation rather than live integration |
 | Technology stack | Not yet chosen — see [5_technology](../5_technology/README.md) (not started) and the `stack-selection` skill when that layer is assessed |
 | Australian state government youth-sport voucher programs (discovery reference) | Six state programs catalogued: Queensland Play On!/FairPlay (up to A$200/child/financial year, low-income families), NSW Active and Creative Kids (2 × A$50/child/year, school-aged), SA Sports Vouchers (2 × A$100/child/calendar year, Reception–Year 9), WA KidSport (up to A$300/child aged 5–18, concession-card holders), Victoria Get Active Kids Voucher (up to A$200, concession-card holders), Tasmania Ticket to Play (2 × A$100/child aged 5–18, concession-card holders); source of the Voucher Program object C3 must encode as configuration data, not code, and of the per-club Committee approval gate (BR21, [2_business/5_domain-context-and-rules.md](../2_business/5_domain-context-and-rules.md)). New Zealand has no equivalent nationwide government voucher scheme — alternative funding (Tū Manawa Active Aotearoa, local council grants, gaming/philanthropic trusts) runs through the existing Grants Committee Member / Grants Coordinator roles instead of this resource (see [open question #20](../../scope/open-questions.md)) |
+| Voucher-program claim mechanisms (researched July 2026) | None of the six state programs exposes a general-purpose claims API at the pilot club's scale: QLD, SA, WA, Victoria, and Tasmania all require a human or CSV-upload interaction with a government-run provider portal to redeem a voucher and be reimbursed; NSW's Active and Creative Kids API exists but is restricted to organisations with 1,000+ under-18 members, which the pilot club (~700 seasonal registrations/year) does not meet. Source of Voucher Claim (C3) and the CSV/portal-based claim submission approach in the Voucher application and claim process ([2_business/3_business-processes.md](../2_business/3_business-processes.md#voucher-application-and-claim-process)); see [open question #21](../../scope/open-questions.md) on formally requesting dedicated API access |
 
 ## Courses of action
 
@@ -53,3 +54,18 @@ What Let'sDataTalk must be able to do to realize the goals in
   pilot stays on free or low-cost tiers where possible, with a deliberate
   decision point before moving to paid plans as volume grows — see
   [5_technology](../5_technology/README.md) once a stack is chosen.
+- **Two-track approach to government voucher integration.** No state
+  voucher program currently offers the pilot club a general claims API
+  (see the voucher-program claim mechanisms resource above), so C3 pursues
+  two tracks in parallel: (1) **pending, not started** — formally request
+  dedicated API/endpoint access from each state government administering
+  a voucher program, starting with the pilot club's own jurisdiction (see
+  [open question #21](../../scope/open-questions.md)); (2) **interim,
+  scoped for the MVP** — the Assistant (AI actor) verifies a Voucher code
+  against the issuing government's own public verification interface
+  (read-only, advisory — see decision
+  [2](../../decisions/2_ai-voucher-code-verification.md)) and records the
+  result before Finance Admin or Treasurer applies it (BR22, BR25,
+  [2_business/5_domain-context-and-rules.md](../2_business/5_domain-context-and-rules.md));
+  the actual reimbursement claim is still submitted through each
+  program's own CSV/portal mechanism until track 1 succeeds.

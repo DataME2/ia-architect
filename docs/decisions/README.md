@@ -16,3 +16,4 @@ Agent guidance: `.claude/skills/decision-record/`.
 | #   | Decision | Status | Touches |
 | --- | -------- | ------ | ------- |
 | 1   | [AI Assistant autonomy level](./1_ai-assistant-autonomy-level.md) | Accepted | [2_business/1_business-actors-and-roles.md#ai-actor](../ea/2_business/1_business-actors-and-roles.md#ai-actor) |
+| 2   | [AI Assistant's role in Voucher code verification](./2_ai-voucher-code-verification.md) | Accepted | [2_business/1_business-actors-and-roles.md#ai-actor](../ea/2_business/1_business-actors-and-roles.md#ai-actor), [2_business/5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md) (BR22, BR25) |
