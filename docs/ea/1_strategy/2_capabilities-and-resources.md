@@ -28,7 +28,7 @@ What Let'sDataTalk must be able to do to realize the goals in
 | -------- | ----- |
 | Pilot club's ≥3 years of historical data | Read-only access (Principle P2); the primary asset for validating C6, C8, C9 before wider rollout |
 | Football Queensland *Referee Pathway & Promotion Structure for Match Officials* | External reference document; source of the classification and administrative-requirement rules C4/C6 must encode as data, not code |
-| Stripe (initial payment provider) | First integration for C3; Square and Xero are deferred (see Courses of action) |
+| Square (initial payment provider) | First integration for C3, per pilot-club confirmation (supersedes the discovery document's original Stripe assumption — see [docs/scope/open-questions.md](../../scope/open-questions.md)); Xero is the next post-MVP priority for treasurer/accounting integration (see Courses of action) |
 | CSV import/export tooling | No official SQUADI or Football Australia API is available; C2/C4/C9 depend on CSV-based reconciliation rather than live integration |
 | Technology stack | Not yet chosen — see [5_technology](../5_technology/README.md) (not started) and the `stack-selection` skill when that layer is assessed |
 
@@ -39,10 +39,13 @@ What Let'sDataTalk must be able to do to realize the goals in
   dashboards (C6, C7, C8) → historical consolidation running alongside from
   the start (C9), since the pilot club's data is available immediately and
   profiling it early de-risks C2–C6.
-- **Defer direct external integrations.** SQUADI, PlayFootball, Football
-  Queensland, WhatsApp, Xero, Square, and Strava integrations are deferred
-  past the MVP (see [3_value-stream.md](./3_value-stream.md)); the MVP
-  relies on CSV import/export and supervised reconciliation instead.
+- **Defer direct external integrations except payments.** SQUADI,
+  PlayFootball, Football Queensland, WhatsApp, Xero, and Strava
+  integrations are deferred past the MVP (see
+  [3_value-stream.md](./3_value-stream.md)); the MVP relies on CSV
+  import/export and supervised reconciliation instead. Square (C3) is the
+  exception — it is the adopted first payment provider, integrated from
+  the MVP rather than deferred.
 - **Free/low-cost tiers first.** Infrastructure for the prototype and
   pilot stays on free or low-cost tiers where possible, with a deliberate
   decision point before moving to paid plans as volume grows — see
