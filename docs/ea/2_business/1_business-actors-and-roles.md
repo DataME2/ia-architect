@@ -96,10 +96,13 @@ each concerns the Player Registration business service
 
 | Actor | Kind | Role | Autonomy level | Decision rights | Escalation path |
 | ----- | ---- | ---- | --------------- | ---------------- | ----------------- |
-| Assistant | AI | **Data & Communications Assistant** | **Advisory** — suggests, drafts, and flags; a human decides and acts on everything it produces | May: validate data against deterministic rules and surface the result; classify and summarize pending cases; draft communications and generic-question answers; explain missing information; propose case priority. May **not**: approve identity documents, reject a player, modify a debt, approve or execute a payment, or promote a referee — ever, regardless of confidence (Principle P3) | Registrar (registration cases), Finance Admin (payment cases), Referee Coordinator (referee cases) — routed by case type; never resolves an ambiguous or out-of-policy case itself |
+| Assistant | AI | **Data & Communications Assistant** | **Advisory** — suggests, drafts, and flags; a human decides and acts on everything it produces | May: validate data against deterministic rules and surface the result; classify and summarize pending cases; draft communications and generic-question answers; explain missing information; propose case priority; verify a Voucher code against the issuing government's own public verification interface and record the result (BR25, read-only — Principle P2). May **not**: approve identity documents, reject a player, modify a debt, approve or execute a payment, promote a referee, or apply/generate a Voucher on an invoice (BR22) — ever, regardless of confidence (Principle P3) | Registrar (registration cases), Finance Admin or Treasurer (payment and voucher cases), Referee Coordinator (referee cases) — routed by case type; never resolves an ambiguous or out-of-policy case itself |
 
 See [decision 1](../../decisions/1_ai-assistant-autonomy-level.md) for why
-this is set at **advisory** rather than a stronger autonomy level.
+this is set at **advisory** rather than a stronger autonomy level, and
+[decision 2](../../decisions/2_ai-voucher-code-verification.md) for why
+Voucher code verification specifically stays inside that same advisory
+boundary.
 
 ## External actor
 

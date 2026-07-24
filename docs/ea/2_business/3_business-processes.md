@@ -48,6 +48,72 @@ flowchart LR
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
 
+## Voucher program enablement process
+
+```mermaid
+flowchart LR
+  publish["State government publishes<br>a Voucher Program<br>for the season"]:::business
+  propose["Finance Admin proposes<br>enabling it for the club"]:::business
+  approve["Committee<br>approves"]:::business
+  enabled["Program enabled<br>for the club"]:::business
+
+  publish --> propose --> approve --> enabled
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+A Voucher Program (see
+[4_business-objects.md](./4_business-objects.md#player-registration--finance))
+only becomes available to reduce a family's invoice once the club's
+Committee approves it — a Club governance decision, the same concern
+already held by the **Committee Member** role
+([1_business-actors-and-roles.md](./1_business-actors-and-roles.md)). A
+program the Committee has not (yet) approved is simply unavailable; it
+does not block or change any registration or payment plan already in
+progress (BR21,
+[5_domain-context-and-rules.md](./5_domain-context-and-rules.md)). New
+Zealand has no equivalent nationwide government voucher; comparable
+alternative funding (Tū Manawa Active Aotearoa, local council grants,
+gaming/philanthropic trusts) runs through the existing Grants Committee
+Member / Grants Coordinator roles instead of this process. Once a
+program is enabled, applying a specific Voucher to a specific Player's
+invoice, and claiming its value back from government, is the [Voucher
+application and claim process](#voucher-application-and-claim-process)
+below.
+
+## Voucher application and claim process
+
+```mermaid
+flowchart LR
+  verify["Voucher code verified<br>(Assistant, advisory, or<br>Finance Admin/Treasurer)"]:::business
+  apply["Finance Admin or Treasurer<br>applies the Voucher<br>to the invoice"]:::business
+  claim["Voucher Claim submitted<br>to the issuing government"]:::business
+  paid["Government pays<br>the club"]:::business
+  reconcile["Reconciled"]:::business
+
+  verify --> apply --> claim --> paid --> reconcile
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+A Voucher can only be applied once its code is verified (BR25) against
+the issuing government's own public verification interface and the
+result recorded — the Assistant (AI actor) may perform this check and
+surface the result, but it is advisory only; it never decides whether the
+Voucher is applied (Principle P3, decision
+[2](../../decisions/2_ai-voucher-code-verification.md)). Only Finance
+Admin or Treasurer may then generate the Voucher's application to the
+invoice (BR22) — separating the Committee's program-level approval
+([Voucher program enablement process](#voucher-program-enablement-process),
+BR21) from who actually executes it financially. Applying a Voucher
+creates a Voucher Claim the club submits to the issuing government for
+reimbursement, through that program's own CSV/portal mechanism — no state
+program currently exposes a general claims API at the pilot club's scale
+(see the voucher-program claim mechanisms resource in
+[1_strategy/2_capabilities-and-resources.md](../1_strategy/2_capabilities-and-resources.md)).
+BR23 and BR24 prevent claiming a Voucher that was never applied, or
+claiming the same Voucher twice.
+
 ## Season competition setup process
 
 ```mermaid
