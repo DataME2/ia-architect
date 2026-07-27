@@ -37,3 +37,10 @@ flowchart LR
 complete) before the end of Q4 2026 (Goal G6,
 [1_motivation.md](./1_motivation.md)); Scale follows once the pilot
 validates the approach.
+
+**Deferred capability:** C12 (Carnival & event management, Goal G7) is
+architected in this value stream's Unify/Operate shape but not built for
+the Q4 2026 MVP — see the adopted interpretation in
+[2_capabilities-and-resources.md](./2_capabilities-and-resources.md)'s
+Courses of action. It joins the platform in a later initiative once
+C1–C11 are live.

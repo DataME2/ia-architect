@@ -34,6 +34,15 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Match** | A single scheduled fixture between two teams within a Competition, with a date, venue, round, and status (scheduled, played, postponed, abandoned); what a Match Official Appointment designates a referee to, and what a Referee Payment Claim's verified match refers to |
 | **Competition Calendar** | The ordered set of Matches (rounds and dates) for a Competition in a Season |
 
+## Carnivals & grassroots events
+
+| Object | What it represents |
+| ------ | -------------------- |
+| **Carnival / Grassroots Event** | A one-off, often multi-club event (MiniRoos Invitational Carnival, Girls United Carnival, WinterFest, Pacific Championships, talent-ID tournament, …) with a type, format (round-robin, modified, or other), date(s), venue, hosting Club or Governing Body, participating Clubs, and a publication status (Draft/Published) — distinct from a **Competition**: short-lived, not season-long, and typically spans multiple clubs by design |
+| **Carnival Fixture** | A single scheduled match within a Carnival/Grassroots Event, between two participating Club/Team entries, with a date/time, venue, round, and result — separate from **Match** (season Competition Calendar) to avoid conflating a one-off carnival game with an ongoing league fixture, though both share the same referee eligibility/conflict rules (BR6–BR11, BR28) |
+| **Carnival Result** | The recorded outcome of a Carnival Fixture |
+| **Public Event View** | The account-free, published representation of a Carnival/Grassroots Event's schedule, draw, and results — club/team-level only by default (BR26); the specific, scoped exception to tenant isolation (Principle P6, BR27) |
+
 ## Player registration & finance
 
 | Object | What it represents |

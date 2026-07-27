@@ -28,6 +28,7 @@ instead of saying "Pending."
 | **Reporting & dashboards** | Club Admin, Treasurer, Registrar, Referee Coordinator, Super Admin | Registration, financial, and referee dashboards (C8) | — | Pending |
 | **Historical data consolidation** | Pilot club, Let'sDataTalk operator | Read-only extraction and RAW → STAGING → unified-model consolidation of the pilot club's historical data (C9) | [Historical data consolidation process](./3_business-processes.md#historical-data-consolidation-process) | Pending |
 | **Multitenant platform operations** | Super Admin, Club Admin | Tenant provisioning, role-based access, per-club configuration (C10) | — | Pending |
+| **Carnival & event management** | Events Coordinator, Referee Coordinator, Coach, Team Manager, Parent/Guardian, Player, General Public/Spectator | Creates and manages one-off, multi-club carnival/grassroots events (MiniRoos Invitational Carnivals, Girls United Carnivals, WinterFest, Pacific Championships, talent-ID tournaments), generates draws/fixtures, records results, and publishes an account-free public view — club/team-level schedule, draw, and results only, by default (C12) | [Carnival event lifecycle process](./3_business-processes.md#carnival-event-lifecycle-process) | Pending — deferred past the Q4 2026 MVP (see [1_strategy/2_capabilities-and-resources.md](../1_strategy/2_capabilities-and-resources.md)) |
 
 See the [application layer](../4_application/README.md) (not started,
 future `1_application-services.md`) for how these will be realized once

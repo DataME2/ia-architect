@@ -13,6 +13,7 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
 | Referees | Classification, availability, appointments, and payment are tracked separately even though they concern one person | No unified referee profile; conflicts between a person's player and referee roles aren't checked automatically |
 | Pilot club | Wants measurable proof that the platform reduces admin work and errors before recommending it further | Committed at least three years of historical data (~700 seasonal registrations/year) to validate against |
 | Let'sDataTalk (the vendor) | Needs a sellable, multitenant SaaS product across many AU/NZ clubs, not a one-off tool for a single club | Revenue depends on subscription and data-services income across multiple tenants |
+| General public, coaches, and parents following grassroots events; clubs and Football Queensland as event hosts | Regional carnivals and grassroots events (MiniRoos Invitational Carnivals, Girls United Carnivals, WinterFest, Pacific Championships, talent-ID tournaments) currently have no consolidated draw/schedule/results support, so families and the public rely on ad hoc social media posts and printed programs | These events span multiple clubs by design and are meant to be followed by people who don't have (and shouldn't need) a Let'sDataTalk account |
 
 ## Goals
 
@@ -46,6 +47,12 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   [decision 1](../../decisions/1_ai-assistant-autonomy-level.md).
 - **G6 — First live version before the end of Q4 2026,** validated on the
   pilot club before wider rollout.
+- **G7 — Carnival & grassroots event visibility.** Clubs (and Football
+  Queensland) can publish one-off, multi-club carnival and grassroots
+  events — draws, schedules, and results — and coaches, parents, and the
+  general public can follow them without a Let'sDataTalk account, without
+  exposing individual (especially minors') names by default. See
+  Principle P6 below.
 
 ## Principles
 
@@ -73,9 +80,21 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   another tenant. Every business and information-layer element that
   touches club data states how tenant isolation is enforced for it (or is
   explicitly out of scope until it does).
+- **P6 — Published event data is public by design; a scoped exception to
+  P5.** A carnival/grassroots event's schedule, draw, and results, once
+  published by its Event Coordinator, are visible to any visitor —
+  including unauthenticated ones — across every participating club, because
+  such events span multiple clubs by design and exist to be publicly
+  followed. This exception covers *only* that specific published, non-
+  personal content (BR26–BR27,
+  [2_business/5_domain-context-and-rules.md](../2_business/5_domain-context-and-rules.md));
+  a club's registration, finance, and compliance data remain fully
+  tenant-isolated under P5. See decision
+  [3](../../decisions/3_public-event-data-crosses-tenant-isolation.md).
 
 A proposed change that would give an AI actor authority to act on identity,
-payment, or promotion decisions without a human, or that would write to a
-club's production system without a scoped exception to P2, contradicts a
-Principle here — surface it instead of proceeding (`ea-first-change`,
-step 1).
+payment, or promotion decisions without a human, that would write to a
+club's production system without a scoped exception to P2, or that would
+publish personal/registration/finance data beyond what P6 explicitly
+carves out, contradicts a Principle here — surface it instead of
+proceeding (`ea-first-change`, step 1).

@@ -186,6 +186,40 @@ flowchart LR
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
 
+## Carnival event lifecycle process
+
+```mermaid
+flowchart LR
+  create["Events Coordinator<br>creates the event"]:::business
+  enter["Clubs enter<br>teams"]:::business
+  draw["Draw/fixtures<br>generated"]:::business
+  officiate["Match officials<br>appointed"]:::business
+  play["Fixtures<br>played"]:::business
+  record["Results<br>recorded"]:::business
+  publish["Public Event View<br>published"]:::business
+
+  create --> enter --> draw --> officiate --> play --> record --> publish
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+A Carnival/Grassroots Event is created and owned by an **Events
+Coordinator** at the hosting club or Governing Body (not a season
+Competition, and not tied to a single tenant — see
+[4_business-objects.md](./4_business-objects.md#carnivals--grassroots-events)).
+Match officials (Referee, Assistant Referee, Club Based Match Official,
+MiniRef) appointed to a Carnival Fixture go through the same eligibility
+and conflict checks as a season match (BR6–BR11, BR28,
+[5_domain-context-and-rules.md](./5_domain-context-and-rules.md)). Once
+the Events Coordinator publishes results, the event's Public Event View
+becomes visible to unauthenticated visitors across every participating
+club (Principle P6, BR27) — but shows club/team-level information only;
+individual player names are never published unless the Events Coordinator
+explicitly opts the event in as adult/open-age (BR26). Coaches, Team
+Managers, Parents/Guardians, and Players who already have an account can
+also just use it as usual; the public view exists for visitors who don't
+([1_business-actors-and-roles.md](./1_business-actors-and-roles.md#public-actor)).
+
 ## Historical data consolidation process
 
 ```mermaid
