@@ -22,6 +22,7 @@ What Let'sDataTalk must be able to do to realize the goals in
 | C9 | **Historical data consolidation** — read-only extraction of the pilot club's multi-year data into a RAW → STAGING → unified model pipeline | G6 |
 | C10 | **Multitenant platform operations** — tenant provisioning, role-based access control, per-club branding and season configuration, central super-administration | G1–G6 (cross-cutting) |
 | C11 | **Competition & calendar management** — maintain each governing association's competition catalog (tiers, format), each club's season entries into those competitions, and the resulting match calendar that referee appointment and team/registration structure depend on | G2, G4 |
+| C12 | **Carnival & event management** — create and manage one-off, multi-club carnival/grassroots events (draws or fixtures, results), and publish an account-free public view of them for coaches, parents, and the general public | G7 |
 
 ## Resources
 
@@ -35,6 +36,7 @@ What Let'sDataTalk must be able to do to realize the goals in
 | Technology stack | Not yet chosen — see [5_technology](../5_technology/README.md) (not started) and the `stack-selection` skill when that layer is assessed |
 | Australian state government youth-sport voucher programs (discovery reference) | Six state programs catalogued: Queensland Play On!/FairPlay (up to A$200/child/financial year, low-income families), NSW Active and Creative Kids (2 × A$50/child/year, school-aged), SA Sports Vouchers (2 × A$100/child/calendar year, Reception–Year 9), WA KidSport (up to A$300/child aged 5–18, concession-card holders), Victoria Get Active Kids Voucher (up to A$200, concession-card holders), Tasmania Ticket to Play (2 × A$100/child aged 5–18, concession-card holders); source of the Voucher Program object C3 must encode as configuration data, not code, and of the per-club Committee approval gate (BR21, [2_business/5_domain-context-and-rules.md](../2_business/5_domain-context-and-rules.md)). New Zealand has no equivalent nationwide government voucher scheme — alternative funding (Tū Manawa Active Aotearoa, local council grants, gaming/philanthropic trusts) runs through the existing Grants Committee Member / Grants Coordinator roles instead of this resource (see [open question #20](../../scope/open-questions.md)) |
 | Voucher-program claim mechanisms (researched July 2026) | None of the six state programs exposes a general-purpose claims API at the pilot club's scale: QLD, SA, WA, Victoria, and Tasmania all require a human or CSV-upload interaction with a government-run provider portal to redeem a voucher and be reimbursed; NSW's Active and Creative Kids API exists but is restricted to organisations with 1,000+ under-18 members, which the pilot club (~700 seasonal registrations/year) does not meet. Source of Voucher Claim (C3) and the CSV/portal-based claim submission approach in the Voucher application and claim process ([2_business/3_business-processes.md](../2_business/3_business-processes.md#voucher-application-and-claim-process)); see [open question #21](../../scope/open-questions.md) on formally requesting dedicated API access |
+| Regional carnivals and grassroots events (stakeholder-provided examples) | MiniRoos Invitational Carnivals (single-day, round-robin, club-hosted), Girls United Carnivals (modified-format, female football celebration carnivals in regions such as Brisbane, Townsville, and Hervey Bay through October–November), and other named events (WinterFest, Pacific Championships, talent-ID tournaments) hosted by local clubs and Football Queensland. No catalogued reference document exists yet for the full list and exact format rules per event type (unlike the *Australia Competitions per State* resource for C11) — source of the Carnival/Grassroots Event object (C12); see [open question #22](../../scope/open-questions.md) |
 
 ## Courses of action
 
@@ -50,6 +52,13 @@ What Let'sDataTalk must be able to do to realize the goals in
   import/export and supervised reconciliation instead. Square (C3) is the
   exception — it is the adopted first payment provider, integrated from
   the MVP rather than deferred.
+- **Carnival & event management (C12) is deferred past the Q4 2026 MVP.**
+  It is architected now (goal G7, this capability, the business layer
+  additions in [2_business/](../2_business/README.md)) so the public-access
+  model is designed alongside tenant isolation from the start rather than
+  bolted on later, but it builds after the season-long capabilities (C1–C11)
+  it partly reuses (e.g. referee eligibility checks) — adopted
+  interpretation, see [open question #24](../../scope/open-questions.md).
 - **Free/low-cost tiers first.** Infrastructure for the prototype and
   pilot stays on free or low-cost tiers where possible, with a deliberate
   decision point before moving to paid plans as volume grows — see

@@ -47,6 +47,18 @@ Referee across both, simultaneously or over time.
 | Compliance officer | Human | **Volunteer Coordinator** | Registers volunteer Persons and their roles; tracks their Working with Children Check compliance |
 | Welfare officer | Human | **Player Welfare Officer** | Player safeguarding and welfare concerns; escalation point for member protection issues |
 | Communications officer | Human | **Social Media Communication and Club Photographer** | Club social media content and match-day photography — supports the Communications business service |
+| Event operations lead | Human | **Events Coordinator** (a.k.a. Carnival Admin) | Creates and manages one-off, multi-club carnival/grassroots events (MiniRoos Invitational Carnivals, Girls United Carnivals, WinterFest, Pacific Championships, talent-ID tournaments): configures each event's Carnival Conditions, manages draws/fixtures and results, and publishes the public event view (Capability C12) |
+
+Events Coordinator is not necessarily a separate, dedicated person — a
+club may nominate anyone into the role for a given carnival, and in
+practice that is often whoever already holds **Registrar** or
+**Secretary** (both above) rather than a distinct hire. What matters is
+that exactly one `Person` is recorded as the **responsible person** for a
+given Carnival/Grassroots Event
+([4_business-objects.md](./4_business-objects.md#carnivals--grassroots-events))
+and holds the Events Coordinator role for it (Principle P1 — the same
+Person can simultaneously be Registrar and Events Coordinator for one
+event) — not that the role is filled by a fixed job title.
 
 ## Football operations actors
 
@@ -119,6 +131,21 @@ Read-only, like every other external source in
 (Principle P2) — Let'sDataTalk consumes published competition/calendar data,
 it does not write back into an association's systems.
 
+## Public actor
+
+Not a role a `Person` holds and not authenticated — anyone visiting a
+published carnival's public view, with no Let'sDataTalk account.
+
+| Actor | Kind | Role | Concern |
+| ----- | ---- | ---- | ------- |
+| Visitor (coach, parent, or anyone else) | Human, external, unauthenticated | **General Public / Spectator** | Follows a published carnival/grassroots event's schedule, draw, and results (club/team-level only by default, BR26) without needing an account |
+
+A Coach, Parent/Guardian, or Player who already has an account uses their
+existing login as usual; the public view exists specifically for the case
+this platform didn't previously cover — following an event across clubs
+without one (Principle P6,
+[1_strategy/1_motivation.md](../1_strategy/README.md)).
+
 ## Roles this project does not yet model
 
 Banking-detail custody for minor referees is mentioned in the source
@@ -135,17 +162,18 @@ the platform (a live feed vs. manual/CSV entry, per association) is still
 open — see [open question #19](../../scope/open-questions.md).
 
 The discovery document's full club org chart also names several purely
-facility, hospitality, and venue-operations roles — **Uniform Shop
-Coordinator**, **Grounds Coordinator**, **Grounds Maintenance**, **Club
-Physio**, **Strength and Conditioning Coach**, **Canteen Manager**,
-**Sponsorship Coordinator**, **Fundraising Coordinator**, **Venue Hire
-Coordinator**, **Events Coordinator**, **Club Facilities Coordinator**,
-**Bar Coordinator**, and **Cleaner**. None of their concerns touch a
-modeled capability (C1–C11,
+facility and hospitality roles — **Uniform Shop Coordinator**, **Grounds
+Coordinator**, **Grounds Maintenance**, **Club Physio**, **Strength and
+Conditioning Coach**, **Canteen Manager**, **Sponsorship Coordinator**,
+**Fundraising Coordinator**, **Venue Hire Coordinator**, **Club Facilities
+Coordinator**, **Bar Coordinator**, and **Cleaner**. None of their concerns
+touch a modeled capability (C1–C12,
 [1_strategy/2_capabilities-and-resources.md](../1_strategy/2_capabilities-and-resources.md)) —
 they are recorded here for completeness rather than modeled as actors, and
 would only need a row above if a future capability (e.g. venue/facility
-booking) brought them into the platform's scope.
+booking) brought them into the platform's scope. (**Events Coordinator**
+was on this list too, until carnival/grassroots event management became a
+modeled capability — see the actors table above.)
 
 ## Mapping to the process roles
 

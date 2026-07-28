@@ -34,11 +34,13 @@ flowchart LR
 
   ldt["Let'sDataTalk<br>platform"]:::business
   users["Club staff,<br>families, referees"]:::business
+  public["General public<br>(unauthenticated)"]:::business
 
   EXT -->|read-only extraction,<br>CSV import| ldt
   ldt -->|CSV export,<br>reconciliation exceptions| EXT
   users -->|registration, availability,<br>designations, payments| ldt
   ldt -->|dashboards, communications| users
+  ldt -->|published carnival schedules<br>& results, no login (P6)| public
 
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
@@ -72,6 +74,12 @@ material.
 | **Voucher Verification** | The check of a Voucher's code against its issuing government's own public interface before the Voucher is applied (BR25) |
 | **Voucher Claim** | The club's request to a Voucher Program's issuing government for reimbursement of an applied Voucher (BR23, BR24) |
 | **RAW / STAGING / Unified model** | The three stages historical data passes through during consolidation (see [3_business-processes.md](./3_business-processes.md#historical-data-consolidation-process)) |
+| **Carnival / Grassroots Event** | A one-off, often multi-club event (MiniRoos Invitational Carnival, Girls United Carnival, WinterFest, Pacific Championships, talent-ID tournament) — see [4_business-objects.md](./4_business-objects.md#carnivals--grassroots-events) |
+| **Carnival Conditions** | The event-specific rules (points system, tie-breakers, match format, eligibility, code of conduct) an Events Coordinator configures for one Carnival before publishing it (BR29) |
+| **Carnival Fixture** | A single scheduled match within a Carnival/Grassroots Event, distinct from a season **Match** |
+| **Ladder / Standings** | The computed points-table for a round-robin-format Carnival, derived from results using its Carnival Conditions |
+| **Responsible person** | The one Person recorded as accountable for a Carnival/Grassroots Event — holds the Events Coordinator role for it, whether or not they also hold Registrar, Secretary, or another club role (BR29) |
+| **Public Event View** | The account-free, published schedule/draw (date, time, venue), next-fixture, ladder, and results of a Carnival/Grassroots Event, club/team-level only by default (BR26) — the scoped public exception to tenant isolation (Principle P6, BR27) |
 | **Working with Children Check (WWCC)** | A mandatory clearance for adults working with children in child-related sectors; state-specific in Australia (e.g. Queensland's Blue Card), verified in real time through state government online portals using the worker's clearance number, surname, and date of birth. New Zealand's equivalent is unconfirmed (open question 14, [docs/scope/open-questions.md](../../scope/open-questions.md)) |
 | **Appointing party** | Whichever body designates a referee to a match — the club itself, or an association/competition body (e.g. Football Queensland) — determines who is financially responsible for that designation (see BR16) |
 
@@ -108,14 +116,20 @@ get a row here, with rationale, before they get code (`ea-first-change`).
 | BR23 | A Voucher Claim can only be submitted for a Voucher already applied to an invoice | Player finance | Prevents claiming reimbursement for a discount that was never actually granted (mirrors BR13) |
 | BR24 | A Voucher cannot be claimed from its issuing government more than once | Player finance | Prevents duplicate reimbursement from a government counterparty (mirrors BR14; distinct from BR4, which blocks applying one Voucher to two invoices) |
 | BR25 | A Voucher's code must be verified against the issuing government's public verification interface, with the result recorded, before it is applied to a Player's invoice | Player finance | Reduces the risk of applying a duplicate, expired, or invalid code; the check may be performed by the Assistant (AI, advisory — decision [2](../../decisions/2_ai-voucher-code-verification.md)), but the decision to apply the Voucher remains Finance Admin/Treasurer's alone (Principle P3, BR22) |
+| BR26 | A Carnival/Grassroots Event's Public Event View shows, at club/team level only: the fixture schedule and draw (date, kickoff time, and venue), each team's next unplayed fixture, the ladder/standings (where the format has one), and results. Individual player names are never published unless the Events Coordinator explicitly marks the event as adult/open-age and opts in per event | Carnival & event management | Adopted interpretation ([open question #23](../../scope/open-questions.md)); club/team-level detail is what coaches, parents, and the public actually asked to follow, while protecting minors' identity by default, in the spirit of Principle P4 |
+| BR27 | Once an Events Coordinator publishes a Carnival/Grassroots Event, its Public Event View is visible to unauthenticated visitors across every participating club — a scoped exception to tenant isolation for that specific published, non-personal content only | Carnival & event management | Principle P6; carnivals span multiple clubs by design and exist to be publicly followed — see decision [3](../../decisions/3_public-event-data-crosses-tenant-isolation.md) |
+| BR28 | A match official appointed to a Carnival Fixture goes through the same eligibility/conflict checks as a season Match Official Appointment (BR6–BR11) | Carnival & event management / Referee appointment | Consistency — a MiniRef or Club Based Match Official officiating a carnival fixture is still subject to the same role-conflict and competency rules as a season match |
+| BR29 | Only the Events Coordinator recorded as a Carnival/Grassroots Event's responsible person may create or change its Carnival Conditions — regardless of whether that Person also holds Registrar, Secretary, or another club role | Carnival & event management / Club governance | One accountable owner per event's rules, so the ladder's points system and other conditions can't be changed by whoever happens to be logged in; mirrors the BR21/BR22 pattern of naming exactly who may act |
 
-Rule parameters that vary by classification, competition, association, or
-season (availability weeks, decline-rate thresholds, confirmation/verification
-hour limits, fee schedules, competition classification minimums, voucher
-program values/frequency/eligibility) are **configuration data, not code**
-— see
+Rule parameters that vary by classification, competition, association,
+season, or event (availability weeks, decline-rate thresholds,
+confirmation/verification hour limits, fee schedules, competition
+classification minimums, voucher program values/frequency/eligibility,
+carnival/grassroots event type and format) are **configuration data, not
+code** — see
 [1_strategy/2_capabilities-and-resources.md](../1_strategy/2_capabilities-and-resources.md)'s
 note on the Football Queensland pathway resource, the competitions-per-state
-resource, and the state voucher-programs resource, and
+resource, the state voucher-programs resource, and the regional
+carnivals/grassroots events resource, and
 [docs/scope/open-questions.md](../../scope/open-questions.md) for the ones
 whose actual values are still unconfirmed.
