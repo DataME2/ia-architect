@@ -47,7 +47,18 @@ Referee across both, simultaneously or over time.
 | Compliance officer | Human | **Volunteer Coordinator** | Registers volunteer Persons and their roles; tracks their Working with Children Check compliance |
 | Welfare officer | Human | **Player Welfare Officer** | Player safeguarding and welfare concerns; escalation point for member protection issues |
 | Communications officer | Human | **Social Media Communication and Club Photographer** | Club social media content and match-day photography — supports the Communications business service |
-| Event operations lead | Human | **Events Coordinator** | Creates and manages one-off, multi-club carnival/grassroots events (MiniRoos Invitational Carnivals, Girls United Carnivals, WinterFest, Pacific Championships, talent-ID tournaments): draws/fixtures, results, and publishing the public event view (Capability C12) |
+| Event operations lead | Human | **Events Coordinator** (a.k.a. Carnival Admin) | Creates and manages one-off, multi-club carnival/grassroots events (MiniRoos Invitational Carnivals, Girls United Carnivals, WinterFest, Pacific Championships, talent-ID tournaments): configures each event's Carnival Conditions, manages draws/fixtures and results, and publishes the public event view (Capability C12) |
+
+Events Coordinator is not necessarily a separate, dedicated person — a
+club may nominate anyone into the role for a given carnival, and in
+practice that is often whoever already holds **Registrar** or
+**Secretary** (both above) rather than a distinct hire. What matters is
+that exactly one `Person` is recorded as the **responsible person** for a
+given Carnival/Grassroots Event
+([4_business-objects.md](./4_business-objects.md#carnivals--grassroots-events))
+and holds the Events Coordinator role for it (Principle P1 — the same
+Person can simultaneously be Registrar and Events Coordinator for one
+event) — not that the role is filled by a fixed job title.
 
 ## Football operations actors
 

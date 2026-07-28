@@ -191,14 +191,15 @@ flowchart LR
 ```mermaid
 flowchart LR
   create["Events Coordinator<br>creates the event"]:::business
+  configure["Carnival Conditions<br>configured"]:::business
   enter["Clubs enter<br>teams"]:::business
   draw["Draw/fixtures<br>generated"]:::business
   officiate["Match officials<br>appointed"]:::business
   play["Fixtures<br>played"]:::business
-  record["Results<br>recorded"]:::business
+  record["Results & ladder<br>recorded"]:::business
   publish["Public Event View<br>published"]:::business
 
-  create --> enter --> draw --> officiate --> play --> record --> publish
+  create --> configure --> enter --> draw --> officiate --> play --> record --> publish
 
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
@@ -207,11 +208,19 @@ A Carnival/Grassroots Event is created and owned by an **Events
 Coordinator** at the hosting club or Governing Body (not a season
 Competition, and not tied to a single tenant — see
 [4_business-objects.md](./4_business-objects.md#carnivals--grassroots-events)).
+Its responsible person — the same Events Coordinator, whether or not they
+also hold Registrar or Secretary — is the only one who may configure or
+later change its Carnival Conditions (points system/tie-breakers, match
+format, eligibility, code of conduct, and the BR26 public-names opt-in)
+(BR29,
+[5_domain-context-and-rules.md](./5_domain-context-and-rules.md#business-rules)).
 Match officials (Referee, Assistant Referee, Club Based Match Official,
 MiniRef) appointed to a Carnival Fixture go through the same eligibility
-and conflict checks as a season match (BR6–BR11, BR28,
-[5_domain-context-and-rules.md](./5_domain-context-and-rules.md)). Once
-the Events Coordinator publishes results, the event's Public Event View
+and conflict checks as a season match (BR6–BR11, BR28). As results come
+in, the ladder/standings recompute from the Carnival Conditions' points
+system for round-robin-format events. Once the Events Coordinator
+publishes, the event's Public Event View — fixture schedule and draw
+(date, time, venue), each team's next fixture, the ladder, and results —
 becomes visible to unauthenticated visitors across every participating
 club (Principle P6, BR27) — but shows club/team-level information only;
 individual player names are never published unless the Events Coordinator
