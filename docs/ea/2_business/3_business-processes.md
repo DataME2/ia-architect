@@ -151,6 +151,7 @@ flowchart LR
   pay["Payment<br>enabled"]:::business
 
   avail --> eligible --> propose --> respond --> play --> verify --> pay
+  respond -.->|appears in the referee's<br>own calendar| calendar["Calendar feed<br>updated"]:::business
 
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
@@ -168,6 +169,44 @@ limited travel time between matches, and excessive consecutive matches.
 Every exception is audited. See
 [5_domain-context-and-rules.md](./5_domain-context-and-rules.md) for the
 full rule table.
+
+## Calendar subscription process
+
+```mermaid
+flowchart LR
+  enable["Referee enables<br>calendar sync"]:::business
+  issue["Private feed URL<br>issued (tokenised)"]:::business
+  subscribe["Referee subscribes in<br>Gmail / Outlook / Apple"]:::business
+  accept["Appointment accepted<br>(or changed/cancelled)"]:::business
+  refresh["Calendar client<br>refreshes the feed"]:::business
+  shown["Appointment appears<br>in their own calendar"]:::business
+
+  enable --> issue --> subscribe
+  accept --> refresh --> shown
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+A Referee opts in and receives a private, unguessable feed URL they paste
+into whichever calendar they already use — Google/Gmail, Outlook/Microsoft
+365, or Apple Calendar all subscribe to the same standards-based iCalendar
+feed. **The calendar client pulls; Let'sDataTalk never holds a credential
+for, or writes into, anyone's personal calendar account** — so Principle P2
+holds with no exception (decision
+[4](../../decisions/4_calendar-distribution-by-feed-not-account-access.md)).
+
+A feed carries only that one Person's own appointments (BR30) and only
+non-personal match detail — competition, date/time, venue, and their own
+role — never another participant's personal data (BR32). The URL is a
+bearer credential, so it is revocable and rotatable on demand (BR31), and
+for a minor referee (MiniRef, Club Based Match Official) it is issued to
+the Guardian, consistent with the duty-of-care pattern in BR1 (BR33).
+
+The feed is a **convenience copy, never the source of truth**: the
+platform's own appointment record remains authoritative for eligibility,
+conflict checks (BR6–BR11), and payment (BR13) — a referee deleting an
+event from their personal calendar does not decline the designation
+([Referee appointment process](#referee-appointment-process)).
 
 ## Referee payment process
 

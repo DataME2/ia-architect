@@ -15,8 +15,9 @@ questions" section. 11 were answered by the pilot club/stakeholder in a
 follow-up discovery document (*Business Actors and Open Questions*) and are
 now recorded below in Resolved. Questions 19–21 were raised by later
 initiatives (competitions/calendar, voucher programs); questions 22–24 by
-the carnival/grassroots-events initiative, adopted without stakeholder
-confirmation in the same conversation that raised them.
+the carnival/grassroots-events initiative and 25–26 by the
+calendar-distribution initiative, adopted without stakeholder confirmation
+in the same conversation that raised them.
 
 ## Pending
 
@@ -35,6 +36,8 @@ confirmation in the same conversation that raised them.
 | 22 | What is the confirmed, complete catalog of regional carnivals/grassroots events (beyond MiniRoos Invitational Carnivals and Girls United Carnivals) and their exact format/Carnival Conditions rules (points system, tie-breakers, eligibility) — e.g. WinterFest, the Pacific Championships, and talent-ID tournaments? | None yet — MiniRoos Invitational Carnivals (single-day, round-robin) and Girls United Carnivals (modified format, regional, October–November) are detailed; the others are named only, and no default points-system/tie-breaker values are confirmed for any of them | [5_carnival-and-grassroots-event-visibility.md](./5_carnival-and-grassroots-event-visibility.md) |
 | 23 | Should a Carnival/Grassroots Event's public schedule/draw/results ever show individual (especially minors') player names by default, or is club/team-level information always the right default? | Adopted: club/team-level only by default, with an explicit per-event opt-in for adult/open-age events (BR26) | [5_carnival-and-grassroots-event-visibility.md](./5_carnival-and-grassroots-event-visibility.md) |
 | 24 | Is carnival/event management required for the Q4 2026 MVP launch, or is it architected now and built in a later initiative? | Adopted: architected now, built later — deferred past the Q4 2026 MVP alongside the other already-deferred integrations | [5_carnival-and-grassroots-event-visibility.md](./5_carnival-and-grassroots-event-visibility.md) |
+| 25 | For a referee who is a minor, should the calendar feed be issued to the Parent/Guardian rather than the referee directly — and does that match how the pilot club communicates with young match officials today? | Adopted: issued to the Guardian (BR33), mirroring BR1's duty-of-care pattern; unconfirmed against the club's actual practice | [6_calendar-distribution-for-referee-appointments.md](./6_calendar-distribution-for-referee-appointments.md) |
+| 26 | Will referees expect to act on an appointment *from* their calendar (accept/decline), i.e. is two-way sync via the Google Calendar API or Microsoft Graph eventually required? | Adopted: one-way only for now (BR34) — accepting/declining stays in the platform. Two-way sync would need a Principle P2 exception and a new decision superseding decision [4](../decisions/4_calendar-distribution-by-feed-not-account-access.md) | [6_calendar-distribution-for-referee-appointments.md](./6_calendar-distribution-for-referee-appointments.md) |
 
 ## Resolved
 

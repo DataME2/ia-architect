@@ -35,12 +35,14 @@ flowchart LR
   ldt["Let'sDataTalk<br>platform"]:::business
   users["Club staff,<br>families, referees"]:::business
   public["General public<br>(unauthenticated)"]:::business
+  cal["Referee's own calendar<br>(Gmail / Outlook / Apple)"]:::business
 
   EXT -->|read-only extraction,<br>CSV import| ldt
   ldt -->|CSV export,<br>reconciliation exceptions| EXT
   users -->|registration, availability,<br>designations, payments| ldt
   ldt -->|dashboards, communications| users
   ldt -->|published carnival schedules<br>& results, no login (P6)| public
+  cal -->|subscribes to and pulls<br>the referee's own ICS feed| ldt
 
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
@@ -80,6 +82,9 @@ material.
 | **Ladder / Standings** | The computed points-table for a round-robin-format Carnival, derived from results using its Carnival Conditions |
 | **Responsible person** | The one Person recorded as accountable for a Carnival/Grassroots Event — holds the Events Coordinator role for it, whether or not they also hold Registrar, Secretary, or another club role (BR29) |
 | **Public Event View** | The account-free, published schedule/draw (date, time, venue), next-fixture, ladder, and results of a Carnival/Grassroots Event, club/team-level only by default (BR26) — the scoped public exception to tenant isolation (Principle P6, BR27) |
+| **Calendar Subscription** | A Person's opt-in to receive their own appointments as an iCalendar feed, via a private tokenised URL their existing Google/Outlook/Apple calendar subscribes to (BR30, BR31) |
+| **Calendar Event** | The published iCalendar entry for one confirmed appointment — a convenience copy, never authoritative (BR34) |
+| **iCalendar / ICS feed** | The open RFC 5545 format and `webcal:` subscription convention every major calendar client consumes, letting one feed serve Gmail, Outlook, and Apple Calendar alike without a per-vendor integration |
 | **Working with Children Check (WWCC)** | A mandatory clearance for adults working with children in child-related sectors; state-specific in Australia (e.g. Queensland's Blue Card), verified in real time through state government online portals using the worker's clearance number, surname, and date of birth. New Zealand's equivalent is unconfirmed (open question 14, [docs/scope/open-questions.md](../../scope/open-questions.md)) |
 | **Appointing party** | Whichever body designates a referee to a match — the club itself, or an association/competition body (e.g. Football Queensland) — determines who is financially responsible for that designation (see BR16) |
 
@@ -120,6 +125,11 @@ get a row here, with rationale, before they get code (`ea-first-change`).
 | BR27 | Once an Events Coordinator publishes a Carnival/Grassroots Event, its Public Event View is visible to unauthenticated visitors across every participating club — a scoped exception to tenant isolation for that specific published, non-personal content only | Carnival & event management | Principle P6; carnivals span multiple clubs by design and exist to be publicly followed — see decision [3](../../decisions/3_public-event-data-crosses-tenant-isolation.md) |
 | BR28 | A match official appointed to a Carnival Fixture goes through the same eligibility/conflict checks as a season Match Official Appointment (BR6–BR11) | Carnival & event management / Referee appointment | Consistency — a MiniRef or Club Based Match Official officiating a carnival fixture is still subject to the same role-conflict and competency rules as a season match |
 | BR29 | Only the Events Coordinator recorded as a Carnival/Grassroots Event's responsible person may create or change its Carnival Conditions — regardless of whether that Person also holds Registrar, Secretary, or another club role | Carnival & event management / Club governance | One accountable owner per event's rules, so the ladder's points system and other conditions can't be changed by whoever happens to be logged in; mirrors the BR21/BR22 pattern of naming exactly who may act |
+| BR30 | A Calendar Subscription's feed contains only the subscribing Person's own appointments — never another Person's, and never a whole club's or competition's schedule | Calendar distribution | The feed URL is a bearer credential outside the platform's session control; scoping it to one Person keeps a leaked URL's blast radius to that Person's own commitments, and keeps tenant isolation (Principle P5) intact for everything else |
+| BR31 | A Calendar Subscription's feed URL is unguessable, and the subscriber may revoke or rotate it at any time, immediately invalidating the old URL | Calendar distribution | Anyone holding the URL can read the feed, so it must be treated as a credential — revocation is the only remedy once a URL leaks (e.g. a shared device, a forwarded email) |
+| BR32 | A Calendar Event carries only non-personal match detail — competition, date, time, venue, and the subscriber's own role — never another participant's, official's, or player's personal data | Calendar distribution / Privacy | The feed leaves the platform's access control behind and lands in a third-party calendar account; minimising its content is what keeps that transfer proportionate (Principle P4's spirit, for a destination the platform does not control) |
+| BR33 | For a referee who is a minor, the Calendar Subscription is issued to their Parent/Guardian, not to the minor directly | Calendar distribution / Duty of care | Mirrors BR1's duty-of-care pattern — a minor's schedule (where they will be, and when) is exactly the data a guardian should control the distribution of |
+| BR34 | The platform's own Match Official Appointment remains authoritative: a Calendar Event is a one-way convenience copy, and changing or deleting it in a personal calendar never accepts, declines, or cancels a designation | Calendar distribution / Referee appointment | Prevents a personal calendar edit from silently bypassing the eligibility and conflict checks (BR6–BR11) and the payment chain (BR13) that depend on the appointment's real status |
 
 Rule parameters that vary by classification, competition, association,
 season, or event (availability weeks, decline-rate thresholds,
