@@ -70,6 +70,8 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Match Official Appointment** | A proposed, accepted, or declined designation to a **Match** (see Competitions & calendar, above) |
 | **Appointment Conflict** | A detected blocking conflict or warning for a proposed appointment (see [3_business-processes.md](./3_business-processes.md#referee-appointment-process)) |
 | **Referee Payment Claim** | A claim for payment tied to a verified match, moving through approval to a payment batch |
+| **Calendar Subscription** | A Person's opt-in to receive their own appointments as an iCalendar feed, holding the tokenised private feed URL, who it was issued to (the Person, or their Guardian for a minor — BR33), its issue date, and its revoked/rotated status (BR31) |
+| **Calendar Event** | The published iCalendar representation of one confirmed appointment within a Calendar Subscription's feed — competition, date/time, venue, and the subscriber's own role only (BR32); a convenience copy of the authoritative Match Official Appointment, never a substitute for it |
 
 ## Compliance & communications
 
