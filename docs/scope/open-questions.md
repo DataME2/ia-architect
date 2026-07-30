@@ -17,7 +17,8 @@ now recorded below in Resolved. Questions 19–21 were raised by later
 initiatives (competitions/calendar, voucher programs); questions 22–24 by
 the carnival/grassroots-events initiative and 25–26 by the
 calendar-distribution initiative, adopted without stakeholder confirmation
-in the same conversation that raised them.
+in the same conversation that raised them. Question 27 was raised by the
+international-transfer-certificates initiative.
 
 ## Pending
 
@@ -38,6 +39,7 @@ in the same conversation that raised them.
 | 24 | Is carnival/event management required for the Q4 2026 MVP launch, or is it architected now and built in a later initiative? | Adopted: architected now, built later — deferred past the Q4 2026 MVP alongside the other already-deferred integrations | [5_carnival-and-grassroots-event-visibility.md](./5_carnival-and-grassroots-event-visibility.md) |
 | 25 | For a referee who is a minor, should the calendar feed be issued to the Parent/Guardian rather than the referee directly — and does that match how the pilot club communicates with young match officials today? | Adopted: issued to the Guardian (BR33), mirroring BR1's duty-of-care pattern; unconfirmed against the club's actual practice | [6_calendar-distribution-for-referee-appointments.md](./6_calendar-distribution-for-referee-appointments.md) |
 | 26 | Will referees expect to act on an appointment *from* their calendar (accept/decline), i.e. is two-way sync via the Google Calendar API or Microsoft Graph eventually required? | Adopted: one-way only for now (BR34) — accepting/declining stays in the platform. Two-way sync would need a Principle P2 exception and a new decision superseding decision [4](../decisions/4_calendar-distribution-by-feed-not-account-access.md) | [6_calendar-distribution-for-referee-appointments.md](./6_calendar-distribution-for-referee-appointments.md) |
+| 27 | Is the March 2019 *Guide to International Transfer Certificates* still Football Australia's current ITC process, given the national association rebranded from FFA to Football Australia in 2021, and does PlayFootball's self-registration questionnaire still trigger it the same way? | None yet — adopted as the current interpretation pending confirmation; the source document predates the rebrand | [7_international-transfer-certificates.md](./7_international-transfer-certificates.md) |
 
 ## Resolved
 

@@ -25,7 +25,11 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   (not yet drafted).
 - **G2 — Verifiable, complete registrations.** A club can always tell which
   season registrations are complete, and exactly what's missing (documents,
-  payment, external registration) for the rest.
+  payment, external registration) for the rest. "External registration" is
+  the FIFA/Football Australia International Transfer Certificate (ITC)
+  process for a Player whose immediately preceding registration was
+  overseas (BR35–BR38,
+  [2_business/5_domain-context-and-rules.md](../2_business/5_domain-context-and-rules.md)).
 - **G3 — Consolidated player finance control.** Fees, payment plans,
   installments, vouchers (state government youth-sport voucher programs
   such as Queensland's Play On!/FairPlay, NSW's Active and Creative Kids,

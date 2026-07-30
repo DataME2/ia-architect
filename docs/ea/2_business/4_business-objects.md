@@ -15,7 +15,7 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | ------ | -------------------- |
 | **Person** | The single identity behind every role — see Principle P1 ([1_strategy/1_motivation.md](../1_strategy/README.md)) |
 | **Person Role** | One role (player, referee, coach, guardian, committee member, …) a Person holds, at a club, for a season, with an effective date range |
-| **Person Document** | An identity or compliance document belonging to a Person (passport, birth certificate, visa, Working with Children Check evidence, …) |
+| **Person Document** | An identity or compliance document belonging to a Person (passport, birth certificate, visa, Working with Children Check evidence, Minor ITC Application supporting documents, …) |
 
 ## Organisation
 
@@ -44,6 +44,13 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Carnival Result** | The recorded outcome of a Carnival Fixture |
 | **Carnival Ladder / Standings** | The computed table of participating teams' points/position for a round-robin-format Carnival, derived from Carnival Results using that event's Carnival Conditions (points system, tie-breakers) |
 | **Public Event View** | The account-free, published representation of a Carnival/Grassroots Event: schedule and draw (date, kickoff time, and venue per fixture), each team's next unplayed fixture, the ladder/standings (where the format has one), and results — club/team-level only by default (BR26); the specific, scoped exception to tenant isolation (Principle P6, BR27) |
+
+## International transfers
+
+| Object | What it represents |
+| ------ | -------------------- |
+| **International Transfer Certificate (ITC)** | A certificate from a Player's former national association authorising their registration with a new one; required whenever the Player's immediately preceding registration was with a different national association (BR35), requested solely by Football Australia (BR38) — gates a Player Registration at status `PENDING_EXTERNAL_REGISTRATION` |
+| **Minor ITC Application** | One of six FIFA-prescribed application forms a Minor (ITC) — aged 10–17 — submits, matching a specific FIFA Art. 19 exception category, with supporting documentation, via the Member Federation, to obtain international clearance (BR37); a Minor under 10 is exempt entirely |
 
 ## Player registration & finance
 

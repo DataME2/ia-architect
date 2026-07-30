@@ -118,18 +118,21 @@ boundary.
 
 ## External actor
 
-Not a role a `Person` holds (the pattern every actor above follows) — an
-organisation external to every tenant, whose competition structure and
-calendar clubs consume rather than control.
+Not a role a `Person` holds (the pattern every actor above follows) —
+organisations external to every tenant: state/regional associations whose
+competition structure and calendar clubs consume, and the national
+association whose registration regulations and international transfer
+process clubs must comply with.
 
 | Actor | Kind | Role | Concern |
 | ----- | ---- | ---- | ------- |
-| State/regional football association | Organisation (external) | **Governing Body / Association** | Defines competition structure, tiers, format, and publishes the season calendar for its jurisdiction (Football Queensland, Football NSW, Northern NSW Football, Capital Football, Football South Australia, Football West, New Zealand Football, …); shared reference data across every club in that jurisdiction, not owned by any one tenant (Principle P5 still applies to how a club's own Season Competition Entries are isolated) |
+| State/regional football association | Organisation (external) | **Governing Body / Association** | Defines competition structure, tiers, format, and publishes the season calendar for its jurisdiction (Football Queensland, Football NSW, Northern NSW Football, Capital Football, Football South Australia, Football West, New Zealand Football, …); shared reference data across every club in that jurisdiction, not owned by any one tenant (Principle P5 still applies to how a club's own Season Competition Entries are isolated). Also each club's **Member Federation** — the intake point that receives Minor ITC Application forms and forwards International Transfer Certificate enquiries to Football Australia (BR35–BR38, [5_domain-context-and-rules.md](./5_domain-context-and-rules.md)) |
+| National football association | Organisation (external) | **Football Australia** | The sole Australian body authorised to request a Player's International Transfer Certificate (ITC) from their former national association (BR38); sets the National Registration Regulations (NRRs) that require a valid ITC before a player whose immediately preceding registration was overseas can register in Australia |
 
 Read-only, like every other external source in
 [5_domain-context-and-rules.md](./5_domain-context-and-rules.md#system-context)
-(Principle P2) — Let'sDataTalk consumes published competition/calendar data,
-it does not write back into an association's systems.
+(Principle P2) — Let'sDataTalk consumes published competition/calendar data
+and ITC outcomes, it does not write back into an association's systems.
 
 ## Public actor
 
