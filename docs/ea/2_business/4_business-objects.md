@@ -33,6 +33,8 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Season Competition Entry** | A club's team entered into a Competition for a given Season — links Club, Team, Competition, and Season |
 | **Match** | A single scheduled fixture between two teams within a Competition, with a date, venue, round, and status (scheduled, played, postponed, abandoned); what a Match Official Appointment designates a referee to, and what a Referee Payment Claim's verified match refers to |
 | **Competition Calendar** | The ordered set of Matches (rounds and dates) for a Competition in a Season |
+| **Playing Format** | The on-field rules an age group or competition is played under — players per side (e.g. MiniRoos 4v4, 7v7, 9v9), field and goal dimensions, ball size, match duration, and whether results/ladders are published at all. Authored by the Governing Body / Association and consumed as reference data; a Carnival's own Carnival Conditions may reference one instead of restating it |
+| **Competition Regulation** | A rule an association imposes on a Competition beyond its format — eligibility and age-dispensation rules, squad and interchange limits, finals qualification, forfeit and disciplinary consequences. Reference data authored by the association, and the material a future association tier would own centrally ([open question #31](../../scope/open-questions.md)) |
 
 ## Carnivals & grassroots events
 

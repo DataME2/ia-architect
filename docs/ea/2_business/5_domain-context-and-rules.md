@@ -67,6 +67,8 @@ material.
 | **Decline rate** | The proportion of designations a referee declines, subject to a classification/competition-specific maximum |
 | **Governing Body / Association** | The external football association per state/region that defines competition structure and publishes the season calendar (Football Queensland, Football NSW, Northern NSW Football, Capital Football, Football South Australia, Football West, New Zealand Football, …) |
 | **Competition** | A named league or cup run by a Governing Body for a season, with a type, format, and tier — see [4_business-objects.md](./4_business-objects.md#competitions--calendar) |
+| **Playing Format** | The on-field rules an age group or competition is played under — players per side (MiniRoos 4v4/7v7/9v9), field and goal size, ball size, match duration, and whether results are published; authored by the Governing Body / Association |
+| **Competition Regulation** | An association-imposed rule on a Competition beyond its format — eligibility, age dispensation, squad and interchange limits, finals qualification, forfeit and disciplinary consequences |
 | **Competition Format** | How a Competition's rounds are structured: Knock Out, Round Robin, Double Round Robin, or Enhanced Round Robin (Fixed Number of Rounds or Full Rounds Only) |
 | **Match** | A single fixture within a Competition, on the Competition Calendar, that a referee can be designated to and paid for |
 | **Claim** | A referee's request for payment for a verified match |

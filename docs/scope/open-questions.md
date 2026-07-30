@@ -19,11 +19,13 @@ international-transfer-certificates initiative.
 **A second stakeholder answering round (July 2026,
 [initiative 8](./8_stakeholder-answers-july-2026.md)) resolved eight more
 questions** — 6, 12, 18, 20, 23, 24, 25, and 26 — and partially answered
-question 1. It also raised three new ones (28–30), the first of which is
-**blocking for MVP scope**: the confirmed success metric depends on an
-integration that is currently deferred and has no API.
+question 1. It also raised three new ones (28–30). A follow-up strategy round
+([initiative 9](./9_staged-registration-and-governing-body-tier.md))
+then resolved 28 — the blocking MVP-scope conflict — with a staged
+registration ladder, and raised 31 on serving a governing body as a
+tenant.
 
-Nineteen of the thirty questions are now resolved.
+Twenty of the thirty-one questions are now resolved.
 
 ## Pending
 
@@ -37,9 +39,9 @@ Nineteen of the thirty questions are now resolved.
 | 21 | Which state government(s) will Let'sDataTalk formally request dedicated Voucher Program API/endpoint access from (a written request), in what order, and on what timeline? | None yet — a pending, unstarted outreach task; NSW is the only program with a documented API today, gated to organisations with 1,000+ under-18 members, which the pilot club does not meet | [4_voucher-programs-and-committee-approval.md](./4_voucher-programs-and-committee-approval.md) |
 | 22 | What is the confirmed, complete catalog of regional carnivals/grassroots events (beyond MiniRoos Invitational Carnivals and Girls United Carnivals) and their exact format/Carnival Conditions rules (points system, tie-breakers, eligibility) — e.g. WinterFest, the Pacific Championships, and talent-ID tournaments? | None yet — MiniRoos Invitational Carnivals (single-day, round-robin) and Girls United Carnivals (modified format, regional, October–November) are detailed; the others are named only, and no default points-system/tie-breaker values are confirmed for any of them | [5_carnival-and-grassroots-event-visibility.md](./5_carnival-and-grassroots-event-visibility.md) |
 | 27 | Is the March 2019 *Guide to International Transfer Certificates* still Football Australia's current ITC process, given the national association rebranded from FFA to Football Australia in 2021, and does PlayFootball's self-registration questionnaire still trigger it the same way? | None yet — adopted as the current interpretation pending confirmation; the source document predates the rebrand | [7_international-transfer-certificates.md](./7_international-transfer-certificates.md) |
-| 28 | The pilot club's confirmed measure of success is SQUADI/Football Australia registration synchronisation (Goal G6) — but that integration is deferred past the MVP and no official API exists. How is this reconciled? | **None yet — blocking for MVP scope.** Three candidate routes: (a) narrow the agreed success metric to something the MVP can deliver; (b) pull a CSV-based "assisted registration" flow into MVP scope, reducing the guardian's manual work without a live API; (c) formally pursue SQUADI/Football Australia API access, the way question 21 pursues voucher APIs. Recorded, not chosen | [8_stakeholder-answers-july-2026.md](./8_stakeholder-answers-july-2026.md) |
 | 29 | What artifact evidences the pilot club Committee's approval of a Voucher Program — meeting minutes, a signed motion, a recorded vote? | None yet — the *program* is confirmed (Queensland Play On!, question 20), but BR21's approval record has no defined evidentiary standard | [8_stakeholder-answers-july-2026.md](./8_stakeholder-answers-july-2026.md) |
 | 30 | Does the confirmed three-year retention period (BR40) apply uniformly, given Australian statutory minimums that may exceed it for financial/tax records and for child-safety (WWCC) records? | None yet — three years is recorded as the stated policy, but a flat rule may not be lawful for every record class. Needs a legal answer before any deletion job is built | [8_stakeholder-answers-july-2026.md](./8_stakeholder-answers-july-2026.md) |
+| 31 | If a governing body (e.g. Football Queensland) becomes a *customer* rather than only a data source, how is an association tier that can see across its member clubs reconciled with Principle P5 (strict tenant isolation)? | None yet — recorded as a Course of Action under consideration, not as architecture. Would need a nested/hierarchical tenancy model plus a scoped P5 exception in the pattern of P6, designed deliberately rather than discovered mid-build | [9_staged-registration-and-governing-body-tier.md](./9_staged-registration-and-governing-body-tier.md) |
 
 ## Resolved
 
@@ -64,3 +66,4 @@ Nineteen of the thirty questions are now resolved.
 | 24 | Is carnival/event management required for the Q4 2026 MVP? | **Confirmed: no** — deferred past the MVP, exactly as adopted. No change needed | [1_strategy/2_capabilities-and-resources.md](../ea/1_strategy/2_capabilities-and-resources.md) |
 | 25 | For a minor referee, should the calendar feed be issued to the Parent/Guardian? | **Confirmed: yes** (BR33). Context added: clubs currently rely on ad hoc channels, commonly WhatsApp groups, to reach young officials — which is what the Communications service (C7) and this feed together replace | [5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md) |
 | 26 | Is two-way calendar sync eventually required? | **Confirmed: no.** One-way stands (BR34). Two refinements came with the answer: the sync option is offered *at the point of accepting* a designation, and a referee who withdraws after accepting is responsible for removing the entry from their own calendar. A brief **reason** is required on decline or withdrawal — new rule BR42 and the Appointment Response object | [3_business-processes.md](../ea/2_business/3_business-processes.md), [5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md) |
+| 28 | How to reconcile the confirmed success metric (SQUADI/Football Australia registration sync) with that integration's deferral and the absence of an API? | **Resolved by staging, not by choosing between them.** Registration proves itself in three stages: (1) club-native "one-shot" — registration speed from the club's own perspective, demonstrable pre-MVP with no integration at all; (2) SQUADI synchronisation; (3) Football Australia including ITC. Only stage 1 is unconditional; stages 2–3 depend on API access that does not exist today, so the success outcome is the destination rather than the entry ticket | [1_strategy/2_capabilities-and-resources.md](../ea/1_strategy/2_capabilities-and-resources.md), [1_strategy/1_motivation.md](../ea/1_strategy/1_motivation.md) |

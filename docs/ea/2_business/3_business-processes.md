@@ -173,7 +173,8 @@ flowchart LR
 ```
 
 The Governing Body / Association publishes competition structure (tiers,
-format) and the season calendar for its jurisdiction — read-only, like
+format), its Competition Regulations and Playing Formats, and the season
+calendar for its jurisdiction — read-only, like
 every other external source (Principle P2,
 [1_strategy/1_motivation.md](../1_strategy/README.md)). Until a live feed
 per association is confirmed (see

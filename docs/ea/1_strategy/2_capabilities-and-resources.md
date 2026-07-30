@@ -21,7 +21,7 @@ What Let'sDataTalk must be able to do to realize the goals in
 | C8 | **Reporting & dashboards** — registration, financial, and referee dashboards for administrative decisions | G2, G3, G4 |
 | C9 | **Historical data consolidation** — read-only extraction of the pilot club's multi-year data into a RAW → STAGING → unified model pipeline | G6 |
 | C10 | **Multitenant platform operations** — tenant provisioning, role-based access control, per-club branding and season configuration, central super-administration | G1–G6 (cross-cutting) |
-| C11 | **Competition & calendar management** — maintain each governing association's competition catalog (tiers, format), each club's season entries into those competitions, and the resulting match calendar that referee appointment and team/registration structure depend on | G2, G4 |
+| C11 | **Competition & calendar management** — maintain each governing association's competition catalog (tiers, format), its **Competition Regulations and Playing Formats** (small-sided rules, field and ball dimensions, match duration, squad sizes per age group), each club's season entries into those competitions, and the resulting match calendar that referee appointment and team/registration structure depend on | G2, G4 |
 | C12 | **Carnival & event management** — create and manage one-off, multi-club carnival/grassroots events (draws or fixtures, results), and publish an account-free public view of them for coaches, parents, and the general public | G7 |
 | C13 | **Calendar distribution** — publish a Person's own confirmed commitments (initially referee appointments) as a standards-based calendar feed their existing Gmail, Outlook, or Apple calendar subscribes to, so appointments, changes, and cancellations appear in the calendar they already use | G4, G5 |
 
@@ -57,18 +57,27 @@ What Let'sDataTalk must be able to do to realize the goals in
   exception — it is the adopted first payment provider, integrated from
   the MVP rather than deferred.
 
-  > **⚠ Unresolved tension (July 2026).** The pilot club has since
-  > confirmed that its measure of success *is* SQUADI/Football Australia
-  > registration synchronisation (Goal G6,
-  > [1_motivation.md](./1_motivation.md)). Deferring that integration and
-  > claiming pilot success are currently incompatible, and no official API
-  > exists to build it against. Three ways out — narrow the success
-  > metric, pull a CSV-based "assisted registration" flow into MVP scope,
-  > or formally pursue SQUADI API access the way
-  > [open question #21](../../scope/open-questions.md) pursues voucher
-  > APIs — are set out in [open question #27](../../scope/open-questions.md).
-  > This course of action stands until that question is answered; it is
-  > flagged rather than silently rewritten.
+  > **Resolved by the staged registration ladder (below).** The apparent
+  > conflict with Goal G6's success outcome — SQUADI/Football Australia
+  > synchronisation — is settled by *sequencing* rather than by rewriting
+  > either the metric or this deferral: stage 1 proves the value without
+  > any integration at all, and stages 2–3 add the integrations if and when
+  > access exists.
+- **Registration proves itself in three stages, and only stage 1 is
+  unconditional.** Adopted July 2026 to resolve what was
+  [open question #27](../../scope/open-questions.md):
+
+  | Stage | What it proves | Depends on |
+  | ----- | -------------- | ---------- |
+  | **1 — Club-native ("one-shot")** | How fast a registration can be completed from the *club's* perspective, following the club's own registration process end to end. Demonstrable **pre-MVP**, on the pilot club's real historical data, with no external integration whatsoever | Nothing external — this is why it is the stage the project commits to |
+  | **2 — SQUADI synchronisation** | The same registration flowing through to SQUADI, removing the duplicate entry a parent or guardian performs manually today | SQUADI API access, which does not exist today (see the CSV import/export resource, and [open question #19](../../scope/open-questions.md)) |
+  | **3 — Football Australia** | National-level registration, including the ITC path for players arriving from overseas (BR35–BR38) | Football Australia access, and stage 2 in place |
+
+  Staging this way means the pilot club can see and judge the core benefit
+  — speed of registration — **before** any API negotiation succeeds or
+  fails, while keeping its stated success outcome (Goal G6) intact as the
+  destination rather than the entry ticket. Stages 2 and 3 remain
+  conditional and are not promised on the Q4 2026 timeline.
 - **Carnival & event management (C12) is deferred past the Q4 2026 MVP.**
   It is architected now (goal G7, this capability, the business layer
   additions in [2_business/](../2_business/README.md)) so the public-access
@@ -87,6 +96,28 @@ What Let'sDataTalk must be able to do to realize the goals in
   a P2 exception) is deliberately deferred — see decision
   [4](../../decisions/4_calendar-distribution-by-feed-not-account-access.md)
   and [open question #26](../../scope/open-questions.md).
+- **A governing-body tier is a strategic option, not a committed
+  direction.** If Let'sDataTalk reaches decision-makers at a governing
+  entity (Football Queensland is the named example), the multitenant
+  architecture could serve the *association* as the customer — the
+  association driving registration across its member clubs, and owning
+  Competition Regulations and Playing Formats centrally rather than each
+  club holding its own copy. Commercially this is the largest available
+  move: it converts a per-club sale into a jurisdiction-wide one, and it
+  makes the association the authority for exactly the reference data
+  (regulations, playing formats, competition structure) that clubs
+  currently re-key.
+
+  It is recorded here as a **Course of Action under consideration**, not
+  as architecture, because it is conditional on access this project does
+  not yet have — and because it collides with a Principle. An association
+  tenant that can see across its member clubs is precisely what
+  **Principle P5 (strict tenant isolation)** forbids today. Serving it
+  needs an *association-tier tenancy model* — nested or hierarchical
+  tenancy, with a scoped exception like P6's — designed deliberately
+  rather than discovered mid-build. See
+  [open question #31](../../scope/open-questions.md); nothing in the
+  current business layer assumes this tier exists.
 - **Free/low-cost tiers first.** Infrastructure for the prototype and
   pilot stays on free or low-cost tiers where possible, with a deliberate
   decision point before moving to paid plans as volume grows — see

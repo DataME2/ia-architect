@@ -13,6 +13,7 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
 | Referees | Classification, availability, appointments, and payment are tracked separately even though they concern one person | No unified referee profile; conflicts between a person's player and referee roles aren't checked automatically |
 | Pilot club | Wants measurable proof that the platform reduces admin work and errors before recommending it further | Committed at least three years of historical data (~700 seasonal registrations/year) to validate against |
 | Let'sDataTalk (the vendor) | Needs a sellable, multitenant SaaS product across many AU/NZ clubs, not a one-off tool for a single club | Revenue depends on subscription and data-services income across multiple tenants |
+| Governing bodies / state associations (Football Queensland the named example) — **prospective customer, not yet engaged** | Would want jurisdiction-wide control of Competition Regulations, Playing Formats, and the registration process its member clubs follow, rather than each club re-keying the same reference data | Currently modeled only as an external, read-only data source ([2_business/1_business-actors-and-roles.md](../2_business/1_business-actors-and-roles.md)). Serving one as a *tenant* would need an association tier that can see across member clubs — which Principle P5 forbids today; see [open question #31](../../scope/open-questions.md) |
 | General public, coaches, and parents following grassroots events; clubs and Football Queensland as event hosts | Regional carnivals and grassroots events (MiniRoos Invitational Carnivals, Girls United Carnivals, WinterFest, Pacific Championships, talent-ID tournaments) currently have no consolidated draw/schedule/results support, so families and the public rely on ad hoc social media posts and printed programs | These events span multiple clubs by design and are meant to be followed by people who don't have (and shouldn't need) a Let'sDataTalk account |
 
 ## Goals
@@ -54,12 +55,15 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   (stakeholder, July 2026):** the pilot club judges success primarily by
   whether the platform can *synchronise registration with SQUADI and
   Football Australia* — today a parent or guardian must complete that
-  registration themselves, which is complicated and time-consuming. See
-  [open question #27](../../scope/open-questions.md): this outcome depends
-  on an integration currently deferred past the MVP, with no official API
-  available (see the Courses of action in
-  [2_capabilities-and-resources.md](./2_capabilities-and-resources.md)) —
-  the tension is recorded, not yet resolved.
+  registration themselves, which is complicated and time-consuming.
+  **How that outcome is reached is staged** (adopted July 2026): stage 1
+  demonstrates registration speed from the club's own perspective with no
+  external integration at all — provable pre-MVP; stage 2 adds SQUADI
+  synchronisation; stage 3 adds Football Australia, including the ITC path.
+  Only stage 1 is unconditional — stages 2 and 3 depend on API access that
+  does not exist today, so the outcome above is the destination, not the
+  entry ticket. See the staged registration ladder in
+  [2_capabilities-and-resources.md](./2_capabilities-and-resources.md).
 - **G7 — Carnival & grassroots event visibility.** Clubs (and Football
   Queensland) can publish one-off, multi-club carnival and grassroots
   events — draws, schedules, and results — and coaches, parents, and the
