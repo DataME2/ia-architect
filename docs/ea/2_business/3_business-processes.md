@@ -30,7 +30,23 @@ Registration status moves through:
 & data quality service (deterministic rules,
 [2_business-services.md](./2_business-services.md)) evaluates every
 transition; the Assistant may draft an explanation of what's missing but
-never changes the status itself (Principle P3). `PENDING_EXTERNAL_REGISTRATION`
+never changes the status itself (Principle P3).
+
+**`PENDING_EXTERNAL_REGISTRATION` is an eligibility gate, not a waiting
+room.** Under Football Queensland policy a Player who is not registered in
+SQUADI cannot take the field (BR43), so a registration parked in this
+status costs playing time, not just tidiness. It is also where the
+measured baseline is spent: registration currently takes **weeks**, and
+the stakeholder-stated cause is SQUADI's own usability rather than any
+step the club controls
+([1_strategy/1_motivation.md](../1_strategy/1_motivation.md)). Stage 1 of
+the [staged registration
+ladder](../1_strategy/2_capabilities-and-resources.md) targets exactly
+this: collect once, validate deterministically, and hand SQUADI a
+submission that is right the first time — reducing the loop, without
+needing an API. How much of the delay that can remove depends on
+decomposing the baseline
+([open question #32](../../scope/open-questions.md)). `PENDING_EXTERNAL_REGISTRATION`
 is exactly the [International transfer clearance
 process](#international-transfer-clearance-process) below — a Player whose
 immediately preceding registration was overseas (BR35–BR38).
@@ -173,7 +189,8 @@ flowchart LR
 ```
 
 The Governing Body / Association publishes competition structure (tiers,
-format) and the season calendar for its jurisdiction — read-only, like
+format), its Competition Regulations and Playing Formats, and the season
+calendar for its jurisdiction — read-only, like
 every other external source (Principle P2,
 [1_strategy/1_motivation.md](../1_strategy/README.md)). Until a live feed
 per association is confirmed (see
@@ -195,7 +212,8 @@ flowchart LR
   pay["Payment<br>enabled"]:::business
 
   avail --> eligible --> propose --> respond --> play --> verify --> pay
-  respond -.->|appears in the referee's<br>own calendar| calendar["Calendar feed<br>updated"]:::business
+  respond -.->|accepted — referee opts in| calendar["Add to my calendar<br>(Gmail / Outlook / Apple)"]:::business
+  respond -.->|declined or withdrawn —<br>brief reason recorded| reason["Reason captured,<br>Coordinator notified"]:::business
 
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
@@ -214,29 +232,45 @@ Every exception is audited. See
 [5_domain-context-and-rules.md](./5_domain-context-and-rules.md) for the
 full rule table.
 
+**Responding to a designation.** Declining, or withdrawing from a
+designation already accepted, requires a brief recorded reason (BR42) —
+withdrawal additionally notifies the Referee Coordinator, since a match
+already counted as covered has just become uncovered. The reason gives
+BR12's decline-rate threshold the context a bare count lacks. On
+**acceptance**, the referee is offered the option to add the fixture to
+their own calendar (see the [Calendar subscription
+process](#calendar-subscription-process) below); if they later withdraw,
+removing the entry from their personal calendar is their own
+responsibility — the platform never reaches into it (BR34).
+
 ## Calendar subscription process
 
 ```mermaid
 flowchart LR
-  enable["Referee enables<br>calendar sync"]:::business
+  accept["Referee accepts<br>a designation"]:::business
+  offer["Offered: add this to<br>my own calendar"]:::business
   issue["Private feed URL<br>issued (tokenised)"]:::business
   subscribe["Referee subscribes in<br>Gmail / Outlook / Apple"]:::business
-  accept["Appointment accepted<br>(or changed/cancelled)"]:::business
+  change["Later appointments,<br>changes, cancellations"]:::business
   refresh["Calendar client<br>refreshes the feed"]:::business
-  shown["Appointment appears<br>in their own calendar"]:::business
+  shown["Appears in their<br>own calendar"]:::business
 
-  enable --> issue --> subscribe
-  accept --> refresh --> shown
+  accept --> offer --> issue --> subscribe --> shown
+  change --> refresh --> shown
 
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
 
-A Referee opts in and receives a private, unguessable feed URL they paste
-into whichever calendar they already use — Google/Gmail, Outlook/Microsoft
-365, or Apple Calendar all subscribe to the same standards-based iCalendar
-feed. **The calendar client pulls; Let'sDataTalk never holds a credential
-for, or writes into, anyone's personal calendar account** — so Principle P2
-holds with no exception (decision
+Calendar sync is offered **at the point a referee accepts a designation**
+(stakeholder confirmation, July 2026) — the moment the commitment becomes
+real — rather than as a setting buried elsewhere. Accepting the offer
+issues a private, unguessable feed URL they paste into whichever calendar
+they already use; Google/Gmail, Outlook/Microsoft 365, and Apple Calendar
+all subscribe to the same standards-based iCalendar feed, and every
+subsequent appointment flows through it without repeating the setup.
+**The calendar client pulls; Let'sDataTalk never holds a credential for, or
+writes into, anyone's personal calendar account** — so Principle P2 holds
+with no exception (decision
 [4](../../decisions/4_calendar-distribution-by-feed-not-account-access.md)).
 
 A feed carries only that one Person's own appointments (BR30) and only
@@ -250,7 +284,10 @@ The feed is a **convenience copy, never the source of truth**: the
 platform's own appointment record remains authoritative for eligibility,
 conflict checks (BR6–BR11), and payment (BR13) — a referee deleting an
 event from their personal calendar does not decline the designation
-([Referee appointment process](#referee-appointment-process)).
+([Referee appointment process](#referee-appointment-process)). The
+converse holds too, and is the referee's own responsibility: withdrawing
+from an accepted designation in the platform (with its reason, BR42) does
+not reach into their personal calendar to remove the entry.
 
 ## Referee payment process
 
@@ -311,6 +348,54 @@ explicitly opts the event in as adult/open-age (BR26). Coaches, Team
 Managers, Parents/Guardians, and Players who already have an account can
 also just use it as usual; the public view exists for visitors who don't
 ([1_business-actors-and-roles.md](./1_business-actors-and-roles.md#public-actor)).
+
+## External registration reconciliation process
+
+```mermaid
+flowchart LR
+  extract["Extract pulled from<br>SQUADI / PlayFootball"]:::business
+  qualify["Extract limitations<br>recorded (BR45)"]:::business
+  match["Identity matched —<br>no shared key (BR44)"]:::business
+  confirm["Ambiguous matches<br>confirmed by a human"]:::business
+  gaps["Gaps identified:<br>missing from which system"]:::business
+  escalate["Eligibility exceptions<br>raised (BR47)"]:::business
+
+  extract --> qualify --> match --> confirm --> gaps --> escalate
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+This is the modeled form of what clubs do manually today — Majestri's
+"Run Squadi Comparison" and "Run PlayFootball v2.0 Comparison" buttons,
+executed by a Registrar or Majestri administrator every few weeks. On
+the pilot club's own 2026 screen: 799 players, 707 registrations, 49
+incomplete; 78 missing from PlayFootball v2.0 and 40 missing from
+SQUADI, both comparisons last run 15 May 2026.
+
+Three things make this harder than a join, and each is a rule rather
+than an implementation detail:
+
+- **There is no shared key.** The Squadi User Report lost its FA ID
+  column in March 2025, so matching falls back to name + date of birth +
+  email, and every uncertain result is a candidate a human confirms
+  (BR44). A false merge attaches one child's registration, payments, and
+  eligibility to another.
+- **Each extract lies by omission, differently.** The Registration
+  Report drops `De-Registered` rows and carries no role; the User Report
+  covers only Player/Coach/Team Official, has no registration date, and
+  may span more than one season. "Missing from SQUADI" therefore means
+  something different depending on which report produced it, so the
+  limitations travel with the data (BR45) and qualify the result.
+- **A gap is a person who cannot play.** Under BR43 a Player absent from
+  SQUADI is ineligible, so the output is an eligibility exception with a
+  named consequence, not a spreadsheet row (BR47) — and it is dated,
+  because a ten-week-old comparison is a snapshot people are still acting
+  on (BR46).
+
+Reconciliation is read-only against every external system (Principle P2):
+the platform compares and reports, and a human resolves each exception in
+whichever system owns it — SQUADI remains authoritative where the two
+disagree (BR39).
 
 ## Historical data consolidation process
 

@@ -33,6 +33,8 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Season Competition Entry** | A club's team entered into a Competition for a given Season — links Club, Team, Competition, and Season |
 | **Match** | A single scheduled fixture between two teams within a Competition, with a date, venue, round, and status (scheduled, played, postponed, abandoned); what a Match Official Appointment designates a referee to, and what a Referee Payment Claim's verified match refers to |
 | **Competition Calendar** | The ordered set of Matches (rounds and dates) for a Competition in a Season |
+| **Playing Format** | The on-field rules an age group or competition is played under — players per side (e.g. MiniRoos 4v4, 7v7, 9v9), field and goal dimensions, ball size, match duration, and whether results/ladders are published at all. Authored by the Governing Body / Association and consumed as reference data; a Carnival's own Carnival Conditions may reference one instead of restating it |
+| **Competition Regulation** | A rule an association imposes on a Competition beyond its format — eligibility and age-dispensation rules, squad and interchange limits, finals qualification, forfeit and disciplinary consequences. Reference data authored by the association, and the material a future association tier would own centrally ([open question #31](../../scope/open-questions.md)) |
 
 ## Carnivals & grassroots events
 
@@ -61,7 +63,7 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Fee / Invoice** | What a registration or program costs |
 | **Payment Plan / Installment** | How a fee is scheduled and paid down |
 | **Voucher Program** | A state government youth-sport discount scheme a club may choose to accept (e.g. Queensland Play On!/FairPlay, NSW Active and Creative Kids, SA Sports Vouchers, WA KidSport, Victoria Get Active Kids, Tasmania Ticket to Play), with jurisdiction, per-child value, frequency, and eligibility criteria; shared reference data, not tenant-owned, until a Club enables it |
-| **Club Voucher Program Enablement** | A Club's decision to accept a Voucher Program for its own invoices — records the Committee's approval and date (BR21); gates whether Finance Admin or Treasurer can apply that program's Vouchers |
+| **Club Voucher Program Enablement** | A Club's decision to accept a Voucher Program for its own invoices — records the Committee's approval and date (BR21); gates whether Finance Admin or Treasurer can apply that program's Vouchers. **The pilot club's Committee has approved Queensland's Play On! program** (confirmed July 2026); what artifact evidences that approval is still open ([question #28](../../scope/open-questions.md)) |
 | **Voucher** | A discount instrument redeemed against an invoice under a Club's enabled Voucher Program (e.g. a Queensland Play On! voucher), tracked by code, beneficiary, value, issue/use dates, status, applied invoice, and duplicate risk |
 | **Voucher Verification** | A check of a Voucher's code against the issuing government's own public verification interface, performed by the Assistant (AI, advisory) or manually by Finance Admin/Treasurer, with its result and timestamp recorded before the Voucher can be applied (BR25) |
 | **Voucher Claim** | The club's request to a Voucher Program's issuing government for reimbursement of a Voucher already applied to an invoice, moving `NOT_CLAIMED → SUBMITTED → PAID \| REJECTED`, submitted through that program's own CSV/portal mechanism (BR23, BR24) |
@@ -75,10 +77,20 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Fitness Test / Training Attendance / Course Completion** | Evidence that a referee meets the requirements for their classification and competition |
 | **Referee Availability** | A referee's declared availability window |
 | **Match Official Appointment** | A proposed, accepted, or declined designation to a **Match** (see Competitions & calendar, above) |
+| **Appointment Response** | A referee's answer to a proposed designation — accept, decline, or withdraw-after-accepting — carrying the response timestamp and, for a decline or withdrawal, the brief reason the referee recorded (BR42); the input to the decline-rate calculation in BR12 |
 | **Appointment Conflict** | A detected blocking conflict or warning for a proposed appointment (see [3_business-processes.md](./3_business-processes.md#referee-appointment-process)) |
 | **Referee Payment Claim** | A claim for payment tied to a verified match, moving through approval to a payment batch |
 | **Calendar Subscription** | A Person's opt-in to receive their own appointments as an iCalendar feed, holding the tokenised private feed URL, who it was issued to (the Person, or their Guardian for a minor — BR33), its issue date, and its revoked/rotated status (BR31) |
 | **Calendar Event** | The published iCalendar representation of one confirmed appointment within a Calendar Subscription's feed — competition, date/time, venue, and the subscriber's own role only (BR32); a convenience copy of the authoritative Match Official Appointment, never a substitute for it |
+
+## External reconciliation
+
+| Object | What it represents |
+| ------ | -------------------- |
+| **External System Extract** | A CSV report pulled from an external system — the Squadi Registration Report, the Squadi User Report, or a PlayFootball equivalent — carrying its rows *and* its known limitations: which rows it silently omits (`De-Registered`), which roles it covers, which fields it lacks (the User Report has carried no FA ID since March 2025, and no registration date), and what season scope it spans (BR45) |
+| **Reconciliation Run** | One comparison of the club's own registrations against an External System Extract, recording the extract's as-at date, the counts matched, and the differences found (BR46) — the modeled form of what a club does manually today via Majestri's "Run Squadi Comparison" |
+| **Reconciliation Exception** | A single difference the run surfaced. The consequential kind is a Player registered with the club but absent from the governing body's system: under BR43 that Player cannot take the field, so the exception carries an eligibility consequence, not just a data delta (BR47) |
+| **Identity Match Candidate** | A proposed match between a club Person and an external record, made without a shared identifier — name + date of birth + email — with its confidence and evidence, awaiting human confirmation and never auto-merged (BR44, extending BR5) |
 
 ## Compliance & communications
 

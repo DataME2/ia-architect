@@ -131,8 +131,21 @@ process clubs must comply with.
 
 Read-only, like every other external source in
 [5_domain-context-and-rules.md](./5_domain-context-and-rules.md#system-context)
-(Principle P2) — Let'sDataTalk consumes published competition/calendar data
-and ITC outcomes, it does not write back into an association's systems.
+(Principle P2) — Let'sDataTalk consumes published competition/calendar data,
+Playing Formats, Competition Regulations, and ITC outcomes; it does not
+write back into an association's systems.
+
+> **A second, prospective mode exists but is not modeled.** If an
+> association became a *customer* rather than only a data source — the
+> commercial direction recorded in
+> [1_strategy/2_capabilities-and-resources.md](../1_strategy/2_capabilities-and-resources.md)'s
+> Courses of action — it would be a **tenant above its member clubs**,
+> authoring Competition Regulations and Playing Formats centrally and
+> seeing across those clubs. That is a different actor with different
+> authority, and it needs an association-tier tenancy model plus a scoped
+> exception to Principle P5 before it can be modeled honestly. Nothing in
+> this layer assumes it today — see
+> [open question #31](../../scope/open-questions.md).
 
 ## Public actor
 
