@@ -109,6 +109,20 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   tenant-isolated under P5. See decision
   [3](../../decisions/3_public-event-data-crosses-tenant-isolation.md).
 
+- **P7 — Safeguarding and privacy are built in, per jurisdiction, from day
+  one.** The platform handles children's personal data across more than one
+  legal regime, so three things are structural rather than features added
+  later: (a) **explicit, recorded, revocable guardian consent** before a
+  minor's data is processed (BR48); (b) a **right-to-erasure protocol**
+  that honours a request unless a named lawful basis requires retention,
+  and records that basis when it refuses (BR49); and (c) **continuous**
+  Working with Children Check verification whose expiry *withdraws
+  existing assignments*, not merely blocks new ones (BR50, BR51). Which
+  framework binds a given tenant is determined by jurisdiction and
+  recorded, not assumed (BR52). A change that collects a minor's data
+  without recorded consent, or that leaves someone on a future match sheet
+  after their clearance lapses, contradicts this principle.
+
 A proposed change that would give an AI actor authority to act on identity,
 payment, or promotion decisions without a human, that would write to a
 club's production system without a scoped exception to P2, or that would

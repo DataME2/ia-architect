@@ -25,7 +25,7 @@ then resolved 28 — the blocking MVP-scope conflict — with a staged
 registration ladder, and raised 31 on serving a governing body as a
 tenant.
 
-Twenty of the thirty-five questions are now resolved. Question 32 —
+Twenty of the thirty-eight questions are now resolved. Question 32 —
 decomposing the registration baseline — gates the target that stage 1 of
 the registration ladder is meant to hit.
 
@@ -48,6 +48,9 @@ the registration ladder is meant to hit.
 | 33 | **Positioning.** Most clubs already run Majestri, which already does registration intake and periodic SQUADI/PlayFootball comparisons. Does Let'sDataTalk replace Majestri, complement it, or integrate with it as another source? | None yet — **materially affects the value proposition and the sales conversation.** The reconciliation gap (C14) is a real weakness in the current manual process regardless of the answer, but "replace the system every club already uses" and "make the system they use work properly" are different products | [11_majestri-and-the-reconciliation-gap.md](./11_majestri-and-the-reconciliation-gap.md) |
 | 34 | Has SQUADI's FA ID column reappeared in the User Report since its removal in March 2025, and does the Registration Report still carry FA ID / Gov Body ID reliably? | None yet — BR44 assumes no shared key and matches on name + DOB + email with human confirmation. If FA ID returns, matching becomes far safer and BR44 relaxes; worth re-checking each season rather than assuming | [11_majestri-and-the-reconciliation-gap.md](./11_majestri-and-the-reconciliation-gap.md) |
 | 35 | What are PlayFootball / Football Australia's supported extract formats, their columns, and their equivalent blind spots? | None yet — described by the stakeholder as "very similar" to SQUADI's but more complicated in practice; the SQUADI reports are documented in detail while PlayFootball's are not, so BR45's limitation-recording has nothing to record for that side yet | [11_majestri-and-the-reconciliation-gap.md](./11_majestri-and-the-reconciliation-gap.md) |
+| 36 | Is GDPR intended as a **binding requirement** (i.e. EU residents' data will be processed, or EU expansion is planned) or as a **design standard** adopted voluntarily as the high-water mark? | Adopted: **design standard**. GDPR does not bind AU/NZ-only operations; the binding regimes are Australia's Privacy Act 1988 + APPs and New Zealand's Privacy Act 2020, **neither of which contains a general right to erasure**. BR49 therefore implements a standard above what AU/NZ law requires — a defensible choice, but it should be a knowing one | [12_privacy-consent-and-safeguarding.md](./12_privacy-consent-and-safeguarding.md) |
+| 37 | At what age does a young person assume control of their own data from their guardian — for consent (BR48), erasure (BR49), and the guardian-issued calendar feed (BR33)? | None yet — GDPR Art. 8 sets 16 (member states may lower to 13); Australia and New Zealand set no fixed age and apply a capacity test instead. The platform needs *some* rule, and the three rules above currently assume guardian control indefinitely, which is wrong for a 17-year-old referee | [12_privacy-consent-and-safeguarding.md](./12_privacy-consent-and-safeguarding.md) |
+| 38 | How often must a WWCC be re-verified (BR51), and does the state register support programmatic checking or only manual portal lookups? | None yet — BR50's automatic withdrawal is only as timely as the check that triggers it. If verification is manual-only, "continuous" becomes "however often someone remembers", which materially weakens the safeguard | [12_privacy-consent-and-safeguarding.md](./12_privacy-consent-and-safeguarding.md) |
 
 ## Resolved
 

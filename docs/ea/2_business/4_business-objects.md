@@ -92,6 +92,15 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Reconciliation Exception** | A single difference the run surfaced. The consequential kind is a Player registered with the club but absent from the governing body's system: under BR43 that Player cannot take the field, so the exception carries an eligibility consequence, not just a data delta (BR47) |
 | **Identity Match Candidate** | A proposed match between a club Person and an external record, made without a shared identifier — name + date of birth + email — with its confidence and evidence, awaiting human confirmation and never auto-merged (BR44, extending BR5) |
 
+## Consent, privacy rights & safeguarding
+
+| Object | What it represents |
+| ------ | -------------------- |
+| **Consent Record** | An explicit grant of permission to process a minor's data, scoped to a stated purpose, attributed to the consenting Guardian, timestamped, and revocable — distinct from **Guardianship**, which establishes *who is responsible* rather than *what was agreed to* (BR48) |
+| **Erasure Request** | A data subject's (or guardian's) request to delete their data, carrying its outcome — erased, de-identified, or refused — and, whenever anything short of full erasure occurs, the **specific lawful basis** relied on (BR49) |
+| **WWCC Clearance** | A holder's Working with Children Check as the platform tracks it: clearance number, issuing jurisdiction, validity dates, and current status (valid, expiring, expired, suspended, revoked). Re-verified on a schedule (BR51); a transition out of *valid* automatically withdraws the holder from future assignments (BR50) |
+| **Privacy Configuration** | The per-tenant record of which privacy framework governs that tenant — Australian Privacy Principles, New Zealand's Privacy Act 2020, or GDPR — determining consent wording, retention handling, and how erasure requests are answered (BR52) |
+
 ## Compliance & communications
 
 | Object | What it represents |
