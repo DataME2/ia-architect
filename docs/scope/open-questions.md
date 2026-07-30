@@ -25,7 +25,9 @@ then resolved 28 — the blocking MVP-scope conflict — with a staged
 registration ladder, and raised 31 on serving a governing body as a
 tenant.
 
-Twenty of the thirty-one questions are now resolved.
+Twenty of the thirty-two questions are now resolved. Question 32 —
+decomposing the registration baseline — gates the target that stage 1 of
+the registration ladder is meant to hit.
 
 ## Pending
 
@@ -42,6 +44,7 @@ Twenty of the thirty-one questions are now resolved.
 | 29 | What artifact evidences the pilot club Committee's approval of a Voucher Program — meeting minutes, a signed motion, a recorded vote? | None yet — the *program* is confirmed (Queensland Play On!, question 20), but BR21's approval record has no defined evidentiary standard | [8_stakeholder-answers-july-2026.md](./8_stakeholder-answers-july-2026.md) |
 | 30 | Does the confirmed three-year retention period (BR40) apply uniformly, given Australian statutory minimums that may exceed it for financial/tax records and for child-safety (WWCC) records? | None yet — three years is recorded as the stated policy, but a flat rule may not be lawful for every record class. Needs a legal answer before any deletion job is built | [8_stakeholder-answers-july-2026.md](./8_stakeholder-answers-july-2026.md) |
 | 31 | If a governing body (e.g. Football Queensland) becomes a *customer* rather than only a data source, how is an association tier that can see across its member clubs reconciled with Principle P5 (strict tenant isolation)? | None yet — recorded as a Course of Action under consideration, not as architecture. Would need a nested/hierarchical tenancy model plus a scoped P5 exception in the pattern of P6, designed deliberately rather than discovered mid-build | [9_staged-registration-and-governing-body-tier.md](./9_staged-registration-and-governing-body-tier.md) |
+| 32 | The registration baseline is confirmed as **weeks**, caused by SQUADI. What is that figure composed of — guardian confusion/error/abandonment (removable by a first-time-right submission), club admin turnaround, association processing time, payment clearing, or the 30-day ITC provisional window (BR36)? | None yet — **the measurement task before stage 1 of the registration ladder can set a target.** Only the confusion/error portion is addressable without an API; committing to a percentage before decomposing the weeks would be a guess. Measurable now from the pilot club's three years of historical data | [10_registration-baseline-and-the-squadi-gate.md](./10_registration-baseline-and-the-squadi-gate.md) |
 
 ## Resolved
 

@@ -30,7 +30,23 @@ Registration status moves through:
 & data quality service (deterministic rules,
 [2_business-services.md](./2_business-services.md)) evaluates every
 transition; the Assistant may draft an explanation of what's missing but
-never changes the status itself (Principle P3). `PENDING_EXTERNAL_REGISTRATION`
+never changes the status itself (Principle P3).
+
+**`PENDING_EXTERNAL_REGISTRATION` is an eligibility gate, not a waiting
+room.** Under Football Queensland policy a Player who is not registered in
+SQUADI cannot take the field (BR43), so a registration parked in this
+status costs playing time, not just tidiness. It is also where the
+measured baseline is spent: registration currently takes **weeks**, and
+the stakeholder-stated cause is SQUADI's own usability rather than any
+step the club controls
+([1_strategy/1_motivation.md](../1_strategy/1_motivation.md)). Stage 1 of
+the [staged registration
+ladder](../1_strategy/2_capabilities-and-resources.md) targets exactly
+this: collect once, validate deterministically, and hand SQUADI a
+submission that is right the first time — reducing the loop, without
+needing an API. How much of the delay that can remove depends on
+decomposing the baseline
+([open question #32](../../scope/open-questions.md)). `PENDING_EXTERNAL_REGISTRATION`
 is exactly the [International transfer clearance
 process](#international-transfer-clearance-process) below — a Player whose
 immediately preceding registration was overseas (BR35–BR38).

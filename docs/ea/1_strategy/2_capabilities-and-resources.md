@@ -69,7 +69,7 @@ What Let'sDataTalk must be able to do to realize the goals in
 
   | Stage | What it proves | Depends on |
   | ----- | -------------- | ---------- |
-  | **1 — Club-native ("one-shot")** | How fast a registration can be completed from the *club's* perspective, following the club's own registration process end to end. Demonstrable **pre-MVP**, on the pilot club's real historical data, with no external integration whatsoever | Nothing external — this is why it is the stage the project commits to |
+  | **1 — SQUADI-ready ("one-shot")** | How fast a registration can be completed from the *club's* perspective, and — critically — submitted to SQUADI **right first time**: collected once, deterministically validated (BR1–BR5), and handed over as a complete, correct submission instead of a guardian guessing their way through an unfamiliar interface. Demonstrable **pre-MVP**, on the pilot club's real historical data | Nothing external — no API, no integration. This is why it is the stage the project commits to |
   | **2 — SQUADI synchronisation** | The same registration flowing through to SQUADI, removing the duplicate entry a parent or guardian performs manually today | SQUADI API access, which does not exist today (see the CSV import/export resource, and [open question #19](../../scope/open-questions.md)) |
   | **3 — Football Australia** | National-level registration, including the ITC path for players arriving from overseas (BR35–BR38) | Football Australia access, and stage 2 in place |
 
@@ -78,6 +78,25 @@ What Let'sDataTalk must be able to do to realize the goals in
   fails, while keeping its stated success outcome (Goal G6) intact as the
   destination rather than the entry ticket. Stages 2 and 3 remain
   conditional and are not promised on the Q4 2026 timeline.
+
+  > **Stage 1 must attack the real bottleneck, not route around it.** The
+  > confirmed baseline is *weeks*, and the stated cause is SQUADI itself —
+  > hard to use, and a hard gate: no SQUADI registration, no playing time
+  > (BR43). A stage 1 that merely made the *club's* internal process fast
+  > while leaving the family to fight SQUADI unaided would improve a
+  > number nobody is complaining about. What makes stage 1 worth
+  > demonstrating without an API is **first-time-right submission** —
+  > collect once, validate deterministically, and hand SQUADI a complete
+  > and correct registration, so the step that currently fails and
+  > re-loops stops doing so.
+  >
+  > This only works on the portion of those weeks caused by confusion,
+  > error, and abandonment. Any portion caused by association processing
+  > time, payment clearing, or the 30-day ITC provisional window (BR36) is
+  > **not removable by better data entry** — which is why decomposing the
+  > baseline is the measurement task in
+  > [open question #32](../../scope/open-questions.md), and why stage 1's
+  > target should be set against the removable portion only.
 - **Carnival & event management (C12) is deferred past the Q4 2026 MVP.**
   It is architected now (goal G7, this capability, the business layer
   additions in [2_business/](../2_business/README.md)) so the public-access
@@ -107,6 +126,15 @@ What Let'sDataTalk must be able to do to realize the goals in
   makes the association the authority for exactly the reference data
   (regulations, playing formats, competition structure) that clubs
   currently re-key.
+
+  The registration baseline sharpens this considerably. Football
+  Queensland mandates SQUADI registration as a precondition for playing
+  (BR43), and the same registration currently takes weeks because SQUADI
+  is hard to use — so the governing body's own policy is what converts a
+  usability problem into lost playing time across its whole jurisdiction.
+  That is an association-level problem with an association-level
+  incentive to fix, and it is a materially stronger opening than a
+  per-club efficiency pitch.
 
   It is recorded here as a **Course of Action under consideration**, not
   as architecture, because it is conditional on access this project does
