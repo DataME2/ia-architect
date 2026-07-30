@@ -30,7 +30,51 @@ Registration status moves through:
 & data quality service (deterministic rules,
 [2_business-services.md](./2_business-services.md)) evaluates every
 transition; the Assistant may draft an explanation of what's missing but
-never changes the status itself (Principle P3).
+never changes the status itself (Principle P3). `PENDING_EXTERNAL_REGISTRATION`
+is exactly the [International transfer clearance
+process](#international-transfer-clearance-process) below — a Player whose
+immediately preceding registration was overseas (BR35–BR38).
+
+## International transfer clearance process
+
+```mermaid
+flowchart LR
+  trigger["Player declares last<br>registration was overseas"]:::business
+  pending["Status: PENDING_<br>EXTERNAL_REGISTRATION"]:::business
+  route{"Player is a<br>Minor (ITC), aged 10-17?"}:::business
+  minorForm["Minor ITC Application +<br>exception form, via<br>Member Federation"]:::business
+  adultRequest["Football Australia requests<br>ITC from former association"]:::business
+  outcome["ITC received, or 30 days<br>elapse (provisional)"]:::business
+  complete["Registration<br>proceeds"]:::business
+
+  trigger --> pending --> route
+  route -->|yes| minorForm --> outcome
+  route -->|no| adultRequest --> outcome
+  outcome --> complete
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+Triggered by the same self-registration questionnaire already used for
+SQUADI/PlayFootball-sourced data ([open question
+#7](../../scope/open-questions.md), resolved) asking whether the Player's
+last registration was with an Affiliated club in Australia. A "no" answer
+moves the Player Registration to `PENDING_EXTERNAL_REGISTRATION` (BR35).
+**Only Football Australia may request the ITC** from the Player's former
+national association (BR38) — a Club or Member Federation cannot request
+one directly, they submit through it. The registration stays blocked
+until the ITC is received, or until 30 days have elapsed since Football
+Australia sent the request with no response, at which point provisional
+registration is permitted (BR36). A Player who is a Minor (ITC) — aged
+10–17 — additionally needs a Minor ITC Application matching one of FIFA's
+exception categories (parents relocating for non-football reasons, five
+years' continuous residence, academic exchange, or refugee status), with
+supporting documentation submitted via the Member Federation; a Minor
+under 10 is exempt from the whole process (BR37). See
+[4_business-objects.md](./4_business-objects.md#international-transfers)
+for the ITC and Minor ITC Application objects, and
+[5_domain-context-and-rules.md](./5_domain-context-and-rules.md) for
+BR35–BR38.
 
 ## Payment plan process
 
