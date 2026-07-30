@@ -24,6 +24,7 @@ first (Principle P2,
 ```mermaid
 flowchart LR
   subgraph EXT["Club's existing sources (read-only)"]
+    majestri["Majestri<br>(incumbent club<br>management system)"]:::business
     squadi["SQUADI"]:::business
     playfootball["PlayFootball"]:::business
     sheets["Spreadsheets /<br>forms"]:::business
@@ -39,6 +40,7 @@ flowchart LR
 
   EXT -->|read-only extraction,<br>CSV import| ldt
   ldt -->|CSV export,<br>reconciliation exceptions| EXT
+  ldt -->|reconciliation: who is missing<br>from which system (C14)| users
   users -->|registration, availability,<br>designations, payments| ldt
   ldt -->|dashboards, communications| users
   ldt -->|published carnival schedules<br>& results, no login (P6)| public
@@ -87,6 +89,11 @@ material.
 | **Calendar Subscription** | A Person's opt-in to receive their own appointments as an iCalendar feed, via a private tokenised URL their existing Google/Outlook/Apple calendar subscribes to (BR30, BR31) |
 | **Calendar Event** | The published iCalendar entry for one confirmed appointment — a convenience copy, never authoritative (BR34) |
 | **iCalendar / ICS feed** | The open RFC 5545 format and `webcal:` subscription convention every major calendar client consumes, letting one feed serve Gmail, Outlook, and Apple Calendar alike without a per-vendor integration |
+| **Majestri** | The incumbent club management system most football clubs already run — registration intake, dashboards, email/SMS, volunteers, officials — and which already performs periodic manual comparisons against PlayFootball and SQUADI |
+| **External System Extract** | A CSV report pulled from an external system (e.g. the Squadi Registration Report or User Report), carrying its own known limitations alongside its rows (BR45) |
+| **Reconciliation Run** | One comparison of the club's registrations against an external system's extract, as at that extract's date (BR46) |
+| **Reconciliation Exception** | A specific difference the run found — most consequentially a Player missing from the governing body's system, which is an eligibility risk, not a tidiness issue (BR47) |
+| **Identity Match Candidate** | A proposed cross-system identity match made without a shared identifier, awaiting human confirmation (BR44) |
 | **Working with Children Check (WWCC)** | A mandatory clearance for adults working with children in child-related sectors; state-specific in Australia (e.g. Queensland's Blue Card), verified in real time through state government online portals using the worker's clearance number, surname, and date of birth. New Zealand's equivalent is unconfirmed (open question 14, [docs/scope/open-questions.md](../../scope/open-questions.md)) |
 | **Appointing party** | Whichever body designates a referee to a match — the club itself, or an association/competition body (e.g. Football Queensland) — determines who is financially responsible for that designation (see BR16) |
 | **International Transfer Certificate (ITC)** | A certificate from a Player's former national association authorising their registration with a new one; required whenever the Player's immediately preceding registration was with a different national association, requested solely by Football Australia (BR35, BR38) — see [4_business-objects.md](./4_business-objects.md#international-transfers) |
@@ -145,6 +152,11 @@ get a row here, with rationale, before they get code (`ea-first-change`).
 | BR42 | A referee who declines a proposed designation, or withdraws from one already accepted, must record a brief reason; withdrawal after acceptance additionally notifies the Referee Coordinator | Referee appointment | Stakeholder confirmation (July 2026). A bare decline count (BR12) says nothing about *why* — capturing the reason is what lets a coordinator distinguish an unavailable referee from a disengaging one, and gives the referee a fair record when a decline is later reviewed against BR12's threshold |
 
 | BR43 | A Player may not take the field until their external registration with the Governing Body's system of record (SQUADI) is complete. `PENDING_EXTERNAL_REGISTRATION` is therefore an **eligibility gate on participation**, not merely an administrative state on the way to COMPLETE | Player registration / eligibility | Football Queensland policy, confirmed by the stakeholder (July 2026): no SQUADI registration, no playing time. This is why registration latency is a football problem and not only an admin one — the measured baseline is *weeks* ([1_strategy/1_motivation.md](../1_strategy/1_motivation.md)), and every week of it is potentially a week the player cannot play |
+
+| BR44 | Identity matching across systems must not assume a shared external identifier. The Squadi User Report lost its FA ID column in March 2025, so matching falls back to name + date of birth + email; every resulting match is a **candidate for human confirmation**, never an automatic merge | External reconciliation / identity | Extends BR5 to the cross-system case. Without a stable key, a confident-looking match can be two different children with the same common name and birth year — a false merge here would attach one child's registration, payments, and eligibility to another |
+| BR45 | Every External System Extract records the known limitations of its own format alongside its data — excluded rows, role coverage, absent fields, and season scope — and any reconciliation result derived from it is qualified by them | External reconciliation / data quality | A comparison is only as trustworthy as the extract beneath it. The Registration Report silently omits `De-Registered` rows and carries no role; the User Report covers only Player/Coach/Team Official, has no registration date, and may span seasons. "Missing from SQUADI" means something different under each — unqualified, the number misleads |
+| BR46 | A reconciliation result carries the as-at date of the extract it was computed from, and is flagged as stale once older than the configured threshold | External reconciliation | The pilot club's comparisons were last run 15 May 2026 and were still being read ten weeks later. A gap list is a snapshot, and an undated snapshot invites decisions on facts that have moved |
+| BR47 | A Player present in the club's own registrations but absent from the governing body's system is raised as an **eligibility exception**, not merely listed as a data difference, because under BR43 that Player cannot take the field | External reconciliation / eligibility | Connects the reconciliation count to its actual consequence. The pilot club's 40 players missing from SQUADI are not 40 rows to tidy — they are 40 children who may arrive on match day and be turned away |
 
 Rule parameters that vary by classification, competition, association,
 season, or event (availability weeks, decline-rate thresholds,

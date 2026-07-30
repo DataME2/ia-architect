@@ -83,6 +83,15 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Calendar Subscription** | A Person's opt-in to receive their own appointments as an iCalendar feed, holding the tokenised private feed URL, who it was issued to (the Person, or their Guardian for a minor — BR33), its issue date, and its revoked/rotated status (BR31) |
 | **Calendar Event** | The published iCalendar representation of one confirmed appointment within a Calendar Subscription's feed — competition, date/time, venue, and the subscriber's own role only (BR32); a convenience copy of the authoritative Match Official Appointment, never a substitute for it |
 
+## External reconciliation
+
+| Object | What it represents |
+| ------ | -------------------- |
+| **External System Extract** | A CSV report pulled from an external system — the Squadi Registration Report, the Squadi User Report, or a PlayFootball equivalent — carrying its rows *and* its known limitations: which rows it silently omits (`De-Registered`), which roles it covers, which fields it lacks (the User Report has carried no FA ID since March 2025, and no registration date), and what season scope it spans (BR45) |
+| **Reconciliation Run** | One comparison of the club's own registrations against an External System Extract, recording the extract's as-at date, the counts matched, and the differences found (BR46) — the modeled form of what a club does manually today via Majestri's "Run Squadi Comparison" |
+| **Reconciliation Exception** | A single difference the run surfaced. The consequential kind is a Player registered with the club but absent from the governing body's system: under BR43 that Player cannot take the field, so the exception carries an eligibility consequence, not just a data delta (BR47) |
+| **Identity Match Candidate** | A proposed match between a club Person and an external record, made without a shared identifier — name + date of birth + email — with its confidence and evidence, awaiting human confirmation and never auto-merged (BR44, extending BR5) |
+
 ## Compliance & communications
 
 | Object | What it represents |

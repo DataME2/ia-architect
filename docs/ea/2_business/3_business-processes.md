@@ -349,6 +349,54 @@ Managers, Parents/Guardians, and Players who already have an account can
 also just use it as usual; the public view exists for visitors who don't
 ([1_business-actors-and-roles.md](./1_business-actors-and-roles.md#public-actor)).
 
+## External registration reconciliation process
+
+```mermaid
+flowchart LR
+  extract["Extract pulled from<br>SQUADI / PlayFootball"]:::business
+  qualify["Extract limitations<br>recorded (BR45)"]:::business
+  match["Identity matched —<br>no shared key (BR44)"]:::business
+  confirm["Ambiguous matches<br>confirmed by a human"]:::business
+  gaps["Gaps identified:<br>missing from which system"]:::business
+  escalate["Eligibility exceptions<br>raised (BR47)"]:::business
+
+  extract --> qualify --> match --> confirm --> gaps --> escalate
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+This is the modeled form of what clubs do manually today — Majestri's
+"Run Squadi Comparison" and "Run PlayFootball v2.0 Comparison" buttons,
+executed by a Registrar or Majestri administrator every few weeks. On
+the pilot club's own 2026 screen: 799 players, 707 registrations, 49
+incomplete; 78 missing from PlayFootball v2.0 and 40 missing from
+SQUADI, both comparisons last run 15 May 2026.
+
+Three things make this harder than a join, and each is a rule rather
+than an implementation detail:
+
+- **There is no shared key.** The Squadi User Report lost its FA ID
+  column in March 2025, so matching falls back to name + date of birth +
+  email, and every uncertain result is a candidate a human confirms
+  (BR44). A false merge attaches one child's registration, payments, and
+  eligibility to another.
+- **Each extract lies by omission, differently.** The Registration
+  Report drops `De-Registered` rows and carries no role; the User Report
+  covers only Player/Coach/Team Official, has no registration date, and
+  may span more than one season. "Missing from SQUADI" therefore means
+  something different depending on which report produced it, so the
+  limitations travel with the data (BR45) and qualify the result.
+- **A gap is a person who cannot play.** Under BR43 a Player absent from
+  SQUADI is ineligible, so the output is an eligibility exception with a
+  named consequence, not a spreadsheet row (BR47) — and it is dated,
+  because a ten-week-old comparison is a snapshot people are still acting
+  on (BR46).
+
+Reconciliation is read-only against every external system (Principle P2):
+the platform compares and reports, and a human resolves each exception in
+whichever system owns it — SQUADI remains authoritative where the two
+disagree (BR39).
+
 ## Historical data consolidation process
 
 ```mermaid
