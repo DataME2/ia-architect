@@ -397,6 +397,83 @@ the platform compares and reports, and a human resolves each exception in
 whichever system owns it — SQUADI remains authoritative where the two
 disagree (BR39).
 
+## Consent and erasure process
+
+```mermaid
+flowchart LR
+  consent["Guardian gives scoped,<br>recorded consent"]:::business
+  process["Minor's data<br>processed"]:::business
+  request["Erasure or withdrawal<br>requested"]:::business
+  assess{"Lawful basis<br>requires retention?"}:::business
+  erase["Erased"]:::business
+  deident["De-identified,<br>basis recorded"]:::business
+
+  consent --> process
+  request --> assess
+  assess -->|no| erase
+  assess -->|yes| deident
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+A minor's data is processed only under explicit guardian consent that
+records **what**, **by whom**, and **when**, and that the guardian may
+withdraw per purpose (BR48). Guardianship (BR1) establishes who is
+responsible; it is not itself consent.
+
+Erasure is deliberately **not absolute** (BR49). A request is honoured
+unless a named lawful basis requires retention — statutory financial or
+child-safety minimums, an active eligibility record (BR43), or audit
+integrity — and where the obligation can be met without keeping an
+identifiable record, the data is **de-identified rather than deleted**.
+Every refusal or partial refusal records the specific basis relied on,
+which is what makes the decision defensible later.
+
+Which framework governs any of this is per tenant, not platform-wide
+(BR52): Australia's Privacy Act and APPs, New Zealand's Privacy Act 2020,
+and the GDPR differ — notably, **neither the APPs nor New Zealand's Act
+contains a general right to erasure**, so this process implements a
+standard higher than AU/NZ law currently requires (see
+[open question #36](../../scope/open-questions.md)).
+
+## WWCC clearance lifecycle process
+
+```mermaid
+flowchart LR
+  verify["Clearance verified<br>at onboarding (BR19)"]:::business
+  recheck["Re-verified on<br>schedule (BR51)"]:::business
+  status{"Still valid?"}:::business
+  ok["Assignments<br>unaffected"]:::business
+  withdraw["Withdrawn from ALL<br>future assignments (BR50)"]:::business
+  notify["Holder + coordinator<br>notified: vacancies to re-fill"]:::business
+
+  verify --> recheck --> status
+  status -->|yes| ok --> recheck
+  status -->|expired, suspended,<br>or revoked| withdraw --> notify
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+This closes a gap the earlier rules left open between them. BR19 checks a
+clearance **before** someone starts; BR10 blocks a **new** designation —
+but neither removes a person already on next Saturday's match sheet when
+their card lapses on Tuesday. Point-in-time verification is not
+safeguarding.
+
+So the check recurs (BR51) — state registers can suspend or revoke
+mid-term, which an onboarding-only check would never see — and a
+transition out of *valid* **automatically withdraws the holder from every
+future assignment**: match official appointments, carnival fixtures, and
+any other child-related role (BR50). Past assignments are left intact as
+historical record.
+
+Withdrawal creates a second problem the process must own rather than
+ignore: those fixtures are now **uncovered**. Both the holder and the
+responsible coordinator (Referee Coordinator, or the Events Coordinator
+for a carnival) are notified so the vacancies can be re-filled — an
+automatic unassignment that nobody is told about would trade a
+safeguarding failure for an operational one.
+
 ## Historical data consolidation process
 
 ```mermaid
