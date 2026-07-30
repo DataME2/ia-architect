@@ -195,7 +195,8 @@ flowchart LR
   pay["Payment<br>enabled"]:::business
 
   avail --> eligible --> propose --> respond --> play --> verify --> pay
-  respond -.->|appears in the referee's<br>own calendar| calendar["Calendar feed<br>updated"]:::business
+  respond -.->|accepted — referee opts in| calendar["Add to my calendar<br>(Gmail / Outlook / Apple)"]:::business
+  respond -.->|declined or withdrawn —<br>brief reason recorded| reason["Reason captured,<br>Coordinator notified"]:::business
 
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
@@ -214,29 +215,45 @@ Every exception is audited. See
 [5_domain-context-and-rules.md](./5_domain-context-and-rules.md) for the
 full rule table.
 
+**Responding to a designation.** Declining, or withdrawing from a
+designation already accepted, requires a brief recorded reason (BR42) —
+withdrawal additionally notifies the Referee Coordinator, since a match
+already counted as covered has just become uncovered. The reason gives
+BR12's decline-rate threshold the context a bare count lacks. On
+**acceptance**, the referee is offered the option to add the fixture to
+their own calendar (see the [Calendar subscription
+process](#calendar-subscription-process) below); if they later withdraw,
+removing the entry from their personal calendar is their own
+responsibility — the platform never reaches into it (BR34).
+
 ## Calendar subscription process
 
 ```mermaid
 flowchart LR
-  enable["Referee enables<br>calendar sync"]:::business
+  accept["Referee accepts<br>a designation"]:::business
+  offer["Offered: add this to<br>my own calendar"]:::business
   issue["Private feed URL<br>issued (tokenised)"]:::business
   subscribe["Referee subscribes in<br>Gmail / Outlook / Apple"]:::business
-  accept["Appointment accepted<br>(or changed/cancelled)"]:::business
+  change["Later appointments,<br>changes, cancellations"]:::business
   refresh["Calendar client<br>refreshes the feed"]:::business
-  shown["Appointment appears<br>in their own calendar"]:::business
+  shown["Appears in their<br>own calendar"]:::business
 
-  enable --> issue --> subscribe
-  accept --> refresh --> shown
+  accept --> offer --> issue --> subscribe --> shown
+  change --> refresh --> shown
 
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
 
-A Referee opts in and receives a private, unguessable feed URL they paste
-into whichever calendar they already use — Google/Gmail, Outlook/Microsoft
-365, or Apple Calendar all subscribe to the same standards-based iCalendar
-feed. **The calendar client pulls; Let'sDataTalk never holds a credential
-for, or writes into, anyone's personal calendar account** — so Principle P2
-holds with no exception (decision
+Calendar sync is offered **at the point a referee accepts a designation**
+(stakeholder confirmation, July 2026) — the moment the commitment becomes
+real — rather than as a setting buried elsewhere. Accepting the offer
+issues a private, unguessable feed URL they paste into whichever calendar
+they already use; Google/Gmail, Outlook/Microsoft 365, and Apple Calendar
+all subscribe to the same standards-based iCalendar feed, and every
+subsequent appointment flows through it without repeating the setup.
+**The calendar client pulls; Let'sDataTalk never holds a credential for, or
+writes into, anyone's personal calendar account** — so Principle P2 holds
+with no exception (decision
 [4](../../decisions/4_calendar-distribution-by-feed-not-account-access.md)).
 
 A feed carries only that one Person's own appointments (BR30) and only
@@ -250,7 +267,10 @@ The feed is a **convenience copy, never the source of truth**: the
 platform's own appointment record remains authoritative for eligibility,
 conflict checks (BR6–BR11), and payment (BR13) — a referee deleting an
 event from their personal calendar does not decline the designation
-([Referee appointment process](#referee-appointment-process)).
+([Referee appointment process](#referee-appointment-process)). The
+converse holds too, and is the referee's own responsibility: withdrawing
+from an accepted designation in the platform (with its reason, BR42) does
+not reach into their personal calendar to remove the entry.
 
 ## Referee payment process
 

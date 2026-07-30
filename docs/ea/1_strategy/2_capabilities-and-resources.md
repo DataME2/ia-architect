@@ -34,6 +34,7 @@ What Let'sDataTalk must be able to do to realize the goals in
 | Square (initial payment provider) | First integration for C3, per pilot-club confirmation (supersedes the discovery document's original Stripe assumption — see [docs/scope/open-questions.md](../../scope/open-questions.md)); Xero is the next post-MVP priority for treasurer/accounting integration (see Courses of action) |
 | *Australia Competitions per State* discovery reference (state associations + New Zealand Football) | External reference document cataloguing each state/regional association's competitions, tiers, and format taxonomy (Weekly Competition / Tournament; Knock Out, Round Robin, Double Round Robin, Enhanced Round Robin — Fixed Number of Rounds / Full Rounds Only); source of the Competition object C11 must encode as configuration data, not code. Confirms real structural variance between Australian state associations and New Zealand Football (national + regional leagues, Chatham Cup, Kate Sheppard Cup), relevant to [open question #14](../../scope/open-questions.md) |
 | CSV import/export tooling | No official SQUADI or Football Australia API is available; C2/C4/C9 depend on CSV-based reconciliation rather than live integration |
+| **SQUADI — the pilot club's system of record (confirmed July 2026)** | SQUADI is the authoritative source for the data items it holds; where Let'sDataTalk and SQUADI disagree, SQUADI wins and the difference is raised as a reconciliation exception rather than silently overwritten (BR39, [2_business/5_domain-context-and-rules.md](../2_business/5_domain-context-and-rules.md)). This makes SQUADI simultaneously the system of record (this row), the club's most-wanted integration (Goal G6's confirmed success outcome, [1_motivation.md](./1_motivation.md)), and an integration with no official API — the three facts together are what [open question #27](../../scope/open-questions.md) has to reconcile |
 | Technology stack | Not yet chosen — see [5_technology](../5_technology/README.md) (not started) and the `stack-selection` skill when that layer is assessed |
 | Australian state government youth-sport voucher programs (discovery reference) | Six state programs catalogued: Queensland Play On!/FairPlay (up to A$200/child/financial year, low-income families), NSW Active and Creative Kids (2 × A$50/child/year, school-aged), SA Sports Vouchers (2 × A$100/child/calendar year, Reception–Year 9), WA KidSport (up to A$300/child aged 5–18, concession-card holders), Victoria Get Active Kids Voucher (up to A$200, concession-card holders), Tasmania Ticket to Play (2 × A$100/child aged 5–18, concession-card holders); source of the Voucher Program object C3 must encode as configuration data, not code, and of the per-club Committee approval gate (BR21, [2_business/5_domain-context-and-rules.md](../2_business/5_domain-context-and-rules.md)). New Zealand has no equivalent nationwide government voucher scheme — alternative funding (Tū Manawa Active Aotearoa, local council grants, gaming/philanthropic trusts) runs through the existing Grants Committee Member / Grants Coordinator roles instead of this resource (see [open question #20](../../scope/open-questions.md)) |
 | Voucher-program claim mechanisms (researched July 2026) | None of the six state programs exposes a general-purpose claims API at the pilot club's scale: QLD, SA, WA, Victoria, and Tasmania all require a human or CSV-upload interaction with a government-run provider portal to redeem a voucher and be reimbursed; NSW's Active and Creative Kids API exists but is restricted to organisations with 1,000+ under-18 members, which the pilot club (~700 seasonal registrations/year) does not meet. Source of Voucher Claim (C3) and the CSV/portal-based claim submission approach in the Voucher application and claim process ([2_business/3_business-processes.md](../2_business/3_business-processes.md#voucher-application-and-claim-process)); see [open question #21](../../scope/open-questions.md) on formally requesting dedicated API access |
@@ -55,6 +56,19 @@ What Let'sDataTalk must be able to do to realize the goals in
   import/export and supervised reconciliation instead. Square (C3) is the
   exception — it is the adopted first payment provider, integrated from
   the MVP rather than deferred.
+
+  > **⚠ Unresolved tension (July 2026).** The pilot club has since
+  > confirmed that its measure of success *is* SQUADI/Football Australia
+  > registration synchronisation (Goal G6,
+  > [1_motivation.md](./1_motivation.md)). Deferring that integration and
+  > claiming pilot success are currently incompatible, and no official API
+  > exists to build it against. Three ways out — narrow the success
+  > metric, pull a CSV-based "assisted registration" flow into MVP scope,
+  > or formally pursue SQUADI API access the way
+  > [open question #21](../../scope/open-questions.md) pursues voucher
+  > APIs — are set out in [open question #27](../../scope/open-questions.md).
+  > This course of action stands until that question is answered; it is
+  > flagged rather than silently rewritten.
 - **Carnival & event management (C12) is deferred past the Q4 2026 MVP.**
   It is architected now (goal G7, this capability, the business layer
   additions in [2_business/](../2_business/README.md)) so the public-access

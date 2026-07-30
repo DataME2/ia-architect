@@ -50,7 +50,16 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   own — see Principle P3 and
   [decision 1](../../decisions/1_ai-assistant-autonomy-level.md).
 - **G6 — First live version before the end of Q4 2026,** validated on the
-  pilot club before wider rollout.
+  pilot club before wider rollout. **Confirmed success outcome
+  (stakeholder, July 2026):** the pilot club judges success primarily by
+  whether the platform can *synchronise registration with SQUADI and
+  Football Australia* — today a parent or guardian must complete that
+  registration themselves, which is complicated and time-consuming. See
+  [open question #27](../../scope/open-questions.md): this outcome depends
+  on an integration currently deferred past the MVP, with no official API
+  available (see the Courses of action in
+  [2_capabilities-and-resources.md](./2_capabilities-and-resources.md)) —
+  the tension is recorded, not yet resolved.
 - **G7 — Carnival & grassroots event visibility.** Clubs (and Football
   Queensland) can publish one-off, multi-club carnival and grassroots
   events — draws, schedules, and results — and coaches, parents, and the
