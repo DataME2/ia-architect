@@ -203,6 +203,32 @@ which is why it is recorded as an adopted interpretation in
   be collected and used for club identification now; it cannot be sent
   anywhere until the submission route exists and P2's exception is settled.
 
+- **Publicity consent is a third, separate consent — and the club–FQ
+  disclosure is not the same kind of thing.** The stakeholder asked
+  (August 2026) for registration to capture consent to use a photo in
+  social media, advertising, and promotional material, noting that
+  club-to-Football-Queensland sharing "remains confidential and can be
+  shared without issues". Both halves are recorded, but they are governed
+  differently:
+  - **The FQ disclosure is fine, and BR48 already covers it.** Registering
+    a player with the governing body is the *primary purpose* the data was
+    collected for, so disclosing it is what the collection was always for.
+    One correction only: **confidential is not the same as reversible.**
+    FQ handling the data properly does not give the club authority to
+    delete it there, which is the limit BR49 now states — and the club's
+    privacy notice should describe its own handling, not promise FQ's on
+    FQ's behalf.
+  - **Publicity is a different purpose entirely, and BR57 makes it a
+    separate, optional, off-by-default consent.** Two reasons it cannot be
+    a clause in the registration consent. Consent must be *freely given*:
+    if refusing publicity blocked registration, the choice would cost a
+    child their season, which is no choice at all. And **publication is a
+    safety question for some children** — family court orders, family
+    violence, children in care — which is why the default is off, the
+    setting is per-Person, and revocation is immediate. Revocation stops
+    future use and withdraws club-controlled material, but the consent
+    states plainly that already-shared material cannot be fully recalled.
+
 ## Open questions
 
 - **#36 (new).** Is GDPR a binding requirement or a voluntarily adopted
