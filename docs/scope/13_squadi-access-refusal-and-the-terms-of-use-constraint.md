@@ -80,6 +80,72 @@ replace" option), **or** extract-based comparison is not what statement 3
 is aimed at (in which case C14's approach is safe as designed). Both
 answers are useful, and one question gets either — [#40](./open-questions.md).
 
+## The reply sent (August 2026)
+
+The club replied, **withdrawing the API request as framed** and asking
+instead for the outcome it actually wants: *a parent confirming a
+registration the club has prepared from its own records, rather than
+re-keying it into Squadi.* Three questions were put to Football Queensland:
+
+1. Does Squadi already support **club-side bulk or assisted registration
+   submission** — the club prepares, the parent reviews and confirms?
+   ([#42](./open-questions.md))
+2. If not, what is the **supported process** for a club that holds accurate
+   member data to get it into Squadi without every field being re-typed?
+3. If neither, what are the **criteria and pathway for approved system
+   partner status** — asked for planning, not as an application.
+   ([#41](./open-questions.md))
+
+The argument was deliberately framed on outcomes Football Queensland
+shares rather than on the club's convenience: registrations taking weeks
+because parents start and abandon; **duplicate and mismatched records
+created by re-keying**, which is a data-quality problem in FQ's own
+database (and the same problem BR44 has to solve from the other side,
+without a shared key); and players unable to take the field when they do
+not appear correctly in Squadi.
+
+**Everything now waits on one reply.** Questions
+[#39](./open-questions.md), [#40](./open-questions.md),
+[#42](./open-questions.md), and the fixture-feed half of
+[#19](./open-questions.md) are all answered — or not — by it.
+
+### Two consequences of the reply as sent
+
+**The club has represented to FQ that its system "has no connection to
+Squadi and holds no Squadi data".** That is true today and true of stage 1.
+It is **not** true of C14 as designed: reconciliation consumes Squadi
+Registration and User Report extracts, which is holding Squadi data.
+BR53 already blocks that ingestion pending [#39](./open-questions.md), so
+nothing in the architecture currently contradicts the statement — but the
+statement now has to be *maintained*, not merely respected once. Building
+C14's ingestion before FQ answers would make a written representation to
+the governing body false, which is a materially worse position than the
+terms-of-use ambiguity alone.
+
+**The reply does not disclose the platform's multi-club intent.** The
+system is described as one being developed for the club. That is accurate
+as far as it goes, and it was the club's call to make. It is recorded here
+because [#41](./open-questions.md)'s partner-status conversation will
+require that context to be supplied, and it is better supplied
+deliberately at that point than discovered by FQ in between.
+
+## Stage 2 collides with Principle P2, whichever route wins
+
+The outcome the club described — pushing prepared registrations into
+Squadi for confirmation — is a **write into an external production
+system**. Principle P2 forbids exactly that without an explicit scoped
+exception.
+
+This is worth stating separately because it is easy to assume permission
+solves it: **it does not.** If FQ answers [#42](./open-questions.md) with
+"yes, bulk upload exists, here is how to use it", that resolves BR53 and
+the terms-of-use question completely — and P2 is still unaddressed, because
+P2 is the platform's own constraint about writing into systems it does not
+own, not a restatement of the counterparty's rules. No exception is
+modeled here ([#43](./open-questions.md)): adding one for a capability that
+may never be permitted would be premature, but it must be settled before
+stage 2 is designed rather than discovered during it.
+
 ## EA alignment (assessed top-down before implementing)
 
 | Layer         | Impact                                              |
@@ -178,3 +244,20 @@ answers are useful, and one question gets either — [#40](./open-questions.md).
   extract-based comparison simply outside what the restriction targets?
 - **#41 (new).** Does Let'sDataTalk pursue approved system partner status,
   and who owns that motion — the vendor, not the pilot club?
+- **#42 (new).** Does Squadi already support club-side bulk or assisted
+  registration submission? Asked of FQ; awaiting reply. **The highest-value
+  pending answer in the project** — if yes, most of stage 2's value arrives
+  through a supported path with no API, no integration, and no terms
+  exposure.
+- **#43 (new).** Does Principle P2 gain a scoped exception for writing into
+  an external system, or is it amended? Applies to *every* stage 2 route,
+  including a permitted one.
+
+## Also answered by this exchange
+
+- **#19 (partially).** The pilot club's governing body is confirmed as
+  **Football Queensland**. Whether a machine-readable fixture feed exists
+  is pending the same FQ reply, and the stakeholder's own expectation is
+  that an API connection is unlikely to be permitted — so manual/CSV
+  calendar entry should now be treated as the likely permanent mechanism
+  rather than a placeholder.

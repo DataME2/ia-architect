@@ -106,6 +106,18 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   > write-back. Being read-only is therefore not, by itself, a defence.
   > BR53 carries the resulting rule; [open question #39](../../scope/open-questions.md)
   > carries the unresolved interpretation.
+  >
+  > **Separately, stage 2 collides with P2 head-on.** The outcome the pilot
+  > club actually wants — the club submitting a prepared registration that
+  > the parent merely *confirms*, instead of re-keying it into SQUADI — is
+  > a **write into an external production system**, which this principle
+  > forbids without an explicit scoped exception. That holds for every
+  > mechanism, including a *supported* bulk upload: being permitted by the
+  > counterparty answers BR53, not P2. No exception is modeled here yet —
+  > adding one for a capability the platform may never be permitted to
+  > build would be premature — but it must be settled before stage 2 is
+  > designed rather than discovered during it. See
+  > [open question #43](../../scope/open-questions.md).
 - **P3 — Deterministic rules before generative AI, and AI never has final
   authority.** Data-quality and compliance checks are deterministic rules,
   evaluated before any generative AI step. The AI assistant may draft,
