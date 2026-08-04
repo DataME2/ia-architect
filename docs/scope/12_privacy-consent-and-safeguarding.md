@@ -28,11 +28,13 @@ This initiative adds Principle **P7**, Capability **C15**, five business
 rules (**BR48–BR52**), four business objects, two processes, and a
 service. No application code is written.
 
-**Amended August 2026,** once the stakeholder confirmed the club's
-re-verification cadence: **BR51 was restated** around register
-*notification* rather than platform *polling*, and **BR54** added — test a
-clearance against the end of the season, not against today. See the
-"Automated verification" gap note below.
+**Amended August 2026** by three stakeholder answers. **BR51 was
+restated** around register *notification* rather than platform *polling*,
+and **BR54** added — test a clearance against the end of the season, not
+against today. **BR56** added an identification photograph with its
+consent, retention, and AI-handling limits, and **BR57** a separate,
+optional, off-by-default **publicity consent**; BR48 and BR49 were
+extended for onward disclosure to an external system. See the gap notes.
 
 ## A correction worth stating plainly
 
@@ -62,7 +64,7 @@ which is why it is recorded as an adopted interpretation in
 | Layer         | Impact                                              |
 | ------------- | ---------------------------------------------------- |
 | 1_strategy    | New **Principle P7** (safeguarding and privacy built in, per jurisdiction) — the first new Principle since P6; new **Capability C15** (Consent & privacy rights management); new Resource cataloguing the four relevant frameworks and where they diverge on erasure. P4 is unchanged and remains narrower — it governs AI services specifically, where P7 governs consent, erasure, and clearance lifecycle (see [1_motivation.md](../ea/1_strategy/1_motivation.md), [2_capabilities-and-resources.md](../ea/1_strategy/2_capabilities-and-resources.md)) |
-| 2_business    | New **Consent & privacy rights** service; new **Consent and erasure** and **WWCC clearance lifecycle** processes; new objects Consent Record, Erasure Request, WWCC Clearance, Privacy Configuration; new rules **BR48–BR52**, with BR51 later restated and **BR54** added (August 2026); four new glossary terms including *Linked organisation (WWCC)*. No new actor — Secretary / Member Protection Officer, Blue Card Administration, and Volunteer Coordinator already hold these concerns |
+| 2_business    | New **Consent & privacy rights** service; new **Consent and erasure** and **WWCC clearance lifecycle** processes; new objects Consent Record, Erasure Request, WWCC Clearance, Privacy Configuration; new rules **BR48–BR52**, with BR51 restated and **BR54**, **BR56**, **BR57** added and BR48/BR49 extended (August 2026); five new glossary terms including *Linked organisation (WWCC)* and *Publicity consent*. No new actor — Secretary / Member Protection Officer, Blue Card Administration, and Volunteer Coordinator already hold these concerns |
 | 3_information | No change — not started. Substantially affected when assessed: consent scoping, erasure vs. de-identification, and per-tenant privacy configuration are all data-model concerns, and BR40's retention rule now has BR49 pulling against it |
 | 4_application | No change — not started. BR50's automatic withdrawal is the first rule requiring a *scheduled background process* rather than request-time evaluation. BR51, as restated, additionally needs an **inbound path for register notifications** — an event the platform receives rather than a job it runs — which is a different integration shape and worth noting when that layer is assessed |
 | 5_technology  | No change — not started |
@@ -112,7 +114,7 @@ which is why it is recorded as an adopted interpretation in
 ### WP4 — Governance scaffolding
 
 - **Deliverables:** this scope document, `docs/scope/README.md` index row,
-  `docs/scope/open-questions.md` (#36–#38)
+  `docs/scope/open-questions.md` (#36–#38; #37 partially answered August 2026 — 18 for publicity consent, BR57)
 - **Outcome:** the GDPR-as-choice interpretation, the age-of-control gap,
   and the re-verification frequency are owned questions rather than
   assumptions.
@@ -121,7 +123,7 @@ which is why it is recorded as an adopted interpretation in
 
 | In scope | Out of scope (gaps, candidate future work) |
 | -------- | ------------------------------------------- |
-| Principle P7, Capability C15, BR48–BR52 and BR54, four objects, two processes, one service | A **legal review** confirming any of this satisfies the APPs, the NZ Privacy Act, or GDPR — this is architecture, not advice |
+| Principle P7, Capability C15, BR48–BR52, BR54, BR56–BR57, four objects, two processes, one service | A **legal review** confirming any of this satisfies the APPs, the NZ Privacy Act, or GDPR — this is architecture, not advice |
 | Automatic withdrawal from future assignments on WWCC lapse, with coordinator notification | Confirming the club is linked in the register for every child-related role, and the per-state/NZ notification mechanics ([#38](./open-questions.md)) |
 | Erasure with recorded lawful-basis exceptions, and de-identification where deletion is unlawful | Reconciling BR49 against BR40's three-year retention and [#30](./open-questions.md)'s statutory-minimum question — the same legal answer settles both |
 | Per-tenant privacy configuration (BR52) | Consent wording, privacy notices, or any drafted legal text |
