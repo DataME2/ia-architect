@@ -37,6 +37,9 @@ full process, actors, and definition of done.
   plus the running [open-questions log](./docs/scope/open-questions.md) for
   interpretations still awaiting confirmation from the pilot club or other
   stakeholders.
+- [`docs/annexes/`](./docs/annexes/README.md) — operational artifacts that
+  realise an architecture element rather than describe one (currently the
+  [consent wording](./docs/annexes/consent-wording.md) for BR48/BR55–BR57).
 - [`docs/decisions/`](./docs/decisions/README.md) — smaller, consequential
   calls that don't rise to a full initiative — starting with the AI
   assistant's autonomy level.
