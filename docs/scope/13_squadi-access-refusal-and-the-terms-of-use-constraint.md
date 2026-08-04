@@ -122,12 +122,35 @@ C14's ingestion before FQ answers would make a written representation to
 the governing body false, which is a materially worse position than the
 terms-of-use ambiguity alone.
 
-**The reply does not disclose the platform's multi-club intent.** The
-system is described as one being developed for the club. That is accurate
-as far as it goes, and it was the club's call to make. It is recorded here
-because [#41](./open-questions.md)'s partner-status conversation will
-require that context to be supplied, and it is better supplied
-deliberately at that point than discovered by FQ in between.
+**The reply does not disclose the platform's multi-club intent — a
+deliberate choice, with a reason.** The system is described as one being
+developed for the club. The stakeholder's rationale (August 2026): naming
+a commercial platform invites Football Queensland to treat the request as
+a vendor integration question and lock the conversation down, when what is
+being asked for is **guidance on how the mandated platform is supposed to
+be used** — and that guidance, once given, is **generic to every Queensland
+club**, not specific to North Star.
+
+That reasoning is sound, and it draws the right line. Two different things
+are involved and only one of them creates an ongoing obligation:
+
+- **What was omitted** — the platform's eventual multi-club scope. An
+  omission, in a request for operational guidance about a platform the
+  club is *required* to use. Nothing is obtained under it that the club
+  is not entitled to ask for as an affiliate.
+- **What was asserted** — that the system "has no connection to Squadi and
+  holds no Squadi data". A positive factual representation, which the
+  architecture must keep true (see above).
+
+It is recorded because it changes shape later rather than because it is a
+problem now. **The same fact becomes an argument** when
+[#41](./open-questions.md) is raised: if FQ's answer is generic to every
+Queensland club, then a product that operationalises that answer *across*
+clubs is doing FQ's own job at scale — improving registration quality and
+reducing duplicate records in FQ's database, club by club. That is a
+stronger partner pitch made *with* the multi-club framing than without it.
+The context is therefore best supplied deliberately at that point, as an
+asset, rather than discovered by FQ in between.
 
 ## Stage 2 collides with Principle P2, whichever route wins
 
@@ -251,7 +274,9 @@ stage 2 is designed rather than discovered during it.
   exposure.
 - **#43 (new).** Does Principle P2 gain a scoped exception for writing into
   an external system, or is it amended? Applies to *every* stage 2 route,
-  including a permitted one.
+  including a permitted one. **Parked pending FQ's reply** — the exception's
+  shape depends on the mechanism permitted, so drafting it before #42 is
+  answered would be designing against a guess.
 
 ## Also answered by this exchange
 
