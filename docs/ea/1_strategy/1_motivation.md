@@ -13,7 +13,7 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
 | Referees | Classification, availability, appointments, and payment are tracked separately even though they concern one person | No unified referee profile; conflicts between a person's player and referee roles aren't checked automatically |
 | Pilot club | Wants measurable proof that the platform reduces admin work and errors before recommending it further | Committed at least three years of historical data (~700 seasonal registrations/year) to validate against |
 | Let'sDataTalk (the vendor) | Needs a sellable, multitenant SaaS product across many AU/NZ clubs, not a one-off tool for a single club | Revenue depends on subscription and data-services income across multiple tenants |
-| Governing bodies / state associations (Football Queensland the named example) — **prospective customer, not yet engaged** | Would want jurisdiction-wide control of Competition Regulations, Playing Formats, and the registration process its member clubs follow, rather than each club re-keying the same reference data | Currently modeled only as an external, read-only data source ([2_business/1_business-actors-and-roles.md](../2_business/1_business-actors-and-roles.md)). Serving one as a *tenant* would need an association tier that can see across member clubs — which Principle P5 forbids today; see [open question #31](../../scope/open-questions.md) |
+| Governing bodies / state associations (Football Queensland the named example) — **prospective customer; first contact made July 2026** | Would want jurisdiction-wide control of Competition Regulations, Playing Formats, and the registration process its member clubs follow, rather than each club re-keying the same reference data | Currently modeled only as an external, read-only data source ([2_business/1_business-actors-and-roles.md](../2_business/1_business-actors-and-roles.md)). Serving one as a *tenant* would need an association tier that can see across member clubs — which Principle P5 forbids today; see [open question #31](../../scope/open-questions.md). **Football Queensland's 31 July 2026 reply to the pilot club's API request** establishes the counterparty's stated position: SQUADI API access is restricted to Football Australia, Football Queensland, and *approved system partners*, and is not issued to affiliated clubs — so the relationship Let'sDataTalk needs is **partner status, not credentials** (see the response Resource, [2_capabilities-and-resources.md](./2_capabilities-and-resources.md), and [open questions #39–#41](../../scope/open-questions.md)) |
 | General public, coaches, and parents following grassroots events; clubs and Football Queensland as event hosts | Regional carnivals and grassroots events (MiniRoos Invitational Carnivals, Girls United Carnivals, WinterFest, Pacific Championships, talent-ID tournaments) currently have no consolidated draw/schedule/results support, so families and the public rely on ad hoc social media posts and printed programs | These events span multiple clubs by design and are meant to be followed by people who don't have (and shouldn't need) a Let'sDataTalk account |
 
 ## Goals
@@ -64,6 +64,19 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   does not exist today, so the outcome above is the destination, not the
   entry ticket. See the staged registration ladder in
   [2_capabilities-and-resources.md](./2_capabilities-and-resources.md).
+
+  > **Stage 2's dependency hardened from "absent" to "refused at club
+  > level" (31 July 2026).** Football Queensland's reply to the pilot club's
+  > written API request states that SQUADI API access is restricted to
+  > Football Australia, Football Queensland, and *approved system partners*,
+  > and is **not ordinarily provided to affiliated clubs**. The ladder's
+  > staging holds — this is precisely the outcome staging was designed to
+  > survive — but the route to stage 2 is now known to run through
+  > **partner status**, a commercial and contractual motion, rather than
+  > through a technical request the pilot club can make on its own behalf.
+  > The same reply raises a separate and larger question about the CSV
+  > fallback that stage 1 itself relies on — see
+  > [scope document 13](../../scope/13_squadi-access-refusal-and-the-terms-of-use-constraint.md).
 - **G7 — Carnival & grassroots event visibility.** Clubs (and Football
   Queensland) can publish one-off, multi-club carnival and grassroots
   events — draws, schedules, and results — and coaches, parents, and the
@@ -83,6 +96,28 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   club's production systems during this phase. A change that requires
   write access to an external club system needs a new principle or an
   explicit, scoped exception — surface it rather than assuming it.
+
+  > **P2 does not answer the question Football Queensland raised.** This
+  > principle constrains *writing*, on the assumption that reading a club's
+  > own data out of its own systems is uncontroversial. FQ's 31 July 2026
+  > reply states that SQUADI's terms of use "do not permit club accounts or
+  > Squadi data to be connected or integrated with unauthorised third-party
+  > systems" — a restriction on **connection and ingestion**, not on
+  > write-back. Being read-only is therefore not, by itself, a defence.
+  > BR53 carries the resulting rule; [open question #39](../../scope/open-questions.md)
+  > carries the unresolved interpretation.
+  >
+  > **Separately, stage 2 collides with P2 head-on.** The outcome the pilot
+  > club actually wants — the club submitting a prepared registration that
+  > the parent merely *confirms*, instead of re-keying it into SQUADI — is
+  > a **write into an external production system**, which this principle
+  > forbids without an explicit scoped exception. That holds for every
+  > mechanism, including a *supported* bulk upload: being permitted by the
+  > counterparty answers BR53, not P2. No exception is modeled here yet —
+  > adding one for a capability the platform may never be permitted to
+  > build would be premature — but it must be settled before stage 2 is
+  > designed rather than discovered during it. See
+  > [open question #43](../../scope/open-questions.md).
 - **P3 — Deterministic rules before generative AI, and AI never has final
   authority.** Data-quality and compliance checks are deterministic rules,
   evaluated before any generative AI step. The AI assistant may draft,

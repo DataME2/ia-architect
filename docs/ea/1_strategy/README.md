@@ -18,6 +18,7 @@ flows_.
 | 1   | [1_motivation.md](./1_motivation.md)                                 | Stakeholders, Drivers, Assessments, Goals, Outcomes, Principles | Who cares, what pressures them, what must be true?  |
 | 2   | [2_capabilities-and-resources.md](./2_capabilities-and-resources.md) | Capabilities, Resources, Courses of Action                      | What must we be able to do, and with what?          |
 | 3   | [3_value-stream.md](./3_value-stream.md)                             | Value Stream and its stage mapping                               | How does value flow end-to-end?                     |
+| 4   | [4_value-proposition.md](./4_value-proposition.md)                   | Value, Meaning                                                   | What do we say we are, and is it true?              |
 
 `1_motivation.md` is where **Principles** live — the constraints that a
 proposed change is checked against in step 1 of `ea-first-change` before

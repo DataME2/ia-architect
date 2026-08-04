@@ -135,6 +135,15 @@ state.
 
 ## Open questions
 
+> **#33 resolved (August 2026): replace.** Let'sDataTalk competes for
+> Majestri's market rather than complementing or integrating with it —
+> see [decision 5](../decisions/5_replace-the-incumbent-rather-than-integrate.md)
+> for the alternatives weighed and the consequences that follow, the
+> sharpest being that **the wedge chosen to displace Majestri (C14's
+> reconciliation) is the very thing BR53 currently blocks** pending
+> [#39](./open-questions.md).
+
+
 - **#33 (new).** Does Let'sDataTalk replace, complement, or integrate with
   Majestri? Materially affects the value proposition.
 - **#34 (new).** Has SQUADI's FA ID column reappeared since March 2025?
