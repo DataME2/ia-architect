@@ -104,6 +104,19 @@ time. No application code is written.
 
 ## Open questions
 
+> **#32 answered qualitatively (August 2026): confusion and error
+> dominate.** The named mechanism is guardians entering a child's
+> **nickname** instead of their legal name, which the operator processes
+> into a mismatch that errors and re-loops. That is the best available
+> answer for this initiative's thesis — it is precisely the portion stage 1
+> removes with no integration. Codified as **BR55** (legal name
+> authoritative for registration and matching, preferred name captured
+> alongside for everything humans see) and **BR56** (identification
+> photograph, held under BR48 consent and P4's AI limits). The
+> **proportion** is still unmeasured, so stage 1 still has no numeric
+> target — the measurement remains available from three years of pilot data.
+
+
 - **#32 (new).** What is the "weeks" baseline actually composed of, and
   therefore how much of it can a first-time-right submission remove?
   Blocking any numeric target for stage 1; measurable now from the pilot
