@@ -177,6 +177,32 @@ which is why it is recorded as an adopted interpretation in
   actually linked for every child-related role, the notification mechanics
   per state, and New Zealand's equivalent.
 
+- **Submitting the photograph onward is a disclosure, not a transfer of a
+  copy.** The stated intent (August 2026) is to send the same headshot to
+  SQUADI with the bulk registration. That is reasonable — the governing
+  body has the same identification problem the club does — but it changes
+  three things at once, which is why BR48, BR49, and BR56 were all amended
+  together rather than just BR56:
+  - **Consent must name it.** Consenting to the club *holding* a child's
+    photograph is not consenting to the club *sending it to a third party*.
+    BR48 now requires the disclosure to be named in the consent.
+  - **Erasure cannot reach it.** Once the photograph is in SQUADI, a later
+    erasure request to the club cannot recall it — BR39 makes SQUADI the
+    system of record, and the club has no delete authority there. BR49 now
+    states that limit and requires it to be disclosed at consent time. A
+    protocol promising more than the club can deliver is worse than one
+    honest about its edge.
+  - **Capture must satisfy the strictest destination.** SQUADI's photo
+    specification is unknown ([#44](./open-questions.md)). A snapshot good
+    enough for the club that fails an external dimension, background, or
+    recency rule sends the guardian back around the loop BR55 exists to
+    remove — the same first-time-right logic, applied to the photo.
+
+  All of this is **stage 2 work** regardless, gated on
+  [#42](./open-questions.md) and [#43](./open-questions.md). The photo can
+  be collected and used for club identification now; it cannot be sent
+  anywhere until the submission route exists and P2's exception is settled.
+
 ## Open questions
 
 - **#36 (new).** Is GDPR a binding requirement or a voluntarily adopted
