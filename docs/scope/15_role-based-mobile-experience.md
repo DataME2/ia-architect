@@ -11,8 +11,8 @@ calendar feed that refreshes on the client's schedule (BR30–BR34), an
 email, or in practice a WhatsApp group. This initiative adds **Capability
 C17**, the first place a `Person` interacts with the platform directly.
 
-Adds five business rules (**BR61–BR65**), two business objects, and one
-open question. It also records the **go-to-market timing** stance from the
+Adds six business rules (**BR61–BR66**), two business objects, and one
+open question — raised and answered within the same initiative. It also records the **go-to-market timing** stance from the
 same conversation. No application code is written.
 
 ## What the app is for, in one sentence each
@@ -148,7 +148,7 @@ built on agreeing with that.
 
 | In scope | Out of scope (gaps, candidate future work) |
 | -------- | ------------------------------------------- |
-| C17, BR61–BR65, two objects, the role switcher, availability responses | **Offline behaviour** ([#47](./open-questions.md)) — the question a mobile app forces and nobody has answered |
+| C17, BR61–BR66, two objects, the role switcher, availability responses, the read-only offline posture | Offline **write** support — deliberately excluded; queuing responses is a conflict-resolution problem this initiative chose not to buy (BR66) |
 | Coach and coordinator visibility of who is in, out, and why | Team selection itself — knowing who is available is not choosing the team, and selection has its own rules that do not exist yet |
 | Guardian acting for a minor (BR63) | Where a young person takes that over ([#37](./open-questions.md)) — unchanged and still open |
 | Change notification reaching participants (BR64) | The notification *channel* — push, SMS, or email is an application/technology decision, not a business one |
@@ -157,13 +157,16 @@ built on agreeing with that.
 
 ## Gap notes
 
-- **Offline is now unavoidable and still unanswered.** It has been recorded
-  as a gap since the non-functional requirements were first written, on the
-  grounds that match-day capture happens at grounds that may have no
-  signal. A mobile app makes it a design decision rather than a note:
-  whether a person can see their next fixture and respond to it without
-  connectivity changes the client architecture fundamentally, and it cannot
-  be retrofitted cheaply. See [#47](./open-questions.md).
+- **Offline was answered inside this initiative: read-only (BR66).** The
+  long-standing gap became a design decision the moment a mobile client
+  existed, and it is settled rather than carried forward. Two consequences
+  worth holding onto. **The as-at timestamp is not decoration** — a cached
+  fixture is a snapshot, and an undated one sends someone to a venue that
+  changed. And **refusing to queue writes is the deliberate half**: a
+  response that looks accepted to the sender but never reaches the coach is
+  worse than an honest refusal, and not buying that conflict-resolution
+  problem is most of what makes read-only cheap. If offline writes are ever
+  wanted, that is a new decision, not an incremental widening.
 - **Two response objects now exist for one idea.** Appointment Response
   (referees, BR42) and Participation Response (players, BR62) share a
   pattern deliberately, but they are two objects for what may be one
@@ -182,7 +185,8 @@ built on agreeing with that.
 
 ## Open questions
 
-- **#47 (new).** Must the mobile app work offline — at minimum showing the
-  next fixture and queuing an availability response — and to what degree?
-  Adopted interpretation: **unresolved, and blocking the client
-  architecture.** It must be answered before C17 is designed, not during.
+- **#47 — resolved (August 2026): read-only offline.** Fixture
+  information is readable without connectivity and carries its last-synced
+  time; state-changing actions require a connection and say so. Codified as
+  **BR66**. Raised and answered within this initiative, which is why it
+  never became a design blocker.
