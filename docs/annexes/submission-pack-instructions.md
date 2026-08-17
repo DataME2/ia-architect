@@ -151,6 +151,81 @@ This is a small thing that decides whether the pack actually gets used.
 
 ---
 
+## 6. When Football Queensland replies — what to ask
+
+The first question is not "will you accept a file?" but **"what does the
+file have to look like?"** A yes with no specification is not usable, and
+the answers below are what turn the pack from a guess into a match. Ask
+them as a single list — the recipient answers one email, not six.
+
+**The field set**
+
+1. The **exact column list** for a bulk or assisted registration import,
+   in order, marking which are mandatory and which optional.
+2. How names are split — single full-name field, or first / middle / last?
+   And is the expected value the **legal** name as on the identity
+   document?
+3. **Date format** for date of birth and registration date, and the
+   timezone assumption if any.
+4. The **identifier**: does the club supply an FA ID / Gov Body ID, or does
+   the federation assign it on import? *(If they expect us to supply it,
+   that answers [#34](../scope/open-questions.md) too.)*
+5. **Division, age group, and team names** — must they match the
+   federation's catalogue exactly, and where is the canonical list
+   published?
+6. How to express **registration type**: new player, returning player,
+   transfer in, and the overseas case that triggers an ITC (BR35).
+
+**The photograph** *(this is [#44](../scope/open-questions.md))*
+
+7. Is a player photograph **required, accepted, or ignored**?
+8. If accepted: dimensions, maximum file size, file format, background
+   requirements, and how recent it must be.
+9. Is it supplied **inside the pack**, alongside it, or uploaded
+   separately?
+
+**The mechanics**
+
+10. **File format and encoding** — CSV or spreadsheet, delimiter, header
+    row, character encoding. Non-ASCII names are common and this is where
+    they break.
+11. **Channel** — how should the pack be sent, and to whom?
+12. **Timing** — is there a preferred window before the season, a cutoff,
+    or a maximum frequency for resubmissions?
+13. **Rejections** — what comes back when a record fails, in what form?
+    This is the single most valuable answer in the list: rejection reasons
+    are the validation specification nobody has documented.
+
+**And keep the larger door open** — without making it the ask. If the
+handover works, it demonstrates exactly the data quality that an API
+connection would automate. Mention that the club would welcome a
+programmatic route if one ever becomes available
+([#41](../scope/open-questions.md), [#42](../scope/open-questions.md)), and
+leave it there. The submission pack is what the project depends on; the
+API is what it would prefer.
+
+---
+
+## 7. Football Australia — deliberately not yet
+
+PlayFootball and Football Australia are the other half of the
+three-registrations problem, and the same conversation will be needed
+there. It has **not** been started, on purpose.
+
+The Football Queensland exchange is the reason. A written request made
+before anything existed was answered with a policy statement, because
+there was nothing to respond to except a proposal. The sequence adopted is
+to approach a national body **only once the club-level route works and a
+first-shot registration can be demonstrated** — a real submission pack,
+real club data, a measured before-and-after.
+
+A demonstration invites a question about how to support it. A request
+invites a restatement of the rules. Nothing about Football Australia's
+position should be inferred from Football Queensland's until it is
+actually asked.
+
+---
+
 ## Not yet covered
 
 - **PlayFootball / Football Australia.** These instructions are written

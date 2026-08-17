@@ -65,6 +65,16 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   entry ticket. See the staged registration ladder in
   [2_capabilities-and-resources.md](./2_capabilities-and-resources.md).
 
+  > **Stated plainly (August 2026), the outcome is: one registration, not
+  > three.** Today a family can be asked to register the same child three
+  > separate times — with the club, in Squadi, and in PlayFootball — each in
+  > a different interface, each re-keying the same values, each an
+  > opportunity for the mismatch that causes the delay (BR55). Everything in
+  > the registration ladder serves this single sentence, and it is the
+  > clearest test of whether a proposed feature is worth building: **does it
+  > reduce the number of times a parent types their child's details?** If
+  > not, it is not this goal.
+
   > **Stage 2's dependency hardened from "absent" to "refused at club
   > level" (31 July 2026).** Football Queensland's reply to the pilot club's
   > written API request states that SQUADI API access is restricted to

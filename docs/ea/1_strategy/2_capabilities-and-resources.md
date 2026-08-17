@@ -157,6 +157,36 @@ What Let'sDataTalk must be able to do to realize the goals in
   the same pack that FQ would import is also the pack a club admin or family
   keys in from, correctly, first time — which is stage 1 and needs nobody's
   permission.
+- **Approach the national body with a demonstration, not a request.**
+  Football Australia and PlayFootball are the second half of the
+  three-registrations problem, and the same conversation will eventually be
+  needed there. It is deliberately **not** being started yet. The Football
+  Queensland exchange is the lesson: a written request made before anything
+  existed was answered with a policy statement, because there was nothing
+  to react to except a proposal. The sequence adopted (August 2026) is to
+  approach a national body **only once the club-level route works and a
+  first-shot registration can be shown** — a working submission pack, real
+  club data, a measured before-and-after. A demonstration invites a
+  question about how to support it; a request invites a restatement of the
+  rules.
+- **Delegating eligibility to the federation is the position, not a
+  concession.** The platform does not seek to decide whether a player is
+  registered — that is the federation's business and the architecture says
+  so (BR39, BR60). This matters twice. Internally it is what keeps BR43's
+  gate honest. Externally it is the **least threatening posture available**
+  in any conversation with a governing body: the club is not proposing to
+  take over registration, it is proposing to hand over cleaner data for the
+  federation to act on. Worth stating explicitly whenever the API question
+  is raised again.
+- **Keep pushing for the API without depending on it.** The submission pack
+  (C16, stage 1.5) is not a replacement for stage 2 — it is what makes the
+  project survive without it. A real API connection remains the destination
+  because it is the only route that removes the manual step entirely, so
+  the door stays open: every exchange with Football Queensland should leave
+  the possibility of programmatic access alive
+  ([open questions #41](../../scope/open-questions.md),
+  [#42](../../scope/open-questions.md)), while no plan depends on it
+  arriving.
 - **Carnival & event management (C12) is deferred past the Q4 2026 MVP.**
   It is architected now (goal G7, this capability, the business layer
   additions in [2_business/](../2_business/README.md)) so the public-access
