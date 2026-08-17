@@ -39,3 +39,17 @@ flowchart TB
 
   classDef technology fill:#c9e7b7,stroke:#558b2f,color:#333
 ```
+
+## Documents
+
+| #   | Document | Elements | Question it answers |
+| --- | -------- | -------- | ------------------- |
+| 1   | [1_technology-services.md](./1_technology-services.md) | Technology Service, System Software, Node | What does the software run on, and why that? |
+| 2   | `2_deployment.md` | Node, Artifact, deployment topology | Where does it run, and how does it get there? *(not started — written with the first deploy)* |
+
+**Chosen August 2026:** Next.js + Supabase + Vercel, Sydney region. The
+deciding property was **Row-Level Security** — Principle P5's tenant
+isolation enforced by the database rather than by remembering a filter in
+every query. See [1_technology-services.md](./1_technology-services.md) for
+what that buys, what it costs, and what was deliberately deferred.
+
