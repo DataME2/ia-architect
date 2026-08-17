@@ -25,7 +25,7 @@ and market-entry decisions. No application code is written.
 | **31** | **Yes, pursue the association tier** — and the first move is a **listening session**, not a proposal |
 | **34** | **No**, SQUADI's FA ID column has not reappeared. BR44's no-shared-key assumption holds |
 | **36** | **GDPR is a voluntary design standard**, confirmed. BR49 knowingly exceeds AU/NZ law |
-| **37** | **18**, across every right — and **BR67** adds the transfer of control that the threshold alone does not give |
+| **37** | **18**, across every right — and **BR67** adds the transfer of control that the threshold alone does not give, with the Guardian retained as a point of contact rather than removed |
 | **41** | **Let'sDataTalk is founder-owned**; any club, or Football Queensland itself, could become **partner or investor** |
 | **45** | **Yes**, Majestri supports bulk export — which makes decision 5's displacement strategy executable |
 
@@ -51,7 +51,10 @@ answering on their behalf, and neither party notices. **BR67** makes the
 eighteenth birthday a recorded, notified transfer of consent authority,
 erasure rights, the calendar feed, the mobile account, and publicity
 consent — and gives an audit point for who held authority when a past
-consent was given.
+consent was given. The **Guardian is retained as a point of contact**
+rather than removed, because a parent is usually still who the club phones
+about a young adult; separating *authority* from *contactability* is what a
+single Guardianship record was previously conflating.
 
 ## The correction: an answer landed on a different question
 
@@ -107,6 +110,16 @@ as a Course of action because Platinum is not a software feature: "as soon
 as received", during registration season, across a state of volunteer-run
 clubs, is an availability promise whose cost is people. It needs a bounded
 coverage window before it is sold ([#48](./open-questions.md)).
+
+**Pricing settled for the pilot club, and written into terms.**
+**A$12,000** covers onboarding, migration, configuration and the first
+twelve months with Platinum included; **A$5,500** recurring thereafter,
+derived from A$5 per registered player and A$10 per non-player role. The
+two figures are stated separately on purpose — a club reading A$12,000 as
+the annual price will not renew, and one reading A$5,500 as the whole cost
+will be surprised at signing. Both, along with data ownership, export
+rights, and what the platform explicitly does *not* promise, are drafted in
+the [commercial terms annex](../annexes/commercial-terms.md).
 
 ## EA alignment (assessed top-down before implementing)
 
