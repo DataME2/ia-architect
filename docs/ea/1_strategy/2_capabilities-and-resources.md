@@ -26,6 +26,7 @@ What Let'sDataTalk must be able to do to realize the goals in
 | C13 | **Calendar distribution** — publish a Person's own confirmed commitments (initially referee appointments) as a standards-based calendar feed their existing Gmail, Outlook, or Apple calendar subscribes to, so appointments, changes, and cancellations appear in the calendar they already use | G4, G5 |
 | C14 | **External registration reconciliation** — continuously match the club's own registrations against the governing bodies' systems (SQUADI, PlayFootball/Football Australia), identify who is missing from which, resolve identity across systems that no longer share a stable identifier, and surface each gap as an actionable exception carrying its eligibility consequence (BR43) rather than as a spreadsheet row | G2, G6 |
 | C15 | **Consent & privacy rights management** — capture explicit, scoped, revocable guardian consent for minors; service data-subject requests (access, correction, erasure) against a recorded lawful basis; and hold the per-jurisdiction privacy configuration that determines which framework applies to which tenant | G1, G5 (cross-cutting, with P7) |
+| C16 | **External registration submission** — assemble the club's own validated registrations into a structured, versioned **Registration Submission Pack** that the governing body can import into its own system, hand it over through a controlled channel, and track what was sent, when, to whom, and what came back. The platform produces a file; it never connects to the governing body's system | G2, G6 |
 
 ## Resources
 
@@ -78,6 +79,7 @@ What Let'sDataTalk must be able to do to realize the goals in
   | Stage | What it proves | Depends on |
   | ----- | -------------- | ---------- |
   | **1 — SQUADI-ready ("one-shot")** | How fast a registration can be completed from the *club's* perspective, and — critically — submitted to SQUADI **right first time**: collected once, deterministically validated (BR1–BR5), and handed over as a complete, correct submission instead of a guardian guessing their way through an unfamiliar interface. Demonstrable **pre-MVP**, on the pilot club's real historical data | Nothing external — no API, no integration. This is why it is the stage the project commits to |
+  | **1.5 — Structured handover** | The same validated registration leaving the platform as a **submission pack** the governing body imports itself, or that a club admin keys in from without re-deriving anything. Removes the re-keying error loop without any integration | **Nothing from the platform's side** — it produces a file and never touches Squadi, so neither BR53's terms-of-use question nor P2's write-back prohibition is engaged. Full value depends on Football Queensland agreeing to *receive and import* it ([open question #46](../../scope/open-questions.md)); partial value does not, since the same pack guides correct first-time entry |
   | **2 — SQUADI synchronisation** | The same registration flowing through to SQUADI, removing the duplicate entry a parent or guardian performs manually today — the target shape being **the club prepares, the parent confirms** | Either **existing club-side bulk/assisted submission in Squadi** if such functionality exists ([open question #42](../../scope/open-questions.md) — the cheapest route by far, and a supported one), or **approved system partner status** ([#41](../../scope/open-questions.md)). Not a club-level API request, which was made and declined on 31 July 2026. **Both routes additionally need a scoped P2 exception** ([#43](../../scope/open-questions.md)), since both write into a system the platform does not own |
   | **3 — Football Australia** | National-level registration, including the ITC path for players arriving from overseas (BR35–BR38) | Football Australia access, and stage 2 in place |
 
@@ -136,6 +138,25 @@ What Let'sDataTalk must be able to do to realize the goals in
   axis chosen to beat it. Second, **every sale is a migration** out of
   Majestri, mid-season, and whether Majestri supports bulk export of a
   club's own data is unknown ([#45](../../scope/open-questions.md)).
+- **Hand over a file instead of asking for a connection.** With no reply
+  from Football Queensland, the platform stops waiting for permission it
+  cannot obtain and inverts the direction: it becomes the **source of truth
+  for the club's own registration data** and emits a structured submission
+  pack (C16) that the governing body imports into Squadi itself. The
+  platform never connects to Squadi, never ingests Squadi data, and never
+  writes into it — so **BR53's unresolved terms-of-use question and P2's
+  write-back prohibition are both side-stepped rather than resolved**, which
+  is the point: neither needs an answer for this route to be built.
+
+  Two honest limits ship with it. **Football Queensland has not agreed to
+  receive or import anything** ([open question #46](../../scope/open-questions.md)) —
+  the club can build the export unilaterally but cannot make anyone consume
+  it. And **the target format is unknown** ([#44](../../scope/open-questions.md)),
+  so the pack mirrors the Squadi report columns already documented from the
+  incumbent's extracts as the best available proxy. The design absorbs both:
+  the same pack that FQ would import is also the pack a club admin or family
+  keys in from, correctly, first time — which is stage 1 and needs nobody's
+  permission.
 - **Carnival & event management (C12) is deferred past the Q4 2026 MVP.**
   It is architected now (goal G7, this capability, the business layer
   additions in [2_business/](../2_business/README.md)) so the public-access

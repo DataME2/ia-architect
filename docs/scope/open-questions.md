@@ -25,15 +25,17 @@ then resolved 28 — the blocking MVP-scope conflict — with a staged
 registration ladder, and raised 31 on serving a governing body as a
 tenant.
 
-Twenty-one of the forty-five questions are now resolved. Three gate work that
+Twenty-one of the forty-six questions are now resolved. Three gate work that
 would otherwise start: question 32 — decomposing the registration baseline
 — gates the target stage 1 of the registration ladder is meant to hit;
 question 39 — whether Squadi's terms of use permit ingesting a club's own
 CSV export — gates building the reconciliation capability (C14) at all; and
 question 42 — whether Squadi already supports club-side bulk/assisted
 registration submission — determines whether stage 2 has a **supported**
-route or only a negotiated one. Questions 39, 40, 42, and the fixture-feed
-half of 19 all sit with Football Queensland, awaiting a single reply.
+route or only a negotiated one. Questions 39, 40, 42, 44, 46 and the fixture-feed
+half of 19 all sit with Football Queensland, which has not replied. Scope
+document 14 stops treating that reply as a dependency for the registration
+path, without pretending the questions are answered.
 
 ## Pending
 
@@ -63,6 +65,7 @@ half of 19 all sit with Football Queensland, awaiting a single reply.
 | 43 | Stage 2 in **any** form — API, bulk upload, or assisted submission — writes club data into an external production system, which Principle **P2** forbids without an explicit scoped exception. Does P2 gain such an exception (in the pattern of P6 to P5), or is it amended? | **Parked pending Football Queensland's reply (stakeholder, August 2026)** — the shape of the exception depends on the mechanism FQ permits, so drafting it before question 42 is answered would be designing against a guess. Deliberately unmodeled. Adding a principle exception for a capability the platform may never be permitted to build would be premature, but the collision should be settled *before* stage 2 is designed rather than discovered during it. Note that a **supported bulk-upload path (question 42) does not avoid this** — it is still a write into a system the platform does not own | [13_squadi-access-refusal-and-the-terms-of-use-constraint.md](./13_squadi-access-refusal-and-the-terms-of-use-constraint.md) |
 | 44 | Does SQUADI (and PlayFootball) **require, accept, or ignore** a player photograph — and if so, to what **specification** (dimensions, file size, background, recency) and can it be supplied in a bulk/assisted submission? Does either validate the registered name against an identity document? | None yet — **now load-bearing**: the stated intent (August 2026) is to submit the same headshot to SQUADI with the registration, which makes the external spec the one the club must capture to (BR56). Capturing to a club-only standard and discovering SQUADI's differs re-creates the guardian re-loop BR55 exists to remove. Also determines whether BR55's legal-name rule matches how SQUADI actually validates. Worth folding into the pending Football Queensland conversation rather than asked separately | [decisions/5](../decisions/5_replace-the-incumbent-rather-than-integrate.md) |
 | 45 | Does **Majestri** permit and support bulk export of a club's own data, so a club can migrate off it? | None yet — the mirror image of question 39, and now load-bearing: [decision 5](../decisions/5_replace-the-incumbent-rather-than-integrate.md) makes every sale a migration out of Majestri, mid-season. If export is restricted or unsupported, switching cost rises sharply and the displacement strategy needs a different answer for how clubs actually move | [decisions/5](../decisions/5_replace-the-incumbent-rather-than-integrate.md) |
+| 46 | Will **Football Queensland accept and actually import a club-produced Registration Submission Pack**, and through what channel and format? | Adopted: **assume not.** No reply was received to the club's August 2026 follow-up, and a workflow that depends on a counterparty consuming a file they never agreed to receive is not a plan. The pack is therefore designed to be equally usable as a **guided data source for manual entry** (C16, stage 1.5), which delivers the confirmed dominant cause of the registration delay regardless of what FQ decides. The question stays open because a *yes* would remove the manual keying entirely | [14_submission-pack-and-the-inverted-direction.md](./14_submission-pack-and-the-inverted-direction.md) |
 
 ## Resolved
 

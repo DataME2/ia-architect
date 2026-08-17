@@ -14,6 +14,7 @@ through `ea-first-change` like anything else.
 | Annex | Realises | Notes |
 | ----- | -------- | ----- |
 | [consent-wording.md](./consent-wording.md) | BR48, BR55, BR56, BR57 | Registration collection notice, identification photo consent, and publicity consent. Drafted, **not legally reviewed** |
+| [submission-pack-instructions.md](./submission-pack-instructions.md) | C16, BR58, BR59, BR60 | How a club produces, checks, hands over, and tracks a Registration Submission Pack, with a recipient-facing cover note and the fallback for when the federation does not import |
 | [preliminary-technical-spec-en.pdf](./preliminary-technical-spec-en.pdf) | The architecture as a whole | Preliminary technical specification for reading effort — scope, roles, data model, integrations, risks, relative complexity, and volumetry. English |
 | [preliminary-technical-spec-es.pdf](./preliminary-technical-spec-es.pdf) | The architecture as a whole | Spanish rendering of the same document, kept because the originating discovery material was Spanish |
 
