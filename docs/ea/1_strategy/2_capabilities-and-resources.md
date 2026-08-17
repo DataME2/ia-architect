@@ -27,6 +27,7 @@ What Let'sDataTalk must be able to do to realize the goals in
 | C14 | **External registration reconciliation** — continuously match the club's own registrations against the governing bodies' systems (SQUADI, PlayFootball/Football Australia), identify who is missing from which, resolve identity across systems that no longer share a stable identifier, and surface each gap as an actionable exception carrying its eligibility consequence (BR43) rather than as a spreadsheet row | G2, G6 |
 | C15 | **Consent & privacy rights management** — capture explicit, scoped, revocable guardian consent for minors; service data-subject requests (access, correction, erasure) against a recorded lawful basis; and hold the per-jurisdiction privacy configuration that determines which framework applies to which tenant | G1, G5 (cross-cutting, with P7) |
 | C16 | **External registration submission** — assemble the club's own validated registrations into a structured, versioned **Registration Submission Pack** that the governing body can import into its own system, hand it over through a controlled channel, and track what was sent, when, to whom, and what came back. The platform produces a file; it never connects to the governing body's system | G2, G6 |
+| C17 | **Role-based mobile experience** — one app per `Person`, showing the information and actions of whichever role they are currently acting in, with an explicit switch when they hold several. For a player or match official: the next fixture with venue and kick-off, what they need to bring or know, and a one-tap **available / not available** response carrying a brief reason. For a coach, technical director, or coordinator: who has responded, who has not, and who is unavailable and why. For a guardian: all of the above on behalf of their child | G1, G4, G5 |
 
 ## Resources
 
@@ -187,6 +188,25 @@ What Let'sDataTalk must be able to do to realize the goals in
   ([open questions #41](../../scope/open-questions.md),
   [#42](../../scope/open-questions.md)), while no plan depends on it
   arriving.
+- **Go to market when the pain is loudest, but never market against the
+  federation.** The commercial moment to publish and promote is when clubs
+  are visibly struggling with Squadi — registration season, a bad release,
+  a backlog of unregistered players. Arriving then means the product is
+  answering a question clubs are already asking rather than creating one.
+
+  **One discipline makes that safe, and it is not optional.** Marketing
+  aimed at *Squadi being bad* directly contradicts the same organisation
+  the project needs for approved partner status
+  ([#41](../../scope/open-questions.md)), for an eventual API
+  ([#42](../../scope/open-questions.md)), and possibly as a customer
+  ([#31](../../scope/open-questions.md)). A vendor cannot publicly
+  criticise a platform and privately ask its owner for privileged access
+  to it. So the message is aimed at the **club's own pain** — weeks to
+  register, the same details typed three times, players who cannot take
+  the field — and at what the platform does about it. Squadi is described
+  as the destination the club must feed correctly, never as the villain.
+  That framing is also the honest one: BR43 and BR60 say the federation
+  owns eligibility, and the product is built on agreeing with that.
 - **Carnival & event management (C12) is deferred past the Q4 2026 MVP.**
   It is architected now (goal G7, this capability, the business layer
   additions in [2_business/](../2_business/README.md)) so the public-access
