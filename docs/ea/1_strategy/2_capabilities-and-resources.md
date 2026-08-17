@@ -26,6 +26,8 @@ What Let'sDataTalk must be able to do to realize the goals in
 | C13 | **Calendar distribution** — publish a Person's own confirmed commitments (initially referee appointments) as a standards-based calendar feed their existing Gmail, Outlook, or Apple calendar subscribes to, so appointments, changes, and cancellations appear in the calendar they already use | G4, G5 |
 | C14 | **External registration reconciliation** — continuously match the club's own registrations against the governing bodies' systems (SQUADI, PlayFootball/Football Australia), identify who is missing from which, resolve identity across systems that no longer share a stable identifier, and surface each gap as an actionable exception carrying its eligibility consequence (BR43) rather than as a spreadsheet row | G2, G6 |
 | C15 | **Consent & privacy rights management** — capture explicit, scoped, revocable guardian consent for minors; service data-subject requests (access, correction, erasure) against a recorded lawful basis; and hold the per-jurisdiction privacy configuration that determines which framework applies to which tenant | G1, G5 (cross-cutting, with P7) |
+| C16 | **External registration submission** — assemble the club's own validated registrations into a structured, versioned **Registration Submission Pack** that the governing body can import into its own system, hand it over through a controlled channel, and track what was sent, when, to whom, and what came back. The platform produces a file; it never connects to the governing body's system | G2, G6 |
+| C17 | **Role-based mobile experience** — one app per `Person`, showing the information and actions of whichever role they are currently acting in, with an explicit switch when they hold several. For a player or match official: the next fixture with venue and kick-off, what they need to bring or know, and a one-tap **available / not available** response carrying a brief reason. For a coach, technical director, or coordinator: who has responded, who has not, and who is unavailable and why. For a guardian: all of the above on behalf of their child. **Read-only offline** (BR66): fixture information is readable without connectivity and carries its last-synced time; responses require a connection and say so | G1, G4, G5 |
 
 ## Resources
 
@@ -38,16 +40,16 @@ What Let'sDataTalk must be able to do to realize the goals in
 | CSV import/export tooling | No official SQUADI or Football Australia API is available to affiliated clubs (confirmed in writing 31 July 2026 — see the Football Queensland response row below); C2/C4/C9 depend on CSV-based reconciliation rather than live integration. **This fallback is no longer unqualified:** the same reply states SQUADI's terms of use do not permit club accounts or Squadi data to be connected or integrated with unauthorised third-party systems, and whether a club-exported CSV consumed by Let'sDataTalk falls inside that restriction is unresolved (BR53, [open question #39](../../scope/open-questions.md)) |
 | **Football Queensland's response to the API access request (31 July 2026)** | The pilot club (North Star FC) made a written developer-access request; Football Queensland's Registrations team replied with four material statements. **(1) Access tiering:** Squadi *does* support API integrations, but access is "generally restricted to Football Australia, Football Queensland and approved system partners", and credentials "are not ordinarily provided directly to affiliated clubs" — so the route is **approved system partner status**, not a club-issued key. **(2) Mandated platform:** affiliated clubs "are required to use Squadi for competition administration and related functionality" — the SQUADI dependency (BR43) is contractual, not merely practical. **(3) The terms-of-use restriction:** the terms "do not permit club accounts or Squadi data to be connected or integrated with unauthorised third-party systems" — the single most consequential sentence for this architecture, because it reaches the CSV fallback and not only the API. **(4) An open door:** FQ asked what functionality, information, use, and internal system are involved, and offered to advise whether Squadi already covers it or what supported process applies. The door is open, and the answer given to those four questions determines which side of statement (3) the platform lands on. Source of BR53 and [open questions #39–#41](../../scope/open-questions.md); see [scope document 13](../../scope/13_squadi-access-refusal-and-the-terms-of-use-constraint.md) |
 | **The club's reply to Football Queensland (August 2026)** | The pilot club withdrew the API request as framed and asked instead for the *outcome*: a parent **confirming** a registration the club has prepared from its own records, rather than re-keying it. Three questions were put to FQ — (a) does Squadi already support **club-side bulk or assisted registration submission**; (b) if not, what is the supported process for a club holding accurate member data; (c) if neither, what are the criteria and pathway for **approved system partner** status. The argument was framed on outcomes FQ shares: registrations taking weeks because parents start and abandon, duplicate/mismatched records created by re-keying (a data-quality problem at FQ's end too), and players unable to take the field when they do not appear correctly in Squadi. **Awaiting reply** — it is the single response that resolves [open questions #39, #40, #42](../../scope/open-questions.md) and the fixture-feed half of [#19](../../scope/open-questions.md). The reply also states to FQ that the club's system "has no connection to Squadi and holds no Squadi data" — see BR53's note and [scope document 13](../../scope/13_squadi-access-refusal-and-the-terms-of-use-constraint.md) on what that commits the architecture to |
-| **Majestri — the incumbent club management system (discovered July 2026)** | Most football clubs, including the pilot club, already run an "advanced" team-sports club management system called Majestri: it handles registration intake, dashboards, email/SMS, volunteers, and match officials, and it already performs **periodic manual comparisons** of its own registrations against PlayFootball v2.0 and SQUADI. Let'sDataTalk is therefore **not entering an empty space** — it enters one with an established incumbent that already covers part of the same ground. **Positioning decided (August 2026): Let'sDataTalk replaces Majestri** and competes for the market it occupies, rather than complementing or integrating with it — see [decision 5](../../decisions/5_replace-the-incumbent-rather-than-integrate.md). Majestri is therefore modeled as the competitive and operational baseline clubs migrate *from*, never as a source system to integrate with |
+| **Majestri — the incumbent club management system (discovered July 2026)** | Most football clubs, including the pilot club, already run an "advanced" team-sports club management system called Majestri: it handles registration intake, dashboards, email/SMS, volunteers, and match officials, and it already performs **periodic manual comparisons** of its own registrations against PlayFootball v2.0 and SQUADI. Let'sDataTalk is therefore **not entering an empty space** — it enters one with an established incumbent that already covers part of the same ground. **Bulk export of a club's own data is confirmed available (August 2026)**, which is what makes displacement practically possible — see [open question #45](../../scope/open-questions.md), resolved. **Positioning decided (August 2026): Let'sDataTalk replaces Majestri** and competes for the market it occupies, rather than complementing or integrating with it — see [decision 5](../../decisions/5_replace-the-incumbent-rather-than-integrate.md). Majestri is therefore modeled as the competitive and operational baseline clubs migrate *from*, never as a source system to integrate with |
 | **The measured reconciliation gap (pilot club, 2026 season)** | From the club's own Majestri screen, 2026 Season / All Competitions (1 Jan – 1 Aug 2026): **799 players, 707 registrations, 49 incomplete.** Against PlayFootball v2.0: 721 matched, **78 missing.** Against SQUADI: 759 matched, **40 missing.** Both comparisons last run **15 May 2026** — roughly ten weeks stale at time of recording. Those 40 players missing from SQUADI are, under BR43, players who cannot take the field. This is the project's most concrete baseline: not an anecdote, a count |
-| **SQUADI extract formats (as supported by Majestri, July 2026)** | Two CSV reports, each with material blind spots that shape what any comparison can actually conclude — **Squadi Registration Report**: First Name, Last Name, Email, DOB, Registration Divisions, Payment Status, FA ID / Gov Body ID, Registration Date (AEDT/AEST/ACDT); has no notion of role, and excludes rows whose Payment Status is `De-Registered`. **Squadi User Report**: Id, First Name, Middle Name, Last Name, Gender, Date Of Birth, Email, Mobile Number, Role, Competition Name; covers only Player, Coach and Team Official roles, carries **no Registration Date**, has unclear season scope (potentially spanning more than one), and — critically — **the FA ID column was removed in March 2025**, so this report offers no stable external identifier at all. Source of BR44–BR47 and [open question #34](../../scope/open-questions.md) |
+| **SQUADI extract formats (as supported by Majestri, July 2026)** | Two CSV reports, each with material blind spots that shape what any comparison can actually conclude — **Squadi Registration Report**: First Name, Last Name, Email, DOB, Registration Divisions, Payment Status, FA ID / Gov Body ID, Registration Date (AEDT/AEST/ACDT); has no notion of role, and excludes rows whose Payment Status is `De-Registered`. **Squadi User Report**: Id, First Name, Middle Name, Last Name, Gender, Date Of Birth, Email, Mobile Number, Role, Competition Name; covers only Player, Coach and Team Official roles, carries **no Registration Date**, has unclear season scope (potentially spanning more than one), and — critically — **the FA ID column was removed in March 2025**, so this report offers no stable external identifier at all. Source of BR44–BR47. **Re-checked August 2026: the FA ID column has *not* reappeared** ([#34](../../scope/open-questions.md), resolved) — BR44's no-shared-key assumption holds and matching stays name + date of birth + email with human confirmation |
 | **SQUADI — the pilot club's system of record (confirmed July 2026)** | SQUADI is the authoritative source for the data items it holds; where Let'sDataTalk and SQUADI disagree, SQUADI wins and the difference is raised as a reconciliation exception rather than silently overwritten (BR39, [2_business/5_domain-context-and-rules.md](../2_business/5_domain-context-and-rules.md)). This makes SQUADI simultaneously the system of record (this row), the club's most-wanted integration (Goal G6's confirmed success outcome, [1_motivation.md](./1_motivation.md)), and an integration with no official API — the three facts together are what [open question #27](../../scope/open-questions.md) has to reconcile |
 | **Privacy and child-safeguarding frameworks (assessed July 2026)** | The binding regimes differ by jurisdiction and do **not** align on erasure. **Australia:** Privacy Act 1988 (Cth) and the Australian Privacy Principles — APP 11.2 requires destruction or de-identification once information is no longer needed and APP 13 gives a right of *correction*, but the APPs contain **no general right to erasure**. **New Zealand:** Privacy Act 2020, likewise correction-oriented. **EU GDPR:** binds only if the platform processes EU residents' data or targets the EU; it is the only one of the three carrying a true Art. 17 "right to be forgotten", itself subject to Art. 17(3) exemptions for legal obligation and legal claims. **Child safeguarding:** state-based, e.g. Queensland's Working with Children (Risk Management and Screening) Act 2000 (Blue Card). Building to GDPR is therefore a deliberate **design choice** — the highest common denominator, and futureproofing for expansion — not a description of what currently binds AU/NZ operations; see [open question #36](../../scope/open-questions.md) |
 | Technology stack | Not yet chosen — see [5_technology](../5_technology/README.md) (not started) and the `stack-selection` skill when that layer is assessed |
 | Australian state government youth-sport voucher programs (discovery reference) | Six state programs catalogued: Queensland Play On!/FairPlay (up to A$200/child/financial year, low-income families), NSW Active and Creative Kids (2 × A$50/child/year, school-aged), SA Sports Vouchers (2 × A$100/child/calendar year, Reception–Year 9), WA KidSport (up to A$300/child aged 5–18, concession-card holders), Victoria Get Active Kids Voucher (up to A$200, concession-card holders), Tasmania Ticket to Play (2 × A$100/child aged 5–18, concession-card holders); source of the Voucher Program object C3 must encode as configuration data, not code, and of the per-club Committee approval gate (BR21, [2_business/5_domain-context-and-rules.md](../2_business/5_domain-context-and-rules.md)). New Zealand has no equivalent nationwide government voucher scheme — alternative funding (Tū Manawa Active Aotearoa, local council grants, gaming/philanthropic trusts) runs through the existing Grants Committee Member / Grants Coordinator roles instead of this resource (see [open question #20](../../scope/open-questions.md)) |
 | Voucher-program claim mechanisms (researched July 2026) | None of the six state programs exposes a general-purpose claims API at the pilot club's scale: QLD, SA, WA, Victoria, and Tasmania all require a human or CSV-upload interaction with a government-run provider portal to redeem a voucher and be reimbursed; NSW's Active and Creative Kids API exists but is restricted to organisations with 1,000+ under-18 members, which the pilot club (~700 seasonal registrations/year) does not meet. Source of Voucher Claim (C3) and the CSV/portal-based claim submission approach in the Voucher application and claim process ([2_business/3_business-processes.md](../2_business/3_business-processes.md#voucher-application-and-claim-process)); see [open question #21](../../scope/open-questions.md) on formally requesting dedicated API access |
 | iCalendar (RFC 5545) and the `webcal:` subscription convention | Open, vendor-neutral standard every major calendar client already consumes — Google Calendar, Outlook/Microsoft 365, and Apple Calendar all subscribe to an ICS URL without any per-vendor API, OAuth grant, or app-store presence. The basis for C13 delivering "add it to my Gmail/Outlook calendar" without Let'sDataTalk holding write access to anyone's mailbox or calendar account (see decision [4](../../decisions/4_calendar-distribution-by-feed-not-account-access.md)) |
-| Regional carnivals and grassroots events (stakeholder-provided examples) | MiniRoos Invitational Carnivals (single-day, round-robin, club-hosted), Girls United Carnivals (modified-format, female football celebration carnivals in regions such as Brisbane, Townsville, and Hervey Bay through October–November), and other named events (WinterFest, Pacific Championships, talent-ID tournaments) hosted by local clubs and Football Queensland. No catalogued reference document exists yet for the full list and exact format rules per event type (unlike the *Australia Competitions per State* resource for C11) — source of the Carnival/Grassroots Event object (C12); see [open question #22](../../scope/open-questions.md) |
+| Regional carnivals and grassroots events (stakeholder-provided examples) | MiniRoos Invitational Carnivals (single-day, round-robin, club-hosted), Girls United Carnivals (modified-format, female football celebration carnivals in regions such as Brisbane, Townsville, and Hervey Bay through October–November), and other named events (WinterFest, Pacific Championships, talent-ID tournaments) hosted by local clubs and Football Queensland. **Scope confirmed August 2026:** carnivals are **MiniRoos events only** — an opportunity for MiniRoos age groups to play more football against each other — running at an average of **80–90 registered teams** per carnival. That bounds C12 considerably: no adult or open-age formats, and the scale is a large single-day draw rather than a season. The per-event Carnival Conditions still vary and remain configuration ([#22](../../scope/open-questions.md), substantially resolved) |
 | Football Australia *Guide to International Transfer Certificates* (March 2019) | External reference document; source of the ITC/Minor ITC Application business objects and BR35–BR38 ([2_business/4_business-objects.md](../2_business/4_business-objects.md#international-transfers), [2_business/5_domain-context-and-rules.md](../2_business/5_domain-context-and-rules.md)). Predates the national association's 2021 rebrand from FFA to Football Australia, and names the "Play Football" self-registration platform already modeled as PlayFootball elsewhere in this document — currency of both the guide and the platform name is unconfirmed, see [open question #27](../../scope/open-questions.md) |
 
 ## Courses of action
@@ -78,6 +80,7 @@ What Let'sDataTalk must be able to do to realize the goals in
   | Stage | What it proves | Depends on |
   | ----- | -------------- | ---------- |
   | **1 — SQUADI-ready ("one-shot")** | How fast a registration can be completed from the *club's* perspective, and — critically — submitted to SQUADI **right first time**: collected once, deterministically validated (BR1–BR5), and handed over as a complete, correct submission instead of a guardian guessing their way through an unfamiliar interface. Demonstrable **pre-MVP**, on the pilot club's real historical data | Nothing external — no API, no integration. This is why it is the stage the project commits to |
+  | **1.5 — Structured handover** | The same validated registration leaving the platform as a **submission pack** the governing body imports itself, or that a club admin keys in from without re-deriving anything. Removes the re-keying error loop without any integration | **Nothing from the platform's side** — it produces a file and never touches Squadi, so neither BR53's terms-of-use question nor P2's write-back prohibition is engaged. Full value depends on Football Queensland agreeing to *receive and import* it ([open question #46](../../scope/open-questions.md)); partial value does not, since the same pack guides correct first-time entry |
   | **2 — SQUADI synchronisation** | The same registration flowing through to SQUADI, removing the duplicate entry a parent or guardian performs manually today — the target shape being **the club prepares, the parent confirms** | Either **existing club-side bulk/assisted submission in Squadi** if such functionality exists ([open question #42](../../scope/open-questions.md) — the cheapest route by far, and a supported one), or **approved system partner status** ([#41](../../scope/open-questions.md)). Not a club-level API request, which was made and declined on 31 July 2026. **Both routes additionally need a scoped P2 exception** ([#43](../../scope/open-questions.md)), since both write into a system the platform does not own |
   | **3 — Football Australia** | National-level registration, including the ITC path for players arriving from overseas (BR35–BR38) | Football Australia access, and stage 2 in place |
 
@@ -136,6 +139,98 @@ What Let'sDataTalk must be able to do to realize the goals in
   axis chosen to beat it. Second, **every sale is a migration** out of
   Majestri, mid-season, and whether Majestri supports bulk export of a
   club's own data is unknown ([#45](../../scope/open-questions.md)).
+- **Hand over a file instead of asking for a connection.** With no reply
+  from Football Queensland, the platform stops waiting for permission it
+  cannot obtain and inverts the direction: it becomes the **source of truth
+  for the club's own registration data** and emits a structured submission
+  pack (C16) that the governing body imports into Squadi itself. The
+  platform never connects to Squadi, never ingests Squadi data, and never
+  writes into it — so **BR53's unresolved terms-of-use question and P2's
+  write-back prohibition are both side-stepped rather than resolved**, which
+  is the point: neither needs an answer for this route to be built.
+
+  Two honest limits ship with it. **Football Queensland has not agreed to
+  receive or import anything** ([open question #46](../../scope/open-questions.md)) —
+  the club can build the export unilaterally but cannot make anyone consume
+  it. And **the target format is unknown** ([#44](../../scope/open-questions.md)),
+  so the pack mirrors the Squadi report columns already documented from the
+  incumbent's extracts as the best available proxy. The design absorbs both:
+  the same pack that FQ would import is also the pack a club admin or family
+  keys in from, correctly, first time — which is stage 1 and needs nobody's
+  permission.
+- **Approach the national body with a demonstration, not a request.**
+  Football Australia and PlayFootball are the second half of the
+  three-registrations problem, and the same conversation will eventually be
+  needed there. It is deliberately **not** being started yet. The Football
+  Queensland exchange is the lesson: a written request made before anything
+  existed was answered with a policy statement, because there was nothing
+  to react to except a proposal. The sequence adopted (August 2026) is to
+  approach a national body **only once the club-level route works and a
+  first-shot registration can be shown** — a working submission pack, real
+  club data, a measured before-and-after. A demonstration invites a
+  question about how to support it; a request invites a restatement of the
+  rules.
+- **Delegating eligibility to the federation is the position, not a
+  concession.** The platform does not seek to decide whether a player is
+  registered — that is the federation's business and the architecture says
+  so (BR39, BR60). This matters twice. Internally it is what keeps BR43's
+  gate honest. Externally it is the **least threatening posture available**
+  in any conversation with a governing body: the club is not proposing to
+  take over registration, it is proposing to hand over cleaner data for the
+  federation to act on. Worth stating explicitly whenever the API question
+  is raised again.
+- **Keep pushing for the API without depending on it.** The submission pack
+  (C16, stage 1.5) is not a replacement for stage 2 — it is what makes the
+  project survive without it. A real API connection remains the destination
+  because it is the only route that removes the manual step entirely, so
+  the door stays open: every exchange with Football Queensland should leave
+  the possibility of programmatic access alive
+  ([open questions #41](../../scope/open-questions.md),
+  [#42](../../scope/open-questions.md)), while no plan depends on it
+  arriving.
+- **Go to market when the pain is loudest, but never market against the
+  federation.** The commercial moment to publish and promote is when clubs
+  are visibly struggling with Squadi — registration season, a bad release,
+  a backlog of unregistered players. Arriving then means the product is
+  answering a question clubs are already asking rather than creating one.
+
+  **One discipline makes that safe, and it is not optional.** Marketing
+  aimed at *Squadi being bad* directly contradicts the same organisation
+  the project needs for approved partner status
+  ([#41](../../scope/open-questions.md)), for an eventual API
+  ([#42](../../scope/open-questions.md)), and possibly as a customer
+  ([#31](../../scope/open-questions.md)). A vendor cannot publicly
+  criticise a platform and privately ask its owner for privileged access
+  to it. So the message is aimed at the **club's own pain** — weeks to
+  register, the same details typed three times, players who cannot take
+  the field — and at what the platform does about it. Squadi is described
+  as the destination the club must feed correctly, never as the villain.
+  That framing is also the honest one: BR43 and BR60 say the federation
+  owns eligibility, and the product is built on agreeing with that.
+- **Queensland first, deliberately.** Market entry concentrates on
+  Queensland because the pilot club is in Brisbane and its data, its
+  registrar, and its season are the sparring partner the product is being
+  tested against. One jurisdiction means one governing body's rules, one
+  voucher program (Play On!), one screening regime (Blue Card), and one set
+  of competition structures to get right before any of it is generalised —
+  which is also what keeps the configuration-not-code discipline honest
+  rather than theoretical.
+- **Two support tiers, and the paid one is a staffing commitment.**
+  Standard support is **full online documentation plus a question channel
+  answered within 36 hours**. **Platinum** is paid and answered as soon as
+  received. Recording it here because the second tier is not a software
+  feature: "as soon as received" during registration season, for
+  volunteer-run clubs across a state, is an availability promise whose cost
+  is people. It needs bounded hours or a stated coverage window before it
+  is sold, or the margin on it is unknowable ([#48](../../scope/open-questions.md)).
+- **The first approach to a governing body is a listening session.** If
+  Football Queensland is engaged again, the opening is not a proposal but
+  **gathering their pain points** — what registration costs *them*, where
+  their own data quality hurts, what their member clubs complain about.
+  This is consistent with approaching a national body only with a
+  demonstration: a listening session costs the counterparty nothing, cannot
+  be refused on policy grounds, and produces the material any later
+  proposal has to be built on.
 - **Carnival & event management (C12) is deferred past the Q4 2026 MVP.**
   It is architected now (goal G7, this capability, the business layer
   additions in [2_business/](../2_business/README.md)) so the public-access
