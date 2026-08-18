@@ -123,8 +123,31 @@ the join between code and architecture.
 - **CLAUDE.md's Commands section and the CI workflow**, both of which had
   been waiting on the stack decision since the repository was created.
 
-**Next:** the Next.js registrar screens and family flow, typed data access,
-and the submission pack builder.
+- **Submission pack builder** — `src/domain/submission/`. Assembles,
+  versions and freezes a pack (BR58), minimises its fields (BR59), and keeps
+  *sent* apart from *registered* (BR60). Still pure: the same candidates and
+  options always produce the same pack, which is what makes "the pack is
+  your evidence of what you sent" mean anything.
+
+**50 tests across the domain.** Four of them are worth naming, because each
+guards a failure that would be expensive and quiet:
+
+- The preferred name **never** reaches the CSV (BR55) — the whole rule's
+  purpose, asserted at the boundary rather than trusted.
+- An unresolved duplicate is **excluded**, not guessed (BR5). Sending one
+  risks attaching a registration to a different child.
+- A photograph travels **only** with both the pack option *and* a live
+  identification-photograph consent, and stops the moment it is revoked
+  (BR56, BR59).
+- Handover **never** produces `COMPLETE`. Every submission record starts as
+  `sent`, because sending is the club's act and registering is the
+  federation's (BR60, BR43).
+
+The pack is `Object.freeze`d, so BR58's immutability is a property of the
+value rather than a comment, and a test asserts the mutation throws.
+
+**Next:** the Next.js registrar screens and family flow, and typed data
+access against Supabase.
 
 **One thing the code changed in the architecture.** Writing BR55 showed the
 rule was unenforceable as modelled: holding a legal name and having
