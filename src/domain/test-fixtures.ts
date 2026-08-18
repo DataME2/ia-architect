@@ -16,6 +16,7 @@ export function person(overrides: Partial<Person> = {}): Person {
     preferredName: 'Alex',
     dateOfBirth: '2014-03-02',
     email: null,
+    photoPath: null,
     ...overrides,
   };
 }

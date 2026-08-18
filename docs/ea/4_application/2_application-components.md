@@ -20,11 +20,11 @@ it lives in the source tree.
 | **Domain model** | `src/domain/types.ts` | `Person`, `LegalName`, `Guardianship`, `Consent`, `Registration`, and the age/minority helpers | **Delivered** |
 | **Rules engine** | `src/domain/rules/` | BR1, BR2, BR3, BR48, BR55 as individually testable pure functions, plus the registry and evaluator in `index.ts` | **Delivered** |
 | **Duplicate detection** | `src/domain/identity/br5-duplicate-candidates.ts` | BR5 — candidates for human confirmation, never an automatic merge | **Delivered** |
+| **Submission pack builder** | `src/domain/submission/` | Assembles, versions, freezes and serialises a pack (BR58, BR59); keeps *sent* and *registered* apart (BR60) in `status.ts`; CSV output in `serialise.ts` | **Delivered** |
 | **Schema & RLS policies** | `supabase/migrations/0001_registration_slice.sql`, `0002_rls_policies.sql` | 13 tables, RLS enabled in the same migration that creates them, policies in the next | **Delivered** |
 | **Policy coverage gate** | `scripts/check_rls.py` | Fails the build if any table lacks RLS, a policy, or a `club_id` | **Delivered** |
 | **Web application** | `src/app/` (Next.js App Router) | Registrar screens and the family-facing registration flow | Planned |
 | **Data access** | `src/data/` | Supabase client, typed queries, generated schema types | Planned |
-| **Submission pack builder** | `src/domain/submission/` | Assembles, versions, and serialises a pack (BR58, BR59) | Planned |
 
 ## Two structural rules for the code
 

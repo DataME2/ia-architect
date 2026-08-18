@@ -41,6 +41,14 @@ export interface Person {
   readonly preferredName: string | null;
   readonly dateOfBirth: IsoDate;
   readonly email: string | null;
+  /**
+   * Identification photograph in Storage (BR56), or `null`.
+   *
+   * Holding it is not permission to send it: onward disclosure needs a live
+   * IDENTIFICATION_PHOTOGRAPH consent naming that disclosure, which the pack
+   * builder checks rather than assuming.
+   */
+  readonly photoPath: string | null;
 }
 
 /**
