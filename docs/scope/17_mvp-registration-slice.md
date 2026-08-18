@@ -146,8 +146,26 @@ guards a failure that would be expensive and quiet:
 The pack is `Object.freeze`d, so BR58's immutability is a property of the
 value rather than a comment, and a test asserts the mutation throws.
 
-**Next:** the Next.js registrar screens and family flow, and typed data
-access against Supabase.
+- **Configuration and Supabase clients** — `src/data/`. Three clients that
+  differ in one way that matters: whether Row-Level Security applies.
+  `createAdminClient(reason)` bypasses it, so it throws if a browser could
+  reach it and takes a reason from a **closed set**, making every bypass in
+  the codebase greppable and the list of legitimate reasons reviewable.
+  `readServiceConfig()` refuses a `NEXT_PUBLIC_`-prefixed service key,
+  because that prefix is what ships a value to every browser and the mistake
+  is one character.
+- **[2_deployment.md](../ea/5_technology/2_deployment.md)** — environments,
+  and where secrets live. It states the load-bearing connection plainly:
+  **the anon key is safe only because RLS is on every table**, so if
+  coverage lapses the published key stops being safe. That is why the
+  coverage check fails the build rather than warning.
+
+**57 tests.** A latent bug in `check_links.py` surfaced with the first
+dependency — it walked `node_modules` and reported third-party READMEs —
+and is fixed by skipping vendor directories.
+
+**Next:** the Next.js registrar screens and family flow, and typed queries
+against the schema.
 
 **One thing the code changed in the architecture.** Writing BR55 showed the
 rule was unenforceable as modelled: holding a legal name and having

@@ -107,10 +107,16 @@ def check_html(html_file: Path) -> list[str]:
     return errors
 
 
+# Directories whose Markdown is not ours to fix. Third-party READMEs
+# routinely link to files their package does not ship, and reporting those
+# would train everyone to ignore this check's output.
+SKIP_DIRS = {".git", "node_modules", ".next", "out", "dist", "build"}
+
+
 def main() -> int:
     all_errors = []
     for path in REPO_ROOT.rglob("*"):
-        if ".git" in path.parts or not path.is_file():
+        if SKIP_DIRS & set(path.parts) or not path.is_file():
             continue
         if path.suffix == ".md":
             all_errors.extend(check_markdown(path))

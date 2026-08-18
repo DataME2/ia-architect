@@ -23,8 +23,9 @@ it lives in the source tree.
 | **Submission pack builder** | `src/domain/submission/` | Assembles, versions, freezes and serialises a pack (BR58, BR59); keeps *sent* and *registered* apart (BR60) in `status.ts`; CSV output in `serialise.ts` | **Delivered** |
 | **Schema & RLS policies** | `supabase/migrations/0001_registration_slice.sql`, `0002_rls_policies.sql` | 13 tables, RLS enabled in the same migration that creates them, policies in the next | **Delivered** |
 | **Policy coverage gate** | `scripts/check_rls.py` | Fails the build if any table lacks RLS, a policy, or a `club_id` | **Delivered** |
+| **Configuration & clients** | `src/data/env.ts`, `src/data/client.ts` | Validated config, and three Supabase clients that differ in one way that matters — whether RLS applies. `createAdminClient(reason)` bypasses it, throws in a browser, and takes a reason from a closed set so every bypass is greppable | **Delivered** |
 | **Web application** | `src/app/` (Next.js App Router) | Registrar screens and the family-facing registration flow | Planned |
-| **Data access** | `src/data/` | Supabase client, typed queries, generated schema types | Planned |
+| **Typed queries** | `src/data/` | Query functions and generated schema types | Planned |
 
 ## Two structural rules for the code
 
