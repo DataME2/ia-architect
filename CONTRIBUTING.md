@@ -102,23 +102,39 @@ Either way, the description is kept updated as the branch grows — see the
 
 ## Development workflow
 
-<!--
-  TEMPLATE — replace with the project's real workflow once a stack is
-  chosen. Keep the shape: an install step, a dev-loop command, and the
-  exact commands CI runs (so a contributor can reproduce a CI failure
-  locally verbatim). For example:
+Node 22 or newer. One dependency set, no build step — Node strips
+TypeScript types at run time, so the domain and its tests execute directly.
 
-  ```bash
-  npm install
-  npm run dev
-  ```
+```bash
+npm install
+npm run check   # typecheck, tests, link check, RLS coverage — CI order
+```
 
-  Before pushing (CI runs exactly these):
+Individually:
 
-  ```bash
-  npm run lint && npm run typecheck && npm test && npm run build
-  ```
--->
+| Command | What it guards |
+| ------- | -------------- |
+| `npm run typecheck` | `tsc --noEmit`, strict |
+| `npm test` | `node --test` over `src/**/*.test.ts` |
+| `python3 scripts/check_links.py` | Every relative Markdown link resolves |
+| `python3 scripts/check_rls.py` | **Every table has RLS, a policy, and a `club_id`** |
+
+**Two rules for the code**, both from
+[`docs/ea/4_application/2_application-components.md`](./docs/ea/4_application/2_application-components.md):
+
+1. **The rules engine holds no I/O and no framework.** Each business rule is
+   a pure function returning an outcome carrying the rule's identifier. That
+   keeps BR1–BR68 testable without a database and diffable against
+   `5_domain-context-and-rules.md` by a human.
+2. **Rule identifiers are the business rule numbers.** A `validation_result`
+   row records `BR55`, not `"legal name mismatch"`. Prose gets reworded;
+   the identifier is the join between the running system and the
+   architecture.
+
+**Never add a table without its RLS policy in the same change.** Principle
+P5 is enforced by those policies, and a table without one is a cross-tenant
+leak of children's data. `check_rls.py` fails the build for exactly this,
+and it is a gate rather than a lint.
 
 ## Definition of done
 

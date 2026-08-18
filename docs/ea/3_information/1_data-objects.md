@@ -37,7 +37,7 @@ de-scoping the table.
 | ----------- | -------- | ----- |
 | **`club`** | Club / Organisation | The tenant. Every other table carries `club_id` and every RLS policy keys off it |
 | **`season`** | Season | Club-scoped operating period. Registrations, roles, and packs all reference one |
-| **`person`** | Person | `legal_given_names`, `legal_family_name` — as on the passport or birth certificate — **and** `preferred_name`, a separate first-class column (BR55). Also `date_of_birth`, contact details, and `photo_path` into Storage (BR56). Tenant-scoped, see above |
+| **`person`** | Person | `legal_given_names`, `legal_family_name` — as on the passport or birth certificate — **and** `preferred_name`, a separate first-class column (BR55). Also `legal_name_verified_at`, `date_of_birth`, contact details, and `photo_path` into Storage (BR56). Tenant-scoped, see above. **`legal_name_verified_at` was added while writing the rules engine** — BR55 is unenforceable without it, because "we hold a legal name" and "we checked it against a document" are different claims and only the second survives contact with the federation |
 | **`person_role`** | Person Role | One row per role per season: player, referee, coach, guardian, committee member. Overlapping by design — this table is what makes P1 true |
 | **`guardianship`** | Guardianship | `person_id` ↔ `guardian_person_id`, both rows in `person`. Carries `is_authority` (true while the child is under 18) and `is_contact` (stays true after, BR67) — **two flags, not one**, because BR67 separates who may consent from who the club phones |
 | **`registration`** | Player Registration | Season-scoped, with a `status` enum whose `PENDING_EXTERNAL_REGISTRATION` value is an **eligibility gate** and not paperwork (BR43) |

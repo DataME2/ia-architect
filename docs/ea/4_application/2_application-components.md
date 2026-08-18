@@ -17,13 +17,14 @@ it lives in the source tree.
 
 | Component | Source | Provides | Status |
 | --------- | ------ | -------- | ------ |
+| **Domain model** | `src/domain/types.ts` | `Person`, `LegalName`, `Guardianship`, `Consent`, `Registration`, and the age/minority helpers | **Delivered** |
+| **Rules engine** | `src/domain/rules/` | BR1, BR2, BR3, BR48, BR55 as individually testable pure functions, plus the registry and evaluator in `index.ts` | **Delivered** |
+| **Duplicate detection** | `src/domain/identity/br5-duplicate-candidates.ts` | BR5 — candidates for human confirmation, never an automatic merge | **Delivered** |
+| **Schema & RLS policies** | `supabase/migrations/0001_registration_slice.sql`, `0002_rls_policies.sql` | 13 tables, RLS enabled in the same migration that creates them, policies in the next | **Delivered** |
+| **Policy coverage gate** | `scripts/check_rls.py` | Fails the build if any table lacks RLS, a policy, or a `club_id` | **Delivered** |
 | **Web application** | `src/app/` (Next.js App Router) | Registrar screens and the family-facing registration flow | Planned |
-| **Domain model** | `src/domain/` | `Person`, `Registration`, `Consent`, `SubmissionPack` as types and pure functions — no I/O | Planned |
-| **Rules engine** | `src/domain/rules/` | BR1–BR5, BR55 as individually testable predicates returning a result, not a boolean | Planned |
 | **Data access** | `src/data/` | Supabase client, typed queries, generated schema types | Planned |
 | **Submission pack builder** | `src/domain/submission/` | Assembles, versions, and serialises a pack (BR58, BR59) | Planned |
-| **Migrations & RLS policies** | `supabase/migrations/` | Schema, and the Row-Level Security policy per table that enforces P5 | Planned |
-| **Policy coverage check** | `scripts/check_rls.*` | Fails CI if any table has no RLS policy — a table without one is a cross-tenant leak, so this is a build gate rather than a review item | Planned |
 
 ## Two structural rules for the code
 

@@ -3,8 +3,10 @@
 Let'sDataTalk is a multiclub, multitenant, AI-assisted platform centralizing
 player registration, finance, documents, and match-official management for
 football clubs in Australia and New Zealand, built around a single `Person`
-identity. It is pre-MVP: strategy and business architecture are drafted
-(see [`docs/ea/`](./docs/ea/README.md)); no application code exists yet.
+identity. It is pre-MVP: all five architecture layers are started
+(see [`docs/ea/`](./docs/ea/README.md)), and the first code — the
+registration slice's domain model, rules engine, and schema — is landing
+under `src/` and `supabase/`.
 
 ## The rule that governs everything else
 
@@ -20,17 +22,38 @@ documented behavior can skip the alignment, but still keep the docs true.
 
 ## Layout
 
-- `docs/ea/` — the documentation home (numbered ArchiMate layers, only
-  `1_strategy` and `2_business` populated so far); `docs/scope/` — one
-  document per initiative, plus `open-questions.md` (kept: the pilot club
-  and other stakeholders can't always be consulted synchronously);
-  `docs/decisions/` — kept: starts with the AI assistant's autonomy level.
+- `docs/ea/` — the documentation home (numbered ArchiMate layers; all five
+  now started); `docs/scope/` — one document per initiative, plus
+  `open-questions.md` (kept: the pilot club and other stakeholders can't
+  always be consulted synchronously); `docs/decisions/` — kept: starts with
+  the AI assistant's autonomy level; `docs/annexes/` — operational artifacts
+  that realise a rule rather than describe one (consent wording, retention
+  schedule, commercial terms, submission-pack instructions).
+- `src/domain/` — types and the business rules engine, pure and
+  I/O-free so every rule is unit-testable without a database;
+  `supabase/migrations/` — schema and the RLS policies that enforce P5.
 
 ## Commands
 
-No source code exists yet. This section, and `CONTRIBUTING.md`'s
-Development workflow, get filled in once a technology stack is chosen for
-the MVP-build initiative — see the `stack-selection` skill.
+```bash
+npm install            # one dev dependency set: typescript + @types/node
+npm run typecheck      # tsc --noEmit
+npm test               # node --test, no build step (Node 22 strips types)
+python3 scripts/check_links.py   # every relative Markdown link resolves
+python3 scripts/check_rls.py     # every table has RLS + a policy + club_id
+npm run check          # all four, in the order CI runs them
+```
+
+The stack is **Next.js + Supabase + Vercel**, Sydney region — chosen for one
+property above all: Supabase enforces Principle P5's tenant isolation in the
+database via Row-Level Security, so a query missing its filter returns
+nothing rather than everything. See
+[`docs/ea/5_technology/1_technology-services.md`](./docs/ea/5_technology/1_technology-services.md).
+
+**`check_rls.py` is a build gate, not a lint.** A table without a policy is
+a cross-tenant leak of children's data, and it happens through an ordinary
+omission in a migration. Never add a table without adding its policy in the
+same change.
 
 ## Conventions
 

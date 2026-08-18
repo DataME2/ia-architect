@@ -105,11 +105,35 @@ Services, components, source-path grounding, and the two structural rules
 for the code — no I/O in the rules engine, and business-rule identifiers as
 the join between code and architecture.
 
-### WP4 — The build *(next)*
-Scaffold, migrations with RLS policies, the rules engine, the registration
-flow, the submission pack builder. Fills in CLAUDE.md's **Commands**
-section and CONTRIBUTING.md's development workflow, both of which have been
-waiting on this decision.
+### WP4 — The build *(in progress)*
+
+**Delivered:**
+
+- **Domain model and rules engine** — `src/domain/`. BR1, BR2, BR3, BR48
+  and BR55 as pure functions with no I/O, a registry that is the single
+  place code and `5_domain-context-and-rules.md` are compared, and BR5's
+  duplicate detection. **28 tests, no build step** — Node 22 strips types,
+  so the whole domain runs on one dev dependency.
+- **Schema and RLS** — `supabase/migrations/`. Thirteen tables, with RLS
+  enabled in the *same* migration that creates them so no table exists for
+  a moment without it, and the policies in the next.
+- **The policy coverage gate** — `scripts/check_rls.py`, wired into CI.
+  Verified against a deliberately broken table: it catches a missing
+  `enable`, a missing policy, and a missing `club_id` independently.
+- **CLAUDE.md's Commands section and the CI workflow**, both of which had
+  been waiting on the stack decision since the repository was created.
+
+**Next:** the Next.js registrar screens and family flow, typed data access,
+and the submission pack builder.
+
+**One thing the code changed in the architecture.** Writing BR55 showed the
+rule was unenforceable as modelled: holding a legal name and having
+*checked* it are different claims, and only the second survives contact
+with the federation. `person.legal_name_verified_at` was added to
+[1_data-objects.md](../ea/3_information/1_data-objects.md) and to the
+schema. This is the EA-first process working in the other direction —
+implementation finding a gap in the model, and the model being corrected
+rather than the code quietly working around it.
 
 ## Gap notes
 

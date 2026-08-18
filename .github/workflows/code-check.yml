@@ -1,0 +1,32 @@
+name: Code check
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "supabase/**"
+      - "scripts/check_rls.py"
+      - "package.json"
+      - "tsconfig.json"
+      - ".github/workflows/code-check.yml"
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Tests
+        run: npm test
+      # P5 is enforced by Row-Level Security. A table without a policy is a
+      # cross-tenant leak, so coverage is a build gate rather than a review item.
+      - name: RLS policy coverage
+        run: python3 scripts/check_rls.py
