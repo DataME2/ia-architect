@@ -10,7 +10,9 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test 'src/**/*.test.ts'",
-    "check": "npm run typecheck && npm run test && python3 scripts/check_links.py && python3 scripts/check_rls.py"
+    "check": "npm run typecheck && npm run test && python3 scripts/check_links.py && python3 scripts/check_rls.py",
+    "test:rls": "bash scripts/test_rls.sh",
+    "check:full": "npm run check && npm run test:rls"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",

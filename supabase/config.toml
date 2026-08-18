@@ -1,0 +1,23 @@
+# Supabase CLI configuration.
+#
+# The GitHub integration reads supabase/migrations/ and applies them in
+# filename order. Two consequences worth stating where they will be seen:
+#
+#   1. A migration merged to main runs against production. There is no
+#      second confirmation step.
+#   2. An already-applied migration must never be edited — the integration
+#      tracks what it has run. Corrections are new migrations.
+
+project_id = "letsdatatalk"
+
+[db]
+major_version = 16
+
+[db.migrations]
+enabled = true
+
+[auth]
+enable_signup = false  # Registrars are provisioned, not self-served.
+
+[analytics]
+enabled = false

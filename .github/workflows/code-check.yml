@@ -30,3 +30,25 @@ jobs:
       # cross-tenant leak, so coverage is a build gate rather than a review item.
       - name: RLS policy coverage
         run: python3 scripts/check_rls.py
+
+  # check_rls.py proves a policy exists. This proves it works — a policy can
+  # be present and wrong, and the failure is silent until one club reads
+  # another club's records.
+  rls-behaviour:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply migrations and assert tenant isolation
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+        run: bash scripts/test_rls.sh

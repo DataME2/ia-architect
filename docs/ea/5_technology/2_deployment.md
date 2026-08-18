@@ -73,11 +73,23 @@ dashboard immediately.
 
 ## Migrations
 
-Applied with the Supabase CLI against each environment in turn — local,
-then preview, then production. Two rules travel with them:
+**The GitHub repository is connected to Supabase**, so migrations in
+`supabase/migrations/` are applied automatically in filename order when a
+change reaches the production branch. That removes a manual step and adds a
+sharp edge: **a migration merged to `main` runs against production with no
+second confirmation.**
 
+Rules that follow, and the first two are not stylistic:
+
+- **Never edit a migration that has already been applied.** The integration
+  tracks what it has run; an edited file leaves the recorded state and the
+  actual schema disagreeing. Corrections are new migrations.
+- **Never merge a schema change whose RLS test has not run.**
+  `scripts/test_rls.sh` applies the migrations to a throwaway Postgres and
+  asserts tenant isolation behaviourally; CI runs it on every pull request
+  touching `supabase/`.
 - **A new table ships with its RLS policy in the same change.** CI enforces
-  it; the review is a courtesy on top.
+  it; review is a courtesy on top.
 - **No destructive migration without a backup and an explicit decision.**
   Retention *tracking* is built and disposal is not
   ([#30](../../scope/open-questions.md)); a migration that drops data would
@@ -89,7 +101,9 @@ GitHub Actions runs typecheck, tests, the link check and RLS coverage on
 every pull request ([`code-check.yml`](../../../.github/workflows/code-check.yml)).
 Vercel builds a preview per pull request and deploys `main` to production.
 
-**CI holds no Supabase credentials today**, and should stay that way for as
-long as possible: everything it checks — types, pure domain tests, SQL text
-analysis — runs without a database. The first job that needs a credential is
-the first place a secret has to exist in a second system.
+**CI holds no Supabase credentials**, and the behavioural RLS test does not
+change that: it runs against a disposable `postgres:16` service container,
+never against a Supabase project. Everything CI checks — types, pure domain
+tests, SQL text analysis, and tenant isolation against a scratch database —
+runs without a credential. The first job that needs one is the first place a
+secret has to exist in a second system, and there is no such job yet.

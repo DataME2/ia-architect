@@ -22,7 +22,8 @@ it lives in the source tree.
 | **Duplicate detection** | `src/domain/identity/br5-duplicate-candidates.ts` | BR5 — candidates for human confirmation, never an automatic merge | **Delivered** |
 | **Submission pack builder** | `src/domain/submission/` | Assembles, versions, freezes and serialises a pack (BR58, BR59); keeps *sent* and *registered* apart (BR60) in `status.ts`; CSV output in `serialise.ts` | **Delivered** |
 | **Schema & RLS policies** | `supabase/migrations/0001_registration_slice.sql`, `0002_rls_policies.sql` | 13 tables, RLS enabled in the same migration that creates them, policies in the next | **Delivered** |
-| **Policy coverage gate** | `scripts/check_rls.py` | Fails the build if any table lacks RLS, a policy, or a `club_id` | **Delivered** |
+| **Policy coverage gate** | `scripts/check_rls.py` | Fails the build if any table lacks RLS, a policy, or a `club_id` — static analysis of the migration text | **Delivered** |
+| **Tenant isolation test** | `scripts/test_rls.sh`, `supabase/tests/` | Applies the real migrations to a throwaway Postgres and asserts isolation **behaviourally** across 11 scenarios, as the `authenticated` role — owners bypass RLS, so a test run as `postgres` would pass regardless of how broken the policies were. Verified to fail on a loosened policy | **Delivered** |
 | **Configuration & clients** | `src/data/env.ts`, `src/data/client.ts` | Validated config, and three Supabase clients that differ in one way that matters — whether RLS applies. `createAdminClient(reason)` bypasses it, throws in a browser, and takes a reason from a closed set so every bypass is greppable | **Delivered** |
 | **Web application** | `src/app/` (Next.js App Router) | Registrar screens and the family-facing registration flow | Planned |
 | **Typed queries** | `src/data/` | Query functions and generated schema types | Planned |

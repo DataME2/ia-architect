@@ -42,6 +42,9 @@ npm test               # node --test, no build step (Node 22 strips types)
 python3 scripts/check_links.py   # every relative Markdown link resolves
 python3 scripts/check_rls.py     # every table has RLS + a policy + club_id
 npm run check          # all four, in the order CI runs them
+bash scripts/test_rls.sh # applies the migrations to a throwaway Postgres and
+                       # proves tenant isolation actually holds (needs psql)
+npm run check:full     # everything, including the behavioural RLS test
 ```
 
 The stack is **Next.js + Supabase + Vercel**, Sydney region — chosen for one
@@ -54,6 +57,18 @@ nothing rather than everything. See
 a cross-tenant leak of children's data, and it happens through an ordinary
 omission in a migration. Never add a table without adding its policy in the
 same change.
+
+**And `test_rls.sh` is the one that matters more.** `check_rls.py` proves a
+policy *exists*; this applies the real migrations to a real Postgres and
+proves the policies *work* — that a registrar at one club cannot read,
+write, update or delete another club's rows, that append-only tables really
+are, and that a non-member and an anonymous caller see nothing. Both run in
+CI. A policy can be present and wrong, and that failure is silent.
+
+**The repository is connected to Supabase**, so a migration merged to `main`
+runs against production with no second confirmation. Two rules follow: never
+edit a migration that has already been applied — corrections are new
+migrations — and never merge a schema change whose RLS test has not run.
 
 ## Conventions
 
