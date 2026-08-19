@@ -55,7 +55,12 @@ create policy registration_invitation_manage on registration_invitation
 --      club.
 --   2. search_path is pinned. A security definer function that resolves
 --      unqualified names through the caller's search_path is a standard
---      privilege-escalation route.
+--      privilege-escalation route. `extensions` is included because that is
+--      where Supabase installs pgcrypto, and digest() below lives in it --
+--      a search_path of `public` alone resolves nothing and every link
+--      fails. A non-existent schema in the list is ignored, so the same
+--      pin works against the local test Postgres, which has pgcrypto in
+--      public.
 --   3. It enforces the rules it is the boundary for. The form's checks are a
 --      courtesy to the family; an anonymous caller can skip the form
 --      entirely, so BR1 and BR48 are re-checked here.
@@ -79,7 +84,7 @@ create function submit_public_registration(
 ) returns uuid
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_invitation registration_invitation%rowtype;
