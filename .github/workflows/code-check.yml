@@ -40,6 +40,10 @@ jobs:
       # cross-tenant leak, so coverage is a build gate rather than a review item.
       - name: RLS policy coverage
         run: python3 scripts/check_rls.py
+      # Next throws on a bad 'use server' export at request time, not always
+      # at build time — a green build is not evidence the page loads.
+      - name: Server action exports
+        run: python3 scripts/check_server_actions.py
 
   # check_rls.py proves a policy exists. This proves it works — a policy can
   # be present and wrong, and the failure is silent until one club reads

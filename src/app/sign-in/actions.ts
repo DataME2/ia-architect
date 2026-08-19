@@ -5,11 +5,12 @@ import { redirect } from 'next/navigation';
 import { createRequestClient } from '../../data/server.ts';
 import { safeDestination } from '../../web/safe-destination.ts';
 
+// Only the type lives here. A 'use server' module may export nothing but
+// async functions -- types are erased, so they are fine; a const object is
+// not, and the initial state is inlined at its single use site instead.
 export interface SignInState {
   readonly error: string | null;
 }
-
-export const EMPTY_SIGN_IN_STATE: SignInState = { error: null };
 
 /**
  * Email and password sign-in for club staff.

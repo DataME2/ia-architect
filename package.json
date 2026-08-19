@@ -13,7 +13,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.domain.json",
     "test": "node --experimental-strip-types --test \"src/**/*.test.ts\"",
-    "check": "npm run typecheck && npm run test && python3 scripts/check_links.py && python3 scripts/check_rls.py",
+    "check": "npm run typecheck && npm run test && python3 scripts/check_links.py && python3 scripts/check_rls.py && python3 scripts/check_server_actions.py",
     "test:rls": "bash scripts/test_rls.sh",
     "check:full": "npm run check && npm run test:rls"
   },

@@ -2,10 +2,10 @@
 
 import { useActionState } from 'react';
 
-import { EMPTY_SIGN_IN_STATE, signInAction } from './actions.ts';
+import { signInAction } from './actions.ts';
 
 export function SignInForm({ next }: { readonly next: string }) {
-  const [state, formAction, pending] = useActionState(signInAction, EMPTY_SIGN_IN_STATE);
+  const [state, formAction, pending] = useActionState(signInAction, { error: null });
 
   return (
     <form action={formAction} className="stack">
