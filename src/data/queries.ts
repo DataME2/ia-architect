@@ -12,6 +12,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { findDuplicateCandidates } from '../domain/identity/br5-duplicate-candidates.ts';
 import { evaluateRegistration } from '../domain/rules/index.ts';
 import type { RuleOutcome } from '../domain/rules/types.ts';
+import type { PackCandidate } from '../domain/submission/types.ts';
 import type { IsoDate, Person } from '../domain/types.ts';
 import { displayNameFor, fullLegalName, type QueueEntry } from '../web/queue-view.ts';
 import { toConsent, toGuardianship, toPerson, toRegistration } from './mappers.ts';
@@ -251,6 +252,52 @@ export async function loadQueue(
   }
 
   return entries;
+}
+
+/**
+ * Every candidate for a submission pack, assembled for the pure builder.
+ *
+ * Loads and joins; it decides nothing. Which candidates are actually
+ * included is `buildSubmissionPack`'s call, and keeping that judgement in a
+ * pure function is what lets the exclusion rules be tested without a
+ * database.
+ */
+export async function loadPackCandidates(
+  client: SupabaseClient,
+  clubId: string,
+  seasonId: string,
+): Promise<readonly PackCandidate[]> {
+  const slice = await loadSlice(client, clubId, seasonId);
+  const candidates: PackCandidate[] = [];
+
+  for (const registrationRow of slice.registrations) {
+    const person = slice.people.get(registrationRow.person_id);
+    if (person === undefined) continue;
+
+    const guardianships = slice.guardianships
+      .filter((g) => g.person_id === person.id)
+      .map(toGuardianship);
+
+    // The guardians themselves are ordinary `person` rows in the same club,
+    // so they are already loaded — resolved here rather than re-queried.
+    const guardianPeople = guardianships
+      .map((g) => slice.people.get(g.guardianPersonId))
+      .filter((p): p is Person => p !== undefined);
+
+    candidates.push({
+      registration: toRegistration(registrationRow, slice.documents.get(registrationRow.id) ?? []),
+      person,
+      guardianships,
+      guardianPeople,
+      consents: slice.consents.filter((c) => c.person_id === person.id).map(toConsent),
+      duplicateCandidates: findDuplicateCandidates(
+        person,
+        slice.clubPeople.filter((p) => p.id !== person.id),
+      ),
+    });
+  }
+
+  return candidates;
 }
 
 export interface RegistrationDetail {

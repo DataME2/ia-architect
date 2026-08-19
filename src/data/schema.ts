@@ -12,6 +12,8 @@
  * every query that assumed the old shape, which is the point.
  */
 
+import type { PackRow } from '../domain/submission/types.ts';
+
 /** `YYYY-MM-DD`, as Postgres `date` renders it over the wire. */
 export type DateString = string;
 /** ISO-8601 instant, as Postgres `timestamptz` renders it over the wire. */
@@ -134,7 +136,16 @@ export interface SubmissionPackRow {
   version: number;
   generated_at: InstantString;
   generated_by_user_id: string;
-  storage_path: string;
+  /**
+   * BR58: the frozen rows exactly as generated.
+   *
+   * Typed as the domain's `PackRow` because that is literally what the jsonb
+   * holds — the pack's evidence of what was sent, independent of what the
+   * `person` rows say now.
+   */
+  manifest: PackRow[];
+  /** Optional archived copy; the manifest is the authoritative record. */
+  storage_path: string | null;
   handover_channel: string | null;
   handed_over_at: InstantString | null;
 }

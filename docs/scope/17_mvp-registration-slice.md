@@ -198,8 +198,41 @@ into a pure module and confirming the main config accepted it while the
 domain config rejected it — the same "prove it fails" discipline as the RLS
 behavioural test.
 
-**Next:** the submission-pack screen (generate, download, record handover),
-and a public tokenised family link — see the gap note below.
+- **The submission pack screens** — `src/app/registrar/pack/`,
+  `src/data/packs.ts`. A preview built by the *same* pure function that
+  generates, so what is shown is the pack rather than an approximation of
+  it; versioned generation (BR58); handover recorded once against a named
+  channel (BR59); CSV served from the stored manifest; and per-person
+  outcomes, which are the only route to `COMPLETE` and therefore to
+  eligibility (BR60, BR43).
+
+**123 tests**, plus a second behavioural SQL suite. Two things are worth
+naming:
+
+- **Generating is not sending, and the screens keep them apart.** Generating
+  freezes an artifact and moves no status. Only recording a handover writes
+  submission records — every one as *sent* — and moves registrations to the
+  eligibility gate. The pack detail page counts *sent* and *confirmed*
+  separately and never adds them, because only the second means a player may
+  take the field.
+- **BR58's immutability is now proved in the database.**
+  `supabase/tests/11_submission_pack.sql` asserts a handover can be recorded
+  once and never rewritten, that a pack cannot be deleted, and that another
+  club sees none of it — nine scenarios, verified to fail when the handover
+  policy is loosened. Application code checks the same thing; the policy is
+  what actually holds.
+
+**A second gap the code found in the model.** BR58 requires a pack to answer
+"did we submit this player, **and with what values**?" months later. It could
+not: `submission_record` records who was in a pack, and `person` holds
+today's values — so a name corrected after submission would make the pack
+appear to have carried the correction. Migration `0004` adds a `manifest`
+column holding the frozen rows, and the CSV is serialised from it, so
+downloading version 1 in December reproduces what was sent in August. Same
+pattern as `legal_name_verified_at`: implementation finding a gap in the
+model, and the model being corrected rather than the code working around it.
+
+**Next:** a public tokenised family link — see the gap note below.
 
 **One thing the code changed in the architecture.** Writing BR55 showed the
 rule was unenforceable as modelled: holding a legal name and having

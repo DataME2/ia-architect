@@ -127,6 +127,12 @@ export default async function RegistrarPage({
         </form>
       )}
 
+      <p>
+        <a className="button" href={`/registrar/pack?season=${season.id}`}>
+          Submission pack
+        </a>
+      </p>
+
       <div className="summary-grid">
         <div className="stat">
           <span className="n">{entries.length}</span>
