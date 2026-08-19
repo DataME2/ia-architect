@@ -9,28 +9,11 @@ import { loadTenantContext, persistValidation, QueryError, recordAudit } from '.
 import type { ConsentRow, GuardianshipRow, PersonRow, RegistrationRow } from '../../data/schema.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
 import { parseRegistrationForm, type FieldError } from '../../web/registration-form.ts';
+import {
+  formErrorState as errorState,
+  type RegistrationFormState,
+} from '../../web/registration-form-state.ts';
 import { todayIn } from '../../web/today.ts';
-
-export interface RegistrationFormState {
-  readonly status: 'idle' | 'error' | 'done';
-  readonly errors: readonly FieldError[];
-  readonly message: string | null;
-  /** What the family still has to do, in rule order. */
-  readonly outstanding: readonly RuleOutcome[];
-  readonly registrationId: string | null;
-}
-
-export const EMPTY_FORM_STATE: RegistrationFormState = {
-  status: 'idle',
-  errors: [],
-  message: null,
-  outstanding: [],
-  registrationId: null,
-};
-
-function errorState(message: string, errors: readonly FieldError[] = []): RegistrationFormState {
-  return { status: 'error', errors, message, outstanding: [], registrationId: null };
-}
 
 /**
  * Accept one family submission.

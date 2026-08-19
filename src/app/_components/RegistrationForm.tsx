@@ -5,9 +5,22 @@ import { useActionState } from 'react';
 import type { SeasonRow } from '../../data/schema.ts';
 import {
   EMPTY_FORM_STATE,
-  submitRegistrationAction,
   type RegistrationFormState,
-} from './actions.ts';
+} from '../../web/registration-form-state.ts';
+
+/**
+ * Shared by the registrar-assisted form and the public invitation link.
+ *
+ * Both collect exactly the same thing, and they must keep collecting exactly
+ * the same thing — a public flow that quietly asked for less would produce
+ * registrations the registrar then has to chase, which is the loop this
+ * slice exists to close. They differ only in who submits and where the
+ * season comes from.
+ */
+export type RegistrationAction = (
+  state: RegistrationFormState,
+  formData: FormData,
+) => Promise<RegistrationFormState>;
 
 function errorFor(state: RegistrationFormState, field: string): string | null {
   return state.errors.find((e) => e.field === field)?.message ?? null;
@@ -54,8 +67,17 @@ function Field({
   );
 }
 
-export function RegistrationForm({ seasons }: { readonly seasons: readonly SeasonRow[] }) {
-  const [state, formAction, pending] = useActionState(submitRegistrationAction, EMPTY_FORM_STATE);
+export function RegistrationForm({
+  action,
+  seasons,
+  token,
+}: {
+  readonly action: RegistrationAction;
+  /** Omitted on the public link — the invitation already names the season. */
+  readonly seasons?: readonly SeasonRow[];
+  readonly token?: string;
+}) {
+  const [state, formAction, pending] = useActionState(action, EMPTY_FORM_STATE);
 
   if (state.status === 'done') {
     return (
@@ -90,6 +112,8 @@ export function RegistrationForm({ seasons }: { readonly seasons: readonly Seaso
 
   return (
     <form action={formAction} className="stack">
+      {token !== undefined && <input type="hidden" name="token" value={token} />}
+
       {state.status === 'error' && state.message !== null && (
         <div className="errors">
           <strong>{state.message}</strong>
@@ -182,19 +206,21 @@ export function RegistrationForm({ seasons }: { readonly seasons: readonly Seaso
         </div>
       </fieldset>
 
-      <fieldset>
-        <legend>Season</legend>
-        <div className="field">
-          <label htmlFor="seasonId">Registering for</label>
-          <select id="seasonId" name="seasonId" defaultValue={seasons[0]?.id ?? ''}>
-            {seasons.map((season) => (
-              <option key={season.id} value={season.id}>
-                {season.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </fieldset>
+      {seasons !== undefined && (
+        <fieldset>
+          <legend>Season</legend>
+          <div className="field">
+            <label htmlFor="seasonId">Registering for</label>
+            <select id="seasonId" name="seasonId" defaultValue={seasons[0]?.id ?? ''}>
+              {seasons.map((season) => (
+                <option key={season.id} value={season.id}>
+                  {season.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </fieldset>
+      )}
 
       <div>
         <button type="submit" disabled={pending}>

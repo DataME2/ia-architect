@@ -127,9 +127,12 @@ export default async function RegistrarPage({
         </form>
       )}
 
-      <p>
+      <p style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
         <a className="button" href={`/registrar/pack?season=${season.id}`}>
           Submission pack
+        </a>
+        <a className="button secondary" href={`/registrar/invitations?season=${season.id}`}>
+          Registration links
         </a>
       </p>
 

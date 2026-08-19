@@ -265,14 +265,10 @@ rather than the code quietly working around it.
   in this slice, and the technology layer notes it as the first thing the
   chosen stack would outgrow.
 - **The family form needs a club login, which is not the shape it should
-  ship in.** A family is not a tenant user, so under RLS an anonymous
-  submission has no policy that would let it insert — the form therefore
-  sits behind a club session today, which makes it registrar-assisted
-  intake rather than something a parent completes from a link at home.
-  Closing it properly means an **unguessable per-club invitation token and a
-  `security definer` function** that inserts against exactly one `club_id`,
-  which is the same bearer-token pattern BR31 already uses for the calendar
-  feed. What it must not become is a service-role write from a server
-  action: that would put a hole in P5 to save a migration. Deliberately not
-  improvised here — it is a schema change and belongs in its own pass
-  through the EA layers.
+  ship in.** ~~A family is not a tenant user, so under RLS an anonymous
+  submission has no policy that would let it insert.~~ **Closed by
+  [scope document 19](./19_tokenised-family-link.md)**, which took the route
+  named here — an unguessable per-club invitation token and a
+  `security definer` function inserting against exactly one `club_id`, not
+  a service-role write — through its own pass of the EA layers, as BR72,
+  BR73 and [decision 6](../decisions/6_public-registration-through-a-scoped-function.md).

@@ -2,7 +2,8 @@ import { redirect } from 'next/navigation';
 
 import { loadSeasons, loadTenantContext } from '../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
-import { RegistrationForm } from './RegistrationForm.tsx';
+import { RegistrationForm } from '../_components/RegistrationForm.tsx';
+import { submitRegistrationAction } from './actions.ts';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,7 +40,7 @@ export default async function RegisterPage() {
         so the submission is right the first time, instead of erroring and coming back weeks
         later.
       </p>
-      <RegistrationForm seasons={seasons} />
+      <RegistrationForm action={submitRegistrationAction} seasons={seasons} />
     </>
   );
 }

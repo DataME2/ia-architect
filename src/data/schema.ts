@@ -119,6 +119,20 @@ export interface ConsentRow {
   channels: string[];
 }
 
+export interface RegistrationInvitationRow {
+  id: string;
+  club_id: string;
+  season_id: string;
+  /** BR73: the hash. The token itself is shown once at issue and never stored. */
+  token_hash: string;
+  label: string;
+  expires_at: InstantString;
+  revoked_at: InstantString | null;
+  use_count: number;
+  created_by_user_id: string;
+  created_at: InstantString;
+}
+
 export interface ValidationResultRow {
   id: string;
   club_id: string;

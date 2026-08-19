@@ -16,6 +16,14 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { readPublicConfig } from './data/env.ts';
 
+/**
+ * Paths requiring a club session.
+ *
+ * `/join/...` is deliberately absent: a family following an invitation link
+ * has no account, which is the entire point of BR72. Its authorisation is
+ * the token, checked by the database when the form is submitted — not by
+ * anything here.
+ */
 const PROTECTED = ['/registrar', '/register'];
 
 export async function proxy(request: NextRequest) {
