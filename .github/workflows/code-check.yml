@@ -7,7 +7,8 @@ on:
       - "supabase/**"
       - "scripts/check_rls.py"
       - "package.json"
-      - "tsconfig.json"
+      - "tsconfig*.json"
+      - "next.config.ts"
       - ".github/workflows/code-check.yml"
   push:
     branches: [main]
@@ -26,6 +27,15 @@ jobs:
         run: npm run typecheck
       - name: Tests
         run: npm test
+      # Typed routes only exist once `next build` has generated them, so a
+      # broken `redirect()` or `<a href>` target is invisible to `tsc` alone.
+      # The placeholder credentials are not secrets and reach no network:
+      # every page is dynamic, so nothing is rendered at build time.
+      - name: Build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-build-only
+        run: npm run build
       # P5 is enforced by Row-Level Security. A table without a policy is a
       # cross-tenant leak, so coverage is a build gate rather than a review item.
       - name: RLS policy coverage

@@ -164,8 +164,42 @@ value rather than a comment, and a test asserts the mutation throws.
 dependency — it walked `node_modules` and reported third-party READMEs —
 and is fixed by skipping vendor directories.
 
-**Next:** the Next.js registrar screens and family flow, and typed queries
-against the schema.
+- **The screens** — `src/app/` (Next.js App Router), `src/web/`,
+  `src/data/queries.ts`. The registrar's season queue grouped by what each
+  registration is waiting on, a detail page showing every rule's outcome by
+  number, BR55 legal-name verification as an act only a club officer can
+  perform, BR5 duplicates surfaced rather than merged, and the family
+  collect-once form. Session handling via Supabase auth, with `src/proxy.ts`
+  refreshing it so `auth.uid()` — which every RLS policy keys off — keeps
+  resolving.
+
+**109 tests.** The screens' logic is pure and lives in `src/web/`, so it is
+tested by the same `node --test` run as the domain, with no browser and no
+database. Three of those tests are worth naming:
+
+- **Sent is not registered, on screen.** `PENDING_EXTERNAL_REGISTRATION`
+  gets its own pile with its own label, and a test asserts it never
+  collapses into "Registered" (BR60, BR43). The failure that guards is a
+  child put on the field because the club's own screen looked finished.
+- **`//evil.example` is not a local path.** The sign-in redirect takes its
+  destination from an allowlist, because the obvious `startsWith('/')` check
+  passes a protocol-relative URL — an open redirect on the one page that
+  handles credentials. Found by Next's typed routes rejecting the string.
+- **Today is Brisbane's today.** Minority (BR1) and the transfer of
+  authority at 18 (BR67) are date comparisons, and a UTC server is already
+  tomorrow while Queensland is still yesterday evening. Getting it wrong
+  makes a child an adult a day early.
+
+**One structural rule gained an enforcer.** The rules engine's freedom from
+I/O was a documented convention; `tsconfig.domain.json` now typechecks
+`src/domain/` and `src/web/` with no DOM library, so browser globals in
+either fail the build. Verified by deliberately leaking `document.title`
+into a pure module and confirming the main config accepted it while the
+domain config rejected it — the same "prove it fails" discipline as the RLS
+behavioural test.
+
+**Next:** the submission-pack screen (generate, download, record handover),
+and a public tokenised family link — see the gap note below.
 
 **One thing the code changed in the architecture.** Writing BR55 showed the
 rule was unenforceable as modelled: holding a legal name and having
@@ -197,3 +231,15 @@ rather than the code quietly working around it.
   re-verification, and BR67's transfer at 18 all need a scheduler. None is
   in this slice, and the technology layer notes it as the first thing the
   chosen stack would outgrow.
+- **The family form needs a club login, which is not the shape it should
+  ship in.** A family is not a tenant user, so under RLS an anonymous
+  submission has no policy that would let it insert — the form therefore
+  sits behind a club session today, which makes it registrar-assisted
+  intake rather than something a parent completes from a link at home.
+  Closing it properly means an **unguessable per-club invitation token and a
+  `security definer` function** that inserts against exactly one `club_id`,
+  which is the same bearer-token pattern BR31 already uses for the calendar
+  feed. What it must not become is a service-role write from a server
+  action: that would put a hole in P5 to save a migration. Deliberately not
+  improvised here — it is a schema change and belongs in its own pass
+  through the EA layers.

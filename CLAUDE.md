@@ -30,14 +30,21 @@ documented behavior can skip the alignment, but still keep the docs true.
   that realise a rule rather than describe one (consent wording, retention
   schedule, commercial terms, submission-pack instructions).
 - `src/domain/` — types and the business rules engine, pure and
-  I/O-free so every rule is unit-testable without a database;
-  `supabase/migrations/` — schema and the RLS policies that enforce P5.
+  I/O-free so every rule is unit-testable without a database; `src/web/` —
+  the screens' *decisions*, equally pure (form parsing, queue grouping,
+  blocker counts) so they are tested by the same `node --test` run;
+  `src/app/` — the Next.js App Router pages, which render those decisions
+  and little else; `src/data/` — typed queries and the RLS-respecting
+  Supabase clients; `supabase/migrations/` — schema and the RLS policies
+  that enforce P5.
 
 ## Commands
 
 ```bash
-npm install            # one dev dependency set: typescript + @types/node
-npm run typecheck      # tsc --noEmit
+npm install
+npm run dev            # next dev — needs .env.local, see .env.example
+npm run build          # next build; also the only check of typed routes
+npm run typecheck      # tsc --noEmit, twice — see the domain guard below
 npm test               # node --test, no build step (Node 22 strips types)
 python3 scripts/check_links.py   # every relative Markdown link resolves
 python3 scripts/check_rls.py     # every table has RLS + a policy + club_id
@@ -52,6 +59,13 @@ property above all: Supabase enforces Principle P5's tenant isolation in the
 database via Row-Level Security, so a query missing its filter returns
 nothing rather than everything. See
 [`docs/ea/5_technology/1_technology-services.md`](./docs/ea/5_technology/1_technology-services.md).
+
+**`npm run typecheck` runs `tsc` twice, and the second run is the point.**
+`tsconfig.domain.json` typechecks `src/domain/` and `src/web/` with **no DOM
+library**, so a `document.` or `window.` in pure code fails the build rather
+than waiting for review. Keep those two layers free of React and of I/O; if
+a screen needs to decide something, the decision goes in `src/web/` and the
+`.tsx` renders it.
 
 **`check_rls.py` is a build gate, not a lint.** A table without a policy is
 a cross-tenant leak of children's data, and it happens through an ordinary

@@ -25,10 +25,13 @@ it lives in the source tree.
 | **Policy coverage gate** | `scripts/check_rls.py` | Fails the build if any table lacks RLS, a policy, or a `club_id` — static analysis of the migration text | **Delivered** |
 | **Tenant isolation test** | `scripts/test_rls.sh`, `supabase/tests/` | Applies the real migrations to a throwaway Postgres and asserts isolation **behaviourally** across 11 scenarios, as the `authenticated` role — owners bypass RLS, so a test run as `postgres` would pass regardless of how broken the policies were. Verified to fail on a loosened policy | **Delivered** |
 | **Configuration & clients** | `src/data/env.ts`, `src/data/client.ts` | Validated config, and three Supabase clients that differ in one way that matters — whether RLS applies. `createAdminClient(reason)` bypasses it, throws in a browser, and takes a reason from a closed set so every bypass is greppable | **Delivered** |
-| **Web application** | `src/app/` (Next.js App Router) | Registrar screens and the family-facing registration flow | Planned |
-| **Typed queries** | `src/data/` | Query functions and generated schema types | Planned |
+| **Registrar screens** | `src/app/registrar/` | The season queue grouped by what it is waiting on, a per-registration detail with every rule's outcome, BR55 legal-name verification, and BR5 duplicate candidates surfaced for a human | **Delivered** |
+| **Family registration flow** | `src/app/register/` | The collect-once form: legal and preferred names kept apart, guardian required for a minor, the three consents recorded independently | **Delivered** |
+| **View logic** | `src/web/` | The screens' decisions as pure, framework-free functions — form parsing, queue grouping, the blocker summary, timezone-correct "today", and the sign-in destination allowlist | **Delivered** |
+| **Session & routing** | `src/app/sign-in/`, `src/proxy.ts` | Email/password sign-in, and the request proxy that refreshes the Supabase session so `auth.uid()` keeps resolving | **Delivered** |
+| **Typed queries** | `src/data/queries.ts`, `src/data/schema.ts`, `src/data/mappers.ts`, `src/data/server.ts` | Request-scoped RLS-respecting clients, hand-written row types, and pure row→domain mappers | **Delivered** |
 
-## Two structural rules for the code
+## Three structural rules for the code
 
 **The rules engine holds no I/O and no framework.** Each business rule is a
 pure function from a registration to a result carrying the rule's
@@ -36,6 +39,16 @@ identifier and its message. That makes BR1–BR5 unit-testable without a
 database, and it makes the rule set the thing a reviewer can diff against
 `5_domain-context-and-rules.md` — which is the only way sixty-eight rules
 stay honest against the code.
+
+**The same holds for the screens, and it is enforced rather than asked
+for.** What a screen *decides* — which pile a registration belongs in, what
+is wrong with a form, which rule is costing the club the most — lives in
+`src/web/` as pure functions with no React and no request. The `.tsx` files
+render those decisions and little else. `tsconfig.domain.json` typechecks
+`src/domain/` and `src/web/` **with no DOM library**, so a `document.` or
+`window.` reaching into either fails `npm run typecheck` instead of waiting
+for a reviewer to notice. It is checked by proving it fails, not by
+assuming it passes.
 
 **Rule identifiers are the business rule numbers.** A `validation_result`
 row records `BR55`, not `"legal name mismatch"`. The prose can be reworded;

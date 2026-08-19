@@ -1,0 +1,22 @@
+{
+  // The domain and view-logic layers must stay free of the browser and of
+  // React. `2_application-components.md` states that as a structural rule;
+  // this file is what makes it one. Without a DOM lib, a stray `document.`
+  // or `window.` in `src/domain/` or `src/web/` fails the build instead of
+  // waiting for a reviewer to notice.
+  //
+  // Run by `npm run typecheck` alongside the main config.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "incremental": false,
+    "plugins": []
+  },
+  "include": [
+    "src/domain/**/*.ts",
+    "src/web/**/*.ts",
+    "src/data/mappers.ts",
+    "src/data/schema.ts"
+  ],
+  "exclude": ["node_modules"]
+}
