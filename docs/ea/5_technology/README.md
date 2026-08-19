@@ -45,7 +45,7 @@ flowchart TB
 | #   | Document | Elements | Question it answers |
 | --- | -------- | -------- | ------------------- |
 | 1   | [1_technology-services.md](./1_technology-services.md) | Technology Service, System Software, Node | What does the software run on, and why that? |
-| 2   | `2_deployment.md` | Node, Artifact, deployment topology | Where does it run, and how does it get there? *(not started — written with the first deploy)* |
+| 2   | [2_deployment.md](./2_deployment.md) | Node, Artifact, deployment topology | Where does it run, where do secrets live, and where must they never appear? |
 
 **Chosen August 2026:** Next.js + Supabase + Vercel, Sydney region. The
 deciding property was **Row-Level Security** — Principle P5's tenant

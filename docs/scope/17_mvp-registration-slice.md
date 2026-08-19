@@ -146,8 +146,93 @@ guards a failure that would be expensive and quiet:
 The pack is `Object.freeze`d, so BR58's immutability is a property of the
 value rather than a comment, and a test asserts the mutation throws.
 
-**Next:** the Next.js registrar screens and family flow, and typed data
-access against Supabase.
+- **Configuration and Supabase clients** — `src/data/`. Three clients that
+  differ in one way that matters: whether Row-Level Security applies.
+  `createAdminClient(reason)` bypasses it, so it throws if a browser could
+  reach it and takes a reason from a **closed set**, making every bypass in
+  the codebase greppable and the list of legitimate reasons reviewable.
+  `readServiceConfig()` refuses a `NEXT_PUBLIC_`-prefixed service key,
+  because that prefix is what ships a value to every browser and the mistake
+  is one character.
+- **[2_deployment.md](../ea/5_technology/2_deployment.md)** — environments,
+  and where secrets live. It states the load-bearing connection plainly:
+  **the anon key is safe only because RLS is on every table**, so if
+  coverage lapses the published key stops being safe. That is why the
+  coverage check fails the build rather than warning.
+
+**57 tests.** A latent bug in `check_links.py` surfaced with the first
+dependency — it walked `node_modules` and reported third-party READMEs —
+and is fixed by skipping vendor directories.
+
+- **The screens** — `src/app/` (Next.js App Router), `src/web/`,
+  `src/data/queries.ts`. The registrar's season queue grouped by what each
+  registration is waiting on, a detail page showing every rule's outcome by
+  number, BR55 legal-name verification as an act only a club officer can
+  perform, BR5 duplicates surfaced rather than merged, and the family
+  collect-once form. Session handling via Supabase auth, with `src/proxy.ts`
+  refreshing it so `auth.uid()` — which every RLS policy keys off — keeps
+  resolving.
+
+**109 tests.** The screens' logic is pure and lives in `src/web/`, so it is
+tested by the same `node --test` run as the domain, with no browser and no
+database. Three of those tests are worth naming:
+
+- **Sent is not registered, on screen.** `PENDING_EXTERNAL_REGISTRATION`
+  gets its own pile with its own label, and a test asserts it never
+  collapses into "Registered" (BR60, BR43). The failure that guards is a
+  child put on the field because the club's own screen looked finished.
+- **`//evil.example` is not a local path.** The sign-in redirect takes its
+  destination from an allowlist, because the obvious `startsWith('/')` check
+  passes a protocol-relative URL — an open redirect on the one page that
+  handles credentials. Found by Next's typed routes rejecting the string.
+- **Today is Brisbane's today.** Minority (BR1) and the transfer of
+  authority at 18 (BR67) are date comparisons, and a UTC server is already
+  tomorrow while Queensland is still yesterday evening. Getting it wrong
+  makes a child an adult a day early.
+
+**One structural rule gained an enforcer.** The rules engine's freedom from
+I/O was a documented convention; `tsconfig.domain.json` now typechecks
+`src/domain/` and `src/web/` with no DOM library, so browser globals in
+either fail the build. Verified by deliberately leaking `document.title`
+into a pure module and confirming the main config accepted it while the
+domain config rejected it — the same "prove it fails" discipline as the RLS
+behavioural test.
+
+- **The submission pack screens** — `src/app/registrar/pack/`,
+  `src/data/packs.ts`. A preview built by the *same* pure function that
+  generates, so what is shown is the pack rather than an approximation of
+  it; versioned generation (BR58); handover recorded once against a named
+  channel (BR59); CSV served from the stored manifest; and per-person
+  outcomes, which are the only route to `COMPLETE` and therefore to
+  eligibility (BR60, BR43).
+
+**123 tests**, plus a second behavioural SQL suite. Two things are worth
+naming:
+
+- **Generating is not sending, and the screens keep them apart.** Generating
+  freezes an artifact and moves no status. Only recording a handover writes
+  submission records — every one as *sent* — and moves registrations to the
+  eligibility gate. The pack detail page counts *sent* and *confirmed*
+  separately and never adds them, because only the second means a player may
+  take the field.
+- **BR58's immutability is now proved in the database.**
+  `supabase/tests/11_submission_pack.sql` asserts a handover can be recorded
+  once and never rewritten, that a pack cannot be deleted, and that another
+  club sees none of it — nine scenarios, verified to fail when the handover
+  policy is loosened. Application code checks the same thing; the policy is
+  what actually holds.
+
+**A second gap the code found in the model.** BR58 requires a pack to answer
+"did we submit this player, **and with what values**?" months later. It could
+not: `submission_record` records who was in a pack, and `person` holds
+today's values — so a name corrected after submission would make the pack
+appear to have carried the correction. Migration `0004` adds a `manifest`
+column holding the frozen rows, and the CSV is serialised from it, so
+downloading version 1 in December reproduces what was sent in August. Same
+pattern as `legal_name_verified_at`: implementation finding a gap in the
+model, and the model being corrected rather than the code working around it.
+
+**Next:** a public tokenised family link — see the gap note below.
 
 **One thing the code changed in the architecture.** Writing BR55 showed the
 rule was unenforceable as modelled: holding a legal name and having
@@ -179,3 +264,11 @@ rather than the code quietly working around it.
   re-verification, and BR67's transfer at 18 all need a scheduler. None is
   in this slice, and the technology layer notes it as the first thing the
   chosen stack would outgrow.
+- **The family form needs a club login, which is not the shape it should
+  ship in.** ~~A family is not a tenant user, so under RLS an anonymous
+  submission has no policy that would let it insert.~~ **Closed by
+  [scope document 19](./19_tokenised-family-link.md)**, which took the route
+  named here — an unguessable per-club invitation token and a
+  `security definer` function inserting against exactly one `club_id`, not
+  a service-role write — through its own pass of the EA layers, as BR72,
+  BR73 and [decision 6](../decisions/6_public-registration-through-a-scoped-function.md).

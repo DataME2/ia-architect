@@ -107,10 +107,36 @@ def check_html(html_file: Path) -> list[str]:
     return errors
 
 
+# Directories whose Markdown is not ours to fix. Third-party READMEs
+# routinely link to files their package does not ship, and reporting those
+# would train everyone to ignore this check's output.
+SKIP_DIRS = {".git", "node_modules", ".next", "out", "dist", "build"}
+
+
+def nested_repo_roots(root: Path) -> set[Path]:
+    """Directories under `root` that are their own git repository.
+
+    A nested clone's documentation belongs to that repository, not this one.
+    Validating it reports failures nobody here can fix — and a stale checkout
+    of *this* repo sitting inside itself reports its own older, already-fixed
+    links as broken, which is worse than useless.
+    """
+    roots: set[Path] = set()
+    for marker in root.rglob(".git"):
+        if SKIP_DIRS & set(marker.parent.relative_to(root).parts):
+            continue
+        if marker.parent != root:
+            roots.add(marker.parent)
+    return roots
+
+
 def main() -> int:
     all_errors = []
+    nested = nested_repo_roots(REPO_ROOT)
     for path in REPO_ROOT.rglob("*"):
-        if ".git" in path.parts or not path.is_file():
+        if SKIP_DIRS & set(path.parts) or not path.is_file():
+            continue
+        if any(repo in path.parents for repo in nested):
             continue
         if path.suffix == ".md":
             all_errors.extend(check_markdown(path))

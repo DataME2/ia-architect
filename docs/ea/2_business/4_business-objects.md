@@ -13,8 +13,8 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 
 | Object | What it represents |
 | ------ | -------------------- |
-| **Person** | The single identity behind every role — see Principle P1 ([1_strategy/1_motivation.md](../1_strategy/README.md)). Carries **two names, both first-class**: the *legal name* as it appears on the passport or birth certificate, which is what external registration and cross-system matching use, and the *preferred name* the Person is actually called, which is what humans see (BR55). May also carry an identification **headshot photograph**, held as sensitive personal data under consent and never processed by an uncontrolled AI service (BR56) |
-| **Person Role** | One role (player, referee, coach, guardian, committee member, …) a Person holds, at a club, for a season, with an effective date range |
+| **Person** | The single identity behind every role — see Principle P1 ([1_strategy/1_motivation.md](../1_strategy/README.md)). Carries **two names, both first-class**: the *legal name* as it appears on the passport or birth certificate, which is what external registration and cross-system matching use, and the *preferred name* the Person is actually called, which is what humans see (BR55). May also carry an identification **headshot photograph**, held as sensitive personal data under consent and never processed by an uncontrolled AI service (BR56). May also carry an optional **date of passing**, recorded for the club's own historical accuracy and honour rolls — never used, or usable, to attempt contact (BR70) |
+| **Person Role** | One role (player, referee, coach, guardian, committee member, **life member**, …) a Person holds, at a club, for a season, with an effective date range — **except Life Member, which is indefinite**: no season, granted once by the club, and held until revoked or the Person's death, unlike every other role in this table (BR69) |
 | **Person Document** | An identity or compliance document belonging to a Person (passport, birth certificate, visa, Working with Children Check evidence, Minor ITC Application supporting documents, …) |
 
 ## Organisation
@@ -60,6 +60,7 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | ------ | -------------------- |
 | **Player Registration** | A Person's registration to a club/team/category for a season, with a status (see [3_business-processes.md](./3_business-processes.md#player-registration-process)) |
 | **Guardianship** | The link between a minor Player and their Parent/Guardian |
+| **Registration Invitation** | A club's write-only, unguessable, expiring link letting a family submit **one** registration into **one** club and season without an account (BR72). Holds the token's *hash* only, who issued it, its expiry, its use count, and whether it has been revoked (BR73) — never the token itself, which is shown once at issue |
 | **Fee / Invoice** | What a registration or program costs |
 | **Payment Plan / Installment** | How a fee is scheduled and paid down |
 | **Voucher Program** | A state government youth-sport discount scheme a club may choose to accept (e.g. Queensland Play On!/FairPlay, NSW Active and Creative Kids, SA Sports Vouchers, WA KidSport, Victoria Get Active Kids, Tasmania Ticket to Play), with jurisdiction, per-child value, frequency, and eligibility criteria; shared reference data, not tenant-owned, until a Club enables it |

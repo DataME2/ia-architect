@@ -8,12 +8,26 @@
     "node": ">=22.6"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test 'src/**/*.test.ts'",
-    "check": "npm run typecheck && npm run test && python3 scripts/check_links.py && python3 scripts/check_rls.py"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.domain.json",
+    "test": "node --experimental-strip-types --test \"src/**/*.test.ts\"",
+    "check": "npm run typecheck && npm run test && python3 scripts/check_links.py && python3 scripts/check_rls.py && python3 scripts/check_server_actions.py",
+    "test:rls": "bash scripts/test_rls.sh",
+    "check:full": "npm run check && npm run test:rls"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "typescript": "^5.6.0"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.3",
+    "next": "^16.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   }
 }

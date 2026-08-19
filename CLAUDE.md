@@ -30,18 +30,28 @@ documented behavior can skip the alignment, but still keep the docs true.
   that realise a rule rather than describe one (consent wording, retention
   schedule, commercial terms, submission-pack instructions).
 - `src/domain/` — types and the business rules engine, pure and
-  I/O-free so every rule is unit-testable without a database;
-  `supabase/migrations/` — schema and the RLS policies that enforce P5.
+  I/O-free so every rule is unit-testable without a database; `src/web/` —
+  the screens' *decisions*, equally pure (form parsing, queue grouping,
+  blocker counts) so they are tested by the same `node --test` run;
+  `src/app/` — the Next.js App Router pages, which render those decisions
+  and little else; `src/data/` — typed queries and the RLS-respecting
+  Supabase clients; `supabase/migrations/` — schema and the RLS policies
+  that enforce P5.
 
 ## Commands
 
 ```bash
-npm install            # one dev dependency set: typescript + @types/node
-npm run typecheck      # tsc --noEmit
+npm install
+npm run dev            # next dev — needs .env.local, see .env.example
+npm run build          # next build; also the only check of typed routes
+npm run typecheck      # tsc --noEmit, twice — see the domain guard below
 npm test               # node --test, no build step (Node 22 strips types)
 python3 scripts/check_links.py   # every relative Markdown link resolves
 python3 scripts/check_rls.py     # every table has RLS + a policy + club_id
 npm run check          # all four, in the order CI runs them
+bash scripts/test_rls.sh # applies the migrations to a throwaway Postgres and
+                       # proves tenant isolation actually holds (needs psql)
+npm run check:full     # everything, including the behavioural RLS test
 ```
 
 The stack is **Next.js + Supabase + Vercel**, Sydney region — chosen for one
@@ -50,10 +60,29 @@ database via Row-Level Security, so a query missing its filter returns
 nothing rather than everything. See
 [`docs/ea/5_technology/1_technology-services.md`](./docs/ea/5_technology/1_technology-services.md).
 
+**`npm run typecheck` runs `tsc` twice, and the second run is the point.**
+`tsconfig.domain.json` typechecks `src/domain/` and `src/web/` with **no DOM
+library**, so a `document.` or `window.` in pure code fails the build rather
+than waiting for review. Keep those two layers free of React and of I/O; if
+a screen needs to decide something, the decision goes in `src/web/` and the
+`.tsx` renders it.
+
 **`check_rls.py` is a build gate, not a lint.** A table without a policy is
 a cross-tenant leak of children's data, and it happens through an ordinary
 omission in a migration. Never add a table without adding its policy in the
 same change.
+
+**And `test_rls.sh` is the one that matters more.** `check_rls.py` proves a
+policy *exists*; this applies the real migrations to a real Postgres and
+proves the policies *work* — that a registrar at one club cannot read,
+write, update or delete another club's rows, that append-only tables really
+are, and that a non-member and an anonymous caller see nothing. Both run in
+CI. A policy can be present and wrong, and that failure is silent.
+
+**The repository is connected to Supabase**, so a migration merged to `main`
+runs against production with no second confirmation. Two rules follow: never
+edit a migration that has already been applied — corrections are new
+migrations — and never merge a schema change whose RLS test has not run.
 
 ## Conventions
 
@@ -71,3 +100,13 @@ same change.
   never approves documents, rejects players, changes debts, approves
   payments, or promotes referees. See
   [`docs/decisions/1_ai-assistant-autonomy-level.md`](./docs/decisions/1_ai-assistant-autonomy-level.md).
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
