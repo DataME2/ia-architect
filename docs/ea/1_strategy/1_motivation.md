@@ -15,6 +15,7 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
 | Let'sDataTalk (the vendor) | Needs a sellable, multitenant SaaS product across many AU/NZ clubs, not a one-off tool for a single club | Revenue depends on subscription and data-services income across multiple tenants |
 | Governing bodies / state associations (Football Queensland the named example) — **prospective customer; first contact made July 2026** | Would want jurisdiction-wide control of Competition Regulations, Playing Formats, and the registration process its member clubs follow, rather than each club re-keying the same reference data | Currently modeled only as an external, read-only data source ([2_business/1_business-actors-and-roles.md](../2_business/1_business-actors-and-roles.md)). Serving one as a *tenant* would need an association tier that can see across member clubs — which Principle P5 forbids today; see [open question #31](../../scope/open-questions.md). **Football Queensland's 31 July 2026 reply to the pilot club's API request** establishes the counterparty's stated position: SQUADI API access is restricted to Football Australia, Football Queensland, and *approved system partners*, and is not issued to affiliated clubs — so the relationship Let'sDataTalk needs is **partner status, not credentials** (see the response Resource, [2_capabilities-and-resources.md](./2_capabilities-and-resources.md), and [open questions #39–#41](../../scope/open-questions.md)) |
 | General public, coaches, and parents following grassroots events; clubs and Football Queensland as event hosts | Regional carnivals and grassroots events (MiniRoos Invitational Carnivals, Girls United Carnivals, WinterFest, Pacific Championships, talent-ID tournaments) currently have no consolidated draw/schedule/results support, so families and the public rely on ad hoc social media posts and printed programs | These events span multiple clubs by design and are meant to be followed by people who don't have (and shouldn't need) a Let'sDataTalk account |
+| Life Members — individuals a club has honoured with lifetime membership for service, including those who have since died | Every club maintains this group informally, and their current contact details go stale between the occasions a club actually needs them — an anniversary, a reunion, an honour board. A person who dies is exactly the record a participation-based retention rule would eventually discard, which loses club history rather than merely tidying it (raised August 2026) | No existing capability distinguishes "stopped playing" from "life member" or from "deceased" — BR40's retention job cannot tell them apart today |
 
 ## Goals
 
@@ -93,6 +94,16 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   general public can follow them without a Let'sDataTalk account, without
   exposing individual (especially minors') names by default. See
   Principle P6 below.
+- **G8 — Life members are recognised, and never lost to a retention job.**
+  A club can hold an honorary Life Member as a `Person` role like any
+  other (Principle P1), keep a living life member's contact details
+  demonstrably current so a celebration invitation actually reaches them,
+  and — once a life member has died — keep their record permanently, for
+  the club's own history and honour rolls, without a communication ever
+  being attempted. Raised by stakeholder request, August 2026; not served
+  by G1–G7, which assume a person is either currently participating or
+  fading toward disposal, never permanently honoured regardless of
+  participation.
 
 ## Principles
 

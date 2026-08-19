@@ -2,6 +2,9 @@ node_modules/
 .next/
 out/
 
+# Local Claude Code agent worktree scratch space — not project content.
+.claude/worktrees/
+
 # Secrets. Never commit any of these — this repository is public, and a
 # service-role key here bypasses every RLS policy for every club at once.
 .env

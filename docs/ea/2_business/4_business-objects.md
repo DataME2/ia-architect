@@ -13,8 +13,8 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 
 | Object | What it represents |
 | ------ | -------------------- |
-| **Person** | The single identity behind every role — see Principle P1 ([1_strategy/1_motivation.md](../1_strategy/README.md)). Carries **two names, both first-class**: the *legal name* as it appears on the passport or birth certificate, which is what external registration and cross-system matching use, and the *preferred name* the Person is actually called, which is what humans see (BR55). May also carry an identification **headshot photograph**, held as sensitive personal data under consent and never processed by an uncontrolled AI service (BR56) |
-| **Person Role** | One role (player, referee, coach, guardian, committee member, …) a Person holds, at a club, for a season, with an effective date range |
+| **Person** | The single identity behind every role — see Principle P1 ([1_strategy/1_motivation.md](../1_strategy/README.md)). Carries **two names, both first-class**: the *legal name* as it appears on the passport or birth certificate, which is what external registration and cross-system matching use, and the *preferred name* the Person is actually called, which is what humans see (BR55). May also carry an identification **headshot photograph**, held as sensitive personal data under consent and never processed by an uncontrolled AI service (BR56). May also carry an optional **date of passing**, recorded for the club's own historical accuracy and honour rolls — never used, or usable, to attempt contact (BR70) |
+| **Person Role** | One role (player, referee, coach, guardian, committee member, **life member**, …) a Person holds, at a club, for a season, with an effective date range — **except Life Member, which is indefinite**: no season, granted once by the club, and held until revoked or the Person's death, unlike every other role in this table (BR69) |
 | **Person Document** | An identity or compliance document belonging to a Person (passport, birth certificate, visa, Working with Children Check evidence, Minor ITC Application supporting documents, …) |
 
 ## Organisation

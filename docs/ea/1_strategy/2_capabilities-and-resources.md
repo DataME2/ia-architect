@@ -28,6 +28,7 @@ What Let'sDataTalk must be able to do to realize the goals in
 | C15 | **Consent & privacy rights management** — capture explicit, scoped, revocable guardian consent for minors; service data-subject requests (access, correction, erasure) against a recorded lawful basis; and hold the per-jurisdiction privacy configuration that determines which framework applies to which tenant | G1, G5 (cross-cutting, with P7) |
 | C16 | **External registration submission** — assemble the club's own validated registrations into a structured, versioned **Registration Submission Pack** that the governing body can import into its own system, hand it over through a controlled channel, and track what was sent, when, to whom, and what came back. The platform produces a file; it never connects to the governing body's system | G2, G6 |
 | C17 | **Role-based mobile experience** — one app per `Person`, showing the information and actions of whichever role they are currently acting in, with an explicit switch when they hold several. For a player or match official: the next fixture with venue and kick-off, what they need to bring or know, and a one-tap **available / not available** response carrying a brief reason. For a coach, technical director, or coordinator: who has responded, who has not, and who is unavailable and why. For a guardian: all of the above on behalf of their child. **Read-only offline** (BR66): fixture information is readable without connectivity and carries its last-synced time; responses require a connection and say so | G1, G4, G5 |
+| C18 | **Life member register & recognition** — record honorary life membership as an indefinite `Person` role (no season, no automatic expiry), keep a living life member's contact details demonstrably current for celebration outreach, and maintain a permanent honour roll that includes those who have died — retained regardless of BR40's participation-based window, and never contacted | G8 |
 
 ## Resources
 
@@ -231,6 +232,13 @@ What Let'sDataTalk must be able to do to realize the goals in
   demonstration: a listening session costs the counterparty nothing, cannot
   be refused on policy grounds, and produces the material any later
   proposal has to be built on.
+- **Life member register (C18) is deferred past the Q4 2026 MVP, for the
+  same reason as C12.** Aligned through the EA layers now — the retention
+  exception (BR70) and the indefinite-role exception (BR69) are exactly
+  the kind of thing that's cheap to get right on paper and expensive to
+  retrofit into a shipped retention job — but scheduled after the
+  registration slice (C1–C11), which the Q4 2026 target is actually set
+  against. See [scope document 18](../../scope/18_life-members.md).
 - **Carnival & event management (C12) is deferred past the Q4 2026 MVP.**
   It is architected now (goal G7, this capability, the business layer
   additions in [2_business/](../2_business/README.md)) so the public-access
