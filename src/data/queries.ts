@@ -11,18 +11,31 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { findDuplicateCandidates } from '../domain/identity/br5-duplicate-candidates.ts';
 import { evaluateRegistration } from '../domain/rules/index.ts';
+import { statusFromValidation } from '../domain/rules/registration-status.ts';
 import type { RuleOutcome } from '../domain/rules/types.ts';
 import type { PackCandidate } from '../domain/submission/types.ts';
-import type { IsoDate, Person, SeasonRole } from '../domain/types.ts';
+import type { Payment, PaymentPlan } from '../domain/finance/types.ts';
+import type { IsoDate, Person, RegistrationStatus, SeasonRole } from '../domain/types.ts';
 import { buildDirectory, type PersonSummary } from '../web/people-view.ts';
 import { displayNameFor, fullLegalName, type QueueEntry } from '../web/queue-view.ts';
-import { toConsent, toGuardianship, toPerson, toPersonRole, toRegistration } from './mappers.ts';
+import {
+  toConsent,
+  toGuardianship,
+  toPayment,
+  toPaymentPlan,
+  toPerson,
+  toPersonRole,
+  toRegistration,
+} from './mappers.ts';
 import type {
   ClubRow,
   ClubMembershipRow,
   ConsentRow,
   GuardianshipRow,
   MembershipRole,
+  PaymentInstallmentRow,
+  PaymentPlanRow,
+  PaymentRow,
   PersonRoleRow,
   PersonRow,
   RegistrationDocumentRow,
@@ -35,7 +48,17 @@ export interface TenantContext {
   readonly userId: string;
   readonly clubId: string;
   readonly clubName: string;
+  /** The first membership row, kept for the screens that show one label. */
   readonly role: MembershipRole;
+  /**
+   * **Every** role this user holds at this club.
+   *
+   * A person is routinely both registrar and admin, or both secretary and
+   * treasurer — small clubs are small. Gating a screen on `role` alone hid
+   * the finance screens from an admin whose registrar membership happened
+   * to be the older row, which is a permission decided by insertion order.
+   */
+  readonly roles: readonly MembershipRole[];
 }
 
 /** Thrown when a query fails; carries the table so the page can say where. */
@@ -69,8 +92,7 @@ export async function loadTenantContext(
       .from('club_membership')
       .select('id, club_id, user_id, role, created_at')
       .eq('user_id', userId)
-      .order('created_at', { ascending: true })
-      .limit(1),
+      .order('created_at', { ascending: true }),
   );
 
   const membership = memberships[0];
@@ -92,6 +114,9 @@ export async function loadTenantContext(
     clubId: club.id,
     clubName: club.name,
     role: membership.role,
+    roles: memberships
+      .filter((m) => m.club_id === membership.club_id)
+      .map((m) => m.role),
   };
 }
 
@@ -118,6 +143,10 @@ interface SliceData {
   readonly consents: readonly ConsentRow[];
   /** Every person in the club, for BR5 — duplicates are a club-wide question. */
   readonly clubPeople: readonly Person[];
+  /** The live payment plan per registration, where one has been agreed. */
+  readonly plans: ReadonlyMap<string, PaymentPlan>;
+  /** Receipts per registration, oldest first. */
+  readonly payments: ReadonlyMap<string, Payment[]>;
 }
 
 /**
@@ -188,6 +217,57 @@ async function loadSlice(
             .in('person_id', personIds),
         );
 
+  // BR3 asks whether payment is *in arrears*, not whether a balance exists,
+  // so the plan and its receipts have to be here before the rules run.
+  const planRows =
+    registrationIds.length === 0
+      ? []
+      : unwrap<PaymentPlanRow[]>(
+          'payment_plan',
+          await client
+            .from('payment_plan')
+            .select('id, club_id, registration_id, total_cents, cadence, created_by_user_id, cancelled_at, created_at')
+            .eq('club_id', clubId)
+            .in('registration_id', registrationIds)
+            .is('cancelled_at', null),
+        );
+
+  const installmentRows =
+    planRows.length === 0
+      ? []
+      : unwrap<PaymentInstallmentRow[]>(
+          'payment_installment',
+          await client
+            .from('payment_installment')
+            .select('id, club_id, payment_plan_id, sequence, due_on, amount_cents')
+            .eq('club_id', clubId)
+            .in('payment_plan_id', planRows.map((p) => p.id)),
+        );
+
+  const paymentRows =
+    registrationIds.length === 0
+      ? []
+      : unwrap<PaymentRow[]>(
+          'payment',
+          await client
+            .from('payment')
+            .select('id, club_id, registration_id, amount_cents, received_on, method, reference, reverses_payment_id, recorded_by_user_id, created_at')
+            .eq('club_id', clubId)
+            .in('registration_id', registrationIds)
+            .order('received_on', { ascending: true }),
+        );
+
+  const plans = new Map(
+    planRows.map((row) => [row.registration_id, toPaymentPlan(row, installmentRows)]),
+  );
+
+  const payments = new Map<string, Payment[]>();
+  for (const row of paymentRows) {
+    const list = payments.get(row.registration_id) ?? [];
+    list.push(toPayment(row));
+    payments.set(row.registration_id, list);
+  }
+
   const documents = new Map<string, RegistrationDocumentRow[]>();
   for (const row of documentRows) {
     const list = documents.get(row.registration_id) ?? [];
@@ -198,7 +278,7 @@ async function loadSlice(
   const clubPeople = clubPersonRows.map(toPerson);
   const people = new Map(clubPeople.map((p) => [p.id, p]));
 
-  return { registrations, people, documents, guardianships, consents, clubPeople };
+  return { registrations, people, documents, guardianships, consents, clubPeople, plans, payments };
 }
 
 /**
@@ -234,6 +314,8 @@ export async function loadQueue(
         .filter((g) => g.person_id === person.id)
         .map(toGuardianship),
       consents: slice.consents.filter((c) => c.person_id === person.id).map(toConsent),
+      paymentPlan: slice.plans.get(registrationRow.id) ?? null,
+      payments: slice.payments.get(registrationRow.id) ?? [],
       asAt,
     });
 
@@ -293,6 +375,8 @@ export async function loadPackCandidates(
       guardianships,
       guardianPeople,
       consents: slice.consents.filter((c) => c.person_id === person.id).map(toConsent),
+      paymentPlan: slice.plans.get(registrationRow.id) ?? null,
+      payments: slice.payments.get(registrationRow.id) ?? [],
       duplicateCandidates: findDuplicateCandidates(
         person,
         slice.clubPeople.filter((p) => p.id !== person.id),
@@ -335,6 +419,8 @@ export async function loadRegistrationDetail(
     person,
     guardianships: slice.guardianships.filter((g) => g.person_id === person.id).map(toGuardianship),
     consents: consents.map(toConsent),
+    paymentPlan: slice.plans.get(registrationRow.id) ?? null,
+    payments: slice.payments.get(registrationRow.id) ?? [],
     asAt,
   });
 
@@ -700,4 +786,47 @@ export async function setOutstandingAmount(
     entityId: registrationId,
     detail: { rule: 'BR3', fromCents: previousCents, toCents: cents },
   });
+}
+
+/**
+ * Move a registration to the status its rule outcomes justify.
+ *
+ * The status is *derived*, never hand-set — a status a human types drifts
+ * from the rules that justify it within a season, and then two screens
+ * disagree about the same child. `statusFromValidation` refuses to produce
+ * `COMPLETE` or `PENDING_EXTERNAL_REGISTRATION`, which stay the federation's
+ * and the pack's to set (BR43, BR60).
+ *
+ * Returns the status it settled on, whether or not it changed.
+ */
+export async function applyDerivedStatus(
+  client: SupabaseClient,
+  clubId: string,
+  registrationId: string,
+  current: RegistrationStatus,
+  outcomes: readonly RuleOutcome[],
+  actorUserId: string,
+): Promise<RegistrationStatus> {
+  const next = statusFromValidation(current, outcomes);
+  if (next === current) return current;
+
+  const { error } = await client
+    .from('registration')
+    .update({ status: next })
+    .eq('id', registrationId)
+    .eq('club_id', clubId);
+  if (error !== null) throw new QueryError('registration', error.message);
+
+  await recordAudit(client, clubId, actorUserId, {
+    action: 'registration_status_derived',
+    entity: 'registration',
+    entityId: registrationId,
+    detail: {
+      from: current,
+      to: next,
+      blockedBy: outcomes.filter((o) => o.status === 'fail').map((o) => o.ruleId),
+    },
+  });
+
+  return next;
 }

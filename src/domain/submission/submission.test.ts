@@ -30,6 +30,8 @@ function candidate(overrides: Partial<PackCandidate> = {}): PackCandidate {
     guardianships: [guardian()],
     guardianPeople: [GUARDIAN],
     consents: [consent()],
+    paymentPlan: null,
+    payments: [],
     duplicateCandidates: [],
     ...overrides,
   };

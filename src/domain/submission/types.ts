@@ -6,6 +6,7 @@
  * from. Both readings are served by the same rows, which is what makes the
  * capability pay for itself either way.
  */
+import type { Payment, PaymentPlan } from '../finance/types.ts';
 import type { DuplicateCandidate } from '../identity/br5-duplicate-candidates.ts';
 import type {
   Consent, Guardianship, IsoDate, IsoInstant, Person, Registration,
@@ -20,6 +21,10 @@ export interface PackCandidate {
   /** Guardians, resolvable by id — the pack names a contactable adult. */
   readonly guardianPeople: readonly Person[];
   readonly consents: readonly Consent[];
+  /** The live payment plan, if the family is paying by instalments (BR3). */
+  readonly paymentPlan: PaymentPlan | null;
+  /** Receipts against this registration, for BR3's arrears question. */
+  readonly payments: readonly Payment[];
   /** Unresolved BR5 candidates. Any at all excludes the registration. */
   readonly duplicateCandidates: readonly DuplicateCandidate[];
 }

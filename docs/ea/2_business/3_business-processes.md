@@ -108,6 +108,41 @@ flowchart LR
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
 
+A plan is agreed against a registration's total, and the instalments it
+generates sum to **exactly** that total (BR74) — the odd cents of an
+uneven split land on the first instalment, so the last one stays the round
+number a family expects. A registration carries **one** live plan (BR75),
+and the schedule must finish inside the season being registered for
+(BR76): a plan that outlives its season is a write-off scheduled in
+advance, because the club is chasing money for a child who has stopped
+playing.
+
+**This process changes what BR3 means.** The rule blocks a registration
+while payment is *in arrears* — an instalment past its due date and unpaid
+— and not while a balance merely exists. Without the restatement a plan
+would be worthless: a club could offer instalments and the child still
+could not play, because the balance the plan exists to spread would itself
+be the blocker. Where no plan has been agreed the whole amount is due and
+BR3 is unchanged. An instalment due *today* is not yet late.
+
+Money received is recorded, never edited (BR77). A refund or a correction
+is a reversing entry naming what it reverses, so the club's answer to "what
+did we say we received, and when" survives the correction. Payments are
+allocated to instalments **oldest first**, at read time and without being
+stored: a family paying $50 against a $40 instalment has made no statement
+about allocation, and recording a guess as though they had turns
+arithmetic into a disputed fact.
+
+Agreeing, changing or cancelling a plan, and recording a payment, are
+Finance Admin or Treasurer acts (BR78) — the separation BR22 already draws
+for vouchers. Reading is open to every club member, because a Registrar
+chasing BR3 has to be able to see why a registration is blocked.
+
+Reconciliation against the provider (Square) and guardian notification are
+**not yet built**: what exists records what the club charged and what it
+received, which is the part the club's own books depend on whether or not
+an integration ever arrives.
+
 ## Voucher program enablement process
 
 ```mermaid

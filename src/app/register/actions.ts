@@ -170,7 +170,9 @@ export async function submitRegistrationAction(
       },
       guardianships: guardianRow === null ? [] : [toGuardianship(guardianRow)],
       consents: (consentRows as ConsentRow[]).map(toConsent),
-      asAt: todayIn(),
+      paymentPlan: null,
+    payments: [],
+    asAt: todayIn(),
     });
 
     await persistValidation(client, tenant.clubId, registrationData.id, outcomes);

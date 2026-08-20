@@ -6,6 +6,7 @@
  * database's idea of null.
  */
 
+import type { Installment, Payment, PaymentPlan } from '../domain/finance/types.ts';
 import type {
   Consent,
   Guardianship,
@@ -15,6 +16,9 @@ import type {
 } from '../domain/types.ts';
 import type {
   ConsentRow,
+  PaymentInstallmentRow,
+  PaymentPlanRow,
+  PaymentRow,
   GuardianshipRow,
   PersonRoleRow,
   PersonRow,
@@ -91,5 +95,42 @@ export function toPersonRole(row: PersonRoleRow): PersonRole {
     personId: row.person_id,
     seasonId: row.season_id,
     role: row.role,
+  };
+}
+
+export function toInstallment(row: PaymentInstallmentRow): Installment {
+  return {
+    sequence: row.sequence,
+    dueOn: row.due_on,
+    amountCents: row.amount_cents,
+  };
+}
+
+export function toPaymentPlan(
+  row: PaymentPlanRow,
+  installments: readonly PaymentInstallmentRow[],
+): PaymentPlan {
+  return {
+    id: row.id,
+    registrationId: row.registration_id,
+    totalCents: row.total_cents,
+    cadence: row.cadence,
+    installments: installments
+      .filter((i) => i.payment_plan_id === row.id)
+      .map(toInstallment)
+      .sort((a, b) => a.sequence - b.sequence),
+    cancelledAt: row.cancelled_at,
+  };
+}
+
+export function toPayment(row: PaymentRow): Payment {
+  return {
+    id: row.id,
+    registrationId: row.registration_id,
+    amountCents: row.amount_cents,
+    receivedOn: row.received_on,
+    method: row.method,
+    reference: row.reference,
+    reversesPaymentId: row.reverses_payment_id,
   };
 }

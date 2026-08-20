@@ -114,6 +114,8 @@ export async function submitJoinAction(
         revokedAt: null,
       },
     ],
+    paymentPlan: null,
+    payments: [],
     asAt: todayIn(),
   }).filter((o) => o.status === 'fail');
 

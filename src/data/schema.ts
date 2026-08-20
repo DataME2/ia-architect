@@ -13,6 +13,7 @@
  */
 
 import type { PackRow } from '../domain/submission/types.ts';
+import type { PaymentMethod, PlanCadence } from '../domain/finance/types.ts';
 import type { SeasonRole } from '../domain/types.ts';
 
 /** `YYYY-MM-DD`, as Postgres `date` renders it over the wire. */
@@ -143,6 +144,40 @@ export interface RegistrationInvitationRow {
   revoked_at: InstantString | null;
   use_count: number;
   created_by_user_id: string;
+  created_at: InstantString;
+}
+
+export interface PaymentPlanRow {
+  id: string;
+  club_id: string;
+  registration_id: string;
+  total_cents: number;
+  cadence: PlanCadence;
+  created_by_user_id: string;
+  cancelled_at: InstantString | null;
+  created_at: InstantString;
+}
+
+export interface PaymentInstallmentRow {
+  id: string;
+  club_id: string;
+  payment_plan_id: string;
+  sequence: number;
+  due_on: DateString;
+  amount_cents: number;
+}
+
+export interface PaymentRow {
+  id: string;
+  club_id: string;
+  registration_id: string;
+  /** Negative is legitimate: a refund, or a reversing correction (BR77). */
+  amount_cents: number;
+  received_on: DateString;
+  method: PaymentMethod;
+  reference: string | null;
+  reverses_payment_id: string | null;
+  recorded_by_user_id: string;
   created_at: InstantString;
 }
 
