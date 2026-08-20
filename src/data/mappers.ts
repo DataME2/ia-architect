@@ -10,11 +10,13 @@ import type {
   Consent,
   Guardianship,
   Person,
+  PersonRole,
   Registration,
 } from '../domain/types.ts';
 import type {
   ConsentRow,
   GuardianshipRow,
+  PersonRoleRow,
   PersonRow,
   RegistrationDocumentRow,
   RegistrationRow,
@@ -81,5 +83,13 @@ export function toRegistration(
     requiredDocumentTypes: required,
     providedDocumentTypes: provided,
     outstandingAmountCents: row.outstanding_amount_cents,
+  };
+}
+
+export function toPersonRole(row: PersonRoleRow): PersonRole {
+  return {
+    personId: row.person_id,
+    seasonId: row.season_id,
+    role: row.role,
   };
 }

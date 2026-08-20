@@ -22,6 +22,7 @@ function entry(overrides: Partial<QueueEntry> = {}): QueueEntry {
     status: 'DRAFT' as RegistrationStatus,
     outcomes: [pass('BR55', 'Legal name verified.')],
     duplicateCount: 0,
+    outstandingCents: 0,
     ...overrides,
   };
 }

@@ -7,10 +7,17 @@ import {
   loadValidationHistory,
 } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
+import { formatCents } from '../../../web/money.ts';
 import { failing } from '../../../web/queue-view.ts';
 import { todayIn } from '../../../web/today.ts';
 import { RuleList, StatusPill } from '../../_components/rules.tsx';
-import { recheckAction, verifyLegalNameAction } from '../actions.ts';
+import {
+  applyChecklistAction,
+  recheckAction,
+  setDocumentProvidedAction,
+  verifyLegalNameAction,
+} from '../actions.ts';
+import { OutstandingForm } from './OutstandingForm.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,6 +69,7 @@ export default async function RegistrationDetailPage({
   }
   if (detail === null) notFound();
 
+  const season = seasons.find((s) => s.id === seasonId);
   const { entry, person, documents, consents, duplicates } = detail;
   const blocking = failing(entry);
   const history = await loadValidationHistory(client, registrationId, 20);
@@ -183,9 +191,28 @@ export default async function RegistrationDetailPage({
       </section>
 
       <section className="card">
-        <h3 style={{ marginTop: 0 }}>Documents</h3>
+        <h3 style={{ marginTop: 0 }}>Documents (BR2)</h3>
         {documents.length === 0 ? (
-          <p className="empty">None required or provided.</p>
+          <>
+            <p className="empty">Nothing is required of this registration.</p>
+            {season !== undefined && season.required_document_types.length > 0 && (
+              <>
+                <p className="hint">
+                  {season.name} requires {season.required_document_types.join(', ')}, but this
+                  registration was created before that checklist existed — so BR2 has nothing
+                  to check and reports <em>pass</em>. Applying the checklist is a deliberate
+                  act because it can turn a finished registration into a blocked one.
+                </p>
+                <form action={applyChecklistAction}>
+                  <input type="hidden" name="registrationId" value={registrationId} />
+                  <input type="hidden" name="seasonId" value={seasonId} />
+                  <button type="submit" className="secondary">
+                    Apply this season&rsquo;s checklist
+                  </button>
+                </form>
+              </>
+            )}
+          </>
         ) : (
           <div className="table-scroll">
             <table>
@@ -193,7 +220,8 @@ export default async function RegistrationDetailPage({
                 <tr>
                   <th>Type</th>
                   <th>Required</th>
-                  <th>Provided</th>
+                  <th>Received</th>
+                  <th />
                 </tr>
               </thead>
               <tbody>
@@ -208,12 +236,51 @@ export default async function RegistrationDetailPage({
                         new Date(doc.provided_at).toLocaleDateString('en-AU')
                       )}
                     </td>
+                    <td>
+                      <form action={setDocumentProvidedAction}>
+                        <input type="hidden" name="documentId" value={doc.id} />
+                        <input type="hidden" name="registrationId" value={registrationId} />
+                        <input
+                          type="hidden"
+                          name="provided"
+                          value={doc.provided_at === null ? '1' : '0'}
+                        />
+                        <button
+                          type="submit"
+                          className="secondary"
+                          style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }}
+                        >
+                          {doc.provided_at === null ? 'Mark received' : 'Undo'}
+                        </button>
+                      </form>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
+      </section>
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>Fees (BR3)</h3>
+        <p className="hint" style={{ marginTop: 0 }}>
+          {entry.outstandingCents > 0
+            ? `${formatCents(entry.outstandingCents)} is still outstanding.`
+            : entry.outstandingCents < 0
+              ? `The club holds a credit of ${formatCents(-entry.outstandingCents)}. BR3 does not treat a credit as an obstacle — blocking a child over money the club owes them would be the wrong way round.`
+              : 'Nothing outstanding.'}
+        </p>
+        <OutstandingForm
+          registrationId={registrationId}
+          seasonId={seasonId}
+          outstandingCents={entry.outstandingCents}
+        />
+        <p className="hint">
+          The balance is set outright rather than reduced by a payment: this slice holds no
+          payment records, and building a ledger out of a text box would be a worse lie than
+          not having one. The audit log keeps the before and the after.
+        </p>
       </section>
 
       {blocking.length === 0 && entry.duplicateCount === 0 && entry.status !== 'COMPLETE' && (

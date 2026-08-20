@@ -20,6 +20,8 @@ export interface QueueEntry {
   readonly outcomes: readonly RuleOutcome[];
   /** Unresolved BR5 candidates. A pack excludes these rather than guessing. */
   readonly duplicateCount: number;
+  /** What the registration still owes (BR3). Negative is a credit. */
+  readonly outstandingCents: number;
 }
 
 /** Which pile a registration lands in on the registrar's screen. */

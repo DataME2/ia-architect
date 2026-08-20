@@ -13,15 +13,17 @@ import { findDuplicateCandidates } from '../domain/identity/br5-duplicate-candid
 import { evaluateRegistration } from '../domain/rules/index.ts';
 import type { RuleOutcome } from '../domain/rules/types.ts';
 import type { PackCandidate } from '../domain/submission/types.ts';
-import type { IsoDate, Person } from '../domain/types.ts';
+import type { IsoDate, Person, SeasonRole } from '../domain/types.ts';
+import { buildDirectory, type PersonSummary } from '../web/people-view.ts';
 import { displayNameFor, fullLegalName, type QueueEntry } from '../web/queue-view.ts';
-import { toConsent, toGuardianship, toPerson, toRegistration } from './mappers.ts';
+import { toConsent, toGuardianship, toPerson, toPersonRole, toRegistration } from './mappers.ts';
 import type {
   ClubRow,
   ClubMembershipRow,
   ConsentRow,
   GuardianshipRow,
   MembershipRole,
+  PersonRoleRow,
   PersonRow,
   RegistrationDocumentRow,
   RegistrationRow,
@@ -102,7 +104,7 @@ export async function loadSeasons(
     'season',
     await client
       .from('season')
-      .select('id, club_id, name, starts_on, ends_on')
+      .select('id, club_id, name, starts_on, ends_on, required_document_types, registration_fee_cents')
       .eq('club_id', clubId)
       .order('starts_on', { ascending: false }),
   );
@@ -248,6 +250,7 @@ export async function loadQueue(
       status: registration.status,
       outcomes,
       duplicateCount: duplicates.length,
+      outstandingCents: registration.outstandingAmountCents,
     });
   }
 
@@ -349,6 +352,7 @@ export async function loadRegistrationDetail(
       status: registration.status,
       outcomes,
       duplicateCount: duplicates.length,
+      outstandingCents: registration.outstandingAmountCents,
     },
     person,
     documents,
@@ -456,4 +460,244 @@ export async function recordAudit(
     detail: input.detail,
   });
   if (error !== null) throw new QueryError('audit_event', error.message);
+}
+
+// ------------------------------------------------------ identity & roles
+
+/**
+ * Everyone in the club, with the roles they hold in one season.
+ *
+ * Deliberately keyed on people rather than registrations. A guardian created
+ * by a family's public submission has no registration of their own, so a
+ * registration-shaped query cannot see them at all — and neither can it show
+ * that the coach and the parent are the same Person, which is what P1
+ * actually claims.
+ */
+export async function loadPeople(
+  client: SupabaseClient,
+  clubId: string,
+  seasonId: string,
+  asAt: IsoDate,
+): Promise<readonly PersonSummary[]> {
+  const personRows = unwrap<PersonRow[]>(
+    'person',
+    await client.from('person').select('*').eq('club_id', clubId),
+  );
+
+  const roleRows = unwrap<PersonRoleRow[]>(
+    'person_role',
+    await client
+      .from('person_role')
+      .select('id, club_id, person_id, season_id, role')
+      .eq('club_id', clubId)
+      .eq('season_id', seasonId),
+  );
+
+  const guardianshipRows = unwrap<GuardianshipRow[]>(
+    'guardianship',
+    await client
+      .from('guardianship')
+      .select('id, club_id, person_id, guardian_person_id, is_authority, is_contact')
+      .eq('club_id', clubId),
+  );
+
+  return buildDirectory(
+    personRows.map(toPerson),
+    roleRows.map(toPersonRole),
+    guardianshipRows.map(toGuardianship),
+    asAt,
+  );
+}
+
+/**
+ * Grant or revoke one season role for one Person (P1).
+ *
+ * Granting is idempotent: the unique constraint on
+ * `(person_id, season_id, role)` makes a second grant a no-op rather than a
+ * duplicate, which matters because the surface calling this is a form a
+ * registrar can double-submit.
+ *
+ * Revoking deletes rather than setting an end date. A season role is already
+ * scoped to its season, so "held, then not" is fully described by presence —
+ * and the audit event is the durable record that it happened.
+ */
+export async function setSeasonRole(
+  client: SupabaseClient,
+  clubId: string,
+  personId: string,
+  seasonId: string,
+  role: SeasonRole,
+  granted: boolean,
+  actorUserId: string,
+): Promise<void> {
+  if (granted) {
+    const { error } = await client
+      .from('person_role')
+      .upsert(
+        { club_id: clubId, person_id: personId, season_id: seasonId, role },
+        { onConflict: 'person_id,season_id,role', ignoreDuplicates: true },
+      );
+    if (error !== null) throw new QueryError('person_role', error.message);
+  } else {
+    const { error } = await client
+      .from('person_role')
+      .delete()
+      .eq('club_id', clubId)
+      .eq('person_id', personId)
+      .eq('season_id', seasonId)
+      .eq('role', role);
+    if (error !== null) throw new QueryError('person_role', error.message);
+  }
+
+  await recordAudit(client, clubId, actorUserId, {
+    action: granted ? 'season_role_granted' : 'season_role_revoked',
+    entity: 'person_role',
+    entityId: personId,
+    detail: { seasonId, role, principle: 'P1' },
+  });
+}
+
+// ------------------------------------------ documents, fees, and BR2/BR3
+
+/** The season's registration configuration: the checklist, and the fee. */
+export async function updateSeasonRequirements(
+  client: SupabaseClient,
+  clubId: string,
+  seasonId: string,
+  requiredDocumentTypes: readonly string[],
+  registrationFeeCents: number,
+  actorUserId: string,
+): Promise<void> {
+  const { error } = await client
+    .from('season')
+    .update({
+      required_document_types: [...requiredDocumentTypes],
+      registration_fee_cents: registrationFeeCents,
+    })
+    .eq('id', seasonId)
+    .eq('club_id', clubId);
+  if (error !== null) throw new QueryError('season', error.message);
+
+  await recordAudit(client, clubId, actorUserId, {
+    action: 'season_requirements_updated',
+    entity: 'season',
+    entityId: seasonId,
+    detail: { requiredDocumentTypes, registrationFeeCents, rules: ['BR2', 'BR3'] },
+  });
+}
+
+/**
+ * Mark a required document as received, or take that back.
+ *
+ * `provided_at` is a time rather than a flag, because "when did the club
+ * receive the working-with-children check" is a question a safeguarding
+ * audit asks and a boolean cannot answer.
+ */
+export async function setDocumentProvided(
+  client: SupabaseClient,
+  clubId: string,
+  documentId: string,
+  registrationId: string,
+  provided: boolean,
+  actorUserId: string,
+): Promise<void> {
+  const providedAt = provided ? new Date().toISOString() : null;
+
+  const { error } = await client
+    .from('registration_document')
+    .update({ provided_at: providedAt })
+    .eq('id', documentId)
+    .eq('club_id', clubId);
+  if (error !== null) throw new QueryError('registration_document', error.message);
+
+  await recordAudit(client, clubId, actorUserId, {
+    action: provided ? 'document_received' : 'document_unreceived',
+    entity: 'registration_document',
+    entityId: documentId,
+    detail: { registrationId, rule: 'BR2', providedAt },
+  });
+}
+
+/**
+ * Copy the season's checklist onto a registration that has none.
+ *
+ * Registrations created before the checklist existed carry no document rows,
+ * so BR2 passes on them for the same vacuous reason it used to pass on
+ * everything. The migration deliberately did not backfill them — a
+ * requirement a family was never told about should not appear against them
+ * overnight — so this is a registrar's explicit act, and it is audited.
+ *
+ * Returns how many requirements were added.
+ */
+export async function applySeasonChecklist(
+  client: SupabaseClient,
+  clubId: string,
+  registrationId: string,
+  requiredDocumentTypes: readonly string[],
+  actorUserId: string,
+): Promise<number> {
+  if (requiredDocumentTypes.length === 0) return 0;
+
+  const existing = unwrap<RegistrationDocumentRow[]>(
+    'registration_document',
+    await client
+      .from('registration_document')
+      .select('id, club_id, registration_id, document_type, storage_path, required, provided_at')
+      .eq('club_id', clubId)
+      .eq('registration_id', registrationId),
+  );
+
+  const held = new Set(existing.map((d) => d.document_type));
+  const missing = requiredDocumentTypes.filter((t) => !held.has(t));
+  if (missing.length === 0) return 0;
+
+  const { error } = await client.from('registration_document').insert(
+    missing.map((documentType) => ({
+      club_id: clubId,
+      registration_id: registrationId,
+      document_type: documentType,
+      required: true,
+    })),
+  );
+  if (error !== null) throw new QueryError('registration_document', error.message);
+
+  await recordAudit(client, clubId, actorUserId, {
+    action: 'season_checklist_applied',
+    entity: 'registration',
+    entityId: registrationId,
+    detail: { added: missing, rule: 'BR2' },
+  });
+
+  return missing.length;
+}
+
+/**
+ * Set what a registration still owes (BR3).
+ *
+ * The amount is set outright rather than decremented by a payment: this
+ * slice holds no payment records, and pretending otherwise would build the
+ * ledger C3 is meant to own out of a text box. The audit event carries the
+ * before and the after, which is the honest version of the same history.
+ */
+export async function setOutstandingAmount(
+  client: SupabaseClient,
+  clubId: string,
+  registrationId: string,
+  previousCents: number,
+  cents: number,
+  actorUserId: string,
+): Promise<void> {
+  const { error } = await client
+    .from('registration')
+    .update({ outstanding_amount_cents: cents })
+    .eq('id', registrationId)
+    .eq('club_id', clubId);
+  if (error !== null) throw new QueryError('registration', error.message);
+
+  await recordAudit(client, clubId, actorUserId, {
+    action: 'outstanding_amount_set',
+    entity: 'registration',
+    entityId: registrationId,
+    detail: { rule: 'BR3', fromCents: previousCents, toCents: cents },
+  });
 }

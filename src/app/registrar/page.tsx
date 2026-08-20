@@ -134,6 +134,12 @@ export default async function RegistrarPage({
         <a className="button secondary" href={`/registrar/invitations?season=${season.id}`}>
           Registration links
         </a>
+        <a className="button secondary" href={`/registrar/people?season=${season.id}`}>
+          People
+        </a>
+        <a className="button secondary" href={`/registrar/season?season=${season.id}`}>
+          Season requirements
+        </a>
       </p>
 
       <div className="summary-grid">

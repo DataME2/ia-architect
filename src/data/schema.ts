@@ -13,6 +13,7 @@
  */
 
 import type { PackRow } from '../domain/submission/types.ts';
+import type { SeasonRole } from '../domain/types.ts';
 
 /** `YYYY-MM-DD`, as Postgres `date` renders it over the wire. */
 export type DateString = string;
@@ -27,7 +28,7 @@ export type MembershipRole =
   | 'coordinator'
   | 'admin';
 
-export type SeasonRole = 'player' | 'referee' | 'coach' | 'guardian' | 'committee';
+export type { SeasonRole };
 
 export type ConsentPurposeRow =
   | 'REGISTRATION_COLLECTION_NOTICE'
@@ -56,6 +57,18 @@ export interface SeasonRow {
   name: string;
   starts_on: DateString;
   ends_on: DateString;
+  /** BR2: the checklist copied onto every registration in this season. */
+  required_document_types: string[];
+  /** BR3: what a registration in this season opens owing. */
+  registration_fee_cents: number;
+}
+
+export interface PersonRoleRow {
+  id: string;
+  club_id: string;
+  person_id: string;
+  season_id: string;
+  role: SeasonRole;
 }
 
 export interface ClubMembershipRow {
