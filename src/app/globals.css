@@ -352,3 +352,38 @@ th {
 .table-scroll {
   overflow-x: auto;
 }
+
+/* --------------------------------------------------------- session strip
+   Who you are signed in as, above the club screens. Quiet by default: it is
+   reference, not a control — until you need the way out, which is why the
+   sign-out button is the one thing in it that looks pressable. */
+
+.session-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.85rem;
+  margin-bottom: 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.session-who {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.session-sep {
+  margin: 0 0.45rem;
+  opacity: 0.55;
+}
+
+.session-since {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
