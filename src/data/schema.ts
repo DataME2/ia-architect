@@ -92,6 +92,8 @@ export interface PersonRow {
   email: string | null;
   photo_path: string | null;
   created_at: InstantString;
+  /** BR82: set when a human confirmed this record duplicates another. */
+  merged_into_person_id: string | null;
 }
 
 export interface GuardianshipRow {

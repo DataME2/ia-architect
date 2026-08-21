@@ -9,7 +9,11 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { findDuplicateCandidates } from '../domain/identity/br5-duplicate-candidates.ts';
+import {
+  findDuplicateCandidates,
+  findDuplicatePairs,
+  type DuplicatePair,
+} from '../domain/identity/br5-duplicate-candidates.ts';
 import { evaluateRegistration } from '../domain/rules/index.ts';
 import { statusFromValidation } from '../domain/rules/registration-status.ts';
 import type { RuleOutcome } from '../domain/rules/types.ts';
@@ -170,12 +174,16 @@ async function loadSlice(
       .eq('season_id', seasonId),
   );
 
+  // Merged tombstones are excluded everywhere they would otherwise be
+  // matched or listed: a resolved duplicate must not come back as a new one
+  // (BR82).
   const clubPersonRows = unwrap<PersonRow[]>(
     'person',
     await client
       .from('person')
       .select('*')
-      .eq('club_id', clubId),
+      .eq('club_id', clubId)
+      .is('merged_into_person_id', null),
   );
 
   const personIds = registrations.map((r) => r.person_id);
@@ -567,7 +575,11 @@ export async function loadPeople(
 ): Promise<readonly PersonSummary[]> {
   const personRows = unwrap<PersonRow[]>(
     'person',
-    await client.from('person').select('*').eq('club_id', clubId),
+    await client
+      .from('person')
+      .select('*')
+      .eq('club_id', clubId)
+      .is('merged_into_person_id', null),
   );
 
   const roleRows = unwrap<PersonRoleRow[]>(
@@ -829,4 +841,118 @@ export async function applyDerivedStatus(
   });
 
   return next;
+}
+
+// --------------------------------------------------------- BR5 / BR82
+
+export interface DuplicateGroup {
+  readonly pair: DuplicatePair;
+  readonly a: Person;
+  readonly b: Person;
+  /** How much each side would bring with it, so the choice is informed. */
+  readonly aWeight: PersonWeight;
+  readonly bWeight: PersonWeight;
+}
+
+export interface PersonWeight {
+  readonly registrations: number;
+  readonly children: number;
+  readonly roles: number;
+  readonly createdAt: string;
+}
+
+/**
+ * Every unresolved duplicate in the club, for a human to decide.
+ *
+ * Club-wide rather than per registration, because the per-registration view
+ * structurally cannot see the worst case: a guardian has no registration of
+ * their own, so four copies of one parent appeared on no screen at all —
+ * which is how they got to four.
+ *
+ * Merged records are excluded. A tombstone is a resolved duplicate, and
+ * showing it again would ask the registrar the same question forever.
+ */
+export async function loadDuplicates(
+  client: SupabaseClient,
+  clubId: string,
+): Promise<readonly DuplicateGroup[]> {
+  const personRows = unwrap<PersonRow[]>(
+    'person',
+    await client
+      .from('person')
+      .select('*')
+      .eq('club_id', clubId)
+      .is('merged_into_person_id', null),
+  );
+
+  const people = personRows.map(toPerson);
+  const pairs = findDuplicatePairs(people);
+  if (pairs.length === 0) return [];
+
+  const byId = new Map(people.map((p) => [p.id, p]));
+  const createdAt = new Map(personRows.map((r) => [r.id, r.created_at]));
+
+  const involved = [...new Set(pairs.flatMap((p) => [p.aId, p.bId]))];
+
+  const registrations = unwrap<RegistrationRow[]>(
+    'registration',
+    await client
+      .from('registration')
+      .select('id, club_id, person_id, season_id, status, outstanding_amount_cents, created_at')
+      .eq('club_id', clubId)
+      .in('person_id', involved),
+  );
+
+  const guardianships = unwrap<GuardianshipRow[]>(
+    'guardianship',
+    await client
+      .from('guardianship')
+      .select('id, club_id, person_id, guardian_person_id, is_authority, is_contact')
+      .eq('club_id', clubId),
+  );
+
+  const roles = unwrap<PersonRoleRow[]>(
+    'person_role',
+    await client
+      .from('person_role')
+      .select('id, club_id, person_id, season_id, role')
+      .eq('club_id', clubId)
+      .in('person_id', involved),
+  );
+
+  const weigh = (personId: string): PersonWeight => ({
+    registrations: registrations.filter((r) => r.person_id === personId).length,
+    children: guardianships.filter((g) => g.guardian_person_id === personId).length,
+    roles: roles.filter((r) => r.person_id === personId).length,
+    createdAt: createdAt.get(personId) ?? '',
+  });
+
+  const groups: DuplicateGroup[] = [];
+  for (const pair of pairs) {
+    const a = byId.get(pair.aId);
+    const b = byId.get(pair.bId);
+    if (a === undefined || b === undefined) continue;
+    groups.push({ pair, a, b, aWeight: weigh(a.id), bWeight: weigh(b.id) });
+  }
+  return groups;
+}
+
+/**
+ * Fold one Person into another (BR82).
+ *
+ * The decision is the registrar's; this only carries it out. The database
+ * function repoints every reference in one transaction and leaves the
+ * duplicate as a tombstone pointing at the survivor — never a delete, so a
+ * stale link still resolves and the merge stays auditable.
+ */
+export async function mergePerson(
+  client: SupabaseClient,
+  survivorId: string,
+  duplicateId: string,
+): Promise<void> {
+  const { error } = await client.rpc('merge_person', {
+    p_survivor_id: survivorId,
+    p_duplicate_id: duplicateId,
+  });
+  if (error !== null) throw new QueryError('merge_person', error.message);
 }
