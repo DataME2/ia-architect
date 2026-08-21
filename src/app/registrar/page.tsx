@@ -169,6 +169,9 @@ export default async function RegistrarPage({
         <a className="button secondary" href={`/registrar/season?season=${season.id}`}>
           Season requirements
         </a>
+        <a className="button secondary" href={`/registrar/teams?season=${season.id}`}>
+          Teams
+        </a>
         <a className="button secondary" href="/registrar/duplicates">
           Duplicates
         </a>

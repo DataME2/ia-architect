@@ -4,11 +4,13 @@ import { loadInvitations } from '../../../data/invitations.ts';
 import { loadSeasons, loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import {
+  DEFAULT_EXPIRY_DAYS,
   INVITATION_STATUS_LABEL,
   invitationStatus,
 } from '../../../web/invitation-view.ts';
 import { revokeInvitationAction } from './actions.ts';
 import { IssueForm } from './IssueForm.tsx';
+import { ReissueButton } from './ReissueButton.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,6 +69,12 @@ export default async function InvitationsPage({
       <IssueForm seasons={seasons} />
 
       <h2>Existing links</h2>
+      <p className="hint" style={{ marginTop: 0 }}>
+        The link itself is <strong>not shown here, and cannot be</strong> — only its fingerprint
+        is stored, so a leaked database backup is not an open write path into the club (BR73).
+        If a family has lost theirs, <em>Reissue</em> revokes the old link and shows a
+        replacement once.
+      </p>
       {invitations.length === 0 ? (
         <p className="empty">None yet.</p>
       ) : (
@@ -103,12 +111,20 @@ export default async function InvitationsPage({
                       </td>
                       <td>
                         {status === 'live' && (
-                          <form action={revokeInvitationAction}>
-                            <input type="hidden" name="invitationId" value={invitation.id} />
-                            <button type="submit" className="secondary">
-                              Revoke
-                            </button>
-                          </form>
+                          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                            <ReissueButton
+                              invitationId={invitation.id}
+                              seasonId={season.id}
+                              label={invitation.label}
+                              expiryDays={DEFAULT_EXPIRY_DAYS}
+                            />
+                            <form action={revokeInvitationAction}>
+                              <input type="hidden" name="invitationId" value={invitation.id} />
+                              <button type="submit" className="secondary">
+                                Revoke
+                              </button>
+                            </form>
+                          </div>
                         )}
                       </td>
                     </tr>

@@ -58,6 +58,9 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 
 | Object | What it represents |
 | ------ | -------------------- |
+| **Team** | A club's squad for one season, with a name and an age group. Named in passing by Season Competition Entry and by the Squadi extract's role list since [scope 3](../../scope/3_competitions-and-calendar-per-season.md); modelled properly from [scope 25](../../scope/25_teams-and-team-officials.md) |
+| **Team Membership** | One Person's place in one Team, in one role: player, coach, assistant coach, manager, or team official. A parent who coaches the team their child plays in is **two rows and one Person** (P1) |
+| **Clearance** | A Working with Children Check as the club holds it — state-specific kind (Queensland's Blue Card, NSW's WWCC), card number, issue and expiry dates, and **separately** whether a human verified it against the state's portal. Holding a number is not a check (BR19). A superseded card is kept, not overwritten, so a renewal never erases what the club relied on last season |
 | **Player Registration** | A Person's registration to a club/team/category for a season, with a status (see [3_business-processes.md](./3_business-processes.md#player-registration-process)) |
 | **Guardianship** | The link between a minor Player and their Parent/Guardian |
 | **Registration Invitation** | A club's write-only, unguessable, expiring link letting a family submit **one** registration into **one** club and season without an account (BR72). Holds the token's *hash* only, who issued it, its expiry, its use count, and whether it has been revoked (BR73) — never the token itself, which is shown once at issue |

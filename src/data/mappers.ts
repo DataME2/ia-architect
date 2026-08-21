@@ -8,6 +8,7 @@
 
 import type { Installment, Payment, PaymentPlan } from '../domain/finance/types.ts';
 import type { Voucher } from '../domain/finance/voucher.ts';
+import type { Clearance, Team } from '../domain/teams/types.ts';
 import type {
   Consent,
   Guardianship,
@@ -21,6 +22,8 @@ import type {
   PaymentPlanRow,
   PaymentRow,
   RegistrationVoucherRow,
+  ClearanceRow,
+  TeamRow,
   GuardianshipRow,
   PersonRoleRow,
   PersonRow,
@@ -150,5 +153,27 @@ export function toVoucher(row: RegistrationVoucherRow): Voucher {
     verifiedAt: row.verified_at,
     rejectionReason: row.rejection_reason,
     reliefPaymentId: row.relief_payment_id,
+  };
+}
+
+export function toTeam(row: TeamRow): Team {
+  return {
+    id: row.id,
+    seasonId: row.season_id,
+    name: row.name,
+    ageGroup: row.age_group,
+  };
+}
+
+export function toClearance(row: ClearanceRow): Clearance {
+  return {
+    id: row.id,
+    personId: row.person_id,
+    kind: row.kind,
+    identifier: row.identifier,
+    issuedOn: row.issued_on,
+    expiresOn: row.expires_on,
+    verifiedAt: row.verified_at,
+    revokedAt: row.revoked_at,
   };
 }
