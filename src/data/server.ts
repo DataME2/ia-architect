@@ -47,6 +47,11 @@ export async function createRequestClient(): Promise<SupabaseClient> {
 export interface SignedInUser {
   readonly id: string;
   readonly email: string | null;
+  /**
+   * When this session began, so a screen can answer "which session am I
+   * running" rather than only "am I signed in".
+   */
+  readonly lastSignInAt: string | null;
 }
 
 /**
@@ -60,5 +65,9 @@ export interface SignedInUser {
 export async function currentUser(client: SupabaseClient): Promise<SignedInUser | null> {
   const { data, error } = await client.auth.getUser();
   if (error !== null || data.user === null) return null;
-  return { id: data.user.id, email: data.user.email ?? null };
+  return {
+    id: data.user.id,
+    email: data.user.email ?? null,
+    lastSignInAt: data.user.last_sign_in_at ?? null,
+  };
 }

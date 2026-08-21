@@ -108,6 +108,53 @@ flowchart LR
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
 
+A plan is agreed against a registration's total, and the instalments it
+generates sum to **exactly** that total (BR74) — the odd cents of an
+uneven split land on the first instalment, so the last one stays the round
+number a family expects. A registration carries **one** live plan (BR75),
+and the schedule must finish inside the season being registered for
+(BR76): a plan that outlives its season is a write-off scheduled in
+advance, because the club is chasing money for a child who has stopped
+playing.
+
+**A plan does not confer eligibility.** The club's policy is **no pay, no
+play**, and it is absolute (BR79): any amount outstanding keeps the Player
+off the field, plan or no plan. So a plan schedules a debt and gives the
+club something to chase — it does not buy a game, and BR3 still blocks a
+registration from completing while anything is owed.
+
+The plan does change what BR3 *says*. Where one exists the message carries
+the balance **and** whether an instalment has been missed, because "$80.32
+outstanding" and "$80.32 outstanding, and 1 April was missed" send a
+registrar to two different places and only the second is a call today.
+
+**Eligibility to play is a separate question from registration status**,
+and has to be, because status alone cannot answer it. Once a registration
+is COMPLETE its status is frozen — the club must never appear to revoke an
+eligibility the federation conferred (BR60) — so a Player confirmed in
+round 1 and charged in round 5, or whose payment is reversed under BR77,
+keeps a COMPLETE status while owing money. BR79 is evaluated fresh from the
+status and the balance together, every time it is asked, which is the only
+thing that finds them.
+
+Money received is recorded, never edited (BR77). A refund or a correction
+is a reversing entry naming what it reverses, so the club's answer to "what
+did we say we received, and when" survives the correction. Payments are
+allocated to instalments **oldest first**, at read time and without being
+stored: a family paying $50 against a $40 instalment has made no statement
+about allocation, and recording a guess as though they had turns
+arithmetic into a disputed fact.
+
+Agreeing, changing or cancelling a plan, and recording a payment, are
+Finance Admin or Treasurer acts (BR78) — the separation BR22 already draws
+for vouchers. Reading is open to every club member, because a Registrar
+chasing BR3 has to be able to see why a registration is blocked.
+
+Reconciliation against the provider (Square) and guardian notification are
+**not yet built**: what exists records what the club charged and what it
+received, which is the part the club's own books depend on whether or not
+an integration ever arrives.
+
 ## Voucher program enablement process
 
 ```mermaid

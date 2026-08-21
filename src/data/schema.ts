@@ -13,6 +13,11 @@
  */
 
 import type { PackRow } from '../domain/submission/types.ts';
+import type { PaymentMethod, PlanCadence } from '../domain/finance/types.ts';
+import type { VoucherState } from '../domain/finance/voucher.ts';
+import type { TeamRole } from '../domain/teams/types.ts';
+import type { CommitteePosition } from '../domain/governance/term.ts';
+import type { SeasonRole } from '../domain/types.ts';
 
 /** `YYYY-MM-DD`, as Postgres `date` renders it over the wire. */
 export type DateString = string;
@@ -27,7 +32,7 @@ export type MembershipRole =
   | 'coordinator'
   | 'admin';
 
-export type SeasonRole = 'player' | 'referee' | 'coach' | 'guardian' | 'committee';
+export type { SeasonRole };
 
 export type ConsentPurposeRow =
   | 'REGISTRATION_COLLECTION_NOTICE'
@@ -56,6 +61,18 @@ export interface SeasonRow {
   name: string;
   starts_on: DateString;
   ends_on: DateString;
+  /** BR2: the checklist copied onto every registration in this season. */
+  required_document_types: string[];
+  /** BR3: what a registration in this season opens owing. */
+  registration_fee_cents: number;
+}
+
+export interface PersonRoleRow {
+  id: string;
+  club_id: string;
+  person_id: string;
+  season_id: string;
+  role: SeasonRole;
 }
 
 export interface ClubMembershipRow {
@@ -77,6 +94,8 @@ export interface PersonRow {
   email: string | null;
   photo_path: string | null;
   created_at: InstantString;
+  /** BR82: set when a human confirmed this record duplicates another. */
+  merged_into_person_id: string | null;
 }
 
 export interface GuardianshipRow {
@@ -130,6 +149,113 @@ export interface RegistrationInvitationRow {
   revoked_at: InstantString | null;
   use_count: number;
   created_by_user_id: string;
+  created_at: InstantString;
+}
+
+export interface PaymentPlanRow {
+  id: string;
+  club_id: string;
+  registration_id: string;
+  total_cents: number;
+  cadence: PlanCadence;
+  created_by_user_id: string;
+  cancelled_at: InstantString | null;
+  created_at: InstantString;
+}
+
+export interface PaymentInstallmentRow {
+  id: string;
+  club_id: string;
+  payment_plan_id: string;
+  sequence: number;
+  due_on: DateString;
+  amount_cents: number;
+}
+
+export interface PaymentRow {
+  id: string;
+  club_id: string;
+  registration_id: string;
+  /** Negative is legitimate: a refund, or a reversing correction (BR77). */
+  amount_cents: number;
+  received_on: DateString;
+  method: PaymentMethod;
+  reference: string | null;
+  reverses_payment_id: string | null;
+  recorded_by_user_id: string;
+  created_at: InstantString;
+}
+
+export interface RegistrationVoucherRow {
+  id: string;
+  club_id: string;
+  registration_id: string;
+  program: string;
+  code: string;
+  face_value_cents: number;
+  state: VoucherState;
+  file_path: string | null;
+  attached_by_user_id: string;
+  attached_at: InstantString;
+  verified_by_user_id: string | null;
+  verified_at: InstantString | null;
+  rejection_reason: string | null;
+  /** BR81: set iff relief currently applies. A DB check keeps it honest. */
+  relief_payment_id: string | null;
+}
+
+export interface TeamRow {
+  id: string;
+  club_id: string;
+  season_id: string;
+  name: string;
+  age_group: string | null;
+  created_at: InstantString;
+}
+
+export interface TeamMemberRow {
+  id: string;
+  club_id: string;
+  team_id: string;
+  person_id: string;
+  role: TeamRole;
+  added_by_user_id: string | null;
+  added_at: InstantString;
+}
+
+export interface ClearanceRow {
+  id: string;
+  club_id: string;
+  person_id: string;
+  kind: string;
+  identifier: string;
+  issued_on: DateString | null;
+  expires_on: DateString;
+  /** BR19: null means a number was typed and nobody checked it. */
+  verified_by_user_id: string | null;
+  verified_at: InstantString | null;
+  revoked_at: InstantString | null;
+  created_at: InstantString;
+}
+
+export interface CommitteeTermRow {
+  id: string;
+  club_id: string;
+  name: string;
+  agm_held_on: DateString | null;
+  starts_on: DateString;
+  next_agm_due_on: DateString;
+  created_at: InstantString;
+}
+
+export interface CommitteePositionRow {
+  id: string;
+  club_id: string;
+  term_id: string;
+  person_id: string;
+  position: CommitteePosition;
+  elected_on: DateString | null;
+  resigned_on: DateString | null;
   created_at: InstantString;
 }
 

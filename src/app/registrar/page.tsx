@@ -2,7 +2,18 @@ import { redirect } from 'next/navigation';
 
 import { loadQueue, loadSeasons, loadTenantContext } from '../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
-import { blockerSummary, failing, groupQueue, type QueueEntry } from '../../web/queue-view.ts';
+import { totalOwed } from '../../domain/finance/eligibility.ts';
+import { formatMoney } from '../../domain/finance/money.ts';
+import {
+  blockerSummary,
+  eligibilityOf,
+  failing,
+  groupQueue,
+  moneyNote,
+  owing,
+  unpaidButRegistered,
+  type QueueEntry,
+} from '../../web/queue-view.ts';
 import { todayIn } from '../../web/today.ts';
 import { RuleList, StatusPill } from '../_components/rules.tsx';
 
@@ -10,6 +21,8 @@ export const dynamic = 'force-dynamic';
 
 function QueueCard({ entry }: { readonly entry: QueueEntry }) {
   const blocking = failing(entry);
+  const money = moneyNote(entry);
+  const eligibility = eligibilityOf(entry);
 
   return (
     <article className="card">
@@ -20,8 +33,22 @@ function QueueCard({ entry }: { readonly entry: QueueEntry }) {
           </p>
           <p className="legal-name">Legal name: {entry.legalName}</p>
         </div>
-        <StatusPill status={entry.status} />
+        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          {money !== null && (
+            <span className={entry.outstandingCents > 0 ? 'pill pill-stop' : 'pill pill-ok'}>
+              {money}
+            </span>
+          )}
+          <StatusPill status={entry.status} />
+        </div>
       </div>
+
+      {!eligibility.mayPlay && eligibility.blockedBy === 'owes-money' && (
+        <p className="notice" style={{ marginTop: '0.85rem', marginBottom: 0 }}>
+          <strong>Cannot take the field.</strong> {eligibility.reason} Registered with the
+          federation, so every other screen reports this one as finished &mdash; it is not.
+        </p>
+      )}
 
       {entry.duplicateCount > 0 && (
         <p className="notice" style={{ marginTop: '0.85rem', marginBottom: 0 }}>
@@ -98,6 +125,8 @@ export default async function RegistrarPage({
   const entries = await loadQueue(client, tenant.clubId, season.id, todayIn());
   const grouped = groupQueue(entries);
   const summary = blockerSummary(entries);
+  const unpaid = unpaidButRegistered(entries);
+  const debtors = owing(entries);
 
   return (
     <>
@@ -134,6 +163,21 @@ export default async function RegistrarPage({
         <a className="button secondary" href={`/registrar/invitations?season=${season.id}`}>
           Registration links
         </a>
+        <a className="button secondary" href={`/registrar/people?season=${season.id}`}>
+          People
+        </a>
+        <a className="button secondary" href={`/registrar/season?season=${season.id}`}>
+          Season requirements
+        </a>
+        <a className="button secondary" href={`/registrar/teams?season=${season.id}`}>
+          Teams
+        </a>
+        <a className="button secondary" href="/registrar/duplicates">
+          Duplicates
+        </a>
+        <a className="button secondary" href="/registrar/governance">
+          Governance
+        </a>
       </p>
 
       <div className="summary-grid">
@@ -153,7 +197,50 @@ export default async function RegistrarPage({
           <span className="n">{grouped.awaitingFederation.length}</span>
           <span className="label">sent, not registered</span>
         </div>
+        <div className="stat">
+          <span className="n">{formatMoney(totalOwed(debtors))}</span>
+          <span className="label">
+            owed by {debtors.length} {debtors.length === 1 ? 'family' : 'families'}
+          </span>
+        </div>
       </div>
+
+      {unpaid.length > 0 && (
+        <section className="card">
+          <h3 style={{ marginTop: 0 }}>
+            Registered, but cannot play &mdash; {formatMoney(totalOwed(unpaid))} owed (BR79)
+          </h3>
+          <p className="hint" style={{ marginTop: 0, marginBottom: '0.75rem' }}>
+            No pay, no play. {unpaid.length === 1 ? 'This player is' : 'These players are'}{' '}
+            confirmed by the federation, so BR43 is satisfied and the status stays{' '}
+            <strong>COMPLETE</strong> &mdash; the club may not revoke an eligibility the
+            federation conferred. Every other screen therefore reports them as finished. They
+            still owe money, and a coach picking from the Registered list would field them.
+          </p>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Outstanding</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unpaid.map((entry) => (
+                  <tr key={entry.registrationId}>
+                    <td>
+                      <a href={`/registrar/${entry.registrationId}?season=${season.id}`}>
+                        {entry.displayName}
+                      </a>
+                    </td>
+                    <td>{formatMoney(entry.outstandingCents)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       {summary.length > 0 && (
         <section className="card">

@@ -26,6 +26,10 @@ from pathlib import Path
 MIGRATIONS = Path(__file__).resolve().parent.parent / "supabase" / "migrations"
 
 # The tenant table keys on its own id rather than a club_id column.
+# Tables Supabase owns. We add policies to them but never create them, so
+# they are not expected to appear in a `create table` in this repo.
+EXTERNAL_TABLES = {"storage.objects", "objects", "storage"}
+
 TENANT_TABLE = "club"
 
 # Tables legitimately without a tenant column. Keep this empty if at all
@@ -99,8 +103,11 @@ def main() -> int:
                 )
 
     # A policy on a table nobody declared is a typo that silently protects
-    # nothing.
-    for table in sorted(with_policies - tables):
+    # nothing. `storage.objects` is the one exception: Supabase owns that
+    # table, our migrations only add policies to it, and it is tenant-scoped
+    # by the club_id in the object's path rather than by a column — so this
+    # checker cannot verify it and says so rather than pretending.
+    for table in sorted(with_policies - tables - EXTERNAL_TABLES):
         problems.append(f"policy references unknown table `{table}` — misspelled?")
 
     if problems:

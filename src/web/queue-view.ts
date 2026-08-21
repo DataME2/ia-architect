@@ -6,6 +6,8 @@
  * club the most registrations.
  */
 
+import { playEligibility, type PlayEligibility } from '../domain/finance/eligibility.ts';
+import { formatMoney } from '../domain/finance/money.ts';
 import type { RegistrationStatus } from '../domain/types.ts';
 import type { RuleId, RuleOutcome } from '../domain/rules/types.ts';
 
@@ -20,6 +22,36 @@ export interface QueueEntry {
   readonly outcomes: readonly RuleOutcome[];
   /** Unresolved BR5 candidates. A pack excludes these rather than guessing. */
   readonly duplicateCount: number;
+  /** What the registration still owes (BR3). Negative is a credit. */
+  readonly outstandingCents: number;
+}
+
+/**
+ * Whether this Player may take the field, asked fresh (BR79).
+ *
+ * Not stored on the entry: eligibility is a judgement about *now*, and a
+ * cached one is how a coach ends up with a team sheet that was true on
+ * Tuesday.
+ */
+export function eligibilityOf(entry: QueueEntry): PlayEligibility {
+  return playEligibility(entry.status, entry.outstandingCents);
+}
+
+/**
+ * What to say about money on a queue card, or `null` when there is nothing
+ * to say.
+ *
+ * Shown whether or not it is blocking anything. A family on a plan and up
+ * to date passes every rule, so without this the balance is invisible on
+ * the one screen the club actually works from — and under BR79 that balance
+ * is exactly what keeps the child off the field.
+ */
+export function moneyNote(entry: QueueEntry): string | null {
+  if (entry.outstandingCents > 0) return `${formatMoney(entry.outstandingCents)} outstanding`;
+  if (entry.outstandingCents < 0) {
+    return `${formatMoney(-entry.outstandingCents)} in credit`;
+  }
+  return null;
 }
 
 /** Which pile a registration lands in on the registrar's screen. */
@@ -114,6 +146,28 @@ export function groupQueue(entries: readonly QueueEntry[]): GroupedQueue {
     awaitingFederation: [...awaitingFederation].sort(byUrgency),
     complete: [...complete].sort(byUrgency),
   };
+}
+
+/**
+ * Registered players who still cannot take the field because of money.
+ *
+ * The dangerous pile: every other screen reports these as finished, because
+ * by the federation's reckoning they are. Under BR79 they are not, and a
+ * coach picking a team from the "Registered" list would field them.
+ */
+export function unpaidButRegistered(
+  entries: readonly QueueEntry[],
+): readonly QueueEntry[] {
+  return entries
+    .filter((e) => eligibilityOf(e).blockedBy === 'owes-money')
+    .sort((a, b) => b.outstandingCents - a.outstandingCents);
+}
+
+/** Everyone the club is owed money by, most owed first. */
+export function owing(entries: readonly QueueEntry[]): readonly QueueEntry[] {
+  return entries
+    .filter((e) => e.outstandingCents > 0)
+    .sort((a, b) => b.outstandingCents - a.outstandingCents);
 }
 
 export interface BlockerCount {

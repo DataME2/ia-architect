@@ -1,8 +1,9 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 
 import type { SeasonRow } from '../../data/schema.ts';
+import type { GuardianDraft } from '../../web/registration-form.ts';
 import {
   EMPTY_FORM_STATE,
   type RegistrationFormState,
@@ -33,6 +34,7 @@ function Field({
   hint,
   type = 'text',
   autoComplete,
+  defaultValue,
 }: {
   readonly state: RegistrationFormState;
   readonly name: string;
@@ -40,6 +42,7 @@ function Field({
   readonly hint?: string;
   readonly type?: string;
   readonly autoComplete?: string;
+  readonly defaultValue?: string | undefined;
 }) {
   const error = errorFor(state, name);
   return (
@@ -49,6 +52,7 @@ function Field({
         id={name}
         name={name}
         type={type}
+        defaultValue={defaultValue}
         autoComplete={autoComplete}
         aria-describedby={hint ? `${name}-hint` : undefined}
         aria-invalid={error !== null}
@@ -79,7 +83,20 @@ export function RegistrationForm({
 }) {
   const [state, formAction, pending] = useActionState(action, EMPTY_FORM_STATE);
 
-  if (state.status === 'done') {
+  // Carried across siblings. Most MiniRoos families have more than one child,
+  // and making a parent retype their own details per child is the re-keying
+  // this whole flow exists to remove. The guardian is matched server-side on
+  // email, so the second child attaches to the *same* Person (BR80) rather
+  // than to a copy.
+  const [sibling, setSibling] = useState<GuardianDraft | null>(null);
+  // Remounts the form so every field resets to its default — the child's
+  // details must NOT carry over, only the guardian's.
+  const formKey = sibling === null ? 'first' : `sibling-${sibling.email ?? sibling.legalName.familyName}`;
+
+  // `sibling` set means the family pressed "register another child", so the
+  // form is shown again even though the last submission succeeded.
+  if (state.status === 'done' && sibling === null) {
+    const guardian = state.guardian;
     return (
       <section className="card">
         <h3 style={{ marginTop: 0 }}>Registration received</h3>
@@ -106,13 +123,35 @@ export function RegistrationForm({
           governing body confirms that separately, and until it does the player cannot take the
           field (BR43).
         </p>
+
+        {guardian !== null && (
+          <>
+            <h4 style={{ marginBottom: '0.3rem' }}>Another child to register?</h4>
+            <p className="hint" style={{ marginTop: 0 }}>
+              We already have your details as <strong>{guardian.legalName.givenNames}{' '}
+              {guardian.legalName.familyName}</strong>. Start the next one and you will only fill in the
+              child&rsquo;s part.
+            </p>
+            <button type="button" onClick={() => setSibling(guardian)}>
+              Register another child
+            </button>
+          </>
+        )}
       </section>
     );
   }
 
   return (
-    <form action={formAction} className="stack">
+    <form action={formAction} className="stack" key={formKey}>
       {token !== undefined && <input type="hidden" name="token" value={token} />}
+
+      {sibling !== null && (
+        <p className="notice">
+          Registering another child for <strong>{sibling.legalName.givenNames} {sibling.legalName.familyName}</strong>.
+          Your details are filled in below — the club will hold you as one person, not one per
+          child (BR80).
+        </p>
+      )}
 
       {state.status === 'error' && state.message !== null && (
         <div className="errors">
@@ -171,9 +210,25 @@ export function RegistrationForm({
         <p className="hint" style={{ marginTop: 0, marginBottom: '1rem' }}>
           Required for anyone under 18. Leave blank for an adult player.
         </p>
-        <Field state={state} name="guardianGivenNames" label="Given names" />
-        <Field state={state} name="guardianFamilyName" label="Family name" />
-        <Field state={state} name="guardianEmail" label="Email" type="email" />
+        <Field
+          state={state}
+          name="guardianGivenNames"
+          label="Given names"
+          defaultValue={sibling?.legalName.givenNames}
+        />
+        <Field
+          state={state}
+          name="guardianFamilyName"
+          label="Family name"
+          defaultValue={sibling?.legalName.familyName}
+        />
+        <Field
+          state={state}
+          name="guardianEmail"
+          label="Email"
+          type="email"
+          defaultValue={sibling?.email ?? undefined}
+        />
       </fieldset>
 
       <fieldset>
