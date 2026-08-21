@@ -14,6 +14,7 @@
 
 import type { PackRow } from '../domain/submission/types.ts';
 import type { PaymentMethod, PlanCadence } from '../domain/finance/types.ts';
+import type { VoucherState } from '../domain/finance/voucher.ts';
 import type { SeasonRole } from '../domain/types.ts';
 
 /** `YYYY-MM-DD`, as Postgres `date` renders it over the wire. */
@@ -179,6 +180,24 @@ export interface PaymentRow {
   reverses_payment_id: string | null;
   recorded_by_user_id: string;
   created_at: InstantString;
+}
+
+export interface RegistrationVoucherRow {
+  id: string;
+  club_id: string;
+  registration_id: string;
+  program: string;
+  code: string;
+  face_value_cents: number;
+  state: VoucherState;
+  file_path: string | null;
+  attached_by_user_id: string;
+  attached_at: InstantString;
+  verified_by_user_id: string | null;
+  verified_at: InstantString | null;
+  rejection_reason: string | null;
+  /** BR81: set iff relief currently applies. A DB check keeps it honest. */
+  relief_payment_id: string | null;
 }
 
 export interface ValidationResultRow {

@@ -7,6 +7,7 @@
  */
 
 import type { Installment, Payment, PaymentPlan } from '../domain/finance/types.ts';
+import type { Voucher } from '../domain/finance/voucher.ts';
 import type {
   Consent,
   Guardianship,
@@ -19,6 +20,7 @@ import type {
   PaymentInstallmentRow,
   PaymentPlanRow,
   PaymentRow,
+  RegistrationVoucherRow,
   GuardianshipRow,
   PersonRoleRow,
   PersonRow,
@@ -132,5 +134,21 @@ export function toPayment(row: PaymentRow): Payment {
     method: row.method,
     reference: row.reference,
     reversesPaymentId: row.reverses_payment_id,
+  };
+}
+
+export function toVoucher(row: RegistrationVoucherRow): Voucher {
+  return {
+    id: row.id,
+    registrationId: row.registration_id,
+    program: row.program,
+    code: row.code,
+    faceValueCents: row.face_value_cents,
+    state: row.state,
+    filePath: row.file_path,
+    attachedAt: row.attached_at,
+    verifiedAt: row.verified_at,
+    rejectionReason: row.rejection_reason,
+    reliefPaymentId: row.relief_payment_id,
   };
 }

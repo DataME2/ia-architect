@@ -29,6 +29,7 @@ export async function submitJoinAction(
       message: 'This registration link is incomplete.',
       outstanding: [],
       registrationId: null,
+      guardian: null,
     };
   }
 
@@ -45,6 +46,7 @@ export async function submitJoinAction(
       message: 'Some details still need attention.',
       outstanding: [],
       registrationId: null,
+      guardian: null,
     };
   }
   const draft = parsed.draft;
@@ -70,6 +72,7 @@ export async function submitJoinAction(
       message: result.detail,
       outstanding: [],
       registrationId: null,
+      guardian: null,
     };
   }
 
@@ -125,5 +128,8 @@ export async function submitJoinAction(
     message: 'Registration received.',
     outstanding,
     registrationId: result.registrationId,
+    // Echoed back so the family can register a sibling without retyping
+    // themselves (BR80). Exactly what they just typed — no identifier.
+    guardian: draft.guardian,
   };
 }

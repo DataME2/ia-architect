@@ -19,6 +19,12 @@ import {
   createPaymentPlan,
   recordPayment,
 } from '../../data/finance.ts';
+import {
+  attachVoucher,
+  loadVouchers,
+  rejectVoucher,
+  verifyVoucher,
+} from '../../data/vouchers.ts';
 import { parseAmountCents } from '../../web/money.ts';
 import { parseDueDate, parseMethod, parsePlanDraft } from '../../web/plan-view.ts';
 import { todayIn } from '../../web/today.ts';
@@ -304,4 +310,103 @@ export async function recordPaymentAction(
   revalidatePath(`/registrar/${registrationId}`);
   revalidatePath('/registrar');
   return null;
+}
+
+/**
+ * Attach a voucher (BR81).
+ *
+ * Open to the registrar as well as the treasurer: collecting the document is
+ * registration work, and most MiniRoos families arrive with one. What a
+ * registrar cannot do is *verify* it — that is the act that moves money, and
+ * BR78 keeps it with an admin or treasurer.
+ */
+export async function attachVoucherAction(
+  _previous: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const registrationId = String(formData.get('registrationId') ?? '');
+  if (registrationId === '') throw new Error('Missing identifiers.');
+
+  const program = String(formData.get('program') ?? '').trim();
+  if (program === '') return 'Name the voucher program, e.g. Play On!.';
+
+  const code = String(formData.get('code') ?? '').trim();
+  if (code === '') return 'Enter the voucher code.';
+
+  const value = parseAmountCents(String(formData.get('value') ?? ''));
+  if (!value.ok) return value.error;
+  if (value.cents <= 0) return 'A voucher must be worth something.';
+
+  const raw = formData.get('file');
+  const file = raw instanceof File && raw.size > 0 ? raw : null;
+  if (file !== null && file.type !== 'application/pdf') {
+    return 'Attach the voucher as a PDF.';
+  }
+  if (file !== null && file.size > 5 * 1024 * 1024) {
+    return 'That PDF is larger than 5 MB. Scan it at a lower resolution.';
+  }
+
+  const { client, user, tenant } = await requireTenant();
+  const result = await attachVoucher(
+    client,
+    tenant.clubId,
+    registrationId,
+    { program, code, faceValueCents: value.cents, file },
+    user.id,
+  );
+  if (!result.ok) return result.error;
+
+  revalidatePath(`/registrar/${registrationId}`);
+  revalidatePath('/registrar');
+  return null;
+}
+
+/**
+ * Confirm a voucher is genuine, applying its value as a payment (BR81).
+ *
+ * Until this happens the family's balance is untouched, so BR3 fails and
+ * BR79 keeps the player off the field — which is the point. A voucher that
+ * turns out to be expired or already spent would otherwise have let a child
+ * play on money the club never receives.
+ */
+export async function verifyVoucherAction(formData: FormData): Promise<void> {
+  const voucherId = String(formData.get('voucherId') ?? '');
+  const registrationId = String(formData.get('registrationId') ?? '');
+  if (voucherId === '' || registrationId === '') throw new Error('Missing identifiers.');
+
+  const { client, user, tenant } = await requireTenant();
+
+  const vouchers = await loadVouchers(client, tenant.clubId, registrationId);
+  const voucher = vouchers.find((v) => v.id === voucherId);
+  if (voucher === undefined) throw new Error('Voucher not found.');
+
+  await verifyVoucher(client, tenant.clubId, voucher, user.id);
+
+  revalidatePath(`/registrar/${registrationId}`);
+  revalidatePath('/registrar');
+}
+
+/** Reject a voucher, reversing its relief if it had already been applied. */
+export async function rejectVoucherAction(formData: FormData): Promise<void> {
+  const voucherId = String(formData.get('voucherId') ?? '');
+  const registrationId = String(formData.get('registrationId') ?? '');
+  const reason = String(formData.get('reason') ?? '').trim();
+  if (voucherId === '' || registrationId === '') throw new Error('Missing identifiers.');
+
+  const { client, user, tenant } = await requireTenant();
+
+  const vouchers = await loadVouchers(client, tenant.clubId, registrationId);
+  const voucher = vouchers.find((v) => v.id === voucherId);
+  if (voucher === undefined) throw new Error('Voucher not found.');
+
+  await rejectVoucher(
+    client,
+    tenant.clubId,
+    voucher,
+    reason === '' ? 'No reason recorded.' : reason,
+    user.id,
+  );
+
+  revalidatePath(`/registrar/${registrationId}`);
+  revalidatePath('/registrar');
 }

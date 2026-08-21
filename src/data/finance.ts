@@ -199,6 +199,9 @@ export async function cancelPaymentPlan(
 /**
  * Record money received, and re-derive what the registration still owes.
  *
+ * Returns the receipt's id, which voucher verification needs so the relief
+ * it applies can be pointed at the payment that carries it (BR81).
+ *
  * `registration.outstanding_amount_cents` is kept as the running balance so
  * BR3's no-plan branch and the queue's totals stay a single column read.
  * It is derived here from the receipts rather than decremented, so a
@@ -217,7 +220,7 @@ export async function recordPayment(
     readonly reversesPaymentId: string | null;
   },
   actorUserId: string,
-): Promise<void> {
+): Promise<string> {
   const inserted = unwrap<PaymentRow[]>(
     'payment',
     await client
@@ -279,4 +282,6 @@ export async function recordPayment(
       rule: 'BR77',
     },
   });
+
+  return row.id;
 }

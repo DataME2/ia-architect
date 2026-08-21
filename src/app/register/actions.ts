@@ -191,6 +191,7 @@ export async function submitRegistrationAction(
       message: 'Registration received.',
       outstanding: outcomes.filter((o) => o.status === 'fail'),
       registrationId: registrationData.id,
+      guardian: draft.guardian,
     };
   } catch (cause) {
     const detail = cause instanceof Error ? cause.message : 'Unknown error';

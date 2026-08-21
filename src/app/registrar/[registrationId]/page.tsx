@@ -8,6 +8,8 @@ import {
 } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { loadFinance } from '../../../data/finance.ts';
+import { loadVouchers, voucherFileUrl } from '../../../data/vouchers.ts';
+import { voucherSummary } from '../../../domain/finance/voucher.ts';
 import { playEligibility } from '../../../domain/finance/eligibility.ts';
 import { planState } from '../../../domain/finance/plan.ts';
 import { formatCents } from '../../../web/money.ts';
@@ -19,13 +21,22 @@ import {
   applyChecklistAction,
   cancelPlanAction,
   recheckAction,
+  rejectVoucherAction,
   setDocumentProvidedAction,
   verifyLegalNameAction,
+  verifyVoucherAction,
 } from '../actions.ts';
+import { AttachVoucherForm } from './VoucherPanel.tsx';
 import { OutstandingForm } from './OutstandingForm.tsx';
 import { NewPlanForm, PlanSchedule, RecordPaymentForm } from './PaymentPlanPanel.tsx';
 
 export const dynamic = 'force-dynamic';
+
+// The pilot club's Committee-approved program (BR21). A prefill, not a
+// constraint — the field is free text because six state schemes exist and a
+// club may be approved for more than one. It becomes configuration the day a
+// second program is enabled.
+const DEFAULT_VOUCHER_PROGRAM = 'Play On!';
 
 const CONSENT_LABEL: Record<string, string> = {
   REGISTRATION_COLLECTION_NOTICE: 'Registration collection notice',
@@ -79,6 +90,13 @@ export default async function RegistrationDetailPage({
   const { entry, person, documents, consents, duplicates } = detail;
 
   const finance = await loadFinance(client, tenant.clubId, registrationId);
+  const vouchers = await loadVouchers(client, tenant.clubId, registrationId);
+  const voucherFiles = new Map<string, string>();
+  for (const voucher of vouchers) {
+    if (voucher.filePath === null) continue;
+    const url = await voucherFileUrl(client, voucher.filePath);
+    if (url !== null) voucherFiles.set(voucher.id, url);
+  }
   const state =
     finance.plan === null
       ? null
@@ -299,6 +317,112 @@ export default async function RegistrationDetailPage({
             cannot revoke an eligibility the federation conferred (BR60). Eligibility to play
             is asked separately, from the status <em>and</em> the balance, every time, so a
             charge raised after confirmation still stops the player.
+          </p>
+        )}
+      </section>
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>Vouchers</h3>
+        {vouchers.length === 0 ? (
+          <p className="hint" style={{ marginTop: 0 }}>
+            None attached. Most MiniRoos families have one.
+          </p>
+        ) : (
+          <>
+            <p className="notice" style={{ marginTop: 0 }}>{voucherSummary(vouchers)}</p>
+            <div className="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Program</th>
+                    <th>Code</th>
+                    <th>Value</th>
+                    <th>State</th>
+                    <th>Document</th>
+                    {canTouchMoney && <th />}
+                  </tr>
+                </thead>
+                <tbody>
+                  {vouchers.map((voucher) => (
+                    <tr key={voucher.id}>
+                      <td>{voucher.program}</td>
+                      <td>{voucher.code}</td>
+                      <td>{formatCents(voucher.faceValueCents)}</td>
+                      <td>
+                        {voucher.state === 'ATTACHED' && (
+                          <span className="pill pill-stop">Not yet verified</span>
+                        )}
+                        {voucher.state === 'VERIFIED' && <span className="pill pill-ok">Verified</span>}
+                        {voucher.state === 'CLAIMED' && <span className="pill pill-ok">Claimed</span>}
+                        {voucher.state === 'REJECTED' && (
+                          <span className="pill pill-stop" title={voucher.rejectionReason ?? ''}>
+                            Rejected
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        {voucherFiles.has(voucher.id) ? (
+                          <a href={voucherFiles.get(voucher.id)} target="_blank" rel="noreferrer">
+                            Open PDF
+                          </a>
+                        ) : (
+                          <span className="hint">None</span>
+                        )}
+                      </td>
+                      {canTouchMoney && (
+                        <td>
+                          {voucher.state === 'ATTACHED' && (
+                            <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                              <form action={verifyVoucherAction}>
+                                <input type="hidden" name="voucherId" value={voucher.id} />
+                                <input type="hidden" name="registrationId" value={registrationId} />
+                                <button
+                                  type="submit"
+                                  style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }}
+                                >
+                                  Verify
+                                </button>
+                              </form>
+                              <form action={rejectVoucherAction} style={{ display: 'flex', gap: '0.3rem' }}>
+                                <input type="hidden" name="voucherId" value={voucher.id} />
+                                <input type="hidden" name="registrationId" value={registrationId} />
+                                <input
+                                  name="reason"
+                                  placeholder="Why not?"
+                                  aria-label="Rejection reason"
+                                  style={{ width: '9rem' }}
+                                />
+                                <button
+                                  type="submit"
+                                  className="secondary"
+                                  style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }}
+                                >
+                                  Reject
+                                </button>
+                              </form>
+                            </div>
+                          )}
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        <h4>Attach a voucher</h4>
+        <AttachVoucherForm
+          registrationId={registrationId}
+          defaultProgram={DEFAULT_VOUCHER_PROGRAM}
+        />
+
+        {!canTouchMoney && vouchers.length > 0 && (
+          <p className="hint">
+            Verifying a voucher applies its value as a payment, so it is an admin or
+            treasurer&rsquo;s act (BR78). You can attach one &mdash; collecting the document is
+            registration work.
           </p>
         )}
       </section>
