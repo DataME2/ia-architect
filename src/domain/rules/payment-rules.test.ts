@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
-import { buildSchedule } from '../finance/plan.ts';
 import { context, payment, paymentPlan, registration } from '../test-fixtures.ts';
 import { br3OutstandingPayment } from './br3-outstanding-payment.ts';
 import { statusFromValidation } from './registration-status.ts';
@@ -31,23 +30,34 @@ describe('BR3 without a payment plan — the original rule, unchanged', () => {
   });
 });
 
-describe('BR3 with a payment plan — arrears, not balance', () => {
-  test('a family up to date passes despite owing money', () => {
-    // This is the whole point of the restatement. Under the original rule
-    // this family — three weeks into a plan, having paid everything asked
-    // of them — would have been held out of the season.
+describe('BR3 with a payment plan — no pay, no play is absolute (BR79)', () => {
+  test('a family up to date on a plan still fails, because they still owe', () => {
+    // The club's policy is absolute: a plan schedules the debt, it does not
+    // buy the child a game. Being current is not being paid.
     const outcome = evaluate({
       registration: registration({ outstandingAmountCents: 9000 }),
       paymentPlan: plan,
       payments: [payment({ amountCents: 3000 })],
       asAt: '2026-03-15',
     });
-    assert.equal(outcome.status, 'pass');
-    assert.match(outcome.message, /up to date/);
-    assert.match(outcome.message, /\$90\.00/);
+    assert.equal(outcome.status, 'fail');
+    assert.match(outcome.message, /\$90\.00 outstanding on a payment plan/);
+    assert.match(outcome.message, /up to date/, 'but it says they are current');
   });
 
-  test('a missed instalment fails, and names the arrears rather than the balance', () => {
+  test('and the message names the next instalment, so the club knows what to expect', () => {
+    const outcome = evaluate({
+      registration: registration({ outstandingAmountCents: 9000 }),
+      paymentPlan: plan,
+      payments: [payment({ amountCents: 3000 })],
+      asAt: '2026-03-15',
+    });
+    assert.match(outcome.message, /2026-04-01/);
+  });
+
+  test('a missed instalment says so as well as the balance', () => {
+    // "$120 outstanding" and "$120 outstanding and you missed 1 March" send a
+    // registrar to two different places; only the second is a call today.
     const outcome = evaluate({
       registration: registration({ outstandingAmountCents: 12000 }),
       paymentPlan: plan,
@@ -55,30 +65,21 @@ describe('BR3 with a payment plan — arrears, not balance', () => {
       asAt: '2026-03-15',
     });
     assert.equal(outcome.status, 'fail');
+    assert.match(outcome.message, /\$120\.00 outstanding/);
     assert.match(outcome.message, /\$30\.00 of the payment plan is overdue/);
-    assert.doesNotMatch(outcome.message, /\$120\.00/, 'the full balance is not what is overdue');
   });
 
-  test('before the first instalment falls due, nothing is overdue', () => {
+  test('a plan paid in full passes', () => {
     const outcome = evaluate({
-      paymentPlan: plan,
-      payments: [],
-      asAt: '2026-02-01',
-    });
-    assert.equal(outcome.status, 'pass');
-  });
-
-  test('a plan paid in full passes and says so', () => {
-    const outcome = evaluate({
+      registration: registration({ outstandingAmountCents: 0 }),
       paymentPlan: plan,
       payments: [payment({ amountCents: 12000 })],
       asAt: '2026-07-01',
     });
     assert.equal(outcome.status, 'pass');
-    assert.match(outcome.message, /paid in full/);
   });
 
-  test('a cancelled plan falls back to the balance rule', () => {
+  test('a cancelled plan gives the plain balance message', () => {
     const outcome = evaluate({
       registration: registration({ outstandingAmountCents: 9000 }),
       paymentPlan: paymentPlan({ cancelledAt: '2026-04-01T00:00:00Z' }),
@@ -89,25 +90,15 @@ describe('BR3 with a payment plan — arrears, not balance', () => {
     assert.match(outcome.message, /\$90\.00 is still outstanding/);
   });
 
-  test('arrears accumulate across more than one missed instalment', () => {
+  test('a credit passes and is reported as a credit', () => {
     const outcome = evaluate({
+      registration: registration({ outstandingAmountCents: -2500 }),
       paymentPlan: plan,
-      payments: [],
-      asAt: '2026-05-15',
+      payments: [payment({ amountCents: 14500 })],
+      asAt: '2026-07-01',
     });
-    assert.equal(outcome.status, 'fail');
-    assert.match(outcome.message, /\$90\.00/, 'three instalments have fallen due');
-  });
-
-  test('a plan whose remainder is on the first instalment still reconciles', () => {
-    const built = buildSchedule(12050, 3, '2026-03-01', 'monthly');
-    assert.ok(built.ok);
-    const outcome = evaluate({
-      paymentPlan: paymentPlan({ totalCents: 12050, installments: built.installments }),
-      payments: [payment({ amountCents: 4018 })],
-      asAt: '2026-03-15',
-    });
-    assert.equal(outcome.status, 'pass', 'paying the odd first instalment clears it exactly');
+    assert.equal(outcome.status, 'pass');
+    assert.match(outcome.message, /credit of \$25\.00/);
   });
 });
 

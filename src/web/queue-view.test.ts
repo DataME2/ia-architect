@@ -10,6 +10,10 @@ import {
   fullLegalName,
   groupFor,
   groupQueue,
+  eligibilityOf,
+  moneyNote,
+  owing,
+  unpaidButRegistered,
   type QueueEntry,
 } from './queue-view.ts';
 
@@ -177,4 +181,44 @@ describe('failing()', () => {
     });
     assert.deepEqual(failing(e).map((o) => o.ruleId), ['BR1', 'BR2']);
   });
+});
+
+test('the money note shows a balance whether or not it is blocking', () => {
+  assert.equal(moneyNote(entry({ outstandingCents: 8032 })), '$80.32 outstanding');
+  assert.equal(moneyNote(entry({ outstandingCents: -500 })), '$5.00 in credit');
+  assert.equal(moneyNote(entry({ outstandingCents: 0 })), null);
+});
+
+test('a registered player who owes money is separated out (BR79)', () => {
+  const entries = [
+    entry({ registrationId: 'r1', status: 'COMPLETE', outstandingCents: 0 }),
+    entry({ registrationId: 'r2', status: 'COMPLETE', outstandingCents: 1500 }),
+    entry({ registrationId: 'r3', status: 'COMPLETE', outstandingCents: 8032 }),
+    entry({ registrationId: 'r4', status: 'PENDING_PAYMENT', outstandingCents: 4000 }),
+  ];
+
+  assert.deepEqual(
+    unpaidButRegistered(entries).map((e) => e.registrationId),
+    ['r3', 'r2'],
+    'most owed first, and only the ones that look finished',
+  );
+});
+
+test('owing lists every debtor, including those still in the queue', () => {
+  const entries = [
+    entry({ registrationId: 'r1', status: 'COMPLETE', outstandingCents: 0 }),
+    entry({ registrationId: 'r2', status: 'PENDING_PAYMENT', outstandingCents: 4000 }),
+    entry({ registrationId: 'r3', status: 'COMPLETE', outstandingCents: 1500 }),
+  ];
+  assert.deepEqual(
+    owing(entries).map((e) => e.registrationId),
+    ['r2', 'r3'],
+  );
+});
+
+test('eligibility is asked of the entry, not stored on it', () => {
+  const paid = entry({ status: 'COMPLETE', outstandingCents: 0 });
+  const owes = entry({ status: 'COMPLETE', outstandingCents: 1 });
+  assert.equal(eligibilityOf(paid).mayPlay, true);
+  assert.equal(eligibilityOf(owes).mayPlay, false, 'one cent is still owing money');
 });

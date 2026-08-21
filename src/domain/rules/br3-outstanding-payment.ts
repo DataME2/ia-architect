@@ -1,57 +1,49 @@
 import { planState } from '../finance/plan.ts';
+import { formatMoney } from '../finance/money.ts';
 import { fail, pass, type RegistrationRule } from './types.ts';
 
-/** Formats cents as plain dollars for a message a treasurer will read. */
-function money(cents: number): string {
-  const sign = cents < 0 ? '-' : '';
-  const abs = Math.abs(cents);
-  return `${sign}$${Math.floor(abs / 100)}.${String(abs % 100).padStart(2, '0')}`;
-}
-
 /**
- * BR3 — a registration cannot be COMPLETE while payment is behind.
+ * BR3 — a registration cannot be COMPLETE with anything outstanding.
  *
- * **Restated when payment plans arrived.** The original rule blocked on any
- * outstanding balance, which is right when a fee is due in full and wrong
- * the moment a club offers instalments: a family three weeks into a
- * five-month plan, having paid everything asked of them, would have been
- * held out of the season by a rule meant to catch non-payment. That would
- * have made the plan worthless — the club could offer one, and the child
- * still could not play.
+ * **The club's policy is no pay, no play, and it is absolute** (BR79): any
+ * amount still owed keeps the player off the field, whether or not a payment
+ * plan has been agreed. So a plan does not soften this rule. It schedules
+ * the debt and gives the club something to chase; it does not buy the child
+ * a game.
  *
- * So what blocks is **arrears**, not balance. With a live plan the question
- * is whether every instalment already due has been paid; without one it is
- * the whole balance, which is the old rule unchanged.
+ * The plan still changes what this rule *says*. "$80.32 outstanding" and
+ * "$80.32 outstanding, and you missed the instalment due on 1 April" send a
+ * family to two different places, and only the second is a reason to ring
+ * them today — so where a plan exists the message carries both the balance
+ * and the arrears.
  *
- * A credit is not an obstacle either way. Blocking a child from playing
- * because the club owes *them* money would be the wrong way round.
+ * A credit is never an obstacle. Blocking a child because the club owes
+ * *them* money would be the wrong way round.
  */
 export const br3OutstandingPayment: RegistrationRule = {
   id: 'BR3',
-  summary: 'Payment is up to date — no arrears, or nothing outstanding',
+  summary: 'Nothing is outstanding',
   evaluate: ({ registration, paymentPlan, payments, asAt }) => {
-    if (paymentPlan !== null && paymentPlan.cancelledAt === null) {
-      const state = planState(
-        paymentPlan.totalCents,
-        paymentPlan.installments,
-        payments,
-        asAt,
-      );
+    const outstanding = registration.outstandingAmountCents;
 
-      if (state.arrearsCents > 0) {
-        return fail('BR3', `${money(state.arrearsCents)} of the payment plan is overdue.`);
-      }
-      return state.outstandingCents > 0
-        ? pass(
-            'BR3',
-            `On a payment plan and up to date — ${money(state.outstandingCents)} still to come, next due ${state.nextDue?.installment.dueOn ?? 'never'}.`,
-          )
-        : pass('BR3', 'The payment plan is paid in full.');
+    if (outstanding <= 0) {
+      return pass('BR3', outstanding === 0
+        ? 'Nothing outstanding.'
+        : `Paid in full, with a credit of ${formatMoney(-outstanding)}.`);
     }
 
-    const outstanding = registration.outstandingAmountCents;
-    return outstanding <= 0
-      ? pass('BR3', 'Nothing outstanding.')
-      : fail('BR3', `${money(outstanding)} is still outstanding.`);
+    if (paymentPlan !== null && paymentPlan.cancelledAt === null) {
+      const state = planState(paymentPlan.totalCents, paymentPlan.installments, payments, asAt);
+      const next = state.nextDue;
+
+      return fail(
+        'BR3',
+        state.arrearsCents > 0
+          ? `${formatMoney(outstanding)} outstanding, and ${formatMoney(state.arrearsCents)} of the payment plan is overdue.`
+          : `${formatMoney(outstanding)} outstanding on a payment plan — up to date, next instalment ${next === null ? 'none' : `${formatMoney(next.installment.amountCents - next.paidCents)} on ${next.installment.dueOn}`}.`,
+      );
+    }
+
+    return fail('BR3', `${formatMoney(outstanding)} is still outstanding.`);
   },
 };

@@ -8,6 +8,7 @@ import {
 } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { loadFinance } from '../../../data/finance.ts';
+import { playEligibility } from '../../../domain/finance/eligibility.ts';
 import { planState } from '../../../domain/finance/plan.ts';
 import { formatCents } from '../../../web/money.ts';
 import { METHOD_LABEL } from '../../../web/plan-view.ts';
@@ -82,6 +83,10 @@ export default async function RegistrationDetailPage({
     finance.plan === null
       ? null
       : planState(finance.plan.totalCents, finance.plan.installments, finance.payments, todayIn());
+  // BR79, asked fresh from the status and the balance together. Neither
+  // alone answers it: the status cannot fall back out of COMPLETE, and the
+  // balance says nothing about the federation.
+  const eligibility = playEligibility(entry.status, entry.outstandingCents);
   // Small clubs are small: one person is routinely both registrar and admin.
   // Gating on a single role hid the finance screens from whoever's registrar
   // membership happened to be the older row.
@@ -275,6 +280,26 @@ export default async function RegistrationDetailPage({
               </tbody>
             </table>
           </div>
+        )}
+      </section>
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>May this player take the field?</h3>
+        <p style={{ marginTop: 0 }}>
+          {eligibility.mayPlay ? (
+            <span className="pill pill-ok">Yes &mdash; registered and paid up</span>
+          ) : (
+            <span className="pill pill-stop">No</span>
+          )}
+        </p>
+        <p className="hint" style={{ marginBottom: 0 }}>{eligibility.reason}</p>
+        {!eligibility.mayPlay && eligibility.blockedBy === 'owes-money' && (
+          <p className="hint">
+            The registration is <strong>COMPLETE</strong> and stays that way &mdash; the club
+            cannot revoke an eligibility the federation conferred (BR60). Eligibility to play
+            is asked separately, from the status <em>and</em> the balance, every time, so a
+            charge raised after confirmation still stops the player.
+          </p>
         )}
       </section>
 

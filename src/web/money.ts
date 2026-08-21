@@ -6,11 +6,7 @@
  * wrong is money that is wrong.
  */
 
-export function formatCents(cents: number): string {
-  const sign = cents < 0 ? '-' : '';
-  const abs = Math.abs(cents);
-  return `${sign}$${Math.floor(abs / 100)}.${String(abs % 100).padStart(2, '0')}`;
-}
+export { formatMoney as formatCents } from '../domain/finance/money.ts';
 
 export type AmountResult =
   | { readonly ok: true; readonly cents: number }
