@@ -175,6 +175,9 @@ export default async function RegistrarPage({
         <a className="button secondary" href="/registrar/duplicates">
           Duplicates
         </a>
+        <a className="button secondary" href="/registrar/governance">
+          Governance
+        </a>
       </p>
 
       <div className="summary-grid">

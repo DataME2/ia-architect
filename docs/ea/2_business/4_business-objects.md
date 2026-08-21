@@ -58,6 +58,8 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 
 | Object | What it represents |
 | ------ | -------------------- |
+| **Committee Term** | One governance year: the AGM that elected it, when it starts, and when the next AGM falls due. The end date is **stated, not computed** — a club that meets late has a committee whose mandate is a real question (BR86) |
+| **Committee Position** | One Person holding one office — president, vice-president, secretary, treasurer, registrar, committee or subcommittee member — for exactly one Committee Term (BR85). A resignation is an early exit and a different fact from the term ending |
 | **Team** | A club's squad for one season, with a name and an age group. Named in passing by Season Competition Entry and by the Squadi extract's role list since [scope 3](../../scope/3_competitions-and-calendar-per-season.md); modelled properly from [scope 25](../../scope/25_teams-and-team-officials.md) |
 | **Team Membership** | One Person's place in one Team, in one role: player, coach, assistant coach, manager, or team official. A parent who coaches the team their child plays in is **two rows and one Person** (P1) |
 | **Clearance** | A Working with Children Check as the club holds it — state-specific kind (Queensland's Blue Card, NSW's WWCC), card number, issue and expiry dates, and **separately** whether a human verified it against the state's portal. Holding a number is not a check (BR19). A superseded card is kept, not overwritten, so a renewal never erases what the club relied on last season |

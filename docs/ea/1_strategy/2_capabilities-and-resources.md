@@ -20,6 +20,7 @@ What Let'sDataTalk must be able to do to realize the goals in
 | C7 | **Communications** — templated transactional messages, reminders, generic-question FAQ handling | G5 |
 | C8 | **Reporting & dashboards** — registration, financial, and referee dashboards for administrative decisions | G2, G3, G4 |
 | C9 | **Historical data consolidation** — read-only extraction of the pilot club's multi-year data into a RAW → STAGING → unified model pipeline | G6 |
+| C19 | **Club governance & administration** — the committee as a record: who holds which office, elected at which Annual General Meeting, serving until the next. Gives the rules that rest on Committee authority (BR21, BR22) something to point at | G1, G3 |
 | C10 | **Multitenant platform operations** — tenant provisioning, role-based access control, per-club branding and season configuration, central super-administration | G1–G6 (cross-cutting) |
 | C11 | **Competition & calendar management** — maintain each governing association's competition catalog (tiers, format), its **Competition Regulations and Playing Formats** (small-sided rules, field and ball dimensions, match duration, squad sizes per age group), each club's season entries into those competitions, and the resulting match calendar that referee appointment and team/registration structure depend on | G2, G4 |
 | C12 | **Carnival & event management** — create and manage one-off, multi-club carnival/grassroots events (draws or fixtures, results), and publish an account-free public view of them for coaches, parents, and the general public | G7 |

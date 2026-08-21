@@ -149,6 +149,14 @@ begin
   values (north_star, 'L', 'Rivera', date '1900-01-01', 'dupe@example.test')
   returning id into dupe;
 
+  -- The duplicate holds the clearance, and therefore the coach role. The
+  -- survivor holds neither. This is the case BR84 turned into a trap: a
+  -- merge that moved the role without the card would leave the survivor
+  -- holding a coaching role they are not cleared for.
+  insert into clearance
+    (club_id, person_id, kind, identifier, expires_on, verified_by_user_id, verified_at)
+  values (north_star, dupe, 'WWCC', 'BC-MERGE-1', date '2040-01-01', ns_registrar, now());
+
   insert into person_role (club_id, person_id, season_id, role)
   values (north_star, keeper, test_season, 'guardian'),
          (north_star, dupe, test_season, 'guardian'),
@@ -200,6 +208,16 @@ begin
   from person_role where person_id = keeper and season_id = test_season and role = 'coach';
   if seen <> 1 then
     failures := array_append(failures, 'the duplicate''s unique role was lost in the merge');
+  end if;
+
+  -- 5b. And the clearance came with them. Without this the survivor holds a
+  --     coaching role with no card, which BR84 exists to make impossible.
+  select count(*) into seen from clearance where person_id = keeper;
+  if seen <> 1 then
+    failures := array_append(
+      failures,
+      'the clearance did not move with the person — the survivor coaches uncleared (BR84)'
+    );
   end if;
 
   -- 6. Nothing is left pointing at the tombstone.

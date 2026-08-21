@@ -16,6 +16,7 @@ import type { PackRow } from '../domain/submission/types.ts';
 import type { PaymentMethod, PlanCadence } from '../domain/finance/types.ts';
 import type { VoucherState } from '../domain/finance/voucher.ts';
 import type { TeamRole } from '../domain/teams/types.ts';
+import type { CommitteePosition } from '../domain/governance/term.ts';
 import type { SeasonRole } from '../domain/types.ts';
 
 /** `YYYY-MM-DD`, as Postgres `date` renders it over the wire. */
@@ -234,6 +235,27 @@ export interface ClearanceRow {
   verified_by_user_id: string | null;
   verified_at: InstantString | null;
   revoked_at: InstantString | null;
+  created_at: InstantString;
+}
+
+export interface CommitteeTermRow {
+  id: string;
+  club_id: string;
+  name: string;
+  agm_held_on: DateString | null;
+  starts_on: DateString;
+  next_agm_due_on: DateString;
+  created_at: InstantString;
+}
+
+export interface CommitteePositionRow {
+  id: string;
+  club_id: string;
+  term_id: string;
+  person_id: string;
+  position: CommitteePosition;
+  elected_on: DateString | null;
+  resigned_on: DateString | null;
   created_at: InstantString;
 }
 

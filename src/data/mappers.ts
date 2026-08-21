@@ -9,6 +9,7 @@
 import type { Installment, Payment, PaymentPlan } from '../domain/finance/types.ts';
 import type { Voucher } from '../domain/finance/voucher.ts';
 import type { Clearance, Team } from '../domain/teams/types.ts';
+import type { CommitteeMember, CommitteeTerm } from '../domain/governance/term.ts';
 import type {
   Consent,
   Guardianship,
@@ -23,6 +24,8 @@ import type {
   PaymentRow,
   RegistrationVoucherRow,
   ClearanceRow,
+  CommitteePositionRow,
+  CommitteeTermRow,
   TeamRow,
   GuardianshipRow,
   PersonRoleRow,
@@ -175,5 +178,26 @@ export function toClearance(row: ClearanceRow): Clearance {
     expiresOn: row.expires_on,
     verifiedAt: row.verified_at,
     revokedAt: row.revoked_at,
+  };
+}
+
+export function toCommitteeTerm(row: CommitteeTermRow): CommitteeTerm {
+  return {
+    id: row.id,
+    name: row.name,
+    agmHeldOn: row.agm_held_on,
+    startsOn: row.starts_on,
+    nextAgmDueOn: row.next_agm_due_on,
+  };
+}
+
+export function toCommitteeMember(row: CommitteePositionRow): CommitteeMember {
+  return {
+    id: row.id,
+    termId: row.term_id,
+    personId: row.person_id,
+    position: row.position,
+    electedOn: row.elected_on,
+    resignedOn: row.resigned_on,
   };
 }
