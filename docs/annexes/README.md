@@ -13,6 +13,7 @@ through `ea-first-change` like anything else.
 
 | Annex | Realises | Notes |
 | ----- | -------- | ----- |
+| [tenant-provisioning.md](./tenant-provisioning.md) | C10, P5 | How a new club is created, and **why its first two steps cannot be done in the application**: `club` denies every write unconditionally, and adding a membership requires already being an admin of that club. A deliberate bootstrap paradox — the alternative would let a compromised session manufacture a tenant or attach itself to an existing one |
 | [consent-wording.md](./consent-wording.md) | BR48, BR55, BR56, BR57 | Registration collection notice, identification photo consent, and publicity consent. Drafted, **not legally reviewed** |
 | [submission-pack-instructions.md](./submission-pack-instructions.md) | C16, BR58, BR59, BR60 | How a club produces, checks, hands over, and tracks a Registration Submission Pack, with a recipient-facing cover note and the fallback for when the federation does not import |
 | [commercial-terms.md](./commercial-terms.md) | BR68, the support tiers and pricing | Year-one and recurring pricing, the two support tiers, data ownership and export, privacy responsibilities, and what the platform explicitly does not promise. **Drafted, not legally reviewed** |
