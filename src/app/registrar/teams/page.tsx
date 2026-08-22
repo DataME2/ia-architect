@@ -10,6 +10,7 @@ import {
   unclearedOfficials,
   type RosterEntry,
 } from '../../../web/team-view.ts';
+import { todayIn } from '../../../web/today.ts';
 import { AddMemberForm, NewTeamForm, RecordClearanceForm } from './TeamForms.tsx';
 import { removeMemberAction } from './actions.ts';
 
@@ -154,10 +155,19 @@ export default async function TeamsPage({
   const season = seasons.find((s) => s.id === params.season) ?? seasons[0]!;
 
   const teams = await loadTeams(client, tenant.clubId, season.id, season.ends_on);
-  const people = (await loadAssignablePeople(client, tenant.clubId)).map((person) => ({
+  const toOption = (person: Parameters<typeof displayNameFor>[0] & { id: string }) => ({
     id: person.id,
     label: `${displayNameFor(person)} — ${fullLegalName(person)}`,
-  }));
+  });
+
+  // Two lists, because they answer different questions. A team roster can
+  // include a nine-year-old; a Working with Children Check cannot — a child
+  // is exempt from needing one (BR84), so offering them would invite a
+  // registrar to record something that cannot exist.
+  const people = (await loadAssignablePeople(client, tenant.clubId)).map(toOption);
+  const adults = (
+    await loadAssignablePeople(client, tenant.clubId, { adultsOnly: true, asAt: todayIn() })
+  ).map(toOption);
 
   const totalPlayers = teams.reduce((n, t) => n + t.roster.players.length, 0);
   const totalUncleared = teams.reduce((n, t) => n + unclearedOfficials(t.roster).length, 0);
@@ -227,7 +237,7 @@ export default async function TeamsPage({
           &mdash; a card expiring mid-season is caught now, with months to replace it, rather
           than on the morning it lapses (BR54).
         </p>
-        <RecordClearanceForm people={people} />
+        <RecordClearanceForm people={adults} />
       </section>
     </>
   );

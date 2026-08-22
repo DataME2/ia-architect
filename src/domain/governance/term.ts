@@ -13,7 +13,7 @@
  * invoices until the Committee approves it. If nobody can say which
  * committee that was, the approval is a claim rather than a record.
  */
-import type { IsoDate } from '../types.ts';
+import { ageAt, type IsoDate, type Person } from '../types.ts';
 
 export const COMMITTEE_POSITIONS = [
   'president',
@@ -126,3 +126,35 @@ export function vacantOffices(
   const held = new Set(serving(members, asAt).map((m) => m.position));
   return REQUIRED_OFFICES.filter((office) => !held.has(office));
 }
+
+/**
+ * BR87 — a committee position may only be held by an adult.
+ *
+ * A MiniRoos player cannot govern the club. Their parent can, and so can a
+ * life member, which is the point: this excludes people by *age*, never by
+ * whether they play or how long they have been around.
+ *
+ * Measured at the term's start rather than today, because a committee
+ * elected in March is a committee of the people who were adults in March.
+ */
+export function mayHoldCommitteePosition(person: Person, termStartsOn: IsoDate): boolean {
+  return ageAt(person.dateOfBirth, termStartsOn) >= 18;
+}
+
+/**
+ * BR88 — the roles the club should hold a Working with Children Check for.
+ *
+ * A MiniRoos player is not one of them, which is why they do not appear on
+ * the screen that records a card. Children are exempt (BR84) and offering
+ * one to a nine-year-old invites a registrar to record something that
+ * cannot exist.
+ */
+export const CLEARANCE_EXPECTED_OF = [
+  'committee member',
+  'subcommittee member',
+  'coach',
+  'assistant coach',
+  'manager',
+  'team official',
+  'match official',
+] as const;

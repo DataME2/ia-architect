@@ -235,6 +235,8 @@ export interface ClearanceRow {
   verified_by_user_id: string | null;
   verified_at: InstantString | null;
   revoked_at: InstantString | null;
+  /** BR19: a scan of the card, in the private `clearances` bucket. */
+  file_path: string | null;
   created_at: InstantString;
 }
 

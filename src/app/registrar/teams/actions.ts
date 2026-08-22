@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
 
 import {
   addTeamMember,
@@ -25,14 +26,14 @@ async function requireTenant() {
 }
 
 export async function createTeamAction(
-  _previous: string | null,
+  _previous: FormResult,
   formData: FormData,
-): Promise<string | null> {
+): Promise<FormResult> {
   const seasonId = String(formData.get('seasonId') ?? '');
   if (seasonId === '') throw new Error('Missing identifiers.');
 
   const name = String(formData.get('name') ?? '').trim().replace(/\s+/g, ' ');
-  if (name === '') return 'Give the team a name.';
+  if (name === '') return formFailed('Give the team a name.');
 
   const ageGroup = String(formData.get('ageGroup') ?? '').trim();
 
@@ -41,13 +42,15 @@ export async function createTeamAction(
     await createTeam(client, tenant.clubId, seasonId, name, ageGroup === '' ? null : ageGroup, user.id);
   } catch (cause) {
     const detail = cause instanceof Error ? cause.message : 'Unknown error';
-    return detail.includes('team_club_id_season_id_name_key')
-      ? `This season already has a team called ${name}.`
-      : detail;
+    return formFailed(
+      detail.includes('team_club_id_season_id_name_key')
+        ? `This season already has a team called ${name}.`
+        : detail,
+    );
   }
 
   revalidatePath('/registrar/teams');
-  return null;
+  return formOk('Team created.');
 }
 
 /**
@@ -58,23 +61,23 @@ export async function createTeamAction(
  * than a constraint name.
  */
 export async function addMemberAction(
-  _previous: string | null,
+  _previous: FormResult,
   formData: FormData,
-): Promise<string | null> {
+): Promise<FormResult> {
   const teamId = String(formData.get('teamId') ?? '');
   const personId = String(formData.get('personId') ?? '');
   const role = parseTeamRole(formData.get('role'));
 
   if (teamId === '') throw new Error('Missing identifiers.');
-  if (personId === '') return 'Choose a person.';
-  if (role === null) return 'Choose a role.';
+  if (personId === '') return formFailed('Choose a person.');
+  if (role === null) return formFailed('Choose a role.');
 
   const { client, user, tenant } = await requireTenant();
   const result = await addTeamMember(client, tenant.clubId, teamId, personId, role, user.id);
-  if (!result.ok) return result.error;
+  if (!result.ok) return formFailed(result.error);
 
   revalidatePath('/registrar/teams');
-  return null;
+  return formOk(`${role === 'player' ? 'Player' : 'Official'} added to the team.`);
 }
 
 export async function removeMemberAction(formData: FormData): Promise<void> {
@@ -96,40 +99,55 @@ export async function removeMemberAction(formData: FormData): Promise<void> {
  * coach.
  */
 export async function recordClearanceAction(
-  _previous: string | null,
+  _previous: FormResult,
   formData: FormData,
-): Promise<string | null> {
+): Promise<FormResult> {
   const personId = String(formData.get('personId') ?? '');
-  if (personId === '') return 'Choose a person.';
+  if (personId === '') return formFailed('Choose a person.');
 
   const identifier = String(formData.get('identifier') ?? '').trim();
-  if (identifier === '') return 'Enter the card number.';
+  if (identifier === '') return formFailed('Enter the card number.');
 
   const kind = String(formData.get('kind') ?? '').trim() || 'WWCC';
 
   const expiresOn = parseDueDate(String(formData.get('expiresOn') ?? ''));
-  if (expiresOn === null) return 'Enter the expiry as a real calendar date.';
+  if (expiresOn === null) return formFailed('Enter the expiry as a real calendar date.');
 
   const issuedRaw = String(formData.get('issuedOn') ?? '').trim();
   const issuedOn = issuedRaw === '' ? null : parseDueDate(issuedRaw);
-  if (issuedRaw !== '' && issuedOn === null) return 'Enter the issue date as a real calendar date.';
+  if (issuedRaw !== '' && issuedOn === null) return formFailed('Enter the issue date as a real calendar date.');
   if (issuedOn !== null && issuedOn > expiresOn) {
-    return 'The card cannot expire before it was issued.';
+    return formFailed('The card cannot expire before it was issued.');
   }
 
   const verified = formData.get('verified') === 'on';
+
+  // The scan. Optional: a club chasing a card number should not be blocked
+  // from recording it because the photograph arrives tomorrow.
+  const raw = formData.get('file');
+  const file = raw instanceof File && raw.size > 0 ? raw : null;
+  if (file !== null && !['application/pdf', 'image/jpeg', 'image/png'].includes(file.type)) {
+    return formFailed('Attach the card as a PDF, JPEG or PNG.');
+  }
+  if (file !== null && file.size > 5 * 1024 * 1024) {
+    return formFailed('That file is larger than 5 MB. Photograph it at a lower resolution.');
+  }
 
   const { client, user, tenant } = await requireTenant();
   const result = await recordClearance(
     client,
     tenant.clubId,
     personId,
-    { kind, identifier, issuedOn, expiresOn, verified },
+    { kind, identifier, issuedOn, expiresOn, verified, file },
     user.id,
   );
-  if (!result.ok) return result.error;
+  if (!result.ok) return formFailed(result.error);
 
   revalidatePath('/registrar/teams');
   revalidatePath('/registrar/people');
-  return null;
+  return formOk(
+    verified
+      ? `Clearance recorded and verified against the portal, covering to ${expiresOn}.`
+      : 'Clearance recorded, but NOT verified. Until somebody checks this number against the state portal it clears nobody, and they still cannot be added as an official (BR19).',
+  );
 }

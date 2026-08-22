@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 
 import { loadGovernance } from '../../../data/governance.ts';
 import { loadTenantContext } from '../../../data/queries.ts';
-import { loadAssignablePeople } from '../../../data/teams.ts';
+import { loadAssignablePeople, loadClearanceCoverage } from '../../../data/teams.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import {
   daysUntilAgm,
@@ -43,10 +43,21 @@ export default async function GovernancePage() {
   const { terms, members, people } = await loadGovernance(client, tenant.clubId);
   const governing = governingTerm(terms, today);
 
-  const assignable = (await loadAssignablePeople(client, tenant.clubId)).map((person) => ({
+  // BR87: adults only. A MiniRoos player cannot govern the club — their
+  // parent can, and so can a life member. The filter excludes by age, never
+  // by whether someone plays or how long they have been around.
+  const assignable = (
+    await loadAssignablePeople(client, tenant.clubId, { adultsOnly: true, asAt: today })
+  ).map((person) => ({
     id: person.id,
     label: `${displayNameFor(person)} — ${fullLegalName(person)}`,
   }));
+
+  // BR88: committee members need a clearance, and not holding one does not
+  // block the appointment — the club's own instruction was to identify the
+  // committee first and chase paperwork after. So it is surfaced, not
+  // enforced.
+  const clearanceByPerson = await loadClearanceCoverage(client, tenant.clubId);
 
   return (
     <>
@@ -167,7 +178,36 @@ export default async function GovernancePage() {
               </div>
             )}
 
+            {(() => {
+              const missing = termMembers.filter(
+                (m) => (clearanceByPerson.get(m.personId) ?? null) === null,
+              );
+              return missing.length === 0 ? null : (
+                <p className="notice">
+                  <strong>
+                    {missing.length === 1
+                      ? '1 committee member has no verified Working with Children Check'
+                      : `${missing.length} committee members have no verified Working with Children Check`}
+                    :
+                  </strong>{' '}
+                  {missing
+                    .map((m) => {
+                      const person = people.get(m.personId);
+                      return person === undefined ? 'Unknown' : displayNameFor(person);
+                    })
+                    .join(', ')}
+                  . Recorded rather than refused (BR88) — a coach or team official is blocked
+                  outright, but a committee has to be identifiable before its paperwork can be
+                  chased.
+                </p>
+              );
+            })()}
+
             <h4>Add a committee member</h4>
+            <p className="hint" style={{ marginTop: 0 }}>
+              Adults only (BR87). A parent can serve, and so can a life member; a MiniRoos
+              player cannot.
+            </p>
             <AppointForm termId={term.id} people={assignable} />
           </section>
         );
