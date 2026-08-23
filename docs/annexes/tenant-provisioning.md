@@ -127,9 +127,12 @@ roles, committee terms and registration links are all season-scoped.
 
 ## Step 5 onward — inside the application
 
-Sign in as the user from step 2. Everything below is ordinary in-app work,
-and the session strip at the top of every screen shows which club and which
-roles you are acting with.
+Sign in as the user from step 2. Everything below is ordinary in-app work.
+The session strip at the top of every screen shows which club and which
+roles you are acting with, the menu beneath it reaches every screen in the
+table below, and if the club is the demonstration tenant
+(`supabase/demo/seed.sql`) the strip says so — no screen should ever leave
+you guessing whether the data in front of you is real.
 
 | Order | Screen | What it establishes |
 | ----- | ------ | ------------------- |

@@ -14,9 +14,11 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
       <body>
         <div className="shell">
           <header className="masthead">
-            <h1>Let&rsquo;sDataTalk</h1>
+            <h1>
+              <a href="/">Let&rsquo;sDataTalk</a>
+            </h1>
             <nav>
-              <a href="/registrar">Registrar</a>
+              <a href="/registrar">Club administration</a>
               <a href="/register">New registration</a>
             </nav>
           </header>

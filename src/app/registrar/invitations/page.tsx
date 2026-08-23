@@ -55,10 +55,6 @@ export default async function InvitationsPage({
 
   return (
     <>
-      <p style={{ marginBottom: '0.25rem' }}>
-        <a href="/registrar">&larr; Back to the queue</a>
-      </p>
-
       <h2>Registration links — {season.name}</h2>
       <p className="lede">
         Send one of these to a family and they can register without an account. The link writes

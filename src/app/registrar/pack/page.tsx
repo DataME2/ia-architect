@@ -62,10 +62,6 @@ export default async function PackIndexPage({
 
   return (
     <>
-      <p style={{ marginBottom: '0.25rem' }}>
-        <a href="/registrar">&larr; Back to the queue</a>
-      </p>
-
       <h2>Submission pack — {season.name}</h2>
       <p className="lede">
         The club&rsquo;s validated registrations, assembled into one versioned file for the

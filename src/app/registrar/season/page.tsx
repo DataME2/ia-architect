@@ -41,9 +41,6 @@ export default async function SeasonPage({
 
   return (
     <>
-      <p style={{ marginBottom: '0.25rem' }}>
-        <a href={`/registrar?season=${season.id}`}>&larr; Back to the queue</a>
-      </p>
 
       <h2>What {season.name} requires</h2>
       <p className="lede">

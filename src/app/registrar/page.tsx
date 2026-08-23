@@ -156,30 +156,6 @@ export default async function RegistrarPage({
         </form>
       )}
 
-      <p style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-        <a className="button" href={`/registrar/pack?season=${season.id}`}>
-          Submission pack
-        </a>
-        <a className="button secondary" href={`/registrar/invitations?season=${season.id}`}>
-          Registration links
-        </a>
-        <a className="button secondary" href={`/registrar/people?season=${season.id}`}>
-          People
-        </a>
-        <a className="button secondary" href={`/registrar/season?season=${season.id}`}>
-          Season requirements
-        </a>
-        <a className="button secondary" href={`/registrar/teams?season=${season.id}`}>
-          Teams
-        </a>
-        <a className="button secondary" href="/registrar/duplicates">
-          Duplicates
-        </a>
-        <a className="button secondary" href="/registrar/governance">
-          Governance
-        </a>
-      </p>
-
       <div className="summary-grid">
         <div className="stat">
           <span className="n">{entries.length}</span>

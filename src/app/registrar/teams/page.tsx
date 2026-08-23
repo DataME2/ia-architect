@@ -174,9 +174,6 @@ export default async function TeamsPage({
 
   return (
     <>
-      <p style={{ marginBottom: '0.25rem' }}>
-        <a href={`/registrar?season=${season.id}`}>&larr; Back to the queue</a>
-      </p>
 
       <h2>Teams — {season.name}</h2>
       <p className="lede">

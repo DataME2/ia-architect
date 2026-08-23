@@ -61,10 +61,6 @@ export default async function GovernancePage() {
 
   return (
     <>
-      <p style={{ marginBottom: '0.25rem' }}>
-        <a href="/registrar">&larr; Back to the queue</a>
-      </p>
-
       <h2>Club governance &amp; administration</h2>
       <p className="lede">
         Who governs {tenant.clubName}, and until when. A committee is elected at an Annual
