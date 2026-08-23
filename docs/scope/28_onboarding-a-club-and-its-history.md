@@ -4,7 +4,8 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
 **Delivered as:** branch `claude/tenant-provisioning-and-historical-data`.
-**Status: documentation only. Nothing here is built.**
+**Status: documentation only, with one exception — the demo tenant of
+section 5 is built.**
 
 Five decisions taken August 2026 about how a club becomes a customer, and
 what happens in the hour after it does. Recorded now so the second club is
@@ -138,9 +139,10 @@ rows have none — the club held them under whatever basis it had. They can be
 imported as history without inventing a consent that was never given, which
 is another reason BR90's read-only framing matters.
 
-## 5. The demo tenant
+## 5. The demo tenant *(built)*
 
-**Agreed, and worth doing.** One permanently-seeded club with obviously
+**Agreed, and built** — `supabase/demo/seed.sql` and `teardown.sql`, with
+`supabase/demo/README.md` listing what each fictional family demonstrates. One permanently-seeded club with obviously
 fictional data, so a prospect can see the product working rather than an
 empty shell.
 
@@ -173,8 +175,9 @@ Design constraints, so it does not become a liability:
 1. **Answer [#30](./open-questions.md)** — what may lawfully be retained.
    Everything in section 4 waits on this, and no import should run before
    it.
-2. **Build the demo tenant.** Independent of everything else, useful
-   immediately, and it is a seed script rather than a feature.
+2. ~~Build the demo tenant.~~ **Done.** It was independent of everything
+   else and is a seed script rather than a feature, which is why it went
+   first.
 3. **Formalise provisioning** as one idempotent function replacing the
    annex's four hand-typed statements — same elevated route, repeatable and
    impossible to half-complete.
