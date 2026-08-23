@@ -9,6 +9,10 @@ const ROLE_LABEL: Record<string, string> = {
   committee: 'Committee',
   coach: 'Coach',
   coordinator: 'Coordinator',
+  // Named for what it is rather than what it is called, because this is the
+  // one role whose holder did not choose it and needs to know why a button
+  // is refusing them.
+  viewer: 'Viewer — read-only',
 };
 
 /**

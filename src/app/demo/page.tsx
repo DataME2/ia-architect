@@ -1,6 +1,7 @@
 import { loadTenantContext } from '../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
 import { whereAmI } from '../../web/nav.ts';
+import { EnterDemoForm } from './EnterDemoForm.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -87,15 +88,18 @@ export default async function DemoPage() {
       )}
 
       {here.kind === 'signed-out' && (
-        <div className="card">
+        <div className="card demo-card">
           <p className="hint" style={{ marginTop: 0 }}>
-            <strong>Not signed in</strong>, so there is no club to be in yet. Sign in and this
-            page will name the club the session belongs to.
+            The demonstration club is a working club with invented families &mdash; a blocked
+            registration that names the rule holding it up, a voucher waiting to be verified, a
+            coach without a Working with Children Check, an overdue AGM. You can look around it
+            without an account.
           </p>
-          <p style={{ marginBottom: 0 }}>
-            <a className="button" href="/sign-in">
-              Sign in
-            </a>
+          <EnterDemoForm />
+          <p className="hint" style={{ marginBottom: 0 }}>
+            You will be able to <strong>read everything and change nothing</strong>, so the demo
+            stays the same for whoever looks next. A club officer with an account should{' '}
+            <a href="/sign-in">sign in</a> instead.
           </p>
         </div>
       )}

@@ -160,6 +160,18 @@ Design constraints, so it does not become a liability:
   registration explaining *which rule* and *why*, a voucher awaiting
   verification, an uncleared coach, an overdue AGM.
 
+**How a prospect gets in *(built)*.** An email address, an optional phone
+number, no password and no account: the visitor takes an anonymous Supabase
+session and is granted a **read-only `viewer` membership** of the demo club.
+That keeps the demo inside the security model rather than beside it — no
+`anon` read policy, no second query path, **no P5 exception**. Recorded as
+[decision 8](../decisions/8_demo_access_by_anonymous_session_and_a_read_only_role.md)
+with BR91 and BR92, and proved by `supabase/tests/20_demo_front_door.sql`.
+
+This is the *capture* third of section 3 arriving before the rest of the
+website, which is the right order: the demo is the thing worth capturing
+against.
+
 ## EA alignment (assessed top-down; nothing implemented)
 
 | Layer | Impact when this is built |
