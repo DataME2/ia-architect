@@ -67,3 +67,24 @@ function isPrefix(pathname: string, href: string): boolean {
 export function isDemoClub(clubName: string): boolean {
   return clubName.toUpperCase().includes('(DEMO)');
 }
+
+/**
+ * What the current session is looking at, for the one screen whose whole job
+ * is answering that.
+ *
+ * Three outcomes rather than a boolean, because "not the demo" and "not
+ * signed in" must not look alike. Reading real children's records while
+ * believing they are fictional is the mistake this exists to prevent, and it
+ * is the one that costs something.
+ */
+export type WhereAmI =
+  | { readonly kind: 'signed-out' }
+  | { readonly kind: 'no-membership' }
+  | { readonly kind: 'demo'; readonly clubName: string }
+  | { readonly kind: 'real'; readonly clubName: string };
+
+export function whereAmI(signedIn: boolean, clubName: string | null): WhereAmI {
+  if (!signedIn) return { kind: 'signed-out' };
+  if (clubName === null) return { kind: 'no-membership' };
+  return isDemoClub(clubName) ? { kind: 'demo', clubName } : { kind: 'real', clubName };
+}

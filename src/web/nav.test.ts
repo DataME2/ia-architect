@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { REGISTRAR_NAV, isActive, isDemoClub, navHref, type NavItem } from './nav.ts';
+import {
+  REGISTRAR_NAV,
+  isActive,
+  isDemoClub,
+  navHref,
+  whereAmI,
+  type NavItem,
+} from './nav.ts';
 
 const item = (href: string): NavItem =>
   REGISTRAR_NAV.find((i) => i.href === href) ?? assert.fail(`no nav item ${href}`);
@@ -39,4 +46,17 @@ test('the demo club is recognised by the marker teardown.sql also insists on', (
   assert.equal(isDemoClub('Riverbend Rovers FC (DEMO)'), true);
   assert.equal(isDemoClub('North Star FC'), false);
   assert.equal(isDemoClub('Demolition FC'), false);
+});
+
+test('signed out and signed into a real club never look alike', () => {
+  assert.equal(whereAmI(false, null).kind, 'signed-out');
+  assert.equal(whereAmI(true, null).kind, 'no-membership');
+  assert.equal(whereAmI(true, 'North Star FC').kind, 'real');
+  assert.equal(whereAmI(true, 'Riverbend Rovers FC (DEMO)').kind, 'demo');
+});
+
+test('a club with no demo marker is never reported as the demo', () => {
+  for (const name of ['North Star FC', 'Demolition FC', 'DEMO United']) {
+    assert.equal(whereAmI(true, name).kind, 'real', name);
+  }
 });
