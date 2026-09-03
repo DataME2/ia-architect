@@ -4,20 +4,94 @@ _[← Application layer](./README.md) · [EA home](../README.md)_
 
 **ArchiMate elements:** Application Service.
 
-What the software offers the business layer, scoped to the **registration
-slice** ([scope document 17](../../scope/17_mvp-registration-slice.md)).
+What the software offers the business layer, and **how much of it actually
+exists**. The status column is the point of this document: it is checked
+against the code rather than against intent, and a service is only
+*Delivered* when something in `src/` or `supabase/` does it end to end.
 
-| Application Service | Realises | What it does |
-| ------------------- | -------- | ------------ |
-| **Identity & role management** | C1 | Create and maintain a `Person` with legal and preferred names, attach roles per season, surface possible duplicates for human confirmation (BR5) |
-| **Registration capture** | C2 | Collect a season registration once — player, guardian, documents, consents — and hold its status |
-| **Deterministic validation** | C6 | Evaluate BR1–BR5 and BR55 against a registration and persist the result, so "what is missing" is a stored answer rather than a recomputed one |
-| **Consent capture** | C15 (partial) | Record the collection notice acknowledgement, the identification-photograph consent, and the publicity consent as three independent, revocable records (BR48, BR56, BR57) |
-| **Submission pack generation** | C16 | Assemble validated registrations into an immutable, versioned pack, record the handover, and track each person's state as *sent* rather than *registered* (BR58–BR60) |
-| **Tenant & season administration** | C10 | Provision a club, configure its seasons and its privacy configuration (BR52) |
-| **Audit** | Cross-cutting | Append-only record of overrides, pack generation and handover, and authority transfers |
+Read with [2_application-components.md](./2_application-components.md),
+which names the code that realises each one.
 
-**Not offered in this slice:** finance, referee lifecycle, competitions and
-calendar, carnivals, reconciliation against SQUADI (C14 — blocked by
-[#39](../../scope/open-questions.md)), the mobile experience (C17), and
-communications (C7).
+## Status vocabulary
+
+| Status | Means |
+| ------ | ----- |
+| **Delivered** | Built, exercised by tests, and reachable by a person through a screen or a public link |
+| **Partial** | The named part works end to end; the row says what is missing, and the missing part is not a detail |
+| **Documented, not built** | A decision or design exists in `docs/` and no code does it. Deliberate — recorded so the next person does not invent a different answer |
+| **Not started** | No design, no code |
+
+## Delivered
+
+| Application Service | Realises | What it does | Status |
+| ------------------- | -------- | ------------ | ------ |
+| **Identity & role management** | C1 | One `Person` per human, legal and preferred names kept apart (BR55), roles attached per season and overlapping by design (P1), guardianship with authority and contact separated (BR67). Possible duplicates are surfaced for a human to confirm and merged by an audited, reversible-in-principle tombstone rather than a delete (BR5, BR82) | **Delivered** |
+| **Registration capture** | C2 | A season registration collected once — player, guardian, documents, consents — through **one creation path** used by both the public family link and the registrar's own form, so neither can drift from the rules | **Delivered** |
+| **Deterministic validation** | C6 | BR1, BR2, BR3, BR48 and BR55 evaluated against a registration and **persisted**, so "what is missing" is a stored answer with a history rather than a recomputation | **Delivered** |
+| **Submission pack generation** | C16 | Validated registrations assembled into an immutable, versioned pack with a frozen manifest, the handover recorded, and each person tracked as *sent* rather than *registered* (BR58–BR60) | **Delivered** |
+| **Team & official management** | C1, C2 | Teams per season, rosters, and team officials — with a **verified Working with Children Check enforced as a precondition** of an official's appointment, measured against the end of the season (BR83, BR84) | **Delivered** |
+| **Club governance & administration** | C19 | The committee as a record: who holds which office, elected at which AGM, serving until the next. An overdue AGM is flagged rather than hidden (BR86), holders must be adults (BR87), and a missing card is shown rather than refused (BR88) | **Delivered** |
+| **Audit** | Cross-cutting | Append-only record of overrides, pack generation and handover, and authority transfers. **Append-only by the absence of an update policy**, not by convention | **Delivered** |
+| **Tenant isolation** | C10, P5 | Every table carries `club_id` and every policy keys off it, enforced by the database so a query missing its filter returns nothing rather than everything. Proved behaviourally, not just structurally | **Delivered** |
+| **Demonstration access & prospect capture** | C10 | A stranger sees the product working — a real tenant of invented families — in exchange for an email address, with no account and read-only rights. Marketing consent asked separately, refusable, and recorded with the words shown (BR91–BR93) | **Delivered** |
+
+## Partial — and what is missing matters
+
+| Application Service | Realises | Delivered | Missing | Status |
+| ------------------- | -------- | --------- | ------- | ------ |
+| **Player finance management** | C3 | Payment plans with instalments that **must** sum to the plan total (BR74), append-only payments and refunds (BR77), vouchers attached, verified or rejected with the relief receipt they imply (BR81), and the no-pay-no-play eligibility rule including the case that looks finished everywhere and is not (BR79) | **No payment provider.** Square is the confirmed choice and nothing integrates with it: every payment is recorded by hand by a treasurer. No invoicing, no reconciliation, no treasurer's own screen — finance is worked from the registration detail page | **Partial** |
+| **Consent & privacy rights** | C15 | Capture: the collection notice, identification photograph and publicity consents as three independent revocable records (BR48, BR56, BR57), plus prospect marketing consent (BR93) | **No data-subject rights.** Access, correction, erasure and de-identification (BR49) are designed in the retention annex and unimplemented. **No revocation route**: `revoked_at` exists on both consent records and nothing sets it | **Partial** |
+| **Multitenant platform operations** | C10 | Tenant isolation (above), role-based access through `club_membership`, and per-season configuration | **Provisioning is four hand-typed SQL statements** ([annex](../../annexes/tenant-provisioning.md)); the owner-issued onboarding link of [decision 7](../../decisions/7_tenant-provisioning-by-owner-issued-invitation.md) is unbuilt; **central super-administration is unbuilt and needs its own decision record first** — it is a P5 exception. No club branding | **Partial** |
+
+## Documented, not built
+
+Each of these has a written design and no code. That is a deliberate state,
+not a backlog item that got forgotten.
+
+| Application Service | Realises | Where the design lives | Why it is not built |
+| ------------------- | -------- | ---------------------- | ------------------- |
+| **Tenant provisioning by invitation** | C10 | [Decision 7](../../decisions/7_tenant-provisioning-by-owner-issued-invitation.md), [scope 28](../../scope/28_onboarding-a-club-and-its-history.md) | Hand-provisioning is the right amount of machinery for one club. Build it when the second or third makes it tiresome |
+| **Historical data import** | C9 | [Scope 28 §4](../../scope/28_onboarding-a-club-and-its-history.md) | **Blocked on a question, not on effort**: [#57](../../scope/open-questions.md) asks what lawful basis covers a decade of children's records handed over by a club. Scope 28 says it must be answered before the first import. BR90 (imported history is history) exists so the answer has something to attach to |
+| **Life member register** | C18 | [Scope 18](../../scope/18_life-members.md) | `person_role` does not carry a life-member role yet. Small, and waiting on nothing but priority |
+| **Central super-administration** | C10 | [Scope 28 §2](../../scope/28_onboarding-a-club-and-its-history.md) | A cross-tenant reader is a **P5 exception** and this project has granted exactly one deliberately. Needs its own decision record before any code |
+| **Marketing website** | — | [Scope 28 §3](../../scope/28_onboarding-a-club-and-its-history.md) | Explain, qualify, capture. The *capture* third arrived early with the demonstration door; the explaining is not written |
+
+## Not started
+
+No design and no code. Listed so the scope of what exists is not mistaken
+for the scope of what was promised.
+
+| Capability | What it would offer |
+| ---------- | ------------------- |
+| **C4 — Referee lifecycle** | Profile, classification pathway, availability, appointments, conflict detection |
+| **C5 — Referee finance** | Fee schedules, claims, approval, payment batches, remittances |
+| **C7 — Communications** | Templated transactional messages and reminders. **Note this one**: the marketing consent captured at the demonstration door has nothing to send it with, and no unsubscribe route until this exists |
+| **C8 — Reporting & dashboards** | The registration, financial and referee dashboards that imported history (C9) is *for* |
+| **C11 — Competition & calendar** | Association competition catalogue, regulations, playing formats |
+| **C12 — Carnival & event management** | Multi-club events and the account-free public view — the one deliberate P5 exception ([decision 3](../../decisions/3_public-event-data-crosses-tenant-isolation.md)) |
+| **C13 — Calendar distribution** | A Person's confirmed commitments as a subscribable feed ([decision 4](../../decisions/4_calendar-distribution-by-feed-not-account-access.md)) |
+| **C14 — External reconciliation** | Continuous matching against SQUADI / PlayFootball. **Blocked externally**: Football Queensland restricts API access to approved system partners ([#39–#41](../../scope/open-questions.md)) |
+| **C17 — Mobile experience** | One app per Person, showing the role they are currently acting in |
+
+## What this adds up to
+
+The **registration slice is complete and then some**: identity, capture,
+validation, submission, teams, safeguarding, governance and the money that
+gates eligibility all work end to end, under tenant isolation the database
+enforces.
+
+Three things are worth saying plainly about the rest.
+
+**Nothing sends anything.** No email, no SMS, no reminder, no unsubscribe.
+Every communication in the product today is a human copying something out of
+a screen, and the marketing consent now being collected has nowhere to go
+until C7 exists.
+
+**Nothing takes money.** Square is chosen and unintegrated; a treasurer
+types in what arrived. The rules about money are enforced; the movement of
+it is not automated.
+
+**The referee half of the product does not exist.** C4 and C5 are a third
+of the original motivation and have no code at all. That is a scope
+decision, not an oversight — but a reader of the strategy layer should not
+have to infer it.

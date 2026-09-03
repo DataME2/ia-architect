@@ -180,6 +180,58 @@ structural reason **§3 can be refused without affecting the registration**
 
 ---
 
+## 4. Marketing — the demonstration door
+
+Different in kind from §1–§3, and worth saying why it lives in the same
+annex. Those three are **a club collecting information about its players**.
+This one is **Let'sDataTalk collecting information about a club**: the data
+subject is an adult acting for an organisation, the collecting entity is
+the platform rather than a tenant, and no child is involved anywhere.
+
+What it shares with §3 is the shape, and the shape is the point. It is
+separate, explicitly granted, refusable without losing the thing the person
+came for, and recorded with the words that were shown (**BR93**).
+
+> ☐ **Send me occasional emails about Let'sDataTalk** — product news,
+> pricing, and availability.
+>
+> Optional. You will see the demonstration club either way, and leaving
+> this unticked changes nothing about what you can look at.
+>
+> We handle your details under the Australian Privacy Principles (Privacy
+> Act 1988) and, for New Zealand clubs, the Privacy Act 2020. We will not
+> sell them, and we will not pass them to a football club or a governing
+> body. Ask us to stop at any time by replying to any message we send.
+
+### Three things about this wording, deliberately
+
+**The box ships unticked, in the markup.** A pre-ticked box is not consent
+under the Spam Act 2003 or the APPs, and "unticked by default in the CSS"
+is not unticked. This is the single most common way a marketing consent is
+worthless.
+
+**Entering the demonstration club needs no consent at all.** Asking to see
+a product infers consent to hear back *about that product demonstration* —
+that is why the door works without a tick. What the tick adds is the wider
+permission for unrelated commercial messages, which cannot be inferred from
+anything.
+
+**The promise to stop is currently kept by a human.** There is no
+unsubscribe link, because there is no sending mechanism yet. The wording
+therefore says *reply to any message* rather than naming a link that does
+not exist. **When bulk sending is built, this section must be re-drafted
+before the first send** — and a one-click unsubscribe is not optional at
+that point.
+
+### Changing this text
+
+The exact wording shown is stored on each prospect record at the moment of
+consent, so **editing this section does not rewrite anybody's consent** —
+existing records keep the words they were actually given. That is the whole
+reason it is stored rather than referenced.
+
+---
+
 ## Not yet drafted
 
 - **Coach, volunteer, and committee wording** — WWCC evidence collection

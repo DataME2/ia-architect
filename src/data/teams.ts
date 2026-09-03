@@ -11,12 +11,14 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { mayHoldRole } from '../domain/teams/clearance.ts';
 import type { Clearance, Team, TeamRole } from '../domain/teams/types.ts';
-import type { IsoDate, Person } from '../domain/types.ts';
+import { ageAt, type IsoDate, type Person } from '../domain/types.ts';
 import { toClearance, toPerson, toTeam } from './mappers.ts';
 import { QueryError, recordAudit } from './queries.ts';
 import type { ClearanceRow, PersonRow, TeamMemberRow, TeamRow } from './schema.ts';
 import { buildRoster, type Roster, type RosterEntry } from '../web/team-view.ts';
 import { displayNameFor, fullLegalName } from '../web/queue-view.ts';
+
+const CLEARANCE_BUCKET = 'clearances';
 
 function unwrap<T>(table: string, result: { data: T | null; error: { message: string } | null }): T {
   if (result.error !== null) throw new QueryError(table, result.error.message);
@@ -237,11 +239,31 @@ export async function recordClearance(
     readonly issuedOn: IsoDate | null;
     readonly expiresOn: IsoDate;
     readonly verified: boolean;
+    /** A scan of the card. The number is a transcription; this is evidence. */
+    readonly file: File | null;
   },
   actorUserId: string,
 ): Promise<MemberResult> {
   const now = new Date().toISOString();
+
+  let filePath: string | null = null;
+  if (input.file !== null && input.file.size > 0) {
+    // Same path convention as vouchers -- club id first, checked by the
+    // policy -- but a narrower bucket: this is a government identity
+    // document, readable only by admin and registrar.
+    const extension = input.file.type === 'application/pdf' ? 'pdf' : 'img';
+    filePath = `${clubId}/${personId}/${crypto.randomUUID()}.${extension}`;
+
+    const { error: uploadError } = await client.storage
+      .from(CLEARANCE_BUCKET)
+      .upload(filePath, input.file, { contentType: input.file.type, upsert: false });
+    if (uploadError !== null) {
+      return { ok: false, error: `The scan could not be stored: ${uploadError.message}` };
+    }
+  }
+
   const { error } = await client.from('clearance').insert({
+    file_path: filePath,
     club_id: clubId,
     person_id: personId,
     kind: input.kind,
@@ -262,16 +284,30 @@ export async function recordClearance(
     action: input.verified ? 'clearance_verified' : 'clearance_recorded',
     entity: 'clearance',
     entityId: personId,
-    detail: { kind: input.kind, expiresOn: input.expiresOn, rule: 'BR19' },
+    detail: {
+      kind: input.kind,
+      expiresOn: input.expiresOn,
+      hasScan: filePath !== null,
+      rule: 'BR19',
+    },
   });
 
   return { ok: true };
 }
 
-/** Load people who could be added, so the screen can offer a list. */
+/**
+ * People the screen can offer.
+ *
+ * `adultsOnly` is not cosmetic. A committee position may only be held by an
+ * adult (BR87), and a child is exempt from needing a Working with Children
+ * Check at all (BR84) — so offering a nine-year-old on either form invites
+ * a registrar to record something that cannot be true. The screens that
+ * pick a *player* pass `false` and see everyone.
+ */
 export async function loadAssignablePeople(
   client: SupabaseClient,
   clubId: string,
+  options: { readonly adultsOnly?: boolean; readonly asAt?: IsoDate } = {},
 ): Promise<readonly Person[]> {
   const rows = unwrap<PersonRow[]>(
     'person',
@@ -281,5 +317,51 @@ export async function loadAssignablePeople(
       .eq('club_id', clubId)
       .is('merged_into_person_id', null),
   );
-  return rows.map(toPerson);
+
+  const people = rows.map(toPerson);
+  if (options.adultsOnly !== true) return people;
+
+  const asAt = options.asAt ?? new Date().toISOString().slice(0, 10);
+  return people.filter((person) => ageAt(person.dateOfBirth, asAt) >= 18);
+}
+
+/** A short-lived link to a stored card scan. The bucket is private. */
+export async function clearanceFileUrl(
+  client: SupabaseClient,
+  filePath: string,
+): Promise<string | null> {
+  const { data, error } = await client.storage
+    .from(CLEARANCE_BUCKET)
+    .createSignedUrl(filePath, 300);
+  return error !== null || data === null ? null : data.signedUrl;
+}
+
+/**
+ * How far each person's clearance reaches, keyed by person.
+ *
+ * `null` — or simply absent — means none that counts: no card, or one
+ * nobody verified, or one that was revoked. Used to surface BR88's gap on
+ * the governance screen without blocking anything.
+ *
+ * A caller who may not read clearances (a coordinator, a treasurer) gets an
+ * empty map rather than an error, which reads as "no clearance" — the safe
+ * way round for a screen that is warning about missing ones.
+ */
+export async function loadClearanceCoverage(
+  client: SupabaseClient,
+  clubId: string,
+): Promise<ReadonlyMap<string, IsoDate>> {
+  const { data } = await client
+    .from('clearance')
+    .select('person_id, expires_on, verified_at, revoked_at')
+    .eq('club_id', clubId)
+    .is('revoked_at', null)
+    .not('verified_at', 'is', null);
+
+  const best = new Map<string, IsoDate>();
+  for (const row of (data ?? []) as { person_id: string; expires_on: string }[]) {
+    const held = best.get(row.person_id);
+    if (held === undefined || row.expires_on > held) best.set(row.person_id, row.expires_on);
+  }
+  return best;
 }

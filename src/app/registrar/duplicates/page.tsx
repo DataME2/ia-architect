@@ -73,10 +73,6 @@ export default async function DuplicatesPage() {
 
   return (
     <>
-      <p style={{ marginBottom: '0.25rem' }}>
-        <a href="/registrar">&larr; Back to the queue</a>
-      </p>
-
       <h2>Possible duplicates</h2>
       <p className="lede">
         One human recorded more than once. Nothing here is merged automatically &mdash; a wrong

@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
 
 import { appointMember, createTerm, resignMember } from '../../../data/governance.ts';
 import { loadTenantContext } from '../../../data/queries.ts';
@@ -33,23 +34,23 @@ async function requireTenant() {
  * would quietly assert that every club meets on time (BR86).
  */
 export async function createTermAction(
-  _previous: string | null,
+  _previous: FormResult,
   formData: FormData,
-): Promise<string | null> {
+): Promise<FormResult> {
   const name = String(formData.get('name') ?? '').trim();
-  if (name === '') return 'Name the term, e.g. 2026–27.';
+  if (name === '') return formFailed('Name the term, e.g. 2026–27.');
 
   const startsOn = parseDueDate(String(formData.get('startsOn') ?? ''));
-  if (startsOn === null) return 'Enter the start as a real calendar date.';
+  if (startsOn === null) return formFailed('Enter the start as a real calendar date.');
 
   const nextAgmDueOn = parseDueDate(String(formData.get('nextAgmDueOn') ?? ''));
-  if (nextAgmDueOn === null) return 'Enter when the next AGM is due, as a real calendar date.';
-  if (nextAgmDueOn <= startsOn) return 'The next AGM has to fall after the term starts.';
+  if (nextAgmDueOn === null) return formFailed('Enter when the next AGM is due, as a real calendar date.');
+  if (nextAgmDueOn <= startsOn) return formFailed('The next AGM has to fall after the term starts.');
 
   const agmRaw = String(formData.get('agmHeldOn') ?? '').trim();
   const agmHeldOn = agmRaw === '' ? null : parseDueDate(agmRaw);
   if (agmRaw !== '' && agmHeldOn === null) {
-    return 'Enter the AGM date as a real calendar date, or leave it blank until the meeting happens.';
+    return formFailed('Enter the AGM date as a real calendar date, or leave it blank until the meeting happens.');
   }
 
   const { client, user, tenant } = await requireTenant();
@@ -59,29 +60,29 @@ export async function createTermAction(
     { name, agmHeldOn, startsOn, nextAgmDueOn },
     user.id,
   );
-  if (!result.ok) return result.error;
+  if (!result.ok) return formFailed(result.error);
 
   revalidatePath('/registrar/governance');
-  return null;
+  return formOk('Governance year opened.');
 }
 
 export async function appointMemberAction(
-  _previous: string | null,
+  _previous: FormResult,
   formData: FormData,
-): Promise<string | null> {
+): Promise<FormResult> {
   const termId = String(formData.get('termId') ?? '');
   if (termId === '') throw new Error('Missing identifiers.');
 
   const personId = String(formData.get('personId') ?? '');
-  if (personId === '') return 'Choose a person.';
+  if (personId === '') return formFailed('Choose a person.');
 
   const position = parsePosition(formData.get('position'));
-  if (position === null) return 'Choose a position.';
+  if (position === null) return formFailed('Choose a position.');
 
   const electedRaw = String(formData.get('electedOn') ?? '').trim();
   const electedOn = electedRaw === '' ? null : parseDueDate(electedRaw);
   if (electedRaw !== '' && electedOn === null) {
-    return 'Enter the election date as a real calendar date.';
+    return formFailed('Enter the election date as a real calendar date.');
   }
 
   const { client, user, tenant } = await requireTenant();
@@ -94,10 +95,10 @@ export async function appointMemberAction(
     electedOn,
     user.id,
   );
-  if (!result.ok) return result.error;
+  if (!result.ok) return formFailed(result.error);
 
   revalidatePath('/registrar/governance');
-  return null;
+  return formOk('Committee member recorded.');
 }
 
 export async function resignMemberAction(formData: FormData): Promise<void> {

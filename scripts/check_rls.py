@@ -35,7 +35,14 @@ TENANT_TABLE = "club"
 # Tables legitimately without a tenant column. Keep this empty if at all
 # possible: every entry is a table whose isolation has to be reasoned about
 # by hand, which is exactly what this check exists to avoid.
-TENANTLESS_ALLOWED: set[str] = set()
+TENANTLESS_ALLOWED: set[str] = {
+    # A prospect is someone who has not become a club and may never. Giving
+    # this table a club_id would put the marketing surface inside the tenant
+    # world it exists to stay out of (scope 28 section 3). It is isolated by
+    # having no API access at all rather than by a tenant column: its only
+    # writer is enter_demo(), which owns it.
+    "prospect",
+}
 
 CREATE_TABLE = re.compile(r"^\s*create\s+table\s+(?:if\s+not\s+exists\s+)?([a-z_][a-z0-9_]*)\s*\(", re.I | re.M)
 ENABLE_RLS = re.compile(r"^\s*alter\s+table\s+([a-z_][a-z0-9_]*)\s+enable\s+row\s+level\s+security", re.I | re.M)

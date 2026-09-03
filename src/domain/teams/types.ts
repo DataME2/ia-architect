@@ -52,4 +52,6 @@ export interface Clearance {
   /** Null means someone typed a number and nobody checked it (BR19). */
   readonly verifiedAt: IsoInstant | null;
   readonly revokedAt: IsoInstant | null;
+  /** A scan of the card, or `null` where only the number was recorded. */
+  readonly filePath: string | null;
 }

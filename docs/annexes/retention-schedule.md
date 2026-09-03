@@ -40,6 +40,7 @@ Australia have moved.
 | **Employment and volunteer records** | **7 years** after the engagement ends | Fair Work employee-record requirements run to 7 years; volunteers are held to the same standard for consistency |
 | **Contact details, communication preferences, marketing history** | **2 years** after the Person becomes inactive | This is the class BR40's two-year ceiling actually fits |
 | **Operational ephemera** — availability responses, participation responses, notification logs | **2 seasons** | Useful for the current and prior season's patterns (BR12's decline-rate window), and of no value after |
+| **Prospect records** (BR91–BR93) — the email and phone given at the demonstration door | **2 years** after the last visit, or immediately on request | Not a Person and not a club's data: this is Let'sDataTalk's own record of who looked at its product, so the club retention rules above do not reach it. Two years matches the marketing class one row up, for the same reason — a contact who has not looked in two years is a stale lead rather than a prospect. **A record with marketing consent is not thereby kept longer**: consent to be contacted is not a lawful basis to hold someone indefinitely, and deleting the row deletes the consent with it |
 
 ## The long tail, stated plainly
 

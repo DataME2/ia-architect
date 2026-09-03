@@ -107,3 +107,19 @@ never against a Supabase project. Everything CI checks — types, pure domain
 tests, SQL text analysis, and tenant isolation against a scratch database —
 runs without a credential. The first job that needs one is the first place a
 secret has to exist in a second system, and there is no such job yet.
+
+## Provisioning a new club
+
+A new tenant is **data, not a deployment**: one project, one Postgres, one
+application serve every club. The runbook is
+[docs/annexes/tenant-provisioning.md](../../annexes/tenant-provisioning.md).
+
+Its first two steps run with Row-Level Security bypassed, and that is
+deliberate rather than a gap. `club` denies every write unconditionally, and
+`club_membership` requires already being an admin of the club being joined —
+so neither a club nor its first admin can be created from inside the
+application by anyone. The alternative would let a compromised session
+manufacture a tenant or attach itself to an existing one, which is exactly
+what P5 exists to prevent. The cost is that **C10 is an operator task and
+remains unbuilt**: there is no self-service sign-up, and there should not be
+one until somebody decides who may create clubs and how that is authorised.

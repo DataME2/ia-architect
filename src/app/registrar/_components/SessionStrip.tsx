@@ -9,6 +9,10 @@ const ROLE_LABEL: Record<string, string> = {
   committee: 'Committee',
   coach: 'Coach',
   coordinator: 'Coordinator',
+  // Named for what it is rather than what it is called, because this is the
+  // one role whose holder did not choose it and needs to know why a button
+  // is refusing them.
+  viewer: 'Viewer — read-only',
 };
 
 /**
@@ -24,20 +28,24 @@ const ROLE_LABEL: Record<string, string> = {
 export function SessionStrip({
   user,
   tenant,
+  demo = false,
 }: {
   readonly user: SignedInUser | null;
   readonly tenant: TenantContext | null;
+  /** Marks the strip itself, so the club is named as the demo everywhere. */
+  readonly demo?: boolean;
 }) {
   if (user === null) return null;
 
   return (
-    <div className="session-strip">
+    <div className={demo ? 'session-strip is-demo' : 'session-strip'}>
       <div>
         <span className="session-who">{user.email ?? 'Signed in'}</span>
         {tenant !== null && (
           <>
             <span className="session-sep">·</span>
             <span>{tenant.clubName}</span>
+            {demo && <span className="pill pill-warn" style={{ marginLeft: '0.45rem' }}>Demo</span>}
             <span className="session-sep">·</span>
             {tenant.roles.map((role) => (
               <span className="pill" key={role} style={{ marginRight: '0.3rem' }}>

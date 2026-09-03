@@ -2,6 +2,9 @@
 
 import { useActionState } from 'react';
 
+import { IDLE_FORM, type FormResult } from '../../../web/form-result.ts';
+import { FormNotice } from '../_components/FormNotice.tsx';
+
 import { TEAM_ROLES } from '../../../domain/teams/types.ts';
 import { TEAM_ROLE_LABEL } from '../../../web/team-view.ts';
 import { addMemberAction, createTeamAction, recordClearanceAction } from './actions.ts';
@@ -11,23 +14,15 @@ interface PersonOption {
   readonly label: string;
 }
 
-function Problem({ message }: { readonly message: string | null }) {
-  return message === null ? null : (
-    <div className="errors">
-      <strong>{message}</strong>
-    </div>
-  );
-}
-
 export function NewTeamForm({ seasonId }: { readonly seasonId: string }) {
-  const [error, formAction, pending] = useActionState<string | null, FormData>(
+  const [result, formAction, pending] = useActionState<FormResult, FormData>(
     createTeamAction,
-    null,
+    IDLE_FORM,
   );
 
   return (
     <>
-      <Problem message={error} />
+      <FormNotice result={result} />
       <form
         action={formAction}
         style={{ display: 'flex', gap: '0.75rem', alignItems: 'end', flexWrap: 'wrap' }}
@@ -56,14 +51,14 @@ export function AddMemberForm({
   readonly teamId: string;
   readonly people: readonly PersonOption[];
 }) {
-  const [error, formAction, pending] = useActionState<string | null, FormData>(
+  const [result, formAction, pending] = useActionState<FormResult, FormData>(
     addMemberAction,
-    null,
+    IDLE_FORM,
   );
 
   return (
     <>
-      <Problem message={error} />
+      <FormNotice result={result} />
       <form
         action={formAction}
         style={{ display: 'flex', gap: '0.6rem', alignItems: 'end', flexWrap: 'wrap' }}
@@ -105,15 +100,22 @@ export function AddMemberForm({
   );
 }
 
+/**
+ * Records a Working with Children Check.
+ *
+ * `people` is **adults only**. A child is exempt from needing one at all
+ * (BR84), so offering a nine-year-old here would invite a registrar to
+ * record something that cannot exist.
+ */
 export function RecordClearanceForm({ people }: { readonly people: readonly PersonOption[] }) {
-  const [error, formAction, pending] = useActionState<string | null, FormData>(
+  const [result, formAction, pending] = useActionState<FormResult, FormData>(
     recordClearanceAction,
-    null,
+    IDLE_FORM,
   );
 
   return (
     <>
-      <Problem message={error} />
+      <FormNotice result={result} />
       <form action={formAction} className="stack">
         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
           <div style={{ flex: '2 1 13rem' }}>
@@ -147,6 +149,15 @@ export function RecordClearanceForm({ people }: { readonly people: readonly Pers
           </div>
         </div>
 
+        <div>
+          <label htmlFor="file">Scan of the card (PDF or photo, optional)</label>
+          <input id="file" name="file" type="file" accept="application/pdf,image/jpeg,image/png" />
+          <p className="hint">
+            The number is a transcription; this is the evidence. Held in a private store only an
+            admin or registrar can reach &mdash; it is a government identity document.
+          </p>
+        </div>
+
         <div className="check">
           <input id="verified" name="verified" type="checkbox" />
           <label htmlFor="verified">
@@ -156,7 +167,8 @@ export function RecordClearanceForm({ people }: { readonly people: readonly Pers
         <p className="hint" style={{ marginTop: 0 }}>
           Deliberately a separate tick. Holding a card number is not verification, and an
           unverified record clears nobody &mdash; the person still cannot be added as an
-          official (BR19).
+          official (BR19). Only adults appear in this list: a child is exempt from needing a
+          check at all, so a MiniRoos player is not offered here.
         </p>
 
         <div>
