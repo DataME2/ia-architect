@@ -13,6 +13,13 @@ it lives in the source tree.
 > [scope document 17](../../scope/17_mvp-registration-slice.md), and each
 > becomes a real path as it lands.
 
+**This document lists what exists.** For what the software *offers* and how
+much of each service is real — including the three that are partial and the
+eight capabilities with no code at all — see
+[1_application-services.md](./1_application-services.md). Reading this page
+alone gives a misleading impression, because a list of delivered components
+says nothing about the ones that were never started.
+
 ## Components
 
 | Component | Source | Provides | Status |
