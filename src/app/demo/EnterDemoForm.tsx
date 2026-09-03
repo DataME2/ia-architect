@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 
 import { FormNotice } from '../registrar/_components/FormNotice.tsx';
 import { IDLE_FORM } from '../../web/form-result.ts';
+import { MARKETING_CONSENT_WORDING } from '../../web/prospect-form.ts';
 import { enterDemoAction } from './actions.ts';
 
 /**
@@ -37,6 +38,20 @@ export function EnterDemoForm() {
           <p className="hint" style={{ margin: '0.3rem 0 0' }}>
             Only if you would rather be called than emailed.
           </p>
+        </div>
+
+        {/*
+          Unticked in the markup, not merely in the styling: a pre-ticked
+          box is not consent, and `defaultChecked` would make this whole
+          record worthless as evidence (BR93). The text is the same constant
+          the action stores, so what is agreed to and what is recorded
+          cannot drift.
+        */}
+        <div className="field consent-field">
+          <label htmlFor="marketingConsent" className="consent-label">
+            <input id="marketingConsent" name="marketingConsent" type="checkbox" />
+            <span>{MARKETING_CONSENT_WORDING}</span>
+          </label>
         </div>
       </fieldset>
 

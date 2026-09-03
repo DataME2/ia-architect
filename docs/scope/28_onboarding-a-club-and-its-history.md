@@ -172,6 +172,21 @@ This is the *capture* third of section 3 arriving before the rest of the
 website, which is the right order: the demo is the thing worth capturing
 against.
 
+**Marketing consent is asked at the same door and is not the price of
+entry** (BR93). An unticked box, the wording stored with the moment rather
+than a boolean, and the same demonstration club either way — the shape of
+BR57 one level out, because a permission bundled into getting the thing you
+came for was never freely given. The wording is
+[annex §4](../annexes/consent-wording.md); the record is columns on
+`prospect` rather than rows in `consent`, since a prospect is not a Person
+and belongs to no club.
+
+**Nothing sends anything yet.** There is no unsubscribe link because there
+is no mailing mechanism, and the wording says *reply to any message*
+instead of naming one that does not exist. Before the first bulk send, that
+section needs re-drafting and a one-click unsubscribe stops being
+optional.
+
 ## EA alignment (assessed top-down; nothing implemented)
 
 | Layer | Impact when this is built |

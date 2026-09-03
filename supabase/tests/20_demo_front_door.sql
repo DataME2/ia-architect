@@ -60,7 +60,7 @@ begin
   --    nothing to grant a membership to.
   perform set_config('request.jwt.claim.sub', '', true);
   begin
-    perform enter_demo('someone@example.test', '0400 000 000');
+    perform enter_demo('someone@example.test', '0400 000 000', false, null);
     failures := array_append(failures, 'enter_demo ran without a session');
   exception when others then null;
   end;
@@ -68,18 +68,18 @@ begin
   -- 2. An email address is required — it is the whole point of the door.
   perform set_config('request.jwt.claim.sub', visitor::text, true);
   begin
-    perform enter_demo('   ', '0400 000 000');
+    perform enter_demo('   ', '0400 000 000', false, null);
     failures := array_append(failures, 'enter_demo accepted a blank email');
   exception when others then null;
   end;
   begin
-    perform enter_demo('not-an-email', null);
+    perform enter_demo('not-an-email', null, false, null);
     failures := array_append(failures, 'enter_demo accepted a non-address');
   exception when others then null;
   end;
 
   -- 3. A visitor who gives one is let in, and lands in the demo club.
-  select enter_demo('prospect@example.test', '0400 111 222') into got;
+  select enter_demo('prospect@example.test', '0400 111 222', false, null) into got;
   if got is distinct from demo_club then
     failures := array_append(failures, 'enter_demo returned the wrong club');
   end if;
@@ -93,7 +93,7 @@ begin
   -- 4. A phone number is captured but never demanded.
   perform set_config('request.jwt.claim.sub', visitor_b::text, true);
   begin
-    perform enter_demo('nophone@example.test', null);
+    perform enter_demo('nophone@example.test', null, false, null);
   exception when others then
     failures := array_append(failures, 'enter_demo required a phone number');
   end;
@@ -101,7 +101,7 @@ begin
   -- 5. Coming back is not a second membership, and not a second lead. The
   --    phone number given the first time survives a visit that omits it.
   perform set_config('request.jwt.claim.sub', visitor::text, true);
-  perform enter_demo('prospect@example.test', null);
+  perform enter_demo('prospect@example.test', null, false, null);
   select count(*) into n from club_membership
    where user_id = visitor and club_id = demo_club;
   if n <> 1 then
@@ -204,7 +204,7 @@ begin
   --     showing whichever club happened to sort first.
   perform set_config('request.jwt.claim.sub', registrar::text, true);
   begin
-    perform enter_demo('registrar@northstar.test', null);
+    perform enter_demo('registrar@northstar.test', null, false, null);
     failures := array_append(failures, 'a real club''s registrar was given demo membership');
   exception when others then null;
   end;
