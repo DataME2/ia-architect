@@ -22,6 +22,32 @@ public — and pointing one at real data would put 800 children's records
 behind a link anyone can open. Environment variables are set per Vercel
 environment for exactly this reason.
 
+## Running two of them at once
+
+Comparing "what is deployed" against "what I am building" needs both open
+at the same time, so the ports are fixed rather than whatever is free:
+
+| Command | Port | What it runs |
+| ------- | ---- | ------------ |
+| `npm run dev` | **3000** | The working tree, hot-reloaded |
+| `npm run dev:alt` | **3001** | A second dev server, for comparing two branches side by side |
+| `npm run prod:local` | **3002** | `next build && next start` — the **production build** of the working tree |
+
+`prod:local` is the one worth remembering. Turbopack's dev server and the
+production build differ in ways that only show up when built: static versus
+dynamic rendering, `typedRoutes`, and whether `/` is still prerendered. A
+page that works on 3000 and breaks on 3002 has broken in production and not
+in development.
+
+> **Both of these talk to whatever `.env.local` points at, and today that
+> is production.** The table above says local development should use a
+> developer's own Supabase project; it currently does not, so a local dev
+> server writes to the same database the pilot club uses. Running two
+> servers does not make that safer — it makes two of them. Until a
+> development project exists, treat every local write as a production
+> write, because it is one. See the gap note in
+> [scope 29](../../scope/29_actors-access-and-permissions.md).
+
 ## Configuration
 
 | Variable | Secret? | Where it lives | Notes |
