@@ -24,7 +24,7 @@ import { readPublicConfig } from './data/env.ts';
  * the token, checked by the database when the form is submitted — not by
  * anything here.
  */
-const PROTECTED = ['/registrar', '/register'];
+const PROTECTED = ['/registrar', '/register', '/set-password'];
 
 /**
  * `/platform` is deliberately absent from that list.

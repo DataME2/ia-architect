@@ -13,13 +13,6 @@ export function ProvisionForm() {
   return (
     <form action={formAction} className="stack">
       <FormNotice result={state} />
-      {/* The sign-in link must come back to this deployment, and only the
-          browser knows which one it is. */}
-      <input
-        type="hidden"
-        name="origin"
-        value={typeof window === 'undefined' ? '' : window.location.origin}
-      />
 
       <fieldset>
         <legend>Provision a club</legend>

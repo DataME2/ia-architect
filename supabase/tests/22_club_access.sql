@@ -209,3 +209,98 @@ begin
   raise notice 'Club access OK — 13 scenarios; an admin manages their own club and cannot lock it out';
 end
 $$;
+
+-- ------------------------------------------------- first sign-in password
+
+do $$
+declare
+  newcomer uuid := 'deeeeeee-0000-0000-0000-00000000000b';
+  existing uuid := 'd1111111-1111-1111-1111-111111111111';
+  failures text[] := '{}';
+begin
+  -- The migration stamps every account that existed when it ran. These
+  -- fixtures are created afterwards, so stamp the one standing in for a
+  -- pre-existing officer — otherwise the test asserts against a situation
+  -- production will never be in.
+  perform set_config('role', 'postgres', true);
+  insert into user_password_set (user_id) values (existing) on conflict do nothing;
+
+  perform set_config('role', 'authenticated', true);
+
+  -- 1. Everybody who already had an account chose their own password, so
+  --    the migration must not start nagging them.
+  perform set_config('request.jwt.claim.sub', existing::text, true);
+  if app_needs_password() then
+    failures := array_append(failures, 'an existing account was told to choose a password');
+  end if;
+
+  -- 2. Somebody created after that has not chosen one, and is prompted.
+  perform set_config('role', 'postgres', true);
+  delete from user_password_set where user_id = newcomer;
+  perform set_config('role', 'authenticated', true);
+  perform set_config('request.jwt.claim.sub', newcomer::text, true);
+  if not app_needs_password() then
+    failures := array_append(failures, 'a new arrival was not asked to choose a password');
+  end if;
+
+  -- 3. Recording it stops the prompt, and records only the caller — the id
+  --    comes from auth.uid() and never from an argument, so nobody can
+  --    mark somebody else as done and skip their prompt.
+  perform record_password_set();
+  if app_needs_password() then
+    failures := array_append(failures, 'choosing a password did not stop the prompt');
+  end if;
+
+  perform set_config('request.jwt.claim.sub', existing::text, true);
+  perform record_password_set();
+  perform set_config('role', 'postgres', true);
+  if (select count(*) from user_password_set where user_id = newcomer) <> 1 then
+    failures := array_append(failures, 'one account recording a password affected another');
+  end if;
+
+  -- 4. The table itself is unreachable through the API in both directions.
+  --    A client that can write it is a client that can skip the prompt.
+  perform set_config('role', 'authenticated', true);
+  perform set_config('request.jwt.claim.sub', newcomer::text, true);
+  if (select count(*) from user_password_set) <> 0 then
+    failures := array_append(failures, 'the password-set table was readable');
+  end if;
+  begin
+    insert into user_password_set (user_id) values (existing);
+    failures := array_append(failures, 'a client wrote the password-set table directly');
+  exception when others then null;
+  end;
+
+  -- 5. An anonymous demonstration visitor is never prompted: they have no
+  --    email address, cannot sign in with a password, and would be trapped
+  --    on a page that means nothing to them.
+  perform set_config('role', 'postgres', true);
+  insert into auth.users (id, email) values
+    ('dbbbbbbb-0000-0000-0000-0000000000a1', null) on conflict do nothing;
+  delete from user_password_set where user_id = 'dbbbbbbb-0000-0000-0000-0000000000a1';
+  perform set_config('role', 'authenticated', true);
+  perform set_config('request.jwt.claim.sub', 'dbbbbbbb-0000-0000-0000-0000000000a1', true);
+  if app_needs_password() then
+    failures := array_append(failures, 'an anonymous demo visitor was asked to choose a password');
+  end if;
+
+  -- 6. No session, no prompt and no record.
+  perform set_config('request.jwt.claim.sub', '', true);
+  if app_needs_password() then
+    failures := array_append(failures, 'an anonymous caller was asked to choose a password');
+  end if;
+  begin
+    perform record_password_set();
+    failures := array_append(failures, 'an anonymous caller recorded a password');
+  exception when others then null;
+  end;
+
+  perform set_config('role', 'postgres', true);
+
+  if array_length(failures, 1) > 0 then
+    raise exception E'First sign-in password FAILED:\n  - %', array_to_string(failures, E'\n  - ');
+  end if;
+
+  raise notice 'First sign-in password OK — 6 scenarios; new arrivals are prompted, existing accounts and demo visitors are not';
+end
+$$;

@@ -1,4 +1,5 @@
 import { safeDestination } from '../../web/safe-destination.ts';
+import { ResetForm } from './ResetForm.tsx';
 import { SignInForm } from './SignInForm.tsx';
 
 export const dynamic = 'force-dynamic';
@@ -18,6 +19,7 @@ export default async function SignInPage({
         database enforces it, not the screen.
       </p>
       <SignInForm next={safeDestination(next)} />
+      <ResetForm />
     </>
   );
 }

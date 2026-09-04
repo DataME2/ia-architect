@@ -2,6 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
 
 import { readPublicConfig } from '../../data/env.ts';
 import { createRequestClient } from '../../data/server.ts';
@@ -63,7 +64,15 @@ export async function provisionClubAction(
   if (!parsed.ok) return formFailed(parsed.error);
 
   const draft: ProvisionDraft = parsed.draft;
-  const origin = String(formData.get('origin') ?? '').trim();
+
+  // Taken from the request rather than from a hidden field the browser
+  // fills in. The field version was empty whenever the form posted before
+  // hydration, Supabase fell back to the project's Site URL, and the
+  // invitation landed somewhere that never claimed the access.
+  const requestHeaders = await headers();
+  const host = requestHeaders.get('host') ?? 'localhost:3000';
+  const proto = requestHeaders.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
+  const origin = `${proto}://${host}`;
 
   const client = await createRequestClient();
   const { data: clubId, error } = await client.rpc('provision_club', {

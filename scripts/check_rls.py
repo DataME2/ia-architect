@@ -48,6 +48,11 @@ TENANTLESS_ALLOWED: set[str] = {
     # that denies everything, so no API request reaches it in either
     # direction and rows are added by the database owner alone.
     "platform_admin",
+    # Who has chosen their own password. About an account, not about a club,
+    # so a club_id would be meaningless. Isolated the same way: RLS on with a
+    # policy that denies everything, written only by a security definer
+    # function that takes the user from auth.uid() rather than an argument.
+    "user_password_set",
 }
 
 # Tables whose tenant column is `club_id` but which are commercial records
