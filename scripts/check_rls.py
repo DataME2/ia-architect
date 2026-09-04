@@ -42,6 +42,12 @@ TENANTLESS_ALLOWED: set[str] = {
     # having no API access at all rather than by a tenant column: its only
     # writer is enter_demo(), which owns it.
     "prospect",
+    # The platform-administration allowlist (decision 9). It is about the
+    # platform's own operators, not about any club, so a club_id would be
+    # meaningless. Isolated the same way `prospect` is: RLS on with a policy
+    # that denies everything, so no API request reaches it in either
+    # direction and rows are added by the database owner alone.
+    "platform_admin",
 }
 
 CREATE_TABLE = re.compile(r"^\s*create\s+table\s+(?:if\s+not\s+exists\s+)?([a-z_][a-z0-9_]*)\s*\(", re.I | re.M)

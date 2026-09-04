@@ -12,9 +12,22 @@ must never appear**.
 
 | Environment | Runs on | Database | Who reaches it |
 | ----------- | ------- | -------- | -------------- |
-| **Local** | `next dev` on a developer machine | A developer's own Supabase project, or `supabase start` | One developer |
-| **Preview** | Vercel preview deployment, one per pull request | A shared non-production Supabase project — **never production** | Anyone with the PR link |
+| **Local** | `next dev` on a developer machine | **The development Supabase project** (`sxsloxdtpcjpdobwpwsm`) | One developer |
+| **Preview** | Vercel preview deployment, one per pull request | The same development project — **never production** | Anyone with the PR link |
 | **Production** | Vercel, Sydney region | Supabase, `ap-southeast-2` | Club users |
+
+> **There is no production environment yet, and the project everything
+> currently points at is development.** Confirmed September 2026. It holds
+> North Star FC and the demonstration club, and its data is realistic rather
+> than real — which is why migrations have been applied to it directly and
+> why local development writes to it on purpose.
+>
+> Two things follow. **"Applied to production" in this repository's history
+> before September 2026 means applied to this development project** — the
+> commit messages say production and are wrong about which one. And **the
+> first real club's data will need a project of its own**, at which point
+> the row above stops being aspirational and the rule against pointing
+> preview deployments at it starts to matter.
 
 **Preview deployments must never point at production.** A preview URL is
 effectively public — it is in the pull request, and pull requests here are
@@ -39,14 +52,13 @@ dynamic rendering, `typedRoutes`, and whether `/` is still prerendered. A
 page that works on 3000 and breaks on 3002 has broken in production and not
 in development.
 
-> **Both of these talk to whatever `.env.local` points at, and today that
-> is production.** The table above says local development should use a
-> developer's own Supabase project; it currently does not, so a local dev
-> server writes to the same database the pilot club uses. Running two
-> servers does not make that safer — it makes two of them. Until a
-> development project exists, treat every local write as a production
-> write, because it is one. See the gap note in
-> [scope 29](../../scope/29_actors-access-and-permissions.md).
+> **Both of these talk to whatever `.env.local` points at, which is the
+> development project.** That is correct and intended: there is no
+> production environment yet. What the two ports compare is therefore
+> *code*, not data — the same database behind both. When a production
+> project exists, comparing environments will mean comparing two
+> `.env.local` files, and running a local server against production data
+> will stop being acceptable.
 
 ## Configuration
 

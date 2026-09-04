@@ -248,14 +248,13 @@ last administrator, is explained in place rather than offered and denied.
   complains about seeing another team's families.
 - **Password reset is absent and will be noticed immediately** once more
   than one person has an account. Supabase provides it; no page calls it.
-- **There is no development database.** `.env.local` points at production,
-  so every local `npm run dev` writes to the pilot club's data — including
-  the two extra ports added for comparing environments, which produce two
-  connections to production rather than one to each. The technology layer
-  already says local should use its own Supabase project
-  ([5_technology/2_deployment.md](../ea/5_technology/2_deployment.md)); it
-  does not. Closing this is a second Supabase project and a second
-  `.env.local`, and it is cheap next to the first accident.
+- **There is no *production* database — the one everything points at is
+  development.** Confirmed September 2026, correcting an assumption made
+  earlier in this document's own branch. So local development writing to it
+  is intended rather than dangerous. What remains true is the shape of the
+  problem *later*: the first real club's data needs a project of its own,
+  and the rule that a preview deployment must never point at it only starts
+  to bite then ([5_technology/2_deployment.md](../ea/5_technology/2_deployment.md)).
 - **Narrowing reads is a breaking change to every screen** that currently
   assumes a member sees everything. It should be done once, deliberately,
   with the business asked what a coach and a committee member ought to see —
