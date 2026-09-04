@@ -89,15 +89,25 @@ protect a boundary the database is already enforcing.
 
 ## Consequences
 
-- **It cannot create accounts.** Writing `auth.users` needs the Auth admin
-  API and the service-role key, which no page may hold. The club's first
-  administrator signs up themselves and the console attaches them, which is
-  decision 7's separation of authorising from typing.
+- **It cannot create accounts, and does not need to.** Writing `auth.users`
+  needs the Auth admin API and the service-role key, which no page may hold.
+  **Amended September 2026**, because the first version of this made the
+  owner the bottleneck it was meant to remove: the console recorded a
+  responsible person it could not attach, and somebody had to come back
+  later and provision again.
+
+  The club's responsible people are now recorded as **pending grants**
+  (`club_contact`, BR94) and emailed a sign-in link by Supabase itself — an
+  ordinary magic-link sign-up on the **anon key**, so no elevated credential
+  enters the application. Their membership comes into existence when they
+  use the link (`claim_club_access`, BR95). The separation decision 7 draws
+  is unchanged and now complete: the owner authorises, the person arrives,
+  and nobody types anything twice.
 - **Provisioning becomes idempotent and atomic**, replacing four hand-typed
   statements where the failure mode was a half-created tenant.
-- **The allowlist starts with one account** and that account does not exist
-  yet: `jsuarez@datamanagementengineer.com`. The only account in the system
-  today is a club's, not the platform's.
+- **The allowlist holds one account**, `jsuarez@datamanagementengineer.com`,
+  added September 2026 and holding no club membership — which is what keeps
+  every ordinary policy denying it.
 - **Every provisioning action is audited into the club it created**, so a
   club can see how it came to exist.
 - **This does not deliver decision 7's onboarding link.** That remains the

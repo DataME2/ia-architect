@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import { createRequestClient, currentUser } from '../../data/server.ts';
-import { outstanding, type PlatformClub } from '../../web/platform-view.ts';
+import { hasDeputy, outstanding, type PlatformClub } from '../../web/platform-view.ts';
 import { ProvisionForm } from './ProvisionForm.tsx';
 
 export const dynamic = 'force-dynamic';
@@ -47,23 +47,32 @@ export default async function PlatformPage() {
     );
   }
 
-  const clubs: PlatformClub[] = (data ?? []).map(
-    (row: {
-      club_id: string;
-      name: string;
-      jurisdiction: string;
-      created_at: string;
-      admin_count: number;
-      season_count: number;
-    }) => ({
-      clubId: row.club_id,
-      name: row.name,
-      jurisdiction: row.jurisdiction,
-      createdAt: row.created_at,
-      adminCount: row.admin_count,
-      seasonCount: row.season_count,
-    }),
-  );
+  const clubs: PlatformClub[] = (data ?? []).map((row: Record<string, unknown>) => ({
+    clubId: String(row.club_id),
+    name: String(row.name),
+    jurisdiction: String(row.jurisdiction),
+    createdAt: String(row.created_at),
+    adminCount: Number(row.admin_count),
+    seasonCount: Number(row.season_count),
+    primary:
+      row.primary_email === null || row.primary_email === undefined
+        ? null
+        : {
+            name: String(row.primary_name),
+            email: String(row.primary_email),
+            phone: row.primary_phone === null ? null : String(row.primary_phone),
+            claimed: row.primary_claimed === true,
+          },
+    secondary:
+      row.secondary_email === null || row.secondary_email === undefined
+        ? null
+        : {
+            name: String(row.secondary_name),
+            email: String(row.secondary_email),
+            phone: row.secondary_phone === null ? null : String(row.secondary_phone),
+            claimed: row.secondary_claimed === true,
+          },
+  }));
 
   return (
     <>
@@ -80,9 +89,9 @@ export default async function PlatformPage() {
           <thead>
             <tr>
               <th>Club</th>
-              <th>Jurisdiction</th>
-              <th>Created</th>
-              <th>Ready?</th>
+              <th>Responsible</th>
+              <th>Deputy</th>
+              <th>State</th>
             </tr>
           </thead>
           <tbody>
@@ -90,9 +99,42 @@ export default async function PlatformPage() {
               const gaps = outstanding(club);
               return (
                 <tr key={club.clubId}>
-                  <td>{club.name}</td>
-                  <td>{club.jurisdiction}</td>
-                  <td>{new Date(club.createdAt).toLocaleDateString('en-AU')}</td>
+                  <td>
+                    <strong>{club.name}</strong>
+                    <br />
+                    <span className="hint">
+                      {club.jurisdiction} &middot;{' '}
+                      {new Date(club.createdAt).toLocaleDateString('en-AU')}
+                    </span>
+                  </td>
+                  <td>
+                    {club.primary === null ? (
+                      <span className="hint">&mdash;</span>
+                    ) : (
+                      <>
+                        {club.primary.name}
+                        <br />
+                        <span className="hint">
+                          {club.primary.email}
+                          {club.primary.phone !== null && <> &middot; {club.primary.phone}</>}
+                        </span>
+                      </>
+                    )}
+                  </td>
+                  <td>
+                    {club.secondary === null ? (
+                      <span className="pill pill-warn">none &mdash; single point of failure</span>
+                    ) : (
+                      <>
+                        {club.secondary.name}
+                        <br />
+                        <span className="hint">
+                          {club.secondary.email}
+                          {club.secondary.phone !== null && <> &middot; {club.secondary.phone}</>}
+                        </span>
+                      </>
+                    )}
+                  </td>
                   <td>
                     {gaps.length === 0 ? (
                       <span className="pill pill-ok">ready</span>
@@ -102,6 +144,11 @@ export default async function PlatformPage() {
                           {gap}
                         </span>
                       ))
+                    )}
+                    {gaps.length === 0 && !hasDeputy(club) && (
+                      <span className="pill pill-warn" style={{ marginLeft: '0.3rem' }}>
+                        no deputy
+                      </span>
                     )}
                   </td>
                 </tr>

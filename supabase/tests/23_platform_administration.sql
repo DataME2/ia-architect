@@ -55,7 +55,8 @@ begin
   end if;
 
   begin
-    perform provision_club('Sneaky FC', 'AU-QLD', null, null, null, null);
+    perform provision_club('Sneaky FC', 'AU-QLD', null, null, null,
+                           'A Person', 'a@example.test', null, null, null, null);
     failures := array_append(failures, 'a club admin provisioned a club');
   exception when others then null;
   end;
@@ -96,7 +97,8 @@ begin
     failures := array_append(failures, 'the owner could not see the existing clubs');
   end if;
 
-  v_club := provision_club('Example United FC', 'AU-QLD', null, null, null, null);
+  v_club := provision_club('Example United FC', 'AU-QLD', null, null, null,
+                           'Dana Reyes', 'dana@example.test', '0400 111 222', null, null, null);
   if v_club is null then
     failures := array_append(failures, 'provisioning returned no club');
   end if;
@@ -104,7 +106,8 @@ begin
   -- 5. **Idempotent.** The failure this replaces is a half-created tenant:
   --    somebody ran statement one, lost the connection, and ran the lot
   --    again.
-  v_again := provision_club('example united fc', 'AU-QLD', null, null, null, null);
+  v_again := provision_club('example united fc', 'AU-QLD', null, null, null,
+                            'Dana Reyes', 'dana@example.test', null, null, null, null);
   if v_again is distinct from v_club then
     failures := array_append(failures, 'provisioning twice made two clubs');
   end if;
@@ -118,12 +121,14 @@ begin
 
   -- 6. A jurisdiction is required — BR52 turns on it.
   begin
-    perform provision_club('No Jurisdiction FC', '', null, null, null, null);
+    perform provision_club('No Jurisdiction FC', '', null, null, null,
+                           'A Person', 'a@example.test', null, null, null, null);
     failures := array_append(failures, 'a club was created without a jurisdiction');
   exception when others then null;
   end;
   begin
-    perform provision_club('   ', 'AU-QLD', null, null, null, null);
+    perform provision_club('   ', 'AU-QLD', null, null, null,
+                           'A Person', 'a@example.test', null, null, null, null);
     failures := array_append(failures, 'a club was created without a name');
   exception when others then null;
   end;
@@ -131,49 +136,117 @@ begin
   -- 7. A demonstration club is seeded, never provisioned — a second one
   --    would make `enter_demo` silently pick the older of two.
   begin
-    perform provision_club('Somewhere FC (DEMO)', 'AU-QLD', null, null, null, null);
+    perform provision_club('Somewhere FC (DEMO)', 'AU-QLD', null, null, null,
+                           'A Person', 'a@example.test', null, null, null, null);
     failures := array_append(failures, 'a second demonstration club was provisioned');
   exception when others then null;
   end;
 
-  -- 8. An administrator who has not signed up is refused, and the refusal
-  --    does not invent an account.
+  -- 8. **A club needs somebody answerable for it.** Required where the
+  --    season is not: a tenant with no responsible person is how a club
+  --    becomes nobody's problem.
   begin
-    perform provision_club('Ghost FC', 'AU-NSW', 'ghost@nowhere.test', null, null, null);
-    failures := array_append(failures, 'a club was attached to a non-existent account');
+    perform provision_club('Nobodys FC', 'AU-NSW', null, null, null,
+                           null, null, null, null, null, null);
+    failures := array_append(failures, 'a club was created with nobody responsible');
+  exception when others then null;
+  end;
+  begin
+    perform provision_club('Halfway FC', 'AU-NSW', null, null, null,
+                           'A Person', null, null, null, null, null);
+    failures := array_append(failures, 'a responsible person was accepted with no email');
   exception when others then null;
   end;
 
-  -- 9. Provisioning again, once they exist, attaches them — the normal
-  --    sequence, because the club is usually created before its people.
-  v_again := provision_club('Example United FC', 'AU-QLD', 'newclub.admin@example.test',
-                            '2027', date '2027-01-01', date '2027-12-01');
+  -- 9. **An email nobody has an account for is fine.** This is the whole
+  --    point: the contact is recorded as a pending grant, the person is
+  --    emailed a sign-in link by Supabase, and the club is never waiting on
+  --    the platform owner to run something by hand.
+  v_again := provision_club('Example United FC', 'AU-QLD',
+                            '2027', date '2027-01-01', date '2027-12-01',
+                            'Dana Reyes', 'dana@example.test', '0400 111 222',
+                            'Sam Ali', 'newclub.admin@example.test', '0400 333 444');
   if v_again is distinct from v_club then
-    failures := array_append(failures, 'attaching an admin created a second club');
+    failures := array_append(failures, 'recording contacts created a second club');
   end if;
 
   perform set_config('role', 'postgres', true);
-  select count(*) into n from club_membership
-   where club_id = v_club and user_id = new_admin and role = 'admin';
+  select count(*) into n from club_contact where club_id = v_club;
+  if n <> 2 then
+    failures := array_append(failures, format('expected two contacts, found %s', n));
+  end if;
+
+  select count(*) into n from club_contact
+   where club_id = v_club and kind = 'primary' and phone = '0400 111 222';
   if n <> 1 then
-    failures := array_append(failures, 'the first administrator was not attached');
+    failures := array_append(failures, 'the phone number was not recorded');
+  end if;
+
+  -- Nobody has claimed anything yet, so there is still no administrator.
+  select count(*) into n from club_membership where club_id = v_club and role = 'admin';
+  if n <> 0 then
+    failures := array_append(failures, 'access existed before anybody claimed it');
   end if;
 
   select count(*) into n from season where club_id = v_club;
   if n <> 1 then
     failures := array_append(failures, 'the first season was not created');
   end if;
-  perform set_config('role', 'authenticated', true);
 
-  -- 10. Adding the same season again is not a second season.
-  perform provision_club('Example United FC', 'AU-QLD', null,
-                         '2027', date '2027-01-01', date '2027-12-01');
+  -- 10. Provisioning again is not a second season, a third contact, or a
+  --     lost phone number.
+  perform set_config('role', 'authenticated', true);
+  perform provision_club('Example United FC', 'AU-QLD',
+                         '2027', date '2027-01-01', date '2027-12-01',
+                         'Dana Reyes', 'dana@example.test', null, null, null, null);
   perform set_config('role', 'postgres', true);
   select count(*) into n from season where club_id = v_club;
   if n <> 1 then
     failures := array_append(failures, 'provisioning twice made two seasons');
   end if;
+  select count(*) into n from club_contact where club_id = v_club;
+  if n <> 2 then
+    failures := array_append(failures, 'provisioning twice duplicated a contact');
+  end if;
+  select count(*) into n from club_contact
+   where club_id = v_club and kind = 'primary' and phone = '0400 111 222';
+  if n <> 1 then
+    failures := array_append(failures, 'a repeat provision erased the phone number');
+  end if;
+
+  -- 11. **Claiming.** The deputy signs in and their access exists. The
+  --     email is read from their own session and never from an argument,
+  --     so nobody can claim a club by naming somebody else.
   perform set_config('role', 'authenticated', true);
+  perform set_config('request.jwt.claim.sub', new_admin::text, true);
+  if claim_club_access() <> 1 then
+    failures := array_append(failures, 'signing in did not claim the access recorded for that email');
+  end if;
+
+  perform set_config('role', 'postgres', true);
+  select count(*) into n from club_membership
+   where club_id = v_club and user_id = new_admin and role = 'admin';
+  if n <> 1 then
+    failures := array_append(failures, 'claiming did not create the administrator membership');
+  end if;
+
+  select count(*) into n from club_contact
+   where club_id = v_club and kind = 'primary' and claimed_at is not null;
+  if n <> 0 then
+    failures := array_append(failures, 'claiming one contact claimed the other as well');
+  end if;
+
+  -- 12. Claiming twice is not two memberships, and a stranger claims
+  --     nothing at all.
+  perform set_config('role', 'authenticated', true);
+  if claim_club_access() <> 0 then
+    failures := array_append(failures, 'the same access was claimable twice');
+  end if;
+
+  perform set_config('request.jwt.claim.sub', outsider::text, true);
+  if claim_club_access() <> 0 then
+    failures := array_append(failures, 'a stranger claimed access');
+  end if;
 
   -- ------------------------------------------------- the boundary itself
 
@@ -221,6 +294,6 @@ begin
     raise exception E'Platform administration FAILED:\n  - %', array_to_string(failures, E'\n  - ');
   end if;
 
-  raise notice 'Platform administration OK — 13 scenarios; provisions tenants, reads nothing inside one';
+  raise notice 'Platform administration OK — 17 scenarios; provisions tenants, records who is responsible, reads nothing inside one';
 end
 $$;

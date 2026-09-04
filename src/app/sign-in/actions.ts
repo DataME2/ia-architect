@@ -41,6 +41,13 @@ export async function signInAction(
     return { error: 'That email address and password did not match.' };
   }
 
+  // Turn any access recorded against this address into a real membership.
+  // Somebody provisioned as a club's responsible person may arrive by
+  // password rather than by the emailed link — a second visit, a saved
+  // password, a different device — and their access should not depend on
+  // which door they used.
+  await client.rpc('claim_club_access');
+
   redirect(next);
 }
 

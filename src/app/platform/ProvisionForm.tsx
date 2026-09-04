@@ -13,6 +13,13 @@ export function ProvisionForm() {
   return (
     <form action={formAction} className="stack">
       <FormNotice result={state} />
+      {/* The sign-in link must come back to this deployment, and only the
+          browser knows which one it is. */}
+      <input
+        type="hidden"
+        name="origin"
+        value={typeof window === 'undefined' ? '' : window.location.origin}
+      />
 
       <fieldset>
         <legend>Provision a club</legend>
@@ -36,14 +43,49 @@ export function ProvisionForm() {
           </p>
         </div>
 
+      </fieldset>
+
+      <fieldset>
+        <legend>Who is responsible for this club</legend>
+        <p className="hint" style={{ marginTop: 0 }}>
+          Required. A club with nobody answerable for it is how a tenant becomes nobody&rsquo;s
+          problem. They are emailed a sign-in link when the club is created &mdash; there is no
+          account to set up and nothing for you to do afterwards.
+        </p>
+
         <div className="field">
-          <label htmlFor="adminEmail">First administrator (optional)</label>
-          <input id="adminEmail" name="adminEmail" type="email" />
-          <p className="hint" style={{ margin: '0.3rem 0 0' }}>
-            <strong>They must already have an account.</strong> This cannot create one &mdash;
-            that needs the service-role key, which no page holds. Ask them to sign up, then
-            provision again with the same club name to attach them.
-          </p>
+          <label htmlFor="primaryName">Full name</label>
+          <input id="primaryName" name="primaryName" required />
+        </div>
+        <div className="field">
+          <label htmlFor="primaryEmail">Email</label>
+          <input id="primaryEmail" name="primaryEmail" type="email" required />
+        </div>
+        <div className="field">
+          <label htmlFor="primaryPhone">Phone</label>
+          <input id="primaryPhone" name="primaryPhone" type="tel" />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Second responsible person</legend>
+        <p className="hint" style={{ marginTop: 0 }}>
+          Strongly recommended. A club with one administrator cannot remove that administrator,
+          and cannot get in at all if they leave &mdash; a deputy is the insurance against both.
+          They are emailed the same link and become an administrator too.
+        </p>
+
+        <div className="field">
+          <label htmlFor="secondaryName">Full name</label>
+          <input id="secondaryName" name="secondaryName" />
+        </div>
+        <div className="field">
+          <label htmlFor="secondaryEmail">Email</label>
+          <input id="secondaryEmail" name="secondaryEmail" type="email" />
+        </div>
+        <div className="field">
+          <label htmlFor="secondaryPhone">Phone</label>
+          <input id="secondaryPhone" name="secondaryPhone" type="tel" />
         </div>
       </fieldset>
 
