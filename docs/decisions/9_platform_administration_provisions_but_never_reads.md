@@ -33,7 +33,7 @@ So the exception can be drawn far narrower than "super-admin":
 | | Platform administration |
 | --- | --- |
 | Create a club, its first season, its first admin | **Yes** |
-| List clubs — name, jurisdiction, when created, whether provisioned | **Yes**, and this is the only cross-tenant *read* |
+| List clubs — name, jurisdiction, when created, whether provisioned, who is responsible, what was agreed commercially | **Yes**, and this is the only cross-tenant *read* |
 | Read any club's people, registrations, money, consents, cards, audit log | **No, ever** |
 
 **That second row is the exception**, and it is worth naming rather than
@@ -41,6 +41,13 @@ waving through: reading a list of club names is reading across tenants.
 It is metadata about the platform's own customers, held by the party that
 contracted with them, and it contains no personal data and no child's
 record. The third row is where P5 stays absolute.
+
+**Licensing and club contacts (BR94, BR96) sit on the metadata side and do
+not widen this.** Who signed the contract and what they agreed to pay are
+facts about a customer relationship, not a summary of what the tenant
+holds. The line stays exactly where the closing section puts it: the moment
+the console wants to know *how many registrations* a club has, that is a
+different exception and needs its own argument.
 
 ## The decision
 

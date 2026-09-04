@@ -1,7 +1,15 @@
 import { notFound } from 'next/navigation';
 
 import { createRequestClient, currentUser } from '../../data/server.ts';
-import { hasDeputy, outstanding, type PlatformClub } from '../../web/platform-view.ts';
+import {
+  hasDeputy,
+  outstanding,
+  summarise,
+  type ClubLicence,
+  type PlatformClub,
+} from '../../web/platform-view.ts';
+import { todayIn } from '../../web/today.ts';
+import { LicenceForm, LicencePill } from './LicenceForm.tsx';
 import { ProvisionForm } from './ProvisionForm.tsx';
 
 export const dynamic = 'force-dynamic';
@@ -47,7 +55,9 @@ export default async function PlatformPage() {
     );
   }
 
-  const clubs: PlatformClub[] = (data ?? []).map((row: Record<string, unknown>) => ({
+  type Row = PlatformClub & { licence: ClubLicence | null; isDemo: boolean };
+
+  const clubs: Row[] = (data ?? []).map((row: Record<string, unknown>) => ({
     clubId: String(row.club_id),
     name: String(row.name),
     jurisdiction: String(row.jurisdiction),
@@ -72,7 +82,24 @@ export default async function PlatformPage() {
             phone: row.secondary_phone === null ? null : String(row.secondary_phone),
             claimed: row.secondary_claimed === true,
           },
+    isDemo: row.is_demo === true,
+    licence:
+      row.licence_state === null || row.licence_state === undefined
+        ? null
+        : {
+            state: String(row.licence_state) as ClubLicence['state'],
+            startsOn: String(row.licence_starts_on),
+            endsOn: String(row.licence_ends_on),
+            feeCents: row.licence_fee_cents === null ? null : Number(row.licence_fee_cents),
+            currency: String(row.licence_currency ?? 'AUD'),
+            note: row.licence_note === null ? null : String(row.licence_note),
+          },
   }));
+
+  const today = todayIn();
+  const summary = summarise(clubs, today);
+  const money = (cents: number) =>
+    (cents / 100).toLocaleString('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 });
 
   return (
     <>
@@ -83,6 +110,35 @@ export default async function PlatformPage() {
         reason it exists in this shape.
       </p>
 
+      <div className="summary-grid">
+        <div className="stat">
+          <span className="n">{summary.supported}</span>
+          <span className="label">clubs supported</span>
+        </div>
+        <div className="stat">
+          <span className="n">{summary.licensed}</span>
+          <span className="label">licensed to use it</span>
+        </div>
+        <div className="stat">
+          <span className="n">{summary.expiring}</span>
+          <span className="label">renewal due</span>
+        </div>
+        <div className="stat">
+          <span className="n">{summary.lapsed + summary.unlicensed}</span>
+          <span className="label">lapsed or unlicensed</span>
+        </div>
+        <div className="stat">
+          <span className="n">{money(summary.annualValueCents)}</span>
+          <span className="label">agreed, per term</span>
+        </div>
+      </div>
+
+      <p className="hint">
+        The demonstration club is excluded from every count above &mdash; it is ours, not a
+        customer. Only fees actually agreed are totalled, so a trial with no fee contributes
+        nothing.
+      </p>
+
       <div className="card">
         <h3 style={{ marginTop: 0 }}>Clubs ({clubs.length})</h3>
         <table>
@@ -91,6 +147,7 @@ export default async function PlatformPage() {
               <th>Club</th>
               <th>Responsible</th>
               <th>Deputy</th>
+              <th>Licence</th>
               <th>State</th>
             </tr>
           </thead>
@@ -132,6 +189,35 @@ export default async function PlatformPage() {
                           {club.secondary.email}
                           {club.secondary.phone !== null && <> &middot; {club.secondary.phone}</>}
                         </span>
+                      </>
+                    )}
+                  </td>
+                  <td>
+                    {club.isDemo ? (
+                      <span className="pill">demonstration &mdash; not a customer</span>
+                    ) : (
+                      <>
+                        <LicencePill licence={club.licence} today={today} />
+                        {club.licence?.feeCents != null && (
+                          <>
+                            <br />
+                            <span className="hint">
+                              {money(club.licence.feeCents)} {club.licence.currency} &middot;{' '}
+                              {club.licence.startsOn} to {club.licence.endsOn}
+                            </span>
+                          </>
+                        )}
+                        {club.licence?.note != null && (
+                          <>
+                            <br />
+                            <span className="hint">{club.licence.note}</span>
+                          </>
+                        )}
+                        <LicenceForm
+                          clubId={club.clubId}
+                          clubName={club.name}
+                          licence={club.licence}
+                        />
                       </>
                     )}
                   </td>

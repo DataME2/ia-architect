@@ -248,6 +248,81 @@ begin
     failures := array_append(failures, 'a stranger claimed access');
   end if;
 
+  -- ------------------------------------------------------------- licence
+
+  -- 13. Only the platform records commercial terms. A club admin may read
+  --     their own licence and may never set one.
+  perform set_config('request.jwt.claim.sub', club_admin::text, true);
+  begin
+    perform set_club_licence(v_club, date '2026-01-01', date '2026-12-31',
+                             'active', 1200000, 'AUD', 'self-awarded');
+    failures := array_append(failures, 'a club admin set its own licence');
+  exception when others then null;
+  end;
+
+  perform set_config('request.jwt.claim.sub', owner::text, true);
+  perform set_club_licence(v_club, date '2026-01-01', date '2026-12-31',
+                           'active', 1200000, 'AUD', 'first year including migration');
+
+  perform set_config('role', 'postgres', true);
+  select count(*) into n from club_licence
+   where club_id = v_club and fee_cents = 1200000 and currency = 'AUD';
+  if n <> 1 then
+    failures := array_append(failures, 'the negotiated fee was not recorded');
+  end if;
+
+  -- 14. Correcting today's entry updates it; a renewal is a new row, so a
+  --     club's commercial history stays answerable.
+  perform set_config('role', 'authenticated', true);
+  perform set_club_licence(v_club, date '2026-01-01', date '2026-12-31',
+                           'active', 1350000, 'AUD', null);
+  perform set_config('role', 'postgres', true);
+  select count(*) into n from club_licence where club_id = v_club;
+  if n <> 1 then
+    failures := array_append(failures, 'correcting a licence made a second one');
+  end if;
+  select count(*) into n from club_licence
+   where club_id = v_club and fee_cents = 1350000;
+  if n <> 1 then
+    failures := array_append(failures, 'the corrected fee was not stored');
+  end if;
+  -- The note was not resupplied and must survive.
+  select count(*) into n from club_licence
+   where club_id = v_club and note = 'first year including migration';
+  if n <> 1 then
+    failures := array_append(failures, 'correcting a licence erased what was agreed');
+  end if;
+
+  perform set_config('role', 'authenticated', true);
+  perform set_club_licence(v_club, date '2027-01-01', date '2027-12-31',
+                           'active', 1400000, 'AUD', 'renewal');
+  perform set_config('role', 'postgres', true);
+  select count(*) into n from club_licence where club_id = v_club;
+  if n <> 2 then
+    failures := array_append(failures, 'a renewal did not keep the previous term');
+  end if;
+
+  -- 15. A term must be a term, and a state must be a real one.
+  perform set_config('role', 'authenticated', true);
+  begin
+    perform set_club_licence(v_club, date '2028-06-01', date '2028-01-01', 'active', null, 'AUD', null);
+    failures := array_append(failures, 'a licence ended before it started');
+  exception when others then null;
+  end;
+  begin
+    perform set_club_licence(v_club, date '2029-01-01', date '2029-12-31', 'gratis', null, 'AUD', null);
+    failures := array_append(failures, 'an invented licence state was accepted');
+  exception when others then null;
+  end;
+
+  -- 16. A club may read its own commercial terms — they are its own — and
+  --     no other club's.
+  perform set_config('request.jwt.claim.sub', club_admin::text, true);
+  select count(*) into n from club_licence where club_id = v_club;
+  if n <> 0 then
+    failures := array_append(failures, 'a club read another club''s licence');
+  end if;
+
   -- ------------------------------------------------- the boundary itself
 
   -- 11. **The console reads metadata and never tenant contents.** The
@@ -294,6 +369,6 @@ begin
     raise exception E'Platform administration FAILED:\n  - %', array_to_string(failures, E'\n  - ');
   end if;
 
-  raise notice 'Platform administration OK — 17 scenarios; provisions tenants, records who is responsible, reads nothing inside one';
+  raise notice 'Platform administration OK — 21 scenarios; provisions tenants, records who is responsible and what was agreed, reads nothing inside one';
 end
 $$;

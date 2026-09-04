@@ -50,6 +50,12 @@ TENANTLESS_ALLOWED: set[str] = {
     "platform_admin",
 }
 
+# Tables whose tenant column is `club_id` but which are commercial records
+# about a club rather than records belonging to one. They still carry
+# club_id and are still RLS-scoped, so nothing is exempted here — noted
+# only so a reader does not mistake them for club data.
+COMMERCIAL_TABLES = {"club_licence", "club_contact"}
+
 CREATE_TABLE = re.compile(r"^\s*create\s+table\s+(?:if\s+not\s+exists\s+)?([a-z_][a-z0-9_]*)\s*\(", re.I | re.M)
 ENABLE_RLS = re.compile(r"^\s*alter\s+table\s+([a-z_][a-z0-9_]*)\s+enable\s+row\s+level\s+security", re.I | re.M)
 CREATE_POLICY = re.compile(r"^\s*create\s+policy\s+[a-z_][a-z0-9_]*\s+on\s+([a-z_][a-z0-9_]*)", re.I | re.M)

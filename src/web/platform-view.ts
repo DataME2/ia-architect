@@ -183,3 +183,114 @@ export function parseProvision(form: {
     },
   };
 }
+
+export type LicenceState = 'trial' | 'active' | 'suspended' | 'ended';
+
+export interface ClubLicence {
+  readonly state: LicenceState;
+  readonly startsOn: string;
+  readonly endsOn: string;
+  readonly feeCents: number | null;
+  readonly currency: string;
+  readonly note: string | null;
+}
+
+/**
+ * What a licence is doing *today*, which is not the same as what state it
+ * was recorded in.
+ *
+ * A licence recorded `active` whose term ended last week is **lapsed**, and
+ * calling it active because a column says so is how a business loses track
+ * of who is paying. The date is the fact; the state is the intent.
+ */
+export type LicenceStanding =
+  | { readonly kind: 'none' }
+  | { readonly kind: 'trial'; readonly daysLeft: number }
+  | { readonly kind: 'active'; readonly daysLeft: number }
+  | { readonly kind: 'expiring'; readonly daysLeft: number }
+  | { readonly kind: 'lapsed'; readonly daysAgo: number }
+  | { readonly kind: 'suspended' }
+  | { readonly kind: 'ended' };
+
+/** Inside this many days of the end, a renewal conversation is overdue. */
+export const RENEWAL_WINDOW_DAYS = 60;
+
+function daysBetween(from: string, to: string): number {
+  const [fy, fm, fd] = from.split('-').map(Number) as [number, number, number];
+  const [ty, tm, td] = to.split('-').map(Number) as [number, number, number];
+  // Date.UTC takes a 0-indexed month; passing the calendar month through
+  // shifts both dates and quietly does not cancel across unequal months.
+  return Math.round((Date.UTC(ty, tm - 1, td) - Date.UTC(fy, fm - 1, fd)) / 86_400_000);
+}
+
+export function standing(licence: ClubLicence | null, today: string): LicenceStanding {
+  if (licence === null) return { kind: 'none' };
+  if (licence.state === 'suspended') return { kind: 'suspended' };
+  if (licence.state === 'ended') return { kind: 'ended' };
+
+  const daysLeft = daysBetween(today, licence.endsOn);
+  if (daysLeft < 0) return { kind: 'lapsed', daysAgo: -daysLeft };
+  if (licence.state === 'trial') return { kind: 'trial', daysLeft };
+  if (daysLeft <= RENEWAL_WINDOW_DAYS) return { kind: 'expiring', daysLeft };
+  return { kind: 'active', daysLeft };
+}
+
+/** Whether this club is entitled to use the product right now. */
+export function isLicensed(standing: LicenceStanding): boolean {
+  return standing.kind === 'active' || standing.kind === 'expiring' || standing.kind === 'trial';
+}
+
+export interface PlatformSummary {
+  readonly supported: number;
+  readonly licensed: number;
+  readonly trialling: number;
+  readonly expiring: number;
+  readonly lapsed: number;
+  readonly unlicensed: number;
+  readonly annualValueCents: number;
+}
+
+/**
+ * The counts the console leads with.
+ *
+ * **The demonstration club is excluded from every one of them.** It is ours,
+ * not a customer, and counting it would overstate the business by one club
+ * for as long as the demo exists — a small lie that compounds into a wrong
+ * number on a slide.
+ */
+export function summarise(
+  clubs: readonly (PlatformClub & { readonly licence: ClubLicence | null; readonly isDemo: boolean })[],
+  today: string,
+): PlatformSummary {
+  const real = clubs.filter((c) => !c.isDemo);
+  let licensed = 0;
+  let trialling = 0;
+  let expiring = 0;
+  let lapsed = 0;
+  let unlicensed = 0;
+  let annualValueCents = 0;
+
+  for (const club of real) {
+    const s = standing(club.licence, today);
+    if (s.kind === 'trial') trialling += 1;
+    if (s.kind === 'expiring') expiring += 1;
+    if (s.kind === 'lapsed') lapsed += 1;
+    if (s.kind === 'none') unlicensed += 1;
+    if (isLicensed(s)) {
+      licensed += 1;
+      // Only money actually agreed. A trial with no fee contributes
+      // nothing, which is the honest number.
+      if (club.licence?.feeCents != null) annualValueCents += club.licence.feeCents;
+    }
+  }
+
+  return {
+    supported: real.length,
+    licensed,
+    trialling,
+    expiring,
+    lapsed,
+    unlicensed,
+    annualValueCents,
+  };
+}

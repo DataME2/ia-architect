@@ -113,3 +113,55 @@ export async function provisionClubAction(
       'sign-in link; access becomes real the moment they use it.',
   );
 }
+
+/**
+ * Record what was agreed with a club.
+ *
+ * There is no rate card: the price is whatever the owner and that club
+ * settled on, so the fee is free text parsed into cents and the note holds
+ * the terms that do not fit in columns.
+ */
+export async function setLicenceAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const clubId = String(formData.get('clubId') ?? '');
+  const clubName = String(formData.get('clubName') ?? 'the club');
+  const state = String(formData.get('state') ?? 'active');
+  const startsOn = String(formData.get('startsOn') ?? '').trim();
+  const endsOn = String(formData.get('endsOn') ?? '').trim();
+  const feeRaw = String(formData.get('fee') ?? '').trim();
+  const currency = String(formData.get('currency') ?? 'AUD');
+  const note = String(formData.get('note') ?? '').trim();
+
+  if (clubId === '') return formFailed('No club.');
+  if (startsOn === '' || endsOn === '') return formFailed('A licence needs a start and an end date.');
+  if (endsOn <= startsOn) return formFailed('The licence ends before it starts.');
+
+  // Blank is "no fee agreed", which is a different fact from zero and must
+  // not be recorded as one.
+  let feeCents: number | null = null;
+  if (feeRaw !== '') {
+    const amount = Number(feeRaw.replace(/[$,\s]/g, ''));
+    if (!Number.isFinite(amount) || amount < 0) {
+      return formFailed(`That is not an amount: ${feeRaw}`);
+    }
+    feeCents = Math.round(amount * 100);
+  }
+
+  const client = await createRequestClient();
+  const { error } = await client.rpc('set_club_licence', {
+    p_club_id: clubId,
+    p_starts_on: startsOn,
+    p_ends_on: endsOn,
+    p_state: state,
+    p_fee_cents: feeCents,
+    p_currency: currency,
+    p_note: note === '' ? null : note,
+  });
+
+  if (error !== null) return formFailed(error.message.replace(/^.*?:\s*/, ''));
+
+  revalidatePath('/platform');
+  return formOk(`Licence recorded for ${clubName}: ${state}, ${startsOn} to ${endsOn}.`);
+}

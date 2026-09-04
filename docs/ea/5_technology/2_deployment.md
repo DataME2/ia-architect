@@ -44,21 +44,20 @@ at the same time, so the ports are fixed rather than whatever is free:
 | ------- | ---- | ------------ |
 | `npm run dev` | **3000** | The working tree, hot-reloaded |
 | `npm run dev:alt` | **3001** | A second dev server, for comparing two branches side by side |
-| `npm run prod:local` | **3002** | `next build && next start` — the **production build** of the working tree |
 
-`prod:local` is the one worth remembering. Turbopack's dev server and the
-production build differ in ways that only show up when built: static versus
-dynamic rendering, `typedRoutes`, and whether `/` is still prerendered. A
-page that works on 3000 and breaks on 3002 has broken in production and not
-in development.
+**A local production build was offered on 3002 and has been removed**
+(September 2026). It compared a production *build* against a dev server
+while both talked to the same development database, which is a comparison
+of bundlers rather than of environments — and calling a port "production"
+in a project that has no production environment is exactly the confusion
+that led to migrations being described as applied to production for a
+month. `npm run build` still checks the production build, which is what
+that check was actually for.
 
-> **Both of these talk to whatever `.env.local` points at, which is the
-> development project.** That is correct and intended: there is no
-> production environment yet. What the two ports compare is therefore
-> *code*, not data — the same database behind both. When a production
-> project exists, comparing environments will mean comparing two
-> `.env.local` files, and running a local server against production data
-> will stop being acceptable.
+When a production environment exists, comparing environments will mean
+comparing two `.env.local` files pointed at two Supabase projects, and
+running a local server against production data will stop being
+acceptable.
 
 ## Configuration
 
