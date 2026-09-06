@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 
 import { loadRegistrationDetail, loadSeasons, loadTenantContext } from '../../../../data/queries.ts';
 import { loadAppearances, loadFixtures, loadPlayerProfile } from '../../../../data/performance.ts';
+import { photographUrl } from '../../../../data/photos.ts';
 import { createRequestClient, currentUser } from '../../../../data/server.ts';
 import { mostRecentFirst, seasonRecord } from '../../../../domain/performance/season-record.ts';
 import { displayNameFor, fullLegalName } from '../../../../web/queue-view.ts';
@@ -16,6 +17,7 @@ import {
 } from '../../../../web/player-view.ts';
 import { todayIn } from '../../../../web/today.ts';
 import { StatusPill } from '../../../_components/rules.tsx';
+import { PhotoCropper } from './PhotoCropper.tsx';
 import { AppearanceForm, PlayerProfileForm } from './PlayerForms.tsx';
 
 export const dynamic = 'force-dynamic';
@@ -59,10 +61,11 @@ export default async function PlayerPage({
   );
   if (detail === null) notFound();
 
-  const [profile, appearances, fixtures] = await Promise.all([
+  const [profile, appearances, fixtures, photoUrl] = await Promise.all([
     loadPlayerProfile(client, registrationId),
     loadAppearances(client, registrationId),
     loadFixtures(client, tenant.clubId, season.id),
+    photographUrl(client, detail.person.photoPath),
   ]);
 
   const record = seasonRecord(appearances);
@@ -96,11 +99,12 @@ export default async function PlayerPage({
           the reason BR100 draws a line around who may see it. */}
       <div className="card player-card">
         <div className="player-card-head">
-          <div className="player-photo" aria-hidden={detail.person.photoPath === null}>
-            {detail.person.photoPath === null ? (
+          <div className="player-photo">
+            {photoUrl === null ? (
               <span className="player-photo-empty">No photo</span>
             ) : (
-              <span className="player-photo-empty">Photo on file</span>
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={photoUrl} alt={`Identification photograph of ${displayNameFor(detail.person)}`} />
             )}
           </div>
 
@@ -164,6 +168,13 @@ export default async function PlayerPage({
         </p>
       ))}
 
+      <PhotoCropper
+        registrationId={registrationId}
+        personId={detail.person.id}
+        currentUrl={photoUrl}
+        currentPath={detail.person.photoPath}
+        playerName={displayNameFor(detail.person)}
+      />
       <PlayerProfileForm registrationId={registrationId} profile={profile} />
       <AppearanceForm
         registrationId={registrationId}

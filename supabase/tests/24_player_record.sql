@@ -232,12 +232,67 @@ begin
     failures := array_append(failures, 'the appearance did not record who entered it');
   end if;
 
+  -- ------------------------------------------------------- the photograph
+
+  -- 12. **BR56, enforced for the first time.** `person.photo_path` has
+  --     existed since the first migration and nothing ever wrote it, so
+  --     the rule that a photograph is held only under a consent recorded
+  --     for that purpose was documented and unchecked. Adding the uploader
+  --     without this check is how that would have stayed true.
+  perform set_config('request.jwt.claim.sub', ns_admin::text, true);
+  begin
+    update person set photo_path = '11111111-1111-1111-1111-111111111111/x/1.jpg'
+     where id = player;
+    failures := array_append(failures, 'a photograph was stored with no consent (BR56)');
+  exception when others then null;
+  end;
+
+  -- 13. With the consent recorded, the same update is allowed.
+  perform set_config('role', 'postgres', true);
+  insert into consent (club_id, person_id, purpose, granted_by_person_id)
+  values (north_star, player, 'IDENTIFICATION_PHOTOGRAPH', player);
+  perform set_config('role', 'authenticated', true);
+
+  begin
+    update person set photo_path = '11111111-1111-1111-1111-111111111111/x/1.jpg'
+     where id = player;
+  exception when others then
+    failures := array_append(failures, 'a consented photograph was refused');
+  end;
+
+  select count(*) into n from person where id = player and photo_path is not null;
+  if n <> 1 then
+    failures := array_append(failures, 'the photograph reference was not stored');
+  end if;
+
+  -- 14. A withdrawn consent must never trap the picture it covered:
+  --     removal stays possible however the consent stands (BR48, BR49).
+  perform set_config('role', 'postgres', true);
+  update consent set revoked_at = now()
+   where person_id = player and purpose = 'IDENTIFICATION_PHOTOGRAPH';
+  perform set_config('role', 'authenticated', true);
+
+  begin
+    update person set photo_path = null where id = player;
+  exception when others then
+    failures := array_append(failures,
+      'a photograph could not be removed after the consent was withdrawn');
+  end;
+
+  -- And it cannot be put back while the consent stands withdrawn.
+  begin
+    update person set photo_path = '11111111-1111-1111-1111-111111111111/x/2.jpg'
+     where id = player;
+    failures := array_append(failures, 'a photograph was restored under a withdrawn consent');
+  exception when others then null;
+  end;
+
   perform set_config('role', 'postgres', true);
 
   if array_length(failures, 1) > 0 then
     raise exception E'Player record FAILED:\n  - %', array_to_string(failures, E'\n  - ');
   end if;
 
-  raise notice 'Player record OK — 11 scenarios; physique is narrowed, a statistic cannot drift seasons, and an ineligible appearance is recorded rather than refused';
+  raise notice 'Player record OK — 14 scenarios; physique is narrowed, a statistic cannot drift seasons, an ineligible appearance is recorded rather than refused, and a photograph needs the consent BR56 has always required';
 end
 $$;

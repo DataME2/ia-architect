@@ -61,6 +61,21 @@ deliberately not built.
 
 ### WP1 — The player profile *(physique, position, photograph)*
 
+**The photograph turned out to be the interesting half.** `person.photo_path`
+had existed since the first migration and nothing had ever written to it —
+which meant **BR56 had never been enforced.** The rule that a minor's
+photograph is held only under a consent recorded for that purpose was true
+in the documentation and unchecked in the database, and would have stayed
+that way if the uploader had been built first. So the trigger went in first,
+and the uploader second.
+
+Cropping is hand-drawn on a canvas rather than taken from a library, and
+that is a privacy decision as much as a dependency one: re-encoding is what
+removes the EXIF a phone attaches to a photograph, **including the GPS
+coordinates of where it was taken** — usually a home or a ground. The
+original file never leaves the device, and the server refuses anything that
+is not the re-encoded result (BR105).
+
 - **Deliverables:** `player_profile` table (season-scoped, one per
   registration): `height_cm`, `weight_kg`, `preferred_position`,
   `secondary_position`, `preferred_foot`, `squad_number`, `recorded_on`.

@@ -559,3 +559,39 @@ th {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+
+/* The photograph itself fills its frame. */
+.player-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius);
+  display: block;
+}
+
+/* Framing a headshot. The square is the crop: what is inside it is what
+   gets saved, so it is drawn as the whole control rather than as an
+   overlay on a larger picture. */
+.crop-stage {
+  display: inline-block;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg);
+  line-height: 0;
+}
+
+.crop-canvas {
+  display: block;
+  touch-action: none;
+  cursor: grab;
+}
+
+.crop-canvas:active {
+  cursor: grabbing;
+}
+
+.crop-canvas:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
