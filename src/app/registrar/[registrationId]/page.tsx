@@ -118,6 +118,11 @@ export default async function RegistrationDetailPage({
       <p style={{ marginBottom: '0.25rem' }}>
         <a href="/registrar">&larr; Back to the queue</a>
       </p>
+      <p style={{ marginBottom: '0.75rem' }}>
+        <a className="button secondary" href={`/registrar/players/${registrationId}`}>
+          Player record
+        </a>
+      </p>
 
       <div className="card-row">
         <h2 style={{ marginTop: '0.5rem' }}>{entry.displayName}</h2>

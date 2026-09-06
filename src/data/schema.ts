@@ -312,3 +312,45 @@ export interface AuditEventRow {
   detail: Record<string, unknown>;
   occurred_at: InstantString;
 }
+
+export interface PlayerProfileRow {
+  id: string;
+  club_id: string;
+  registration_id: string;
+  height_cm: number | null;
+  weight_kg: string | number | null;
+  preferred_position: string | null;
+  secondary_position: string | null;
+  preferred_foot: string | null;
+  squad_number: number | null;
+  recorded_on: string;
+}
+
+export interface FixtureRow {
+  id: string;
+  club_id: string;
+  season_id: string;
+  team_id: string | null;
+  played_on: string;
+  opponent: string;
+  home_away: string;
+  competition: string | null;
+  venue: string | null;
+  goals_for: number | null;
+  goals_against: number | null;
+  status: string;
+}
+
+export interface AppearanceRow {
+  id: string;
+  club_id: string;
+  fixture_id: string;
+  person_id: string;
+  registration_id: string;
+  minutes_played: number;
+  started: boolean;
+  goals: number;
+  assists: number;
+  recorded_by: string | null;
+  recorded_at: string;
+}
