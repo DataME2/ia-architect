@@ -47,10 +47,18 @@ the account can tell which of its powers came from being a club admin and
 which from being the platform. The recommendation is a **separate identity
 holding no club membership at all**.
 
-Nothing is built. **Central super-administration remains unbuilt and needs
-its own decision record before it is**, because it is a P5 exception and
-this project has only ever granted one of those deliberately
-([decision 3](../decisions/3_public-event-data-crosses-tenant-isolation.md)).
+**Built, September 2026 — and narrower than this section feared.**
+[Decision 9](../decisions/9_platform_administration_provisions_but_never_reads.md)
+settles it on the distinction decision 7 noted in passing: **creating a
+tenant requires no ability to read inside one.** So the console at
+`/platform` provisions clubs and reads *metadata* — names, jurisdictions,
+whether a club is finished — and never a person, a registration, a payment
+or a card. The P5 exception this section anticipated was not needed at that
+size; what was granted instead is a far narrower one, argued and tested.
+
+The recommendation below stands and is enforced: a platform administrator
+**holds no `club_membership`**, which is precisely what keeps every
+ordinary policy denying it. The test asserts that.
 
 Worth repeating from decision 7: **provisioning does not require it.**
 Creating a tenant needs no ability to read another tenant.

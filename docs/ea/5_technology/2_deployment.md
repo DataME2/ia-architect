@@ -12,15 +12,52 @@ must never appear**.
 
 | Environment | Runs on | Database | Who reaches it |
 | ----------- | ------- | -------- | -------------- |
-| **Local** | `next dev` on a developer machine | A developer's own Supabase project, or `supabase start` | One developer |
-| **Preview** | Vercel preview deployment, one per pull request | A shared non-production Supabase project — **never production** | Anyone with the PR link |
+| **Local** | `next dev` on a developer machine | **The development Supabase project** (`sxsloxdtpcjpdobwpwsm`) | One developer |
+| **Preview** | Vercel preview deployment, one per pull request | The same development project — **never production** | Anyone with the PR link |
 | **Production** | Vercel, Sydney region | Supabase, `ap-southeast-2` | Club users |
+
+> **There is no production environment yet, and the project everything
+> currently points at is development.** Confirmed September 2026. It holds
+> North Star FC and the demonstration club, and its data is realistic rather
+> than real — which is why migrations have been applied to it directly and
+> why local development writes to it on purpose.
+>
+> Two things follow. **"Applied to production" in this repository's history
+> before September 2026 means applied to this development project** — the
+> commit messages say production and are wrong about which one. And **the
+> first real club's data will need a project of its own**, at which point
+> the row above stops being aspirational and the rule against pointing
+> preview deployments at it starts to matter.
 
 **Preview deployments must never point at production.** A preview URL is
 effectively public — it is in the pull request, and pull requests here are
 public — and pointing one at real data would put 800 children's records
 behind a link anyone can open. Environment variables are set per Vercel
 environment for exactly this reason.
+
+## Running two of them at once
+
+Comparing "what is deployed" against "what I am building" needs both open
+at the same time, so the ports are fixed rather than whatever is free:
+
+| Command | Port | What it runs |
+| ------- | ---- | ------------ |
+| `npm run dev` | **3000** | The working tree, hot-reloaded |
+| `npm run dev:alt` | **3001** | A second dev server, for comparing two branches side by side |
+
+**A local production build was offered on 3002 and has been removed**
+(September 2026). It compared a production *build* against a dev server
+while both talked to the same development database, which is a comparison
+of bundlers rather than of environments — and calling a port "production"
+in a project that has no production environment is exactly the confusion
+that led to migrations being described as applied to production for a
+month. `npm run build` still checks the production build, which is what
+that check was actually for.
+
+When a production environment exists, comparing environments will mean
+comparing two `.env.local` files pointed at two Supabase projects, and
+running a local server against production data will stop being
+acceptable.
 
 ## Configuration
 

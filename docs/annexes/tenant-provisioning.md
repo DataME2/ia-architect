@@ -53,6 +53,20 @@ unbuilt.** There is no self-service sign-up, and there should not be one
 until somebody decides who is allowed to create clubs and how that is
 authorised.
 
+> **Superseded for steps 1, 3 and 4 as of September 2026.** A platform
+> administrator now provisions a club at **`/platform`** — one atomic,
+> idempotent call replacing the four hand-typed statements below, whose
+> failure mode was a half-created tenant. See
+> [decision 9](../decisions/9_platform_administration_provisions_but_never_reads.md).
+>
+> **Step 2 still stands and always will**: the club's first administrator
+> creates their own account, because writing `auth.users` needs the
+> service-role key and no page holds one. The console attaches an account
+> that already exists.
+>
+> The steps below are kept as the description of *what provisioning does*,
+> and as the fallback when nobody is on the platform allowlist yet.
+
 ## Before you start
 
 You need access to the Supabase project's SQL editor or service-role

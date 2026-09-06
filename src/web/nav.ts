@@ -20,9 +20,11 @@ export const REGISTRAR_NAV: readonly NavItem[] = [
   { href: '/registrar/invitations', label: 'Registration links', seasonScoped: true },
   { href: '/registrar/people', label: 'People', seasonScoped: true },
   { href: '/registrar/teams', label: 'Teams', seasonScoped: true },
+  { href: '/registrar/fixtures', label: 'Fixtures', seasonScoped: true },
   { href: '/registrar/governance', label: 'Governance', seasonScoped: false },
   { href: '/registrar/duplicates', label: 'Duplicates', seasonScoped: false },
   { href: '/registrar/pack', label: 'Submission pack', seasonScoped: true },
+  { href: '/registrar/access', label: 'Access', seasonScoped: false },
 ];
 
 /**

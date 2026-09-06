@@ -99,7 +99,37 @@ export async function loadTenantContext(
       .order('created_at', { ascending: true }),
   );
 
-  const membership = memberships[0];
+  let membership = memberships[0];
+
+  if (membership === undefined) {
+    // No membership — but there may be one *waiting* for this person, if
+    // they were named as a club's responsible party before they had an
+    // account (BR95).
+    //
+    // **Claiming lives here rather than only in the sign-in callback**, and
+    // that is the fix for a real failure: the first club provisioned this
+    // way had its administrator sign in successfully and end up a member of
+    // nothing, because the emailed link came back to the site root instead
+    // of `/auth/callback` and the claim never ran. Any route that needs a
+    // tenant is now a route that claims one, so access no longer depends on
+    // which door somebody came through.
+    //
+    // Costs one round trip only when there is no membership, which is
+    // exactly the case that needs it.
+    const { data: claimed } = await client.rpc('claim_club_access');
+    if (typeof claimed === 'number' && claimed > 0) {
+      const after = unwrap<ClubMembershipRow[]>(
+        'club_membership',
+        await client
+          .from('club_membership')
+          .select('id, club_id, user_id, role, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: true }),
+      );
+      membership = after[0];
+    }
+  }
+
   if (membership === undefined) return null;
 
   const clubs = unwrap<ClubRow[]>(

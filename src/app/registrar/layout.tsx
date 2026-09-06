@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { Suspense, type ReactNode } from 'react';
 
 import { loadTenantContext } from '../../data/queries.ts';
@@ -23,6 +24,17 @@ export default async function RegistrarLayout({
 }) {
   const client = await createRequestClient();
   const user = await currentUser(client);
+
+  // Somebody who arrived on an emailed link has no password yet, and would
+  // discover that the next time they tried to sign in — by which point the
+  // only way back is another link from the platform owner. Made unavoidable
+  // here rather than suggested, because a prompt somebody can walk past is
+  // a prompt that gets walked past.
+  if (user !== null) {
+    const { data: needsPassword } = await client.rpc('app_needs_password');
+    if (needsPassword === true) redirect('/set-password');
+  }
+
   const tenant = user === null ? null : await loadTenantContext(client, user.id);
   const demo = tenant !== null && isDemoClub(tenant.clubName);
 
