@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 
 import { createRequestClient } from '../../data/server.ts';
 import { formOk, type FormResult } from '../../web/form-result.ts';
-import { safeDestination } from '../../web/safe-destination.ts';
+import { landingFor } from '../../web/safe-destination.ts';
 
 // Only the type lives here. A 'use server' module may export nothing but
 // async functions -- types are erased, so they are fine; a const object is
@@ -27,7 +27,7 @@ export async function signInAction(
 ): Promise<SignInState> {
   const email = String(formData.get('email') ?? '').trim();
   const password = String(formData.get('password') ?? '');
-  const next = safeDestination(String(formData.get('next') ?? ''));
+  const requested = String(formData.get('next') ?? '');
 
   if (email === '' || password === '') {
     return { error: 'Enter your email address and password.' };
@@ -50,7 +50,15 @@ export async function signInAction(
   // which door they used.
   await client.rpc('claim_club_access');
 
-  redirect(next);
+  // The platform identity holds no membership by design, so the club queue
+  // would greet the operator with "this account belongs to no club" — true,
+  // and indistinguishable from something being broken. Asked of the
+  // database rather than matched against an email address here: the
+  // allowlist is the control, and an address in application code would be a
+  // second, weaker one that could disagree with it.
+  const { data: isPlatform } = await client.rpc('app_is_platform');
+
+  redirect(landingFor(requested, isPlatform === true));
 }
 
 export async function signOutAction(): Promise<void> {

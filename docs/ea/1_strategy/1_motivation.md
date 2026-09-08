@@ -110,7 +110,11 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
 - **P1 — One Person, many roles.** Players, referees, coaches, and
   guardians are never modeled as separate, standalone identities. A change
   that would introduce a role-specific identity instead of a role on
-  `Person` violates this principle.
+  `Person` violates this principle. **A sign-in account is not an identity**
+  — it is a credential, and the Person it belongs to is recorded rather than
+  assumed (BR106–BR108). This was the one place P1 was not honoured until
+  [scope 29's WP1](../../scope/29_actors-access-and-permissions.md); the
+  principle did not change, the gap did.
 - **P2 — Read-only at the source, for now.** Extraction from a club's
   existing systems (SQUADI, PlayFootball, spreadsheets, accounting systems)
   uses read-only access only; Let'sDataTalk does not write back into a

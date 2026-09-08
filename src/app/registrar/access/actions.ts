@@ -60,3 +60,63 @@ export async function revokeAccessAction(
   revalidatePath('/registrar/access');
   return formOk(`${email || 'That account'} is no longer ${role} at this club.`);
 }
+
+/**
+ * Record that an account belongs to a Person.
+ *
+ * The club is not an argument — `link_account_to_person` derives it from
+ * the caller's own admin membership. Neither is the *assertion*: this is a
+ * person saying so, which is the whole of decision 10. Nothing here reads
+ * an email address and guesses.
+ */
+export async function linkAccountAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const userId = String(formData.get('userId') ?? '');
+  const personId = String(formData.get('personId') ?? '');
+  const email = String(formData.get('email') ?? '');
+
+  if (userId === '') return formFailed('Nothing to link.');
+  if (personId === '') return formFailed('Choose who this account belongs to.');
+
+  const client = await createRequestClient();
+  const { error } = await client.rpc('link_account_to_person', {
+    p_user_id: userId,
+    p_person_id: personId,
+  });
+
+  if (error !== null) {
+    // The reverse-direction collision is the one an admin will actually
+    // hit — two people at a club share a name and the wrong one gets
+    // picked — and "duplicate key value violates unique constraint" is
+    // not something a club secretary can act on.
+    return formFailed(
+      /duplicate key|unique constraint/i.test(error.message)
+        ? 'Somebody else’s account is already recorded as that person. Unlink that one first.'
+        : error.message.replace(/^.*?:\s*/, ''),
+    );
+  }
+
+  revalidatePath('/registrar/access');
+  return formOk(`${email || 'That account'} is now recorded as that person.`);
+}
+
+/** Remove the link, and nothing else — not the Person, not the access (BR108). */
+export async function unlinkAccountAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const userId = String(formData.get('userId') ?? '');
+  const email = String(formData.get('email') ?? '');
+  if (userId === '') return formFailed('Nothing to unlink.');
+
+  const client = await createRequestClient();
+  const { error } = await client.rpc('unlink_account', { p_user_id: userId });
+  if (error !== null) return formFailed(error.message.replace(/^.*?:\s*/, ''));
+
+  revalidatePath('/registrar/access');
+  return formOk(
+    `${email || 'That account'} is no longer recorded as anybody. They keep their access.`,
+  );
+}

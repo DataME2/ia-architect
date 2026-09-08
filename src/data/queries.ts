@@ -63,6 +63,20 @@ export interface TenantContext {
    * to be the older row, which is a permission decided by insertion order.
    */
   readonly roles: readonly MembershipRole[];
+  /**
+   * The Person this account belongs to, if an administrator has said so.
+   *
+   * Null is a real answer, not a missing one (BR108) — an account nobody
+   * has linked is the ordinary case, and every screen renders it as
+   * unlinked rather than falling back to the email address.
+   */
+  readonly person: SignedInPerson | null;
+}
+
+export interface SignedInPerson {
+  readonly personId: string;
+  readonly legalName: string;
+  readonly preferredName: string | null;
 }
 
 /** Thrown when a query fails; carries the table so the page can say where. */
@@ -143,6 +157,21 @@ export async function loadTenantContext(
   const club = clubs[0];
   if (club === undefined) return null;
 
+  // Who this account *is*, if anybody has recorded it. Asked of the
+  // database rather than derived here: `app_who_am_i` checks membership
+  // itself, so a club id in the argument cannot reach a link at a club the
+  // caller does not belong to.
+  let person: SignedInPerson | null = null;
+  const { data: whoRows } = await client.rpc('app_who_am_i', { p_club_id: club.id });
+  const who = Array.isArray(whoRows) ? whoRows[0] : null;
+  if (who != null && typeof who.person_id === 'string' && typeof who.legal_name === 'string') {
+    person = {
+      personId: who.person_id,
+      legalName: who.legal_name,
+      preferredName: typeof who.preferred_name === 'string' ? who.preferred_name : null,
+    };
+  }
+
   return {
     userId,
     clubId: club.id,
@@ -151,7 +180,38 @@ export async function loadTenantContext(
     roles: memberships
       .filter((m) => m.club_id === membership.club_id)
       .map((m) => m.role),
+    person,
   };
+}
+
+/**
+ * People an account could be linked to, for the access screen's picker.
+ *
+ * Deliberately thin — `loadPeople` needs a season and builds the whole
+ * directory with roles and guardianships, none of which this decides
+ * anything with. Merged-away records are excluded, because linking an
+ * account to a tombstone would attach an identity to a record BR82 has
+ * already retired.
+ */
+export async function loadLinkCandidates(
+  client: SupabaseClient,
+  clubId: string,
+): Promise<readonly { personId: string; legalName: string; preferredName: string | null }[]> {
+  const rows = unwrap<PersonRow[]>(
+    'person',
+    await client
+      .from('person')
+      .select('*')
+      .eq('club_id', clubId)
+      .is('merged_into_person_id', null)
+      .order('legal_family_name', { ascending: true }),
+  );
+
+  return rows.map((row) => ({
+    personId: row.id,
+    legalName: `${row.legal_given_names} ${row.legal_family_name}`.trim(),
+    preferredName: row.preferred_name ?? null,
+  }));
 }
 
 /** Seasons for a club, most recent first. */

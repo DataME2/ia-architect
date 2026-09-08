@@ -23,6 +23,80 @@ export interface ClubAccount {
   readonly grantedAt: string;
   /** True for the account doing the looking. */
   readonly isSelf: boolean;
+  /**
+   * The Person an administrator has said this account belongs to, or null.
+   *
+   * Null is a real answer and not a missing value (BR108): most accounts
+   * will be unlinked for a long time, because linking is deliberate work
+   * somebody has to do.
+   */
+  readonly personId: string | null;
+  readonly legalName: string | null;
+  readonly preferredName: string | null;
+}
+
+/** A Person an account could be linked to. */
+export interface LinkCandidate {
+  readonly personId: string;
+  readonly legalName: string;
+  readonly preferredName: string | null;
+}
+
+export type AccountIdentity =
+  | { readonly kind: 'linked'; readonly display: string; readonly legalName: string }
+  | { readonly kind: 'unlinked' };
+
+/**
+ * Who this account is, or the honest admission that nobody has said.
+ *
+ * **There is deliberately no fallback to the email address.** A screen that
+ * prints `h.bell@…` where a name belongs makes an unlinked account look
+ * linked, and the gap this exists to close becomes invisible again — which
+ * is how it survived unnoticed until the permissions were audited. BR108.
+ *
+ * The preferred name leads where there is one, because it is what a club
+ * calls somebody; the legal name is carried alongside rather than replaced,
+ * for the same reason BR55 keeps them apart everywhere else.
+ */
+export function accountIdentity(account: ClubAccount): AccountIdentity {
+  if (account.personId === null || account.legalName === null) return { kind: 'unlinked' };
+
+  const preferred = (account.preferredName ?? '').trim();
+  return {
+    kind: 'linked',
+    display: preferred === '' ? account.legalName : preferred,
+    legalName: account.legalName,
+  };
+}
+
+/**
+ * The people this account could be linked to.
+ *
+ * A Person already claimed by *another* account is excluded, because the
+ * database refuses it (BR106's reverse direction) and offering an option
+ * that will be rejected is the defect WP3 exists for. The account's own
+ * current Person stays in the list: re-selecting it is a no-op, and
+ * removing it would make the control look like it had forgotten.
+ */
+export function linkableCandidates(
+  account: ClubAccount,
+  candidates: readonly LinkCandidate[],
+  accounts: readonly ClubAccount[],
+): readonly LinkCandidate[] {
+  const claimedElsewhere = new Set(
+    accounts
+      .filter((a) => a.userId !== account.userId && a.personId !== null)
+      .map((a) => a.personId as string),
+  );
+  return candidates.filter((c) => !claimedElsewhere.has(c.personId));
+}
+
+/** `Bell, Henry (Harry)` — sorted the way a club reads a list of names. */
+export function candidateLabel(candidate: LinkCandidate): string {
+  const preferred = (candidate.preferredName ?? '').trim();
+  return preferred === '' || preferred === candidate.legalName
+    ? candidate.legalName
+    : `${candidate.legalName} (${preferred})`;
 }
 
 /**

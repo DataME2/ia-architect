@@ -61,9 +61,14 @@ de-scoping the table.
 | **`appearance`** | Appearance | One row per player per fixture, carrying `minutes_played`, `started`, `goals` and `assists` as **counts, not events**. A trigger refuses an appearance whose fixture, registration and person disagree about the club, the season or the human — otherwise last season's enrolment quietly accumulates this season's games. What it deliberately does *not* refuse is an appearance by an ineligible player (BR103) |
 | **`player_profile`** | Player Profile | Height, weight, positions, foot and squad number, one per registration and therefore **per season** (BR99) — a twelve-year-old's height in two seasons is two facts. **Read is narrowed** to admin, registrar, coordinator and coach, following `clearance` rather than the schema-wide default: a treasurer has no use for a child's weight |
 | **`prospect`** | Prospect | **The only table in the schema with no `club_id`**, deliberately: a prospect belongs to no tenant and giving them one would drag the marketing surface into the world it exists to stay out of (BR92). Isolated by having *no API access in either direction* rather than by a tenant column — its sole writer is `enter_demo()`, which owns it — which is why it is the one entry in `check_rls.py`'s `TENANTLESS_ALLOWED`. One row per address, not per visit: `created_at` is the first look and `last_seen_at` the most recent. Marketing consent is recorded as **`marketing_consent_at` plus the exact `marketing_consent_wording` shown** (BR93), never a boolean — consent to words that were later edited is not evidence. `marketing_consent_revoked_at` exists and **nothing sets it yet**: no unsubscribe mechanism is built, and an unticked box on a return visit is not treated as a withdrawal, because somebody who did not notice a checkbox has not withdrawn anything |
+| **`club_membership`** | Account ↔ Club Membership | Which Account may act for which club, and in what role. Unique on `(club_id, user_id, role)`, so **two roles are two rows** — which is why the WP1 link could not live here (see below) |
+| **`account_person`** | Account Link | `(club_id, user_id, person_id)`, written only by an administrator through `link_account_to_person()` ([decision 10](../../decisions/10_identity_is_asserted_never_inferred.md)), unique in **both** directions (BR106), with a composite foreign key to `person (club_id, id)` so the database refuses a Person from another club rather than trusting a screen |
+| **`club_licence`** | Licence | Term, state, fee and currency for one club's right to use the product. Read by the platform console only; a lapsed licence is **shown and not enforced** (BR97, [#61](../../scope/open-questions.md)) |
+| **`platform_admin`** | — | The cross-tenant allowlist. Its policy is `for all using (false) with check (false)`, so **the API can neither read it nor write it in either direction** — it is reachable only from inside a `security definer` function ([decision 9](../../decisions/9_platform_administration_provisions_but_never_reads.md)) |
+| **`user_password_set`** | — | One row per account that has chosen its own password (BR98). No `club_id`, and unreachable through the API in both directions, for the same reason `platform_admin` is |
 | **`audit_event`** | — (realises BR15, BR59, BR67) | Append-only. Who did what, when, to which row. Overrides of conflict warnings, pack generation and handover, and the transfer of authority at 18 all land here |
 
-## Three modelling decisions worth defending
+## Four modelling decisions worth defending
 
 **Two name columns, not a name and an alias.** `preferred_name` is not a
 nickname field bolted on — it is what every human-facing surface reads,
@@ -77,6 +82,18 @@ revocation, and authority mean three lifecycles. A boolean cannot record
 *who* granted it, *when*, or that it was revoked on Tuesday — and BR48
 requires all three. It also means adding a fourth purpose later is a row,
 not a migration.
+
+**The account link is its own table, not a column on `club_membership`.**
+The obvious place to say which Person an account belongs to is the row that
+already joins the account to the club — and it is the wrong place.
+`club_membership` is unique on `(club_id, user_id, role)`, so an account
+holding both `admin` and `registrar` is two rows: a `person_id` column would
+be stored twice and could disagree with itself, and a club that revokes one
+role would silently drop half the link. The relationship being recorded is
+*account ↔ Person at a club*, which is one fact per account per club, not
+one per role. It gets a table whose uniqueness says exactly that — in both
+directions, because the failure of the reverse direction (two accounts both
+claiming to be the treasurer) is the one nobody looks for.
 
 **Validation results are persisted.** The alternative — recomputing on
 render — is cheaper until the registrar asks "what was wrong with this in

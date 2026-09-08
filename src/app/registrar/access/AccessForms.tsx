@@ -6,13 +6,22 @@ import {
   CLUB_ROLES,
   READ_ONLY_ROLES,
   ROLE_SUMMARY,
+  accountIdentity,
+  candidateLabel,
   grantableRoles,
+  linkableCandidates,
   revocation,
   type ClubAccount,
+  type LinkCandidate,
 } from '../../../web/access-view.ts';
 import { IDLE_FORM } from '../../../web/form-result.ts';
 import { FormNotice } from '../_components/FormNotice.tsx';
-import { grantAccessAction, revokeAccessAction } from './actions.ts';
+import {
+  grantAccessAction,
+  linkAccountAction,
+  revokeAccessAction,
+  unlinkAccountAction,
+} from './actions.ts';
 
 export function GrantAccessForm() {
   const [state, formAction, pending] = useActionState(grantAccessAction, IDLE_FORM);
@@ -93,6 +102,85 @@ export function RevokeButton({
   );
 }
 
+
+/**
+ * Who an account is, and the control that says so.
+ *
+ * Two things are deliberate. The name is shown with the email *beneath* it
+ * rather than instead of it — an admin removing access needs both, since
+ * the address is what they were given and the name is what they know. And
+ * an unlinked account says so plainly: no greyed-out name, no email
+ * pretending to be one (BR108).
+ */
+function AccountIdentity({
+  account,
+  accounts,
+  candidates,
+}: {
+  readonly account: ClubAccount;
+  readonly accounts: readonly ClubAccount[];
+  readonly candidates: readonly LinkCandidate[];
+}) {
+  const [state, formAction, pending] = useActionState(linkAccountAction, IDLE_FORM);
+  const [unlinkState, unlinkAction, unlinking] = useActionState(unlinkAccountAction, IDLE_FORM);
+  const who = accountIdentity(account);
+  const options = linkableCandidates(account, candidates, accounts);
+
+  return (
+    <div className="stack" style={{ gap: '0.35rem' }}>
+      {who.kind === 'linked' ? (
+        <>
+          <strong title={who.legalName}>{who.display}</strong>
+          <span className="hint">{account.email}</span>
+          <form action={unlinkAction} style={{ display: 'inline' }}>
+            <input type="hidden" name="userId" value={account.userId} />
+            <input type="hidden" name="email" value={account.email} />
+            <button type="submit" className="secondary" disabled={unlinking}>
+              {unlinking ? '…' : 'Not this person'}
+            </button>
+          </form>
+        </>
+      ) : (
+        <>
+          <span className="hint">
+            <em>Not linked</em> — the club knows this account, not who it belongs to.
+          </span>
+          <span>{account.email}</span>
+          {options.length === 0 ? (
+            <span className="hint">
+              Every person on record already belongs to an account.
+            </span>
+          ) : (
+            <form action={formAction} style={{ display: 'inline-flex', gap: '0.35rem' }}>
+              <input type="hidden" name="userId" value={account.userId} />
+              <input type="hidden" name="email" value={account.email} />
+              <select
+                name="personId"
+                defaultValue=""
+                aria-label={`Who is ${account.email}?`}
+              >
+                <option value="" disabled>
+                  Who is this?
+                </option>
+                {options.map((candidate) => (
+                  <option key={candidate.personId} value={candidate.personId}>
+                    {candidateLabel(candidate)}
+                  </option>
+                ))}
+              </select>
+              <button type="submit" className="secondary" disabled={pending}>
+                {pending ? '…' : 'Link'}
+              </button>
+            </form>
+          )}
+        </>
+      )}
+      {state.status === 'error' && <span className="hint">{state.message}</span>}
+      {unlinkState.status === 'error' && <span className="hint">{unlinkState.message}</span>}
+    </div>
+  );
+}
+
 export function RoleLegend() {
   return (
     <div className="card">
@@ -163,7 +251,13 @@ export function GrantMoreForm({ account }: { readonly account: ClubAccount }) {
  * row's Remove button needs its own action state and the last-administrator
  * rule needs the whole list to decide.
  */
-export function AccessForms({ accounts }: { readonly accounts: readonly ClubAccount[] }) {
+export function AccessForms({
+  accounts,
+  candidates,
+}: {
+  readonly accounts: readonly ClubAccount[];
+  readonly candidates: readonly LinkCandidate[];
+}) {
   return (
     <>
       <div className="card">
@@ -176,7 +270,7 @@ export function AccessForms({ accounts }: { readonly accounts: readonly ClubAcco
           <table>
             <thead>
               <tr>
-                <th>Account</th>
+                <th>Who</th>
                 <th>Roles</th>
                 <th>Add a role</th>
               </tr>
@@ -185,12 +279,16 @@ export function AccessForms({ accounts }: { readonly accounts: readonly ClubAcco
               {accounts.map((account) => (
                 <tr key={account.userId}>
                   <td>
-                    {account.email}
                     {account.isSelf && (
-                      <span className="pill" style={{ marginLeft: '0.4rem' }}>
+                      <span className="pill" style={{ float: 'right' }}>
                         you
                       </span>
                     )}
+                    <AccountIdentity
+                      account={account}
+                      accounts={accounts}
+                      candidates={candidates}
+                    />
                   </td>
                   <td>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>

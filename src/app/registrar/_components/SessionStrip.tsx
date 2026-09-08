@@ -29,24 +29,44 @@ export function SessionStrip({
   user,
   tenant,
   demo = false,
+  platform = false,
 }: {
   readonly user: SignedInUser | null;
   readonly tenant: TenantContext | null;
   /** Marks the strip itself, so the club is named as the demo everywhere. */
   readonly demo?: boolean;
+  /** The platform owner, who has no club and is not missing one. */
+  readonly platform?: boolean;
 }) {
   if (user === null) return null;
 
   return (
     <div className={demo ? 'session-strip is-demo' : 'session-strip'}>
       <div>
-        <span className="session-who">{user.email ?? 'Signed in'}</span>
+        {/*
+          The name where there is one, the email where there is not — and
+          never the email dressed as a name (BR108). An unlinked account
+          reads as unlinked here rather than looking identified, which is
+          the whole reason the link is worth recording.
+        */}
+        {tenant?.person != null ? (
+          <span className="session-who" title={tenant.person.legalName}>
+            {tenant.person.preferredName?.trim() || tenant.person.legalName}
+          </span>
+        ) : (
+          <span className="session-who">{user.email ?? 'Signed in'}</span>
+        )}
         {tenant !== null && (
           <>
             <span className="session-sep">·</span>
             <span>{tenant.clubName}</span>
             {demo && <span className="pill pill-warn" style={{ marginLeft: '0.45rem' }}>Demo</span>}
             <span className="session-sep">·</span>
+            {tenant.person != null && (
+              <span className="session-since" style={{ marginRight: '0.45rem' }}>
+                {user.email}
+              </span>
+            )}
             {tenant.roles.map((role) => (
               <span className="pill" key={role} style={{ marginRight: '0.3rem' }}>
                 {ROLE_LABEL[role] ?? role}
@@ -57,7 +77,14 @@ export function SessionStrip({
         {tenant === null && (
           <>
             <span className="session-sep">·</span>
-            <span>No club membership</span>
+            {platform ? (
+              // Not a gap to report. This account holds no membership by
+              // design — decision 9 — and "No club membership" reads as a
+              // fault on the one identity for which it is the point.
+              <span className="pill pill-warn">Platform owner &mdash; no club, by design</span>
+            ) : (
+              <span>No club membership</span>
+            )}
           </>
         )}
       </div>

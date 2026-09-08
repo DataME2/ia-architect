@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test, describe } from 'node:test';
 
-import { DEFAULT_DESTINATION, safeDestination } from './safe-destination.ts';
+import { DEFAULT_DESTINATION, landingFor, safeDestination } from './safe-destination.ts';
 
 describe('safeDestination', () => {
   test('keeps a destination we publish', () => {
@@ -31,5 +31,32 @@ describe('safeDestination', () => {
     assert.equal(safeDestination(undefined), DEFAULT_DESTINATION);
     assert.equal(safeDestination(null), DEFAULT_DESTINATION);
     assert.equal(safeDestination(''), DEFAULT_DESTINATION);
+  });
+});
+
+test('landingFor', async (t) => {
+  await t.test('sends the platform operator to the console', () => {
+    // The account that cannot have a club, sent somewhere that does not
+    // need one. Without this it lands on "No club yet", which is true and
+    // reads like a fault.
+    assert.equal(landingFor(null, true), '/platform');
+    assert.equal(landingFor('', true), '/platform');
+  });
+
+  await t.test('sends everybody else to the queue', () => {
+    assert.equal(landingFor(null, false), '/registrar');
+  });
+
+  await t.test('an asked-for destination still wins, for either', () => {
+    // Somebody following an emailed link must arrive where the link points
+    // whoever they are — including the operator setting their own password.
+    assert.equal(landingFor('/set-password', true), '/set-password');
+    assert.equal(landingFor('/registrar', true), '/registrar');
+    assert.equal(landingFor('/platform', false), '/platform');
+  });
+
+  await t.test('an unpublished destination is still refused, for either', () => {
+    assert.equal(landingFor('//evil.example', true), '/platform');
+    assert.equal(landingFor('/admin', false), '/registrar');
   });
 });
