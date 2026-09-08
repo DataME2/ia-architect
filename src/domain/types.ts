@@ -68,6 +68,25 @@ export interface Guardianship {
   readonly isContact: boolean;
 }
 
+/**
+ * The roles a Person can hold in a season (P1).
+ *
+ * One list, in the domain, because P1 is a domain statement: a player,
+ * referee, coach, guardian and committee member are *roles a Person holds*,
+ * not five kinds of record. The database's check constraint and this array
+ * are the same list said twice, and they are meant to be diffed.
+ */
+export const SEASON_ROLES = ['player', 'referee', 'coach', 'guardian', 'committee'] as const;
+
+export type SeasonRole = (typeof SEASON_ROLES)[number];
+
+/** One role held by one Person for one season. */
+export interface PersonRole {
+  readonly personId: string;
+  readonly seasonId: string;
+  readonly role: SeasonRole;
+}
+
 export const CONSENT_PURPOSES = [
   'REGISTRATION_COLLECTION_NOTICE',
   'IDENTIFICATION_PHOTOGRAPH',

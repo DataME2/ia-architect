@@ -1,4 +1,6 @@
 /** Builders for tests. Everything defaults to valid; each test breaks one thing. */
+import type { Installment, Payment, PaymentPlan } from './finance/types.ts';
+import { buildSchedule } from './finance/plan.ts';
 import type {
   Consent, Guardianship, IsoDate, Person, Registration,
 } from './types.ts';
@@ -56,12 +58,41 @@ export function registration(overrides: Partial<Registration> = {}): Registratio
   };
 }
 
+/** A four-instalment monthly plan. Every field defaults to something valid. */
+export function paymentPlan(overrides: Partial<PaymentPlan> = {}): PaymentPlan {
+  const schedule = buildSchedule(12000, 4, '2026-03-01', 'monthly');
+  return {
+    id: 'plan-1',
+    registrationId: 'registration-1',
+    totalCents: 12000,
+    cadence: 'monthly',
+    installments: schedule.ok ? schedule.installments : ([] as readonly Installment[]),
+    cancelledAt: null,
+    ...overrides,
+  };
+}
+
+export function payment(overrides: Partial<Payment> = {}): Payment {
+  return {
+    id: 'payment-1',
+    registrationId: 'registration-1',
+    amountCents: 3000,
+    receivedOn: '2026-03-01',
+    method: 'card',
+    reference: null,
+    reversesPaymentId: null,
+    ...overrides,
+  };
+}
+
 export function context(overrides: Partial<RegistrationContext> = {}): RegistrationContext {
   return {
     registration: registration(),
     person: person(),
     guardianships: [guardian()],
     consents: [consent()],
+    paymentPlan: null,
+    payments: [],
     asAt: TODAY,
     ...overrides,
   };

@@ -162,6 +162,57 @@ this platform didn't previously cover — following an event across clubs
 without one (Principle P6,
 [1_strategy/1_motivation.md](../1_strategy/README.md)).
 
+## The incumbent's model, as a benchmark
+
+Supplied by the pilot club, September 2026. Majestri is the incumbent this
+platform [replaces rather than integrates with](../../decisions/5_replace-the-incumbent-rather-than-integrate.md),
+and **every prospect already uses it** — so its vocabulary is what a club
+committee will expect to find, and its choices are evidence about what
+clubs accept in practice rather than what a designer thinks is tidy.
+
+Recorded here as reference, not as a target. Where it differs from this
+platform, the difference is the interesting part.
+
+### Its permissions
+
+| Majestri permission | Here | Note |
+| ------------------- | ---- | ---- |
+| **Administrative** — committees, groups, core settings, email preferences | `admin` | Same idea. Majestri's own guidance is to keep it **highly restricted, often to a single central administrator**, which is a governance answer to [open question #60](../../scope/open-questions.md) from the party who has watched clubs use it |
+| **Financials** — invoicing, payment plans, debtor tracking | `treasurer` | Closely equivalent; ours also verifies vouchers (BR78). Theirs is a **tab in a Control Room**, ours is worked from the registration detail page — we have no treasurer's own screen |
+| **Content** — club website, Document and Image Vaults | **nothing** | No equivalent. This platform has no website management, no document vault and no image vault |
+| **Events** — club events, trials, tournaments, social functions | **nothing** | C12 (carnivals & events) is not started |
+
+### Its actors
+
+| Majestri actor | Here | Note |
+| -------------- | ---- | ---- |
+| **Administrators** | `admin` | See above |
+| **Team Officials** — coaches, managers, assistants, in a *Team Dugout* interface, **without seeing sensitive financial data** | `coach`, `coordinator`, and `team_member` roles | **The one that matters most.** See below |
+| **Volunteers** — parents fulfilling rostered duties, with seasonal hours tracked to calculate **volunteer rebates** | **nothing** | Not modelled anywhere: not an actor, not a capability, not a rule. A rebate that reduces what a family owes would interact directly with BR3 and BR79 |
+| **Primary Contacts** — the adult who fills in a registration; required for a minor, and an adult player may be their own | `guardian` role, `guardianship.is_contact` (BR67) | Equivalent, and ours is arguably better: BR67 separates *who may consent* from *who the club phones*, which one "primary contact" cannot express |
+| **Players** | `player` role | Equivalent |
+
+### What the Team Officials row tells us
+
+Majestri gives team officials **their own interface and withholds financial
+data from it**. This platform does the opposite by omission: a `coach` here
+reads every family's outstanding balance, every consent and every guardian's
+contact details across the whole club, because reads are scoped by club
+membership and not by role
+([scope 29](../../scope/29_actors-access-and-permissions.md)).
+
+That is direct evidence for [open question #58](../../scope/open-questions.md):
+the product every prospective club is already using has decided that a coach
+does not see money, and no club has apparently found that unacceptable. It
+does not settle the question — what a club's own coaches should see is still
+the club's decision under BR52 — but it moves the burden of argument onto
+whoever wants coaches to see finances.
+
+**Two gaps this comparison exposes**, neither previously recorded: there is
+no volunteer model at all, and no separate interface for team officials — a
+coach here is given the registrar's screens with most of the buttons
+inoperative.
+
 ## Roles this project does not yet model
 
 Banking-detail custody for minor referees is mentioned in the source

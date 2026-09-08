@@ -24,7 +24,17 @@ import { readPublicConfig } from './data/env.ts';
  * the token, checked by the database when the form is submitted — not by
  * anything here.
  */
-const PROTECTED = ['/registrar', '/register'];
+const PROTECTED = ['/registrar', '/register', '/set-password'];
+
+/**
+ * `/platform` is deliberately absent from that list.
+ *
+ * Redirecting an anonymous visitor to sign in would confirm the route
+ * exists. The page answers `notFound()` to everyone who is not a platform
+ * administrator, signed in or not — and the actual control is the
+ * `platform_admin` allowlist checked inside every function it calls
+ * (decision 9), not the fact that the path is unadvertised.
+ */
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

@@ -1,8 +1,10 @@
 'use server';
 
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { createRequestClient } from '../../data/server.ts';
+import { formOk, type FormResult } from '../../web/form-result.ts';
 import { safeDestination } from '../../web/safe-destination.ts';
 
 // Only the type lives here. A 'use server' module may export nothing but
@@ -41,6 +43,13 @@ export async function signInAction(
     return { error: 'That email address and password did not match.' };
   }
 
+  // Turn any access recorded against this address into a real membership.
+  // Somebody provisioned as a club's responsible person may arrive by
+  // password rather than by the emailed link — a second visit, a saved
+  // password, a different device — and their access should not depend on
+  // which door they used.
+  await client.rpc('claim_club_access');
+
   redirect(next);
 }
 
@@ -48,4 +57,35 @@ export async function signOutAction(): Promise<void> {
   const client = await createRequestClient();
   await client.auth.signOut();
   redirect('/sign-in');
+}
+
+/**
+ * Email a link to somebody who has forgotten their password.
+ *
+ * **The answer is the same whether or not the address has an account.**
+ * Telling a caller which club emails are real is the same disclosure the
+ * sign-in error already refuses to make, and this form is unauthenticated,
+ * so it would be a directory anybody could query.
+ */
+export async function requestPasswordResetAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const email = String(formData.get('email') ?? '').trim().toLowerCase();
+  const said = 'If that address has an account, a link is on its way. It is good for one use.';
+
+  if (email === '' || !email.includes('@')) return formOk(said);
+
+  const requestHeaders = await headers();
+  const host = requestHeaders.get('host') ?? 'localhost:3000';
+  const proto =
+    requestHeaders.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
+
+  const client = await createRequestClient();
+  // The error is deliberately not surfaced, for the reason above.
+  await client.auth.resetPasswordForEmail(email, {
+    redirectTo: `${proto}://${host}/auth/callback?next=%2Fset-password`,
+  });
+
+  return formOk(said);
 }

@@ -94,6 +94,8 @@ function exclusionFor(
     person,
     guardianships: candidate.guardianships,
     consents: candidate.consents,
+    paymentPlan: candidate.paymentPlan,
+    payments: candidate.payments,
     asAt: options.asAt,
   }).filter((o) => o.status === 'fail');
 

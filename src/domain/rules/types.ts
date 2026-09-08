@@ -6,6 +6,7 @@
  * the rule set can be diffed against
  * `docs/ea/2_business/5_domain-context-and-rules.md` by a human.
  */
+import type { PaymentPlan, Payment } from '../finance/types.ts';
 import type { Consent, Guardianship, IsoDate, Person, Registration } from '../types.ts';
 
 /**
@@ -33,6 +34,10 @@ export interface RegistrationContext {
   readonly guardianships: readonly Guardianship[];
   /** Consents held for the registering Person. */
   readonly consents: readonly Consent[];
+  /** The live payment plan for this registration, or `null` if the fee is due in full. */
+  readonly paymentPlan: PaymentPlan | null;
+  /** Everything received against this registration, oldest first. */
+  readonly payments: readonly Payment[];
   /** The date the rules are evaluated against. */
   readonly asAt: IsoDate;
 }

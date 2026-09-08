@@ -6,15 +6,29 @@
  * database's idea of null.
  */
 
+import type { Installment, Payment, PaymentPlan } from '../domain/finance/types.ts';
+import type { Voucher } from '../domain/finance/voucher.ts';
+import type { Clearance, Team } from '../domain/teams/types.ts';
+import type { CommitteeMember, CommitteeTerm } from '../domain/governance/term.ts';
 import type {
   Consent,
   Guardianship,
   Person,
+  PersonRole,
   Registration,
 } from '../domain/types.ts';
 import type {
   ConsentRow,
+  PaymentInstallmentRow,
+  PaymentPlanRow,
+  PaymentRow,
+  RegistrationVoucherRow,
+  ClearanceRow,
+  CommitteePositionRow,
+  CommitteeTermRow,
+  TeamRow,
   GuardianshipRow,
+  PersonRoleRow,
   PersonRow,
   RegistrationDocumentRow,
   RegistrationRow,
@@ -81,5 +95,110 @@ export function toRegistration(
     requiredDocumentTypes: required,
     providedDocumentTypes: provided,
     outstandingAmountCents: row.outstanding_amount_cents,
+  };
+}
+
+export function toPersonRole(row: PersonRoleRow): PersonRole {
+  return {
+    personId: row.person_id,
+    seasonId: row.season_id,
+    role: row.role,
+  };
+}
+
+export function toInstallment(row: PaymentInstallmentRow): Installment {
+  return {
+    sequence: row.sequence,
+    dueOn: row.due_on,
+    amountCents: row.amount_cents,
+  };
+}
+
+export function toPaymentPlan(
+  row: PaymentPlanRow,
+  installments: readonly PaymentInstallmentRow[],
+): PaymentPlan {
+  return {
+    id: row.id,
+    registrationId: row.registration_id,
+    totalCents: row.total_cents,
+    cadence: row.cadence,
+    installments: installments
+      .filter((i) => i.payment_plan_id === row.id)
+      .map(toInstallment)
+      .sort((a, b) => a.sequence - b.sequence),
+    cancelledAt: row.cancelled_at,
+  };
+}
+
+export function toPayment(row: PaymentRow): Payment {
+  return {
+    id: row.id,
+    registrationId: row.registration_id,
+    amountCents: row.amount_cents,
+    receivedOn: row.received_on,
+    method: row.method,
+    reference: row.reference,
+    reversesPaymentId: row.reverses_payment_id,
+  };
+}
+
+export function toVoucher(row: RegistrationVoucherRow): Voucher {
+  return {
+    id: row.id,
+    registrationId: row.registration_id,
+    program: row.program,
+    code: row.code,
+    faceValueCents: row.face_value_cents,
+    state: row.state,
+    filePath: row.file_path,
+    attachedAt: row.attached_at,
+    verifiedAt: row.verified_at,
+    rejectionReason: row.rejection_reason,
+    reliefPaymentId: row.relief_payment_id,
+  };
+}
+
+export function toTeam(row: TeamRow): Team {
+  return {
+    id: row.id,
+    seasonId: row.season_id,
+    name: row.name,
+    ageGroup: row.age_group,
+  };
+}
+
+export function toClearance(row: ClearanceRow): Clearance {
+  return {
+    id: row.id,
+    personId: row.person_id,
+    kind: row.kind,
+    identifier: row.identifier,
+    issuedOn: row.issued_on,
+    expiresOn: row.expires_on,
+    verifiedAt: row.verified_at,
+    revokedAt: row.revoked_at,
+    filePath: row.file_path,
+  };
+}
+
+export function toCommitteeTerm(row: CommitteeTermRow): CommitteeTerm {
+  return {
+    id: row.id,
+    name: row.name,
+    agmHeldOn: row.agm_held_on,
+    startsOn: row.starts_on,
+    nextAgmDueOn: row.next_agm_due_on,
+  };
+}
+
+export function toCommitteeMember(row: CommitteePositionRow): CommitteeMember {
+  return {
+    id: row.id,
+    termId: row.term_id,
+    personId: row.person_id,
+    position: row.position,
+    electedOn: row.elected_on,
+    resignedOn: row.resigned_on,
   };
 }
