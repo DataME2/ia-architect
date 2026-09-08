@@ -2,7 +2,8 @@
 
 _[← Decisions](./README.md) · [Enterprise architecture](../ea/README.md)_
 
-**Status:** Accepted (September 2026)
+**Status:** Accepted (September 2026). **Database delivered**, proved by
+`supabase/tests/25_account_person.sql`; no screen reads it yet.
 
 ## The question
 
