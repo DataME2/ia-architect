@@ -2,8 +2,9 @@
 
 _[← Decisions](./README.md) · [Enterprise architecture](../ea/README.md)_
 
-**Status:** Accepted (September 2026). **Database delivered**, proved by
-`supabase/tests/25_account_person.sql`; no screen reads it yet.
+**Status:** Accepted (September 2026). **Built** — `supabase/migrations/0022_account_person.sql`,
+proved by `supabase/tests/25_account_person.sql`, and rendered by
+`/registrar/access` and the session strip.
 
 ## The question
 

@@ -4,9 +4,8 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
 **Delivered as:** branch `claude/governance-actors-and-permissions`.
-**Status: WP2 delivered. WP1 — the database half is delivered and proved;
-the screens that read it are not built. WP3 on hold by decision. WP4 waits
-on open questions #58 and #59.**
+**Status: WP1 and WP2 delivered, September 2026. WP3 on hold by decision.
+WP4 waits on open questions #58 and #59.**
 
 Three questions were asked of club governance and administration: **how does
 an actor sign in, what may each actor do, and what may each actor see?**
@@ -191,7 +190,7 @@ thing entirely, and a club officer is therefore two unrelated records.
 
 ## Work packages and deliverables
 
-### WP1 — Say who is signed in *(DATABASE DELIVERED; SCREENS NOT BUILT)*
+### WP1 — Say who is signed in *(DELIVERED)*
 
 Held in September 2026 to be decided after WP2 was in use. It has been; the
 cost of holding it went up as predicted, so WP1 was taken through the EA
@@ -199,13 +198,11 @@ layers, specified, and its database half built:
 `supabase/migrations/0022_account_person.sql` and
 `supabase/tests/25_account_person.sql` (19 scenarios).
 
-**What is not built is everything a person would see.** `app_club_accounts()`
-now returns the linked name and a null where there is none, and
-`app_who_am_i()` answers for the caller — but no screen calls either, so a
-club still reads email addresses on `/registrar/access` and no session strip
-shows a name. The link can only be made by calling the function directly.
-That is a deliberate stopping point, not an oversight: the schema is the
-half that is hard to change later.
+The screens followed in a second commit: the session strip names a person,
+`/registrar/access` lists names with the address beneath, and each unlinked
+account carries the picker that links it. **Delivery is one migration, one
+behavioural suite, three pure functions and their tests, and no new
+route.**
 
 The cost, restated: the audit log names a uuid rather than a person, and the
 access screen delivered in WP2 lists **email addresses rather than names** —
@@ -233,7 +230,8 @@ addresses) is available, silent, and wrong. That is now
 | --- | --- |
 | **Migration** *(delivered)* | `account_person (club_id, user_id, person_id, linked_at, linked_by)`. Unique on `(club_id, user_id)` **and** on `(club_id, person_id)` — BR106 in both directions. A composite `foreign key (club_id, person_id) references person (club_id, id)` refuses a Person from another club in the database rather than in a screen, which needs a `unique (club_id, id)` on `person` first. RLS: read by any member (names are already club-readable), write by `admin` only, matching `club_membership_manage` |
 | **Functions** *(delivered)* | `link_account_to_person(p_user_id, p_person_id)`, `unlink_account(p_user_id)` and `app_who_am_i(p_club_id)`, both `security definer`, both taking the club from `app_admin_club()` rather than as an argument — decision 6's shape, reused in decisions 8 and 9 and again here. `app_club_accounts()` gains the linked name, which means dropping and recreating it (a return-type change; migration 0017 learned this) |
-| **Reads** *(not built)* | `src/data/queries.ts` resolving the session to a Person; `SessionStrip` showing the name; `/registrar/access` showing a name with the email beneath it, and **"Not linked" where there is none** (BR108). The database returns all of this today and nothing renders it |
+| **Reads** *(delivered)* | `loadTenantContext` resolves the session through `app_who_am_i`; `SessionStrip` shows the name with the address alongside; `/registrar/access` shows a name with the email beneath it and **"Not linked" where there is none** (BR108). `loadLinkCandidates` is a thin read rather than `loadPeople`, which needs a season and builds roles and guardianships this screen decides nothing with, and it excludes merged-away records so an account cannot be linked to a tombstone BR82 retired |
+| **Screen decisions** *(delivered)* | `src/web/access-view.ts` — `accountIdentity` (no fallback to the email address, ever), `linkableCandidates` (a Person another account already claims is not offered, because the database would refuse it — the WP3 defect, not repeated), `candidateLabel`. Twelve unit tests, each proved by breaking it |
 | **Tests** *(delivered)* | 19 scenarios. A non-admin cannot link — not a registrar, not a member, not a stranger, not another club. An admin cannot link a Person from another club. One account cannot be two People; one Person cannot be two accounts. Unlinking removes the link and neither the Person nor the account, and frees the Person to be claimed again. Five guarantees were broken deliberately first — see below |
 | **Rules** | BR106, BR107, BR108 |
 
@@ -271,9 +269,21 @@ link at another club was readable when no such link existed, so it would
 have passed with the filter deleted. A link at Rival is now planted as the
 table owner so the assertion has something to refuse.
 
-- **Outcome (database):** the platform can answer *who*, and P1 reaches the
-  sign-in identity. **Outcome (application): still pending** — nothing calls
-  it yet, so a club sees no difference.
+#### What it does not do
+
+**No permission follows the link**, which is worth saying on the screen and
+is said there. Being recorded as the Person who holds a `committee_position`
+is not the `committee` role, and does not become one — [#59](./open-questions.md).
+
+**The picker lists every unclaimed person at the club.** At the pilot club
+that is several hundred options in a `select`. It is the right amount of
+machinery for a screen used a handful of times per season, and the honest
+upgrade if that stops being true is a search field rather than a longer
+list.
+
+- **Outcome:** the application says *who* rather than *which email*, and P1
+  reaches the sign-in identity — the last of the three findings in §3 to be
+  closed.
 
 ### WP2 — A club access screen *(DELIVERED)*
 
