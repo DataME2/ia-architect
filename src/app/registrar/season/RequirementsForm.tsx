@@ -2,23 +2,22 @@
 
 import { useActionState } from 'react';
 
+import { IDLE_FORM, type FormResult } from '../../../web/form-result.ts';
+import { FormNotice } from '../_components/FormNotice.tsx';
+
 import type { SeasonRow } from '../../../data/schema.ts';
 import { formatCents } from '../../../web/money.ts';
 import { saveRequirementsAction } from './actions.ts';
 
 export function RequirementsForm({ season }: { readonly season: SeasonRow }) {
-  const [error, formAction, pending] = useActionState<string | null, FormData>(
+  const [result, formAction, pending] = useActionState<FormResult, FormData>(
     saveRequirementsAction,
-    null,
+    IDLE_FORM,
   );
 
   return (
     <>
-      {error !== null && (
-        <div className="errors">
-          <strong>{error}</strong>
-        </div>
-      )}
+      <FormNotice result={result} />
 
       <form action={formAction} className="stack">
         <input type="hidden" name="seasonId" value={season.id} />

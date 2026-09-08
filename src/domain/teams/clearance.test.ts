@@ -16,6 +16,7 @@ function clearance(overrides: Partial<Clearance> = {}): Clearance {
     expiresOn: '2027-01-10',
     verifiedAt: '2026-01-15T00:00:00Z',
     revokedAt: null,
+    filePath: null,
     ...overrides,
   };
 }

@@ -76,6 +76,11 @@ a {
   letter-spacing: -0.01em;
 }
 
+.masthead h1 a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .masthead nav {
   display: flex;
   gap: 1rem;
@@ -351,4 +356,242 @@ th {
 
 .table-scroll {
   overflow-x: auto;
+}
+
+/* --------------------------------------------------------- session strip
+   Who you are signed in as, above the club screens. Quiet by default: it is
+   reference, not a control — until you need the way out, which is why the
+   sign-out button is the one thing in it that looks pressable. */
+
+.session-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.85rem;
+  margin-bottom: 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.session-who {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.session-sep {
+  margin: 0 0.45rem;
+  opacity: 0.55;
+}
+
+.session-since {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The club-facing menu. On every screen, so no journey between two of them
+   has to pass through a third. */
+.app-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 1.4rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-nav-link {
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.app-nav-link:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.app-nav-link.is-current {
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+/* The demonstration tenant announces itself. It is a real club under real
+   policies; the only difference anyone should notice is this. */
+.demo-banner {
+  margin: 0 0 0.8rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--warn-text);
+  border-radius: var(--radius);
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  font-size: 0.88rem;
+}
+
+.session-strip.is-demo {
+  border-color: var(--warn-text);
+}
+
+/* "Which club am I in?" — the two answers are styled apart on purpose.
+   Mistaking real children's records for fictional ones is the error that
+   costs something, so it does not get to look like the reassuring one. */
+.demo-card {
+  border-color: var(--warn-text);
+}
+
+.real-card {
+  border-color: var(--accent);
+}
+
+.real-banner {
+  margin: 0 0 0.8rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.88rem;
+}
+
+/* The marketing consent box. Laid out so the text is beside the control
+   rather than beneath it, because a checkbox whose label is ambiguous is a
+   checkbox whose consent is arguable. */
+.consent-field {
+  margin-top: 1rem;
+}
+
+.consent-label {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  font-weight: 400;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.consent-label input[type='checkbox'] {
+  margin-top: 0.15rem;
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+}
+
+/* The player card. The one place a photograph, a child's physique and a
+   performance record appear together — which is why BR100 draws a line
+   around who may see it, and why there is no share control here. */
+.player-card {
+  border-left: 3px solid var(--accent);
+}
+
+.player-card-head {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.player-photo {
+  flex: 0 0 auto;
+  width: 84px;
+  height: 84px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.player-photo-empty {
+  font-size: 0.7rem;
+  color: var(--muted);
+  padding: 0 0.3rem;
+  line-height: 1.3;
+}
+
+.squad-number {
+  display: inline-block;
+  min-width: 1.7em;
+  margin-right: 0.45rem;
+  padding: 0 0.35rem;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--accent-text);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* Figures sit together and stay on one baseline, so appearances and goals
+   read as one set rather than four unrelated numbers. */
+.player-figures {
+  display: flex;
+  gap: 1.1rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.player-figures .stat {
+  display: flex;
+  flex-direction: column;
+  min-width: 3.5rem;
+}
+
+.player-figures .stat .n {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.player-figures .stat .label {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* The photograph itself fills its frame. */
+.player-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius);
+  display: block;
+}
+
+/* Framing a headshot. The square is the crop: what is inside it is what
+   gets saved, so it is drawn as the whole control rather than as an
+   overlay on a larger picture. */
+.crop-stage {
+  display: inline-block;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg);
+  line-height: 0;
+}
+
+.crop-canvas {
+  display: block;
+  touch-action: none;
+  cursor: grab;
+}
+
+.crop-canvas:active {
+  cursor: grabbing;
+}
+
+.crop-canvas:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }

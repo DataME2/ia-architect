@@ -34,6 +34,19 @@ export default function HomePage() {
           </a>
         </p>
       </div>
+
+      <div className="card">
+        <h3 style={{ marginTop: 0 }}>Demonstration club</h3>
+        <p className="hint" style={{ marginTop: 0 }}>
+          Which club the current session is in, and whether what it shows is fictional or a real
+          club&rsquo;s real records. Worth checking before reading anything.
+        </p>
+        <p style={{ marginBottom: 0 }}>
+          <a className="button secondary" href="/demo">
+            Which club am I in?
+          </a>
+        </p>
+      </div>
     </>
   );
 }

@@ -49,7 +49,8 @@ for f in \
   "$ROOT/supabase/tests/00_local_supabase_shim.sql" \
   "$ROOT"/supabase/migrations/*.sql \
   "$ROOT/supabase/tests/99_grants.sql" \
-  "$ROOT"/supabase/tests/1*_*.sql
+  "$ROOT"/supabase/tests/1*_*.sql \
+  "$ROOT"/supabase/tests/2*_*.sql
 do
   $PSQL_DB -q -v ON_ERROR_STOP=1 -f "$f"
 done

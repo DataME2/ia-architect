@@ -11,7 +11,7 @@
  * someone signs in.
  */
 
-export const SAFE_DESTINATIONS = ['/registrar', '/register'] as const;
+export const SAFE_DESTINATIONS = ['/registrar', '/register', '/set-password'] as const;
 
 export type SafeDestination = (typeof SAFE_DESTINATIONS)[number];
 

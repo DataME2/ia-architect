@@ -136,9 +136,6 @@ export default async function PeoplePage({
 
   return (
     <>
-      <p style={{ marginBottom: '0.25rem' }}>
-        <a href={`/registrar?season=${season.id}`}>&larr; Back to the queue</a>
-      </p>
 
       <h2>People — {season.name}</h2>
       <p className="lede">

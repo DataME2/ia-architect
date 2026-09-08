@@ -2,27 +2,22 @@
 
 import { useActionState } from 'react';
 
+import { IDLE_FORM, type FormResult } from '../../../web/form-result.ts';
+import { FormNotice } from '../_components/FormNotice.tsx';
+
 import { COMMITTEE_POSITIONS } from '../../../domain/governance/term.ts';
 import { POSITION_LABEL } from '../../../web/governance-view.ts';
 import { appointMemberAction, createTermAction } from './actions.ts';
 
-function Problem({ message }: { readonly message: string | null }) {
-  return message === null ? null : (
-    <div className="errors">
-      <strong>{message}</strong>
-    </div>
-  );
-}
-
 export function NewTermForm() {
-  const [error, formAction, pending] = useActionState<string | null, FormData>(
+  const [result, formAction, pending] = useActionState<FormResult, FormData>(
     createTermAction,
-    null,
+    IDLE_FORM,
   );
 
   return (
     <>
-      <Problem message={error} />
+      <FormNotice result={result} />
       <form action={formAction} className="stack">
         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 8rem' }}>
@@ -64,14 +59,14 @@ export function AppointForm({
   readonly termId: string;
   readonly people: readonly { readonly id: string; readonly label: string }[];
 }) {
-  const [error, formAction, pending] = useActionState<string | null, FormData>(
+  const [result, formAction, pending] = useActionState<FormResult, FormData>(
     appointMemberAction,
-    null,
+    IDLE_FORM,
   );
 
   return (
     <>
-      <Problem message={error} />
+      <FormNotice result={result} />
       <form
         action={formAction}
         style={{ display: 'flex', gap: '0.6rem', alignItems: 'end', flexWrap: 'wrap' }}

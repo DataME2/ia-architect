@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
+import { person } from '../test-fixtures.ts';
 import {
   daysUntilAgm,
+  mayHoldCommitteePosition,
   governingTerm,
   serving,
   termStatus,
@@ -141,5 +143,47 @@ describe('the offices a constitution expects', () => {
 
   test('an empty committee is all three offices vacant', () => {
     assert.deepEqual(vacantOffices([], '2026-06-01'), ['president', 'secretary', 'treasurer']);
+  });
+});
+
+describe('BR87 — a committee is adults', () => {
+  const TERM_START = '2026-03-01';
+
+  function aged(dateOfBirth: string) {
+    return person({ dateOfBirth });
+  }
+
+  test('a MiniRoos player cannot govern the club', () => {
+    assert.equal(mayHoldCommitteePosition(aged('2018-06-01'), TERM_START), false);
+  });
+
+  test('their parent can', () => {
+    assert.equal(mayHoldCommitteePosition(aged('1988-06-01'), TERM_START), true);
+  });
+
+  test('and so can a life member — the filter is age, never tenure or playing', () => {
+    assert.equal(mayHoldCommitteePosition(aged('1940-01-01'), TERM_START), true);
+  });
+
+  test('exactly 18 on the day the term starts is old enough', () => {
+    assert.equal(mayHoldCommitteePosition(aged('2008-03-01'), TERM_START), true);
+  });
+
+  test('one day short is not', () => {
+    assert.equal(mayHoldCommitteePosition(aged('2008-03-02'), TERM_START), false);
+  });
+
+  test('measured at the term start, not today — a committee elected in March is March’s adults', () => {
+    // Turns 18 in June. Not eligible for a term that began in March, even
+    // though they are an adult by the time anyone looks at the screen.
+    const juneBirthday = aged('2008-06-01');
+    assert.equal(mayHoldCommitteePosition(juneBirthday, TERM_START), false);
+    assert.equal(mayHoldCommitteePosition(juneBirthday, '2026-09-01'), true);
+  });
+
+  test('a guardian created by the public form counts as an adult', () => {
+    // The placeholder date of birth reads as 1900, which is the safe way
+    // round here: it never wrongly excludes a real parent.
+    assert.equal(mayHoldCommitteePosition(aged('1900-01-01'), TERM_START), true);
   });
 });

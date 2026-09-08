@@ -178,6 +178,7 @@ export function toClearance(row: ClearanceRow): Clearance {
     expiresOn: row.expires_on,
     verifiedAt: row.verified_at,
     revokedAt: row.revoked_at,
+    filePath: row.file_path,
   };
 }
 
