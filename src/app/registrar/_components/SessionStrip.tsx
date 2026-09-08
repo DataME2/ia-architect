@@ -40,13 +40,30 @@ export function SessionStrip({
   return (
     <div className={demo ? 'session-strip is-demo' : 'session-strip'}>
       <div>
-        <span className="session-who">{user.email ?? 'Signed in'}</span>
+        {/*
+          The name where there is one, the email where there is not — and
+          never the email dressed as a name (BR108). An unlinked account
+          reads as unlinked here rather than looking identified, which is
+          the whole reason the link is worth recording.
+        */}
+        {tenant?.person != null ? (
+          <span className="session-who" title={tenant.person.legalName}>
+            {tenant.person.preferredName?.trim() || tenant.person.legalName}
+          </span>
+        ) : (
+          <span className="session-who">{user.email ?? 'Signed in'}</span>
+        )}
         {tenant !== null && (
           <>
             <span className="session-sep">·</span>
             <span>{tenant.clubName}</span>
             {demo && <span className="pill pill-warn" style={{ marginLeft: '0.45rem' }}>Demo</span>}
             <span className="session-sep">·</span>
+            {tenant.person != null && (
+              <span className="session-since" style={{ marginRight: '0.45rem' }}>
+                {user.email}
+              </span>
+            )}
             {tenant.roles.map((role) => (
               <span className="pill" key={role} style={{ marginRight: '0.3rem' }}>
                 {ROLE_LABEL[role] ?? role}

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-import { loadTenantContext } from '../../../data/queries.ts';
+import { loadLinkCandidates, loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import type { ClubAccount } from '../../../web/access-view.ts';
 import { AccessForms } from './AccessForms.tsx';
@@ -59,14 +59,22 @@ export default async function AccessPage() {
       roles: string[];
       granted_at: string;
       is_self: boolean;
+      person_id: string | null;
+      legal_name: string | null;
+      preferred_name: string | null;
     }) => ({
       userId: row.user_id,
       email: row.email,
       roles: row.roles,
       grantedAt: row.granted_at,
       isSelf: row.is_self,
+      personId: row.person_id,
+      legalName: row.legal_name,
+      preferredName: row.preferred_name,
     }),
   );
+
+  const candidates = await loadLinkCandidates(client, tenant.clubId);
 
   return (
     <>
@@ -75,8 +83,16 @@ export default async function AccessPage() {
         An account here can sign in and act at this club. Roles are additive &mdash; one person
         is routinely both registrar and treasurer, and holds a row for each.
       </p>
+      <p className="hint">
+        <strong>Saying who an account belongs to is a decision you make, not one the system
+        guesses.</strong> Two families share an inbox and a club address outlives three
+        secretaries, so matching email addresses would quietly get this wrong &mdash; an account
+        stays <em>not linked</em> until somebody here says otherwise. It changes no
+        permissions: it is what lets the audit log and this screen name a person instead of an
+        address.
+      </p>
 
-      <AccessForms accounts={accounts} />
+      <AccessForms accounts={accounts} candidates={candidates} />
     </>
   );
 }
