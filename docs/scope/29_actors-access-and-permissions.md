@@ -10,13 +10,20 @@ WP4 waits on open questions #58 and #59.**
 Three questions were asked of club governance and administration: **how does
 an actor sign in, what may each actor do, and what may each actor see?**
 This document answers all three from the policies as they actually stand —
-read out of `pg_policies` in production, not out of the documentation — and
+read out of `pg_policies` in the development project, not out of the
+documentation — and
 records what the answers reveal. Two of the three answers are uncomfortable,
 which is why this is a scope document and not a patch.
 
-## 1. How an actor signs in — today
+## 1. How an actor signs in
 
-**They cannot, unless the platform owner creates them by hand.**
+> **This section records the baseline as it stood when this document was
+> written, in September 2026. The paragraphs marked *Since* say what has
+> changed.** The baseline is kept rather than rewritten, because the
+> arguments in §2 and §3 were made against it.
+
+**The baseline: they cannot, unless the platform owner creates them by
+hand.**
 
 | Step | Where | Who can do it |
 | ---- | ----- | ------------- |
@@ -24,9 +31,21 @@ which is why this is a scope document and not a patch.
 | Grant a role at a club | Hand-typed `insert into club_membership` | Platform owner only, through elevated SQL |
 | Sign in | `/sign-in`, email and password | The person, once both above are done |
 
-There is **no sign-up page, no invitation, no password reset, and no screen
-for `club_membership`**. A club secretary who needs access phones the
-platform owner, who runs SQL.
+There was **no sign-up page, no invitation, no password reset, and no
+screen for `club_membership`**. A club secretary who needed access phoned
+the platform owner, who ran SQL.
+
+**Since — all four exist.** `/platform` provisions a club and emails its
+named contacts a magic link (`signInWithOtp` with `shouldCreateUser`, so the
+account is created by the person who follows the link and no page ever holds
+a service-role key); `claim_club_access()` reads the email out of the
+caller's own session and attaches the membership the club recorded against
+it; `/set-password` prompts on first arrival and is the way back in when a
+password is forgotten; and `/registrar/access` is the `club_membership`
+screen this section called the cheapest gap on the list. See
+[decision 7](../decisions/7_tenant-provisioning-by-owner-issued-invitation.md),
+whose shape this follows, and
+[decision 9](../decisions/9_platform_administration_provisions_but_never_reads.md).
 
 Two observations that matter more than the inconvenience:
 
@@ -44,15 +63,23 @@ attaches the role.** A signed-in user with no membership already sees
 exactly what a stranger sees, so this is safe today and needs no new
 mechanism.
 
-**Today there is exactly one account in the entire system**,
+**At the baseline there was exactly one account in the entire system**,
 `admin@northstarfc.com.au`, holding both `admin` and `registrar`. Every
-action ever taken in production was taken by it. The audit log is therefore
-technically accurate and practically useless: it records *what* happened and
-cannot distinguish *who* did it, because there is only one who.
+action ever taken had been taken by it. The audit log was therefore
+technically accurate and practically useless: it recorded *what* happened
+and could not distinguish *who* did it, because there was only one who.
+
+**Since — there are several accounts, and the audit log is worse off, not
+better.** It now records several user ids, none of which resolves to a name
+a club would recognise. That is §3, and it is what WP1 exists to close.
 
 ## 2. What each actor may do — the real matrix
 
-Read from `pg_policies`. **Writes are role-based; reads are not.**
+Read from `pg_policies`, and **re-read after scope 30 landed** — the three
+player-record tables are included, and they changed one of the findings
+below.
+
+**Writes are role-based; reads are not.**
 
 | | admin | registrar | treasurer | coordinator | committee | coach | viewer |
 | --- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -68,6 +95,9 @@ Read from `pg_policies`. **Writes are role-based; reads are not.**
 | Teams & rosters | **W** | **W** | R | **W** | R | R | R |
 | Clearances (WWCC) | **W** | **W** | — | — | — | — | — |
 | Committee terms & positions | **W** | R | R | R | R | R | R |
+| Fixtures | **W** | **W** | R | **W** | R | **W** | R |
+| Appearances & statistics | **W** | **W** | R | **W** | R | **W** | R |
+| Player physique (height, weight) | **W** | **W** | — | **W** | — | R | — |
 | Club membership (who has access) | **W** | R | R | R | R | R | R |
 | Submission packs | **W** | **W** | R | R | R | R | R |
 | Audit log | R | — | — | — | — | — | — |
@@ -77,24 +107,43 @@ Read from `pg_policies`. **Writes are role-based; reads are not.**
 
 ### Three things this table says out loud
 
-**`committee`, `coach` and `viewer` are the same role.** None of them is
-named in a single write policy anywhere in the schema, and all three read
-the same 21 tables. The three names differ; the permissions do not. A club
-appointing someone `coach` rather than `viewer` is recording an intention
-the system does not act on.
+**`committee` and `viewer` are the same role — `coach` no longer is.** When
+this document was first written all three were identical: none appeared in a
+single write policy anywhere in the schema. Scope 30 then gave `coach` write
+access to `fixture` and `appearance`, and read access to `player_profile`,
+which is the first time any of the three has meant something. `committee`
+and `viewer` are still named in no write policy at all, and still read the
+same tables as each other. A club appointing someone `committee` rather than
+`viewer` is still recording an intention the system does not act on —
+[#59](./open-questions.md) asks whether it should.
 
-**A role restricts writing and barely restricts reading.** Twenty-one of
-twenty-four tables are readable by *any member of the club, in any role*. So
-a coach can read every family's outstanding balance, every consent decision,
-every payment and every guardian's contact details across the whole club —
-not just their own team. Nothing in the business rules asked for that; it is
+**A role restricts writing and barely restricts reading.** Twenty-five of
+thirty-one tables are readable by *any member of the club, in any role* —
+and the proportion has grown, not shrunk, since this was written. So a coach
+can read every family's outstanding balance, every consent decision, every
+payment and every guardian's contact details across the whole club — not
+just their own team. Nothing in the business rules asked for that; it is
 what `club_id in (select app_member_club_ids())` means, applied uniformly.
 
-**The two exceptions prove it was thought about once.** `clearance` is
-narrowed to admin and registrar because a Working with Children Check number
-is a safeguarding record, and `audit_event` to admin alone. Both narrowings
-were deliberate and both are argued in the migrations. Nothing else was
+**The three exceptions prove it was thought about, three times.**
+`clearance` is narrowed to admin and registrar because a Working with
+Children Check number is a safeguarding record; `audit_event` to admin
+alone; and `player_profile` to the roles that pick teams, because a child's
+height and weight are health-adjacent (BR99). All three narrowings were
+deliberate and all three are argued in the migrations. Nothing else was
 narrowed — including money.
+
+**And the narrowing stopped one table short of where the documentation says
+it reaches.** [#64](./open-questions.md) records the adopted answer that a
+player's *statistics* are for admin, registrar, coordinator and coach. The
+policies do not say that: `fixture_select` and `appearance_select` are both
+`club_id in (select app_member_club_ids())`, so every member of the club —
+a treasurer, a committee member, a demonstration `viewer` — reads every
+child's goals, assists and minutes today. Only the physique was narrowed.
+This is recorded here rather than quietly fixed because it is the same shape
+as BR56: an answer written down and never enforced, which is exactly the
+failure this document exists to catch. Closing it is a WP4 question, not a
+patch, because it decides what a coach may see (#58) at the same time.
 
 ## 3. What each actor may see — and the gap underneath it
 
@@ -134,7 +183,8 @@ thing entirely, and a club officer is therefore two unrelated records.
 
 | Plateau | State |
 | ------- | ----- |
-| **Baseline** (today) | One account for the whole platform. Access granted by hand-typed SQL. Six role names, four of which have distinct permissions. Reads unrestricted within a club. No link between an account and a Person |
+| **Baseline** (September 2026, before WP2) | One account for the whole platform. Access granted by hand-typed SQL. Six role names, four of which have distinct permissions. Reads unrestricted within a club. No link between an account and a Person |
+| **Now** (WP2 delivered) | Clubs are provisioned from `/platform` and their named contacts claim their own access; an admin grants and revokes at `/registrar/access`. Seven role names, five with distinct permissions — `coach` gained writes from scope 30, `committee` and `viewer` still mean nothing. Reads still unrestricted within a club, on twenty-five of thirty-one tables. **Still no link between an account and a Person** |
 | **Target** | An admin grants and revokes access in the application. Every role name means something. Money and contact details are readable by the roles that need them. A signed-in officer is recognised as the Person they are, and the audit log names them |
 
 ## Work packages and deliverables
