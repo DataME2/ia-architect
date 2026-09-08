@@ -103,11 +103,20 @@ export default async function PlatformPage() {
 
   return (
     <>
-      <h2>Platform</h2>
+      <h2>Every club we support</h2>
       <p className="lede">
-        Signed in as {user.email}. This console creates clubs and reads nothing inside one
-        &mdash; no person, no registration, no payment, no card. That boundary is the whole
-        reason it exists in this shape.
+        Signed in as <strong>{user.email}</strong> &mdash; the platform owner, which is why this
+        page exists and the club queue has nothing to show you. This account holds{' '}
+        <strong>no membership at any club</strong>, deliberately: that is what keeps every
+        ordinary policy denying it, and it is why you can see the whole portfolio here without
+        being able to read inside any of it.
+      </p>
+      <p className="hint">
+        <strong>What follows is club metadata and nothing else</strong> &mdash; names,
+        jurisdictions, who is answerable, what was agreed commercially, and whether each tenant
+        is finished. Never a person, a registration, a payment, a consent or a Working with
+        Children Check. Reading a club&rsquo;s records means being given a role at that club by
+        its own administrator, like anybody else.
       </p>
 
       <div className="summary-grid">

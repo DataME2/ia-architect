@@ -94,6 +94,25 @@ is no reason to confirm the route exists to someone who may not use it.
 build, its own environment variables, its own copy of the data layer — to
 protect a boundary the database is already enforcing.
 
+## Where the operator lands
+
+Added September 2026, after the identity existed and signing in as it was
+tried. **The platform identity holds no `club_membership`** — that is the
+mechanism, not a side effect — so the club queue answered it correctly and
+uselessly: *this account is not a member of any club*. On the one account
+for which that is the whole design, it reads as a fault.
+
+Sign-in and the emailed-link callback now send it to `/platform`, the empty
+queue names it rather than reporting a gap, and the session strip says
+**Platform owner — no club, by design**. A destination the caller actually
+asked for still wins, for either kind of account, so an operator following a
+password link arrives at the password page like anybody else.
+
+The check is `app_is_platform()` at every one of those points, never an
+email address compared in application code. An address in the application
+would be a second control that can disagree with the allowlist — and the
+allowlist is the one the database enforces.
+
 ## Consequences
 
 - **It cannot create accounts, and does not need to.** Writing `auth.users`

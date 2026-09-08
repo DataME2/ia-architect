@@ -98,6 +98,33 @@ export default async function RegistrarPage({
 
   const tenant = await loadTenantContext(client, user.id);
   if (tenant === null) {
+    // The platform owner is *always* in this branch and is not lost. Saying
+    // only "no club" to the one account that can never have one is true,
+    // useless, and reads as a fault.
+    const { data: isPlatform } = await client.rpc('app_is_platform');
+    if (isPlatform === true) {
+      return (
+        <>
+          <h2>You are the platform owner</h2>
+          <p className="lede">
+            This account holds <strong>no membership at any club</strong>, which is deliberate
+            rather than missing: it is what keeps every ordinary policy denying it, and it is
+            why this queue has nothing to show you. The clubs you support are on the console.
+          </p>
+          <p>
+            <a className="button" href="/platform">
+              Open the platform console
+            </a>
+          </p>
+          <p className="hint">
+            To read a club&rsquo;s own records you would need a role at that club, granted by
+            its administrator, exactly as anybody else does. That is the boundary the console is
+            built around, not an inconvenience to route past.
+          </p>
+        </>
+      );
+    }
+
     return (
       <>
         <h2>No club yet</h2>

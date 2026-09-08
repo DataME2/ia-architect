@@ -29,11 +29,14 @@ export function SessionStrip({
   user,
   tenant,
   demo = false,
+  platform = false,
 }: {
   readonly user: SignedInUser | null;
   readonly tenant: TenantContext | null;
   /** Marks the strip itself, so the club is named as the demo everywhere. */
   readonly demo?: boolean;
+  /** The platform owner, who has no club and is not missing one. */
+  readonly platform?: boolean;
 }) {
   if (user === null) return null;
 
@@ -74,7 +77,14 @@ export function SessionStrip({
         {tenant === null && (
           <>
             <span className="session-sep">·</span>
-            <span>No club membership</span>
+            {platform ? (
+              // Not a gap to report. This account holds no membership by
+              // design — decision 9 — and "No club membership" reads as a
+              // fault on the one identity for which it is the point.
+              <span className="pill pill-warn">Platform owner &mdash; no club, by design</span>
+            ) : (
+              <span>No club membership</span>
+            )}
           </>
         )}
       </div>

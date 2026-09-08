@@ -38,6 +38,15 @@ export default async function RegistrarLayout({
   const tenant = user === null ? null : await loadTenantContext(client, user.id);
   const demo = tenant !== null && isDemoClub(tenant.clubName);
 
+  // Only asked when there is no club to show, which is the only case where
+  // the answer changes anything — and the case the platform identity is
+  // always in.
+  let platform = false;
+  if (user !== null && tenant === null) {
+    const { data } = await client.rpc('app_is_platform');
+    platform = data === true;
+  }
+
   return (
     <>
       {demo && (
@@ -47,7 +56,7 @@ export default async function RegistrarLayout({
           but nothing here is a real child.
         </p>
       )}
-      <SessionStrip user={user} tenant={tenant} demo={demo} />
+      <SessionStrip user={user} tenant={tenant} demo={demo} platform={platform} />
       {user !== null && tenant !== null && (
         <Suspense fallback={null}>
           <RegistrarNav />

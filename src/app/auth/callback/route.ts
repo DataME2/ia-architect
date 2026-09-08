@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { createRequestClient } from '../../../data/server.ts';
-import { safeDestination } from '../../../web/safe-destination.ts';
+import { landingFor } from '../../../web/safe-destination.ts';
 
 /**
  * Where a sign-in link lands.
@@ -39,9 +39,11 @@ export async function GET(request: NextRequest) {
   await client.rpc('claim_club_access');
 
   // A reset link asks to land on the password page; an invitation names
-  // nothing and falls back to the club, where the layout insists on a
-  // password anyway. `safeDestination` keeps this from becoming an open
-  // redirect on the one route that hands out sessions.
-  const next = safeDestination(request.nextUrl.searchParams.get('next'));
+  // nothing and falls back to the club — or to the console, for the one
+  // identity that has no club and never will. `landingFor` keeps this from
+  // becoming an open redirect on the one route that hands out sessions:
+  // anything not on the published list is discarded rather than followed.
+  const { data: isPlatform } = await client.rpc('app_is_platform');
+  const next = landingFor(request.nextUrl.searchParams.get('next'), isPlatform === true);
   return NextResponse.redirect(`${origin}${next}`);
 }
