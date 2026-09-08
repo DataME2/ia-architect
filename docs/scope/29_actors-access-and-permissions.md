@@ -4,8 +4,9 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
 **Delivered as:** branch `claude/governance-actors-and-permissions`.
-**Status: WP2 delivered. WP1 and WP3 on hold by decision, September 2026.
-WP4 waits on open questions #58 and #59.**
+**Status: WP2 delivered. WP1 aligned and specified, September 2026 —
+migration not yet written. WP3 on hold by decision. WP4 waits on open
+questions #58 and #59.**
 
 Three questions were asked of club governance and administration: **how does
 an actor sign in, what may each actor do, and what may each actor see?**
@@ -151,7 +152,8 @@ The read column above is the literal answer. The structural answer is worse.
 
 **Nothing connects a login to a Person.** `club_membership` binds an
 `auth.users` id to a club and a role. There is no `person_id` on it, and no
-`user_id` on `person`. So the application cannot answer *"who is signed
+`user_id` on `person`. *(Still true — WP1 below specifies the fix and the
+migration is not written.)* So the application cannot answer *"who is signed
 in?"* beyond an email address — it cannot say that this account **is** Grace
 Tupou, the President recorded in `committee_position`.
 
@@ -169,15 +171,15 @@ This is also the one place where **P1 is not honoured**. The principle says
 one `Person`, many roles — but sign-in identity was modelled as a separate
 thing entirely, and a club officer is therefore two unrelated records.
 
-## EA alignment (assessed top-down; WP2 implemented)
+## EA alignment (assessed top-down; WP2 implemented, WP1 aligned September 2026)
 
 | Layer | Impact when this is built |
 | ----- | ------------------------- |
-| 1_strategy | No new capability. **P1 is currently unhonoured for the sign-in identity** and this closes that gap rather than changing the principle. C19 and C10 both gain substance |
-| 2_business | New rules for who may grant access, what a role restricts, and the separation between a Person and their account. The `committee` and `coach` roles need to mean something or be removed |
-| 3_information | A link between `club_membership` (or `person`) and the auth user. Read-narrowing would change the classification of finance and contact data per role |
-| 4_application | **Delivered for WP2:** `/registrar/access` (admin only), `src/web/access-view.ts`, `supabase/migrations/0015_club_access_management.sql`. Still to come: role-aware rendering (WP3) and a self-service account route |
-| 5_technology | No change to the stack. Fixed ports added for running dev and a local production build side by side ([2_deployment.md](../ea/5_technology/2_deployment.md)), which surfaced that local development has no database of its own |
+| 1_strategy | No new capability, and **no change to any principle**. P1 was unhonoured for the sign-in identity; WP1 closes that gap and P1 gained a sentence saying an account is a credential rather than an identity. C19 and C10 both gain substance |
+| 2_business | **BR106–BR108 added** for WP1: one link per account per club in both directions, asserted by an administrator and never inferred from an email address, and unlinked shown as unlinked. Glossary gained *Account* and *Account Link*. The `committee` role still needs to mean something or be removed ([#59](./open-questions.md)); `coach` now does, via scope 30 |
+| 3_information | **`account_person` added** as a data object, pending WP1 — its own table rather than a column, and a composite foreign key rather than a trigger, both argued in [1_data-objects.md](../ea/3_information/1_data-objects.md). The four access and platform tables built earlier and never modelled here (`club_membership`, `club_licence`, `platform_admin`, `user_password_set`) were added in the same pass. Read-narrowing would change the classification of finance and contact data per role |
+| 4_application | **Delivered for WP2:** `/registrar/access` (admin only), `src/web/access-view.ts`, `supabase/migrations/0015_club_access_management.sql`. **Specified for WP1:** *Account identification*, listed under *Documented, not built* in [1_application-services.md](../ea/4_application/1_application-services.md). Still to come: role-aware rendering (WP3) and a self-service account route |
+| 5_technology | **No change** — for WP2 or WP1. WP1 is one migration and two `security definer` functions on the stack that already exists; it needs no runtime, build, CI or hosting change, and the RLS test suite it extends is already wired into CI. Fixed ports were added for running dev and a local production build side by side ([2_deployment.md](../ea/5_technology/2_deployment.md)), which surfaced that local development has no database of its own |
 
 ## Plateaus
 
@@ -189,24 +191,54 @@ thing entirely, and a club officer is therefore two unrelated records.
 
 ## Work packages and deliverables
 
-### WP1 — Say who is signed in *(ON HOLD)*
+### WP1 — Say who is signed in *(ALIGNED, NOT BUILT)*
 
-**Held deliberately, September 2026**, to be decided after WP2 is in use.
+Held in September 2026 to be decided after WP2 was in use. It has been; the
+cost of holding it went up as predicted, so WP1 has now been taken through
+the EA layers and specified. **The migration is not written.**
 
-Holding it has a cost worth stating: until it is done the audit log names a
-uuid rather than a person, and the access screen delivered in WP2 lists
-**email addresses rather than names** — an admin removing access reads
-`h.bell@…` and has to know that is the treasurer. That is tolerable at one
-club with three accounts and stops being tolerable quickly.
+The cost, restated: the audit log names a uuid rather than a person, and the
+access screen delivered in WP2 lists **email addresses rather than names** —
+an admin removing access reads `h.bell@…` and has to know that is the
+treasurer. Tolerable at one club with three accounts, and no longer one club
+with three accounts.
 
-It is also the only piece here that needs a migration, which is the main
-reason to decide it separately rather than fold it into a screen.
+#### What the alignment changed
 
+The original deliverable was **wrong**, and the alignment is what caught it.
+It proposed `person_id` as a column on `club_membership`. That table is
+unique on `(club_id, user_id, role)`, so an account holding both `admin` and
+`registrar` is **two rows**: the column would be stored twice, could
+disagree with itself, and revoking one role would drop half the link. The
+fact being recorded is one per account per club, not one per role.
 
-- **Deliverables:** migration adding `person_id` to `club_membership`
-  (nullable — an account may exist before anyone links it), backfill for the
-  single existing account, `src/data/queries.ts` resolving the session to a
-  Person, `SessionStrip` showing the name.
+It also left the harder question unasked — *how does the platform learn that
+this account is that Person?* — where the cheap answer (match the email
+addresses) is available, silent, and wrong. That is now
+[decision 10](../decisions/10_identity_is_asserted_never_inferred.md).
+
+#### Deliverables
+
+| | |
+| --- | --- |
+| **Migration** | `account_person (club_id, user_id, person_id, linked_at, linked_by)`. Unique on `(club_id, user_id)` **and** on `(club_id, person_id)` — BR106 in both directions. A composite `foreign key (club_id, person_id) references person (club_id, id)` refuses a Person from another club in the database rather than in a screen, which needs a `unique (club_id, id)` on `person` first. RLS: read by any member (names are already club-readable), write by `admin` only, matching `club_membership_manage` |
+| **Functions** | `link_account_to_person(p_user_id, p_person_id)` and `unlink_account(p_user_id)`, both `security definer`, both taking the club from `app_admin_club()` rather than as an argument — decision 6's shape, reused in decisions 8 and 9 and again here. `app_club_accounts()` gains the linked name, which means dropping and recreating it (a return-type change; migration 0017 learned this) |
+| **Reads** | `src/data/queries.ts` resolves the session to a Person; `SessionStrip` shows the name; `/registrar/access` shows a name with the email beneath it, and **"Not linked" where there is none** (BR108) |
+| **Tests** | A non-admin cannot link. An admin cannot link a Person from another club — refused by the foreign key, not by a screen. One account cannot be two People, and one Person cannot be two accounts. Unlinking removes the link and neither the Person nor the account. Each proved by breaking it first |
+| **Rules** | BR106, BR107, BR108 |
+
+#### Out of scope, deliberately
+
+- **No self-service linking.** Proving your own identity needs an email the
+  platform can send, which it cannot do at all yet. See decision 10.
+- **No backfill by email matching.** That is the thing decision 10 refuses;
+  doing it once "just to seed the data" is the same mistake with a smaller
+  blast radius. Existing accounts start unlinked and an admin links them.
+- **No permission follows the link.** Being linked to a Person who holds a
+  committee office is not the `committee` role — [#59](./open-questions.md).
+- **No change to `audit_event`.** It stores a uuid, the uuid is stable, and
+  the link resolves it at read time.
+
 - **Outcome:** the application can say *who* rather than *which email*, and
   P1 covers the sign-in identity.
 

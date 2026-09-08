@@ -52,6 +52,7 @@ not a backlog item that got forgotten.
 
 | Application Service | Realises | Where the design lives | Why it is not built |
 | ------------------- | -------- | ---------------------- | ------------------- |
+| **Account identification** | C1, C19 | [Scope 29 WP1](../../scope/29_actors-access-and-permissions.md), BR106–BR108 | Aligned and specified, not yet migrated. It says *who* is signed in rather than which email address: an administrator links an account to the Person it belongs to, and the session strip, the access screen and the audit log read that link. **The only piece of scope 29 needing a migration**, which is why it was separated from the screen rather than folded into it |
 | **Historical data import** | C9 | [Scope 28 §4](../../scope/28_onboarding-a-club-and-its-history.md) | **Blocked on a question, not on effort**: [#57](../../scope/open-questions.md) asks what lawful basis covers a decade of children's records handed over by a club. Scope 28 says it must be answered before the first import. BR90 (imported history is history) exists so the answer has something to attach to |
 | **Life member register** | C18 | [Scope 18](../../scope/18_life-members.md) | `person_role` does not carry a life-member role yet. Small, and waiting on nothing but priority |
 | **Marketing website** | — | [Scope 28 §3](../../scope/28_onboarding-a-club-and-its-history.md) | Explain, qualify, capture. The *capture* third arrived early with the demonstration door; the explaining is not written |
