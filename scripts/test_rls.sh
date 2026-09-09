@@ -45,14 +45,30 @@ fi
 
 $PSQL_BASE -q -c "create database ${DB_NAME};"
 
-for f in \
-  "$ROOT/supabase/tests/00_local_supabase_shim.sql" \
-  "$ROOT"/supabase/migrations/*.sql \
-  "$ROOT/supabase/tests/99_grants.sql" \
-  "$ROOT"/supabase/tests/1*_*.sql \
-  "$ROOT"/supabase/tests/2*_*.sql
+# The behavioural suites: every NN_*.sql except the shim (00) and the grants
+# (99), which are applied around them.
+#
+# **Globbed by shape, not by leading digit.** This listed `1*_*.sql` and
+# `2*_*.sql`, which silently skipped suite 30 the day it was written -- and
+# a suite that never runs is worse than no suite, because CI goes green and
+# the guarantees it claims to prove are unproved. Found when suite 30
+# "passed" without ever being executed.
+SUITES=()
+for f in "$ROOT"/supabase/tests/[0-9][0-9]_*.sql; do
+  case "$(basename "$f")" in
+    00_*|99_*) continue ;;
+  esac
+  SUITES+=("$f")
+done
+
+if [ ${#SUITES[@]} -eq 0 ]; then
+  echo "No behavioural suites matched -- refusing to report success." >&2
+  exit 1
+fi
+
+for f in   "$ROOT/supabase/tests/00_local_supabase_shim.sql"   "$ROOT"/supabase/migrations/*.sql   "$ROOT/supabase/tests/99_grants.sql"   "${SUITES[@]}"
 do
   $PSQL_DB -q -v ON_ERROR_STOP=1 -f "$f"
 done
 
-echo "RLS behaviour OK — migrations apply and tenant isolation holds."
+echo "RLS behaviour OK — migrations apply and tenant isolation holds (${#SUITES[@]} suites)."

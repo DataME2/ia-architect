@@ -4,7 +4,8 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
 **Delivered as:** branch `claude/referee-lifecycle`.
-**Status: WP1 and WP2 in progress. WP3 and WP4 specified.**
+**Status: WP1–WP4 delivered in the database. No screens are built — every
+rate, claim, approval and batch is currently set through the database.**
 
 C5 — referee finance — is the second half of what a club actually needs from
 [scope 33](./33_the-referee-record-and-what-an-appointment-rests-on.md).
@@ -71,7 +72,7 @@ and third, and the fourth is `fixture.competition` — free text, until C11.
 
 ## Work packages and deliverables
 
-### WP1 — Verification, which BR13 requires *(in progress)*
+### WP1 — Verification, which BR13 requires *(database delivered)*
 
 Scope 33's WP4, delivered here because C5 cannot start without it.
 
@@ -79,9 +80,15 @@ Scope 33's WP4, delivered here because C5 cannot start without it.
   turned up and officiated, when, and the abandonment explanation BR18
   needs. A verification is **not** a state on the appointment: it is a
   separate fact, recorded by somebody other than the person being paid.
-- **Outcome:** BR13 has something to require.
+  This is **BR119**, and it is enforceable only because the
+  account-to-Person link of [scope 29's WP1](./29_actors-access-and-permissions.md)
+  exists — before it, the platform could not tell that the account
+  clicking verify and the official named on the appointment were the same
+  human. It fires on the *asserted* link, never on a matching name.
+- **Outcome:** BR13 has something to require, and the person being paid
+  cannot advance their own claim.
 
-### WP2 — The fee schedule the club authors *(in progress)*
+### WP2 — The fee schedule the club authors *(schema and rate resolution delivered; editor not built)*
 
 - **Deliverables:** `referee_fee_schedule` (a dated version per club) and
   `referee_fee_rate` (the rows: appointing party, role, classification,
@@ -90,7 +97,7 @@ Scope 33's WP4, delivered here because C5 cannot start without it.
   answer**, not a zero.
 - **Outcome:** BR41's determinants become a lookup rather than a memory.
 
-### WP3 — Claims
+### WP3 — Claims *(database delivered)*
 
 - **Deliverables:** `referee_payment_claim` carrying the resolved rate **as
   a stored amount** (BR116), refused for an unverified appointment (BR13),
@@ -98,10 +105,16 @@ Scope 33's WP4, delivered here because C5 cannot start without it.
   (BR17), and refused for an abandoned one without the explanation (BR18).
 - **Outcome:** the club knows what it owes its officials.
 
-### WP4 — Approval, batches, remittances
+### WP4 — Approval, batches, remittances *(database delivered)*
 
-- **Deliverables:** `referee_payment_batch`, treasurer approval, and a
-  remittance recording that payment was made outside the platform.
+- **Deliverables:** `referee_payment_batch`, treasurer approval, and the
+  remittance recorded as `paid_at`/`paid_reference` on the batch rather
+  than a separate table — a batch is paid once, so a second table would
+  be a one-to-one join that only ever adds a way for the two halves to
+  disagree. `app_batch_total_cents` computes the total rather than
+  storing it: once closed no claim can join or leave, so the sum is
+  already stable, and a stored total is a second place for the number to
+  live.
 - **Outcome:** a treasurer works from a list rather than a spreadsheet.
 
 ## In scope / out of scope

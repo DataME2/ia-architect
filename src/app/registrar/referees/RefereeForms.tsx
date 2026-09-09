@@ -8,8 +8,13 @@ import {
   rosterFlags,
   type RefereeSummary,
 } from '../../../web/referee-view.ts';
+import type {
+  AvailabilityWindow,
+  UnavailabilityRange,
+} from '../../../web/availability-view.ts';
 import { IDLE_FORM } from '../../../web/form-result.ts';
 import { FormNotice } from '../_components/FormNotice.tsx';
+import { AvailabilityPanel } from './AvailabilityPanel.tsx';
 import {
   addRefereeAction,
   recordAccreditationAction,
@@ -233,9 +238,15 @@ function Flags({ referee, asOf }: { readonly referee: RefereeSummary; readonly a
 export function RefereeRoster({
   referees,
   asOf,
+  seasonId,
+  windows,
+  ranges,
 }: {
   readonly referees: readonly RefereeSummary[];
   readonly asOf: string;
+  readonly seasonId: string | null;
+  readonly windows: ReadonlyMap<string, readonly AvailabilityWindow[]>;
+  readonly ranges: ReadonlyMap<string, readonly UnavailabilityRange[]>;
 }) {
   if (referees.length === 0) {
     return (
@@ -321,6 +332,21 @@ export function RefereeRoster({
                   })}
                 </tbody>
               </table>
+            )}
+
+            {seasonId !== null && (
+              <details className="process-detail">
+                <summary>When can {referee.name} officiate?</summary>
+                <div style={{ marginTop: '0.8rem' }}>
+                  <AvailabilityPanel
+                    personId={referee.personId}
+                    seasonId={seasonId}
+                    windows={windows.get(referee.personId) ?? []}
+                    ranges={ranges.get(referee.personId) ?? []}
+                    asOf={asOf}
+                  />
+                </div>
+              </details>
             )}
 
             <details className="process-detail">
