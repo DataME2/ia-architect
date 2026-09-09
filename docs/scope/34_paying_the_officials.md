@@ -4,8 +4,8 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
 **Delivered as:** branch `claude/referee-lifecycle`.
-**Status: WP1 delivered in the database. WP2's schema and rate resolution
-delivered; the editor screen is not built. WP3 and WP4 specified.**
+**Status: WP1–WP4 delivered in the database. No screens are built — every
+rate, claim, approval and batch is currently set through the database.**
 
 C5 — referee finance — is the second half of what a club actually needs from
 [scope 33](./33_the-referee-record-and-what-an-appointment-rests-on.md).
@@ -97,7 +97,7 @@ Scope 33's WP4, delivered here because C5 cannot start without it.
   answer**, not a zero.
 - **Outcome:** BR41's determinants become a lookup rather than a memory.
 
-### WP3 — Claims
+### WP3 — Claims *(database delivered)*
 
 - **Deliverables:** `referee_payment_claim` carrying the resolved rate **as
   a stored amount** (BR116), refused for an unverified appointment (BR13),
@@ -105,10 +105,16 @@ Scope 33's WP4, delivered here because C5 cannot start without it.
   (BR17), and refused for an abandoned one without the explanation (BR18).
 - **Outcome:** the club knows what it owes its officials.
 
-### WP4 — Approval, batches, remittances
+### WP4 — Approval, batches, remittances *(database delivered)*
 
-- **Deliverables:** `referee_payment_batch`, treasurer approval, and a
-  remittance recording that payment was made outside the platform.
+- **Deliverables:** `referee_payment_batch`, treasurer approval, and the
+  remittance recorded as `paid_at`/`paid_reference` on the batch rather
+  than a separate table — a batch is paid once, so a second table would
+  be a one-to-one join that only ever adds a way for the two halves to
+  disagree. `app_batch_total_cents` computes the total rather than
+  storing it: once closed no claim can join or leave, so the sum is
+  already stable, and a stored total is a second place for the number to
+  live.
 - **Outcome:** a treasurer works from a list rather than a spreadsheet.
 
 ## In scope / out of scope
