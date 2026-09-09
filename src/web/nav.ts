@@ -21,6 +21,7 @@ export const REGISTRAR_NAV: readonly NavItem[] = [
   { href: '/registrar/people', label: 'People', seasonScoped: true },
   { href: '/registrar/teams', label: 'Teams', seasonScoped: true },
   { href: '/registrar/fixtures', label: 'Fixtures', seasonScoped: true },
+  { href: '/registrar/referees', label: 'Match officials', seasonScoped: false },
   { href: '/registrar/governance', label: 'Governance', seasonScoped: false },
   { href: '/registrar/duplicates', label: 'Duplicates', seasonScoped: false },
   { href: '/registrar/pack', label: 'Submission pack', seasonScoped: true },

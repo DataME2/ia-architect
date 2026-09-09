@@ -168,8 +168,10 @@ Nothing else can be checked until this exists.
 ### WP3 — Designation and the conflict engine
 
 - **Deliverables:** `match_official_appointment` against `fixture`
-  (BR20a), with `state` ∈ {proposed, accepted, declined, withdrawn} and the
-  reason BR42 requires. `src/domain/officiating/conflicts.ts` — BR6, BR7,
+  (BR20a), with `state` ∈ {proposed, accepted, declined, withdrawn}, the
+  reason BR42 requires, and **`appointed_by` ∈ {club, association}**
+  (BR114) — set when the designation is made and never inferred, so the
+  club-backup case is legible afterwards rather than reconstructed. `src/domain/officiating/conflicts.ts` — BR6, BR7,
   BR8, BR9, BR10 as **blocking**, BR11's four as **warnings with an audited
   override**, each a pure function returning the rule's own identifier the
   way the registration rules engine does.
@@ -218,13 +220,19 @@ Nothing else can be checked until this exists.
 
 ## Open questions
 
-- **[#68] Who appoints the officials for the pilot club's matches — the
-  club, Football Queensland, or both depending on the competition?** Adopted
-  for now: **the club appoints, and the platform records only that.** BR16
-  already says the appointing party pays, which implies both happen. If FQ
-  appoints for most competitions, WP3 is recording a minority of reality and
-  the coordinator screen is worth less than it looks. Raised against
-  [BR20a](../ea/2_business/5_domain-context-and-rules.md).
+- **[#68] Who appoints the officials?** **Answered, September 2026.** The
+  club appoints; Football Queensland appoints for **senior grades only**;
+  and where FQ cannot find an official for a senior fixture, **the club
+  appoints a backup**. So the club's own appointments are the majority of
+  reality rather than the minority this document feared, and the restated
+  BR20 was the right shape.
+
+  The answer carries a design consequence WP3 must honour, recorded as
+  **BR114**: the designation stores **which party appointed**, and BR16 pays
+  on that stored fact rather than on the grade. Deriving the payer from the
+  grade would be right most weekends and wrong precisely when somebody
+  stepped in at short notice — which is the weekend a volunteer remembers.
+  A fixture in a senior grade is therefore not evidence of who is paying.
 - **[#69] Is a referee's record the club's or the association's?** Adopted
   for now: **the club's own sighting**, duplicated per club, in the pattern
   `clearance` already uses. The alternative — a referee identity that spans
