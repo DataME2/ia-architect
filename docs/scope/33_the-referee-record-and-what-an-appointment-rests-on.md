@@ -165,7 +165,7 @@ Nothing else can be checked until this exists.
 - **Outcome:** a coordinator proposes from a list of people who said they
   could, rather than from memory.
 
-### WP3 — Designation and the conflict engine *(database delivered; screens not built)*
+### WP3 — Designation and the conflict engine *(delivered)*
 
 **What went into the database rather than the engine, and why.** BR6, BR9
 and BR109 are enforced by a trigger on `match_official_appointment`, not by
@@ -179,6 +179,26 @@ presented to a human.
 against the one `Person` across every club; `person` is tenant-scoped, so
 the platform cannot know the two rows are one human. The half that can be
 enforced is; the half that cannot is not claimed. [#69](./open-questions.md).
+
+**BR11's same-club warning means something narrower than it says.** Read
+literally — "same-club affiliation" — it would fire on every candidate,
+because `person` is tenant-scoped and every official on the roster is at
+this club. A warning on every row is a warning nobody reads. What the club
+actually needs flagged is an official who is also **club personnel**: the
+committee member, the team official, the account holding an administrative
+membership. That is the case the pilot club described from their own
+experience, and it is what the engine tests for.
+
+Two adjacent BR11 warnings are **not built and not pretended**: travel time
+needs venue geography nothing records, and a family relationship beyond
+guardianship needs a sibling model that does not exist. Guardianship itself
+is not a warning at all — BR109 refuses it outright.
+
+**BR10 is a warning here rather than a blocker.** The rule blocks on an
+expired *mandatory* accreditation, and nothing records which are mandatory:
+that varies by competition, and competitions are C11. Blocking on any
+expiry would refuse an official over a certificate no rule required of
+them; ignoring it would hide the one that mattered.
 
 **BR8 cannot be completed here.** It compares a classification against *the
 competition's minimum*, and no competition record exists — C11. The engine
