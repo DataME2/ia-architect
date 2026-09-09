@@ -30,12 +30,36 @@ function required(source: Record<string, string | undefined>, name: string): str
 }
 
 /**
+ * Reads whichever of two variable names is set, preferring the first.
+ *
+ * Exists for exactly one pair: Supabase renamed the client-side key from
+ * `anon` to `publishable` (and `service_role` to `secret`) without retiring
+ * the legacy pair, so a dashboard copy-paste today can hand someone either
+ * name. Refusing the newer one until docs catch up just reproduces the
+ * config error this file exists to give a good message for.
+ */
+function requiredEither(
+  source: Record<string, string | undefined>,
+  primary: string,
+  fallback: string,
+): string {
+  const value = source[primary] ?? source[fallback];
+  if (value === undefined || value.trim() === '') {
+    throw new ConfigError(
+      `${primary} (or ${fallback})`,
+      'is not set — copy .env.example to .env.local and fill it in',
+    );
+  }
+  return value;
+}
+
+/**
  * Configuration safe to ship to a browser.
  *
- * The anon key belongs here and is not a secret: it is safe **because** every
- * table has Row-Level Security. If RLS coverage ever lapses, this key stops
- * being safe — which is why `scripts/check_rls.py` is a build gate rather
- * than a lint.
+ * The anon/publishable key belongs here and is not a secret: it is safe
+ * **because** every table has Row-Level Security. If RLS coverage ever
+ * lapses, this key stops being safe — which is why `scripts/check_rls.py`
+ * is a build gate rather than a lint.
  */
 export function readPublicConfig(
   source: Record<string, string | undefined> = process.env,
@@ -49,7 +73,15 @@ export function readPublicConfig(
   }
   return {
     supabaseUrl: supabaseUrl.replace(/\/$/, ''),
-    supabaseAnonKey: required(source, 'NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+    // `NEXT_PUBLIC_SUPABASE_ANON_KEY` is the name every doc in this repo
+    // uses; `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is Supabase's current
+    // dashboard label for the same value (project settings → API →
+    // "Publishable key", the `sb_publishable_...` form). Either works.
+    supabaseAnonKey: requiredEither(
+      source,
+      'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+      'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+    ),
   };
 }
 

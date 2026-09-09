@@ -1,145 +1,622 @@
-/* Let'sDataTalk — registration slice.
-   One stylesheet, no framework: the slice has a dozen screens and a build
-   step nobody has to learn is worth more than utility classes here. */
+/* Let'sDataTalk — the interface.
+   One stylesheet, no framework: the app is a few dozen server-rendered
+   screens, and a build step nobody has to learn is still worth more than
+   utility classes here. What changed is that the stylesheet now has a
+   *system* underneath it — tokens for colour, space, type, elevation and
+   motion — so a screen is composed from decisions already made rather than
+   from another hand-picked hex.
+
+   ---------------------------------------------------------------------
+   The palette: "Southern Ocean"
+   ---------------------------------------------------------------------
+   Green and gold is what football looks like in Australia — the wattle
+   that gives the national sporting colours their name, worn by the
+   Socceroos and the Matildas — and it is a palette this product can hold
+   in both markets: New Zealand's football identity is black and white,
+   which sits under green and gold without arguing with it. Between the two
+   is the Tasman, which is where the informational blue comes from, and
+   behind both is the ochre of the inland, which is the warning colour.
+
+   Two rules keep it usable rather than decorative:
+
+   1. **Green carries weight, gold carries attention.** Wattle gold on
+      white is roughly 1.6:1 — unreadable as text and useless as a focus
+      ring. So gold is never a text colour on a light surface and never the
+      only thing marking a state: it is the active rail, the hero rule, the
+      mark, and the halo around a focused control whose actual ring is
+      green. Everything that must be *read* is deep eucalyptus green.
+   2. **No state is signalled by hue alone.** Every status pill carries a
+      dot and a word as well as a colour (WCAG 1.4.1), because roughly one
+      registrar in twelve cannot tell this green from this red, and the
+      thing being marked is whether a child may take the field. */
+
+/* --------------------------------------------------------------- tokens */
 
 :root {
-  --bg: #f6f7f9;
+  color-scheme: light;
+
+  /* Eucalyptus — the brand green. Dark enough to carry white text at the
+     700 step, which is where every primary action sits. */
+  --green-50: #eaf7ef;
+  --green-100: #d3efe0;
+  --green-200: #a9dec2;
+  --green-500: #12855a;
+  --green-600: #0d6b45;
+  --green-700: #0a5638;
+  --green-800: #07422c;
+  --green-900: #052e1f;
+
+  /* Wattle — the gold. Decoration and attention, never body text. */
+  --gold-100: #fff2c2;
+  --gold-300: #ffe27a;
+  --gold-400: #ffd83d;
+  --gold-500: #ffcb05;
+  --gold-700: #8a6a00;
+
+  /* Tasman — informational blue, the water between the two markets. */
+  --blue-100: #d5eef6;
+  --blue-500: #1489ad;
+  --blue-700: #0b566d;
+
+  /* Ochre — the inland. Caution, not danger. */
+  --ochre-100: #fbeccd;
+  --ochre-500: #c47d16;
+  --ochre-700: #6e400a;
+
+  /* Red earth — refusal. */
+  --red-100: #fbe3e1;
+  --red-500: #c9403a;
+  --red-700: #8a1f1c;
+
+  /* Neutrals, cooled very slightly green so nothing on screen reads as a
+     different white than the surfaces around it. */
+  --bg: #f1f5f2;
+  --bg-sunk: #e7ede9;
   --surface: #ffffff;
-  --border: #dfe3e8;
-  --text: #16191d;
-  --muted: #5c6673;
-  --accent: #0b5fff;
+  --surface-2: #f8fbf9;
+  --border: #dce5df;
+  --border-strong: #bfcdc4;
+  --text: #101a15;
+  --muted: #55645c;
+  /* Chosen against the *sunk* surfaces, not just white: at #78877f it read
+     as 3.8:1 on the page ground, which is below AA for the small labels
+     ("APPS", "MINUTES", the session timestamp) that use it most. */
+  --subtle: #607068;
+
+  /* Semantic aliases. Screens use these; the ramps above are the source. */
+  --accent: var(--green-700);
+  --accent-hover: var(--green-800);
+  --accent-soft: var(--green-50);
   --accent-text: #ffffff;
-  --ok-bg: #e7f6ec;
-  --ok-text: #14532d;
-  --warn-bg: #fdf3d8;
-  --warn-text: #6b4c00;
-  --stop-bg: #fdeaea;
-  --stop-text: #8a1c1c;
-  --radius: 10px;
-  --shadow: 0 1px 2px rgb(16 24 40 / 6%), 0 1px 3px rgb(16 24 40 / 10%);
+  --link: var(--green-700);
+  --highlight: var(--gold-500);
+  --focus: var(--green-600);
+  --focus-halo: rgb(255 203 5 / 45%);
+
+  --ok-bg: var(--green-100);
+  --ok-text: var(--green-800);
+  --ok-dot: var(--green-600);
+  --warn-bg: var(--ochre-100);
+  --warn-text: var(--ochre-700);
+  --warn-dot: var(--ochre-500);
+  --stop-bg: var(--red-100);
+  --stop-text: var(--red-700);
+  --stop-dot: var(--red-500);
+  --info-bg: var(--blue-100);
+  --info-text: var(--blue-700);
+  --info-dot: var(--blue-500);
+  --neutral-bg: var(--bg-sunk);
+  --neutral-text: var(--muted);
+  --neutral-dot: var(--subtle);
+
+  /* Space. A 4px base, named by use rather than by number so a gap can be
+     changed everywhere it means the same thing. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --radius-full: 999px;
+
+  /* Elevation. Tinted with the brand green rather than pure black, so a
+     raised card reads as sitting on this background and not a grey one. */
+  --shadow-xs: 0 1px 2px rgb(5 46 31 / 6%);
+  --shadow-sm: 0 1px 2px rgb(5 46 31 / 5%), 0 2px 6px rgb(5 46 31 / 6%);
+  --shadow-md: 0 2px 4px rgb(5 46 31 / 6%), 0 8px 20px rgb(5 46 31 / 9%);
+  --shadow-lg: 0 4px 8px rgb(5 46 31 / 7%), 0 18px 40px rgb(5 46 31 / 12%);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace;
+
+  --dur-fast: 120ms;
+  --dur: 180ms;
+  --ease: cubic-bezier(0.2, 0.6, 0.3, 1);
+
+  --shell-width: 74rem;
+  --reading-width: 46rem;
+
+  /* Kept: the original variable names other rules and a few inline styles
+     still reference. */
+  --radius-legacy: var(--radius);
+  --shadow: var(--shadow-sm);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #14171c;
-    --surface: #1c2027;
-    --border: #2e3541;
-    --text: #eef1f5;
-    --muted: #9aa5b4;
-    --accent: #6ea0ff;
-    --accent-text: #10141a;
-    --ok-bg: #14311f;
-    --ok-text: #a6e5bd;
-    --warn-bg: #38300f;
-    --warn-text: #f0d78a;
-    --stop-bg: #3a1a1a;
-    --stop-text: #f5b3b3;
+    color-scheme: dark;
+
+    --bg: #0a1310;
+    --bg-sunk: #060d0b;
+    --surface: #101b16;
+    --surface-2: #16241d;
+    --border: #22352c;
+    --border-strong: #334c40;
+    --text: #e7f0ea;
+    --muted: #9cb1a5;
+    --subtle: #7d9287;
+
+    /* The action colour lightens in the dark so it can carry dark text —
+       the same relationship as in the light theme, inverted, rather than
+       the light theme's green floated on a dark background where it would
+       fail against both. */
+    --accent: #43c58a;
+    --accent-hover: #63d5a1;
+    --accent-soft: #10291f;
+    --accent-text: #04231a;
+    --link: #6fd7a6;
+    --highlight: var(--gold-400);
+    --focus: var(--gold-400);
+    --focus-halo: rgb(255 216 61 / 30%);
+
+    --ok-bg: #0e3324;
+    --ok-text: #8ce3b3;
+    --ok-dot: #43c58a;
+    --warn-bg: #382a0c;
+    --warn-text: #f4d18a;
+    --warn-dot: #d9a53f;
+    --stop-bg: #3a1a19;
+    --stop-text: #f5aeaa;
+    --stop-dot: #e0665f;
+    --info-bg: #0b2b36;
+    --info-text: #8fd6ee;
+    --info-dot: #3aa6cc;
+    --neutral-bg: #17251e;
+    --neutral-text: var(--muted);
+    --neutral-dot: var(--subtle);
+
+    --shadow-xs: 0 1px 2px rgb(0 0 0 / 40%);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%), 0 2px 6px rgb(0 0 0 / 30%);
+    --shadow-md: 0 2px 4px rgb(0 0 0 / 40%), 0 8px 20px rgb(0 0 0 / 35%);
+    --shadow-lg: 0 4px 8px rgb(0 0 0 / 45%), 0 18px 40px rgb(0 0 0 / 45%);
   }
 }
 
-* {
+/* ------------------------------------------------------------ base */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
-  background: var(--bg);
+  min-height: 100dvh;
+  background-color: var(--bg);
+  /* Two very faint washes — gold at the top right, green at the top left —
+     so the page has a horizon instead of a flat grey field. Fixed, because
+     a gradient that scrolls away is a gradient nobody sees twice. */
+  background-image:
+    radial-gradient(60rem 30rem at 88% -12%, rgb(255 203 5 / 13%), transparent 65%),
+    radial-gradient(52rem 28rem at -8% -14%, rgb(13 107 69 / 12%), transparent 62%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--text);
-  font: 16px/1.55 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
-  color: var(--accent);
+  color: var(--link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
 }
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+::selection {
+  background: var(--gold-300);
+  color: var(--green-900);
+}
+
+/* One focus treatment for everything, and it is deliberately loud. These
+   screens are operated at speed on a club laptop with a keyboard, and a
+   focus ring you have to hunt for is a focus ring that stops being used.
+   Green ring for contrast, gold halo for identity. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--focus-halo);
+  border-radius: var(--radius-sm);
+}
+
+/* Keyboard users get a way past the club menu on every screen. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--accent);
+  color: var(--accent-text);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 0 0 var(--radius) 0;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  left: 0;
+  color: var(--accent-text);
+}
+
+/* --------------------------------------------------------- app shell */
 
 .shell {
-  max-width: 60rem;
+  max-width: var(--shell-width);
   margin: 0 auto;
-  padding: 1.5rem 1.25rem 4rem;
+  padding: var(--space-5) var(--space-5) var(--space-7);
 }
 
+/* The masthead sticks. Which club you are in and the way out are the two
+   facts most worth not scrolling away from. */
 .masthead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem 1.25rem;
-  align-items: baseline;
+  gap: var(--space-3) var(--space-5);
+  align-items: center;
   justify-content: space-between;
+  margin: 0 0 var(--space-6);
+  padding: var(--space-3) 0;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 1rem;
-  margin-bottom: 1.75rem;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: saturate(150%) blur(10px);
 }
 
 .masthead h1 {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   margin: 0;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 .masthead h1 a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   color: inherit;
   text-decoration: none;
 }
 
 .masthead nav {
   display: flex;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: var(--space-1);
   font-size: 0.9rem;
 }
 
+.masthead nav a {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 550;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.masthead nav a:hover {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-xs);
+}
+
+/* The mark: a wattle-gold ball panel on eucalyptus. Small enough to work as
+   a favicon-sized element, drawn inline so it costs no request and inherits
+   nothing that can fail to load. */
+.brand-mark {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  box-shadow: var(--shadow-xs);
+}
+
+.brand-name {
+  font-weight: 700;
+}
+
+.brand-region {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--subtle);
+}
+
+.site-footer {
+  max-width: var(--shell-width);
+  margin: var(--space-7) auto 0;
+  padding: var(--space-4) var(--space-5) var(--space-6);
+  border-top: 1px solid var(--border);
+  color: var(--subtle);
+  font-size: 0.82rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  justify-content: space-between;
+}
+
+/* -------------------------------------------------------- typography */
+
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
 h2 {
-  font-size: 1.35rem;
-  letter-spacing: -0.015em;
-  margin: 2rem 0 0.35rem;
+  font-size: clamp(1.35rem, 1.15rem + 0.7vw, 1.6rem);
+  font-weight: 680;
+  letter-spacing: -0.02em;
+  margin: var(--space-6) 0 var(--space-2);
 }
 
 h3 {
-  font-size: 1rem;
-  margin: 1.5rem 0 0.5rem;
+  font-size: 1.02rem;
+  font-weight: 660;
+  letter-spacing: -0.01em;
+  margin: var(--space-5) 0 var(--space-2);
 }
 
 .lede {
   color: var(--muted);
-  margin: 0 0 1.5rem;
-  max-width: 46rem;
+  font-size: 1.02rem;
+  margin: 0 0 var(--space-5);
+  max-width: var(--reading-width);
+  text-wrap: pretty;
 }
 
+.prose {
+  max-width: var(--reading-width);
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.05em 0.35em;
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--subtle);
+  margin: 0 0 var(--space-2);
+}
+
+/* ------------------------------------------------------------- hero */
+
+/* The landing page's one piece of showmanship. It has a job beyond looking
+   like something: a family arriving on a club's link and a registrar
+   arriving at work want different things, and the hero is where the two
+   are separated before either has to read a menu. */
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  padding: clamp(var(--space-5), 4vw, var(--space-7));
+  margin-bottom: var(--space-6);
+  background:
+    radial-gradient(38rem 22rem at 100% 0%, rgb(255 203 5 / 20%), transparent 70%),
+    linear-gradient(135deg, var(--green-800), var(--green-900) 62%, #04211a);
+  color: #eef7f1;
+  box-shadow: var(--shadow-lg);
+}
+
+/* The pitch markings: a centre circle and halfway line, drawn in gold at
+   the opacity of a memory. Aria-hidden decoration in CSS only, so it costs
+   no markup and disappears in print. */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: auto -6rem -14rem auto;
+  width: 26rem;
+  height: 26rem;
+  border-radius: 50%;
+  border: 1.5px solid rgb(255 203 5 / 22%);
+  box-shadow: 0 0 0 6rem rgb(255 203 5 / 4%);
+  pointer-events: none;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero .eyebrow {
+  color: var(--gold-400);
+}
+
+.hero h2 {
+  margin: 0 0 var(--space-3);
+  font-size: clamp(1.7rem, 1.1rem + 2.4vw, 2.6rem);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  max-width: 22ch;
+}
+
+.hero .lede {
+  color: rgb(238 247 241 / 82%);
+  margin-bottom: var(--space-5);
+  max-width: 52ch;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* On the hero's dark ground the primary button inverts: gold is finally
+   legible here, and it is the one place the brand's second colour gets to
+   be the loudest thing on the screen. */
+.hero .button {
+  background: var(--gold-500);
+  color: var(--green-900);
+  border-color: transparent;
+}
+
+.hero .button:hover {
+  background: var(--gold-400);
+}
+
+.hero .button.secondary {
+  background: rgb(255 255 255 / 8%);
+  color: #ffffff;
+  border-color: rgb(255 255 255 / 30%);
+}
+
+.hero .button.secondary:hover {
+  background: rgb(255 255 255 / 16%);
+}
+
+/* In the dark theme the page ground is already nearly the hero's green, so
+   the panel would dissolve into it. Lifted a step and given a hairline, it
+   stays a panel rather than becoming the background. */
+@media (prefers-color-scheme: dark) {
+  .hero {
+    background:
+      radial-gradient(38rem 22rem at 100% 0%, rgb(255 203 5 / 16%), transparent 70%),
+      linear-gradient(135deg, #0b5237, #06231a 62%, #041712);
+    border: 1px solid rgb(255 203 5 / 14%);
+  }
+}
+
+/* ------------------------------------------------------------ cards */
+
 .card {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1.1rem 1.25rem;
-  box-shadow: var(--shadow);
-  margin-bottom: 1rem;
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-4);
+  transition: box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+}
+
+/* A card that is itself a destination lifts; one that is a record does not,
+   because a row of registrations that all rise under the cursor is motion
+   with nothing to say. */
+.card-link:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.card-grid .card {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-grid .card > :last-child {
+  margin-top: auto;
 }
 
 .card-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1rem;
+  gap: var(--space-2) var(--space-4);
   align-items: baseline;
   justify-content: space-between;
 }
 
 .name {
-  font-weight: 600;
-  font-size: 1.05rem;
+  font-weight: 640;
+  font-size: 1.06rem;
+  letter-spacing: -0.01em;
   margin: 0;
 }
 
 .legal-name {
   color: var(--muted);
-  font-size: 0.875rem;
+  font-size: 0.86rem;
   margin: 0.15rem 0 0;
 }
 
+/* ------------------------------------------------------------- pills */
+
+/* Colour says it fast; the dot and the word say it correctly. */
 .pill {
-  display: inline-block;
-  border-radius: 999px;
-  padding: 0.15rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  border-radius: var(--radius-full);
+  padding: 0.22rem 0.7rem 0.22rem 0.55rem;
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 640;
+  letter-spacing: 0.005em;
   white-space: nowrap;
+  background: var(--neutral-bg);
+  color: var(--neutral-text);
+  border: 1px solid transparent;
+}
+
+.pill::before {
+  content: '';
+  width: 0.45em;
+  height: 0.45em;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: var(--neutral-dot);
 }
 
 .pill-ok {
@@ -147,9 +624,17 @@ h3 {
   color: var(--ok-text);
 }
 
+.pill-ok::before {
+  background: var(--ok-dot);
+}
+
 .pill-warn {
   background: var(--warn-bg);
   color: var(--warn-text);
+}
+
+.pill-warn::before {
+  background: var(--warn-dot);
 }
 
 .pill-stop {
@@ -157,82 +642,121 @@ h3 {
   color: var(--stop-text);
 }
 
+.pill-stop::before {
+  background: var(--stop-dot);
+}
+
+/* --------------------------------------------------------- rule list */
+
 .rules {
   list-style: none;
-  padding: 0;
-  margin: 0.85rem 0 0;
+  padding: var(--space-3) 0 0;
+  margin: var(--space-3) 0 0;
+  border-top: 1px dashed var(--border);
   display: grid;
-  gap: 0.4rem;
+  gap: var(--space-2);
 }
 
 .rules li {
   display: flex;
-  gap: 0.6rem;
+  gap: var(--space-3);
   align-items: baseline;
-  font-size: 0.92rem;
+  font-size: 0.91rem;
 }
 
 .rule-id {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
   color: var(--muted);
-  min-width: 3.2rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 0.1rem 0.5rem;
+  min-width: 3.4rem;
+  text-align: center;
+  flex: 0 0 auto;
 }
+
+/* ------------------------------------------------------------- stats */
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
 }
 
 .stat {
+  position: relative;
+  overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.85rem 1rem;
+  padding: var(--space-4);
+  box-shadow: var(--shadow-xs);
+}
+
+/* A gold rail across the top of each figure. It is the one repeated place
+   the second brand colour appears in the working screens, which is what
+   keeps the palette from being a landing-page costume. */
+.summary-grid .stat::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold-500), var(--green-500));
 }
 
 .stat .n {
-  font-size: 1.75rem;
-  font-weight: 650;
-  letter-spacing: -0.02em;
+  font-size: 1.9rem;
+  font-weight: 680;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
   display: block;
 }
 
 .stat .label {
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
+  font-weight: 550;
+  margin: 0;
 }
+
+/* ------------------------------------------------------------- forms */
 
 form.stack {
   display: grid;
-  gap: 1.15rem;
-  max-width: 34rem;
+  gap: var(--space-4);
+  max-width: 36rem;
 }
 
 fieldset {
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1rem 1.15rem 1.25rem;
+  padding: var(--space-4) var(--space-5) var(--space-5);
   margin: 0;
   background: var(--surface);
+  box-shadow: var(--shadow-xs);
 }
 
 legend {
-  font-weight: 650;
-  padding: 0 0.4rem;
+  font-weight: 660;
+  font-size: 0.95rem;
+  padding: 0 var(--space-2);
+  margin-left: calc(var(--space-2) * -1);
 }
 
 label {
   display: block;
-  font-size: 0.9rem;
-  font-weight: 550;
-  margin-bottom: 0.3rem;
+  font-size: 0.88rem;
+  font-weight: 580;
+  margin-bottom: var(--space-1);
 }
 
 .field {
-  margin-bottom: 0.95rem;
+  margin-bottom: var(--space-4);
 }
 
 .field:last-child {
@@ -241,42 +765,102 @@ label {
 
 .hint {
   color: var(--muted);
-  font-size: 0.82rem;
-  margin: 0.3rem 0 0;
+  font-size: 0.83rem;
+  margin: var(--space-1) 0 0;
+  text-wrap: pretty;
 }
 
 input[type='text'],
 input[type='email'],
+input[type='tel'],
+input[type='number'],
 input[type='date'],
 input[type='password'],
-select {
+input[type='search'],
+select,
+textarea {
   width: 100%;
-  padding: 0.55rem 0.65rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg);
+  /* 2.75rem of height is the smallest comfortable touch target, and these
+     forms get filled in on a phone at a ground as often as on a desk. */
+  min-height: 2.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
   color: var(--text);
   font: inherit;
-  font-size: 0.95rem;
+  font-size: 0.96rem;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
 }
 
-input:focus-visible,
-select:focus-visible,
-button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--subtle);
+}
+
+input:hover:not(:disabled),
+select:hover:not(:disabled),
+textarea:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background: var(--bg-sunk);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Only after the field has been touched — `:user-invalid` rather than
+   `:invalid` — because a form that turns red before anything is typed is a
+   form that reads as broken on arrival. */
+input:user-invalid,
+select:user-invalid,
+textarea:user-invalid {
+  border-color: var(--stop-dot);
+  background: color-mix(in srgb, var(--stop-bg) 40%, var(--surface));
+}
+
+select {
+  appearance: none;
+  padding-right: 2.2rem;
+  background-image: linear-gradient(45deg, transparent 50%, currentcolor 50%),
+    linear-gradient(135deg, currentcolor 50%, transparent 50%);
+  background-position: calc(100% - 1.05rem) 55%, calc(100% - 0.75rem) 55%;
+  background-size: 0.32rem 0.32rem, 0.32rem 0.32rem;
+  background-repeat: no-repeat;
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--accent);
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 .check {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.6rem;
+  gap: var(--space-3);
   align-items: start;
-  margin-bottom: 0.9rem;
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.check:hover {
+  background: var(--surface-2);
 }
 
 .check input {
-  margin-top: 0.28rem;
+  margin-top: 0.3rem;
 }
 
 .check label {
@@ -284,78 +868,239 @@ button:focus-visible {
   font-weight: 500;
 }
 
+/* ----------------------------------------------------------- buttons */
+
 button,
 .button {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 2.6rem;
   background: var(--accent);
   color: var(--accent-text);
   border: 1px solid transparent;
-  border-radius: 8px;
-  padding: 0.55rem 1.1rem;
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 1.15rem;
   font: inherit;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 620;
+  font-size: 0.94rem;
+  line-height: 1.2;
   cursor: pointer;
   text-decoration: none;
+  box-shadow: var(--shadow-xs);
+  transition: background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+
+button:hover:not(:disabled),
+.button:hover {
+  background: var(--accent-hover);
+  color: var(--accent-text);
+  box-shadow: var(--shadow-sm);
+}
+
+button:active:not(:disabled),
+.button:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+button:disabled,
+.button[aria-disabled='true'] {
+  background: var(--border);
+  color: var(--subtle);
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 button.secondary,
 .button.secondary {
-  background: transparent;
+  background: var(--surface);
   color: var(--text);
-  border-color: var(--border);
+  border-color: var(--border-strong);
+}
+
+button.secondary:hover:not(:disabled),
+.button.secondary:hover {
+  background: var(--surface-2);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+button.ghost,
+.button.ghost {
+  background: transparent;
+  color: var(--link);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+button.ghost:hover:not(:disabled),
+.button.ghost:hover {
+  background: var(--accent-soft);
+}
+
+/* The colour of an act that cannot be undone — revoking access, removing a
+   photograph. Named for the consequence rather than for the colour. */
+button.destructive,
+.button.destructive {
+  background: var(--surface);
+  color: var(--stop-text);
+  border-color: var(--stop-dot);
+}
+
+button.destructive:hover:not(:disabled),
+.button.destructive:hover {
+  background: var(--stop-bg);
+  color: var(--stop-text);
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+/* --------------------------------------------------- notices & errors */
+
+/* Both carry a coloured rail on the leading edge rather than a full tint,
+   so a page with several of them still has a readable background. */
+.errors,
+.notice {
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  font-size: 0.92rem;
+  border: 1px solid transparent;
+  border-left-width: 4px;
 }
 
 .errors {
   background: var(--stop-bg);
   color: var(--stop-text);
-  border-radius: var(--radius);
-  padding: 0.85rem 1.1rem;
-  margin-bottom: 1.25rem;
+  border-left-color: var(--stop-dot);
 }
 
 .errors ul {
-  margin: 0.4rem 0 0;
-  padding-left: 1.1rem;
+  margin: var(--space-2) 0 0;
+  padding-left: 1.15rem;
 }
 
 .notice {
   background: var(--warn-bg);
   color: var(--warn-text);
-  border-radius: var(--radius);
-  padding: 0.85rem 1.1rem;
-  margin-bottom: 1.25rem;
-  font-size: 0.92rem;
+  border-left-color: var(--warn-dot);
+}
+
+.notice-ok {
+  background: var(--ok-bg);
+  color: var(--ok-text);
+  border-left-color: var(--ok-dot);
+}
+
+.notice-info {
+  background: var(--info-bg);
+  color: var(--info-text);
+  border-left-color: var(--info-dot);
 }
 
 .empty {
   color: var(--muted);
-  font-style: italic;
-  padding: 0.5rem 0 1rem;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  text-align: center;
+  font-size: 0.92rem;
 }
+
+/* A collapsed explanation of what a control will do. Closed by default and
+   quiet when closed, because the people who need it need it once. */
+.process-detail {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+  font-size: 0.89rem;
+  color: var(--muted);
+}
+
+.process-detail > summary {
+  cursor: pointer;
+  font-weight: 580;
+  color: var(--text);
+  list-style-position: outside;
+}
+
+.process-detail[open] > summary {
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ------------------------------------------------------------ tables */
 
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.92rem;
+  font-size: 0.91rem;
 }
 
 th,
 td {
   text-align: left;
-  padding: 0.5rem 0.6rem;
+  padding: 0.6rem 0.7rem;
   border-bottom: 1px solid var(--border);
 }
 
 th {
+  background: var(--surface-2);
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.74rem;
+  font-weight: 680;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
 }
 
-.table-scroll {
+tbody tr {
+  transition: background var(--dur-fast) var(--ease);
+}
+
+tbody tr:hover {
+  background: var(--surface-2);
+}
+
+/* Figures in a table line up under one another, so a column of amounts can
+   be scanned rather than read. */
+td {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Wide tables scroll inside their own frame; the page never does. */
+.table-scroll,
+.table-wrap {
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+  margin-bottom: var(--space-4);
+}
+
+.table-scroll > table,
+.table-wrap > table {
+  min-width: 34rem;
+}
+
+.table-scroll tr:last-child td,
+.table-wrap tr:last-child td {
+  border-bottom: 0;
 }
 
 /* --------------------------------------------------------- session strip
@@ -366,31 +1111,34 @@ th {
 .session-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  gap: var(--space-2) var(--space-3);
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0.85rem;
-  margin-bottom: 1.4rem;
+  padding: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-4);
   border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
   border-radius: var(--radius);
   background: var(--surface);
-  font-size: 0.88rem;
+  box-shadow: var(--shadow-xs);
+  font-size: 0.87rem;
   color: var(--muted);
 }
 
 .session-who {
-  font-weight: 600;
+  font-weight: 640;
   color: var(--text);
 }
 
 .session-sep {
   margin: 0 0.45rem;
-  opacity: 0.55;
+  opacity: 0.45;
 }
 
 .session-since {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  color: var(--subtle);
 }
 
 /* The club-facing menu. On every screen, so no journey between two of them
@@ -398,64 +1146,110 @@ th {
 .app-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
-  margin-bottom: 1.4rem;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid var(--border);
+  gap: var(--space-1);
+  margin-bottom: var(--space-5);
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
 }
 
 .app-nav-link {
-  padding: 0.35rem 0.7rem;
-  border-radius: var(--radius);
-  font-size: 0.9rem;
+  padding: 0.42rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 550;
   color: var(--muted);
   text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
 
 .app-nav-link:hover {
-  background: var(--surface);
-  color: var(--text);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .app-nav-link.is-current {
   background: var(--accent);
   color: var(--accent-text);
-  font-weight: 600;
+  font-weight: 640;
+  box-shadow: var(--shadow-xs);
+}
+
+.app-nav-link.is-current:hover {
+  background: var(--accent-hover);
+  color: var(--accent-text);
+}
+
+/* Ten destinations do not wrap gracefully onto a phone, and a menu that
+   grows to four lines pushes the screen's actual content below the fold.
+   Narrow viewports get one scrolling rail instead. */
+@media (max-width: 45rem) {
+  .app-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scroll-snap-type: x proximity;
+  }
+
+  .app-nav-link {
+    scroll-snap-align: start;
+  }
 }
 
 /* The demonstration tenant announces itself. It is a real club under real
    policies; the only difference anyone should notice is this. */
 .demo-banner {
-  margin: 0 0 0.8rem;
-  padding: 0.6rem 0.85rem;
-  border: 1px solid var(--warn-text);
-  border-radius: var(--radius);
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--warn-dot);
+  border-left-width: 4px;
+  border-radius: var(--radius-sm);
   background: var(--warn-bg);
   color: var(--warn-text);
   font-size: 0.88rem;
 }
 
 .session-strip.is-demo {
-  border-color: var(--warn-text);
+  border-color: var(--warn-dot);
+  border-left-color: var(--warn-dot);
 }
 
 /* "Which club am I in?" — the two answers are styled apart on purpose.
    Mistaking real children's records for fictional ones is the error that
-   costs something, so it does not get to look like the reassuring one. */
+   costs something, so it does not get to look like the reassuring one.
+
+   Both states are a paragraph or a short form, never a table or a grid — so
+   the card is capped to reading width instead of stretching to the shell's
+   full 74rem. An uncapped card here left a bare rectangle of empty surface
+   beside the (36rem) form on anything wider than a laptop, which reads as a
+   layout bug rather than as a page that is simply done saying what it has
+   to say. */
+.demo-card,
+.real-card {
+  max-width: var(--reading-width);
+}
+
 .demo-card {
-  border-color: var(--warn-text);
+  border-color: var(--warn-dot);
+  border-left: 4px solid var(--warn-dot);
 }
 
 .real-card {
   border-color: var(--accent);
+  border-left: 4px solid var(--accent);
 }
 
 .real-banner {
-  margin: 0 0 0.8rem;
-  padding: 0.6rem 0.85rem;
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3) var(--space-4);
   border: 1px solid var(--accent);
-  border-radius: var(--radius);
-  background: var(--surface);
+  border-left-width: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
   color: var(--text);
   font-size: 0.88rem;
 }
@@ -464,12 +1258,12 @@ th {
    rather than beneath it, because a checkbox whose label is ambiguous is a
    checkbox whose consent is arguable. */
 .consent-field {
-  margin-top: 1rem;
+  margin-top: var(--space-4);
 }
 
 .consent-label {
   display: flex;
-  gap: 0.6rem;
+  gap: var(--space-3);
   align-items: flex-start;
   font-weight: 400;
   font-size: 0.85rem;
@@ -480,54 +1274,61 @@ th {
 
 .consent-label input[type='checkbox'] {
   margin-top: 0.15rem;
-  width: 1rem;
-  height: 1rem;
+  width: 1.1rem;
+  height: 1.1rem;
   flex: 0 0 auto;
 }
 
-/* The player card. The one place a photograph, a child's physique and a
-   performance record appear together — which is why BR100 draws a line
-   around who may see it, and why there is no share control here. */
+/* ------------------------------------------------------- player card */
+
+/* The one place a photograph, a child's physique and a performance record
+   appear together — which is why BR100 draws a line around who may see it,
+   and why there is no share control here. */
 .player-card {
   border-left: 3px solid var(--accent);
 }
 
 .player-card-head {
   display: flex;
-  gap: 1rem;
+  gap: var(--space-4);
   flex-wrap: wrap;
   align-items: flex-start;
 }
 
 .player-photo {
   flex: 0 0 auto;
-  width: 84px;
-  height: 84px;
+  width: 92px;
+  height: 92px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-xs);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  overflow: hidden;
 }
 
 .player-photo-empty {
   font-size: 0.7rem;
-  color: var(--muted);
-  padding: 0 0.3rem;
+  color: var(--subtle);
+  padding: 0 var(--space-2);
   line-height: 1.3;
 }
 
 .squad-number {
-  display: inline-block;
-  min-width: 1.7em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.8em;
   margin-right: 0.45rem;
   padding: 0 0.35rem;
-  border-radius: var(--radius);
-  background: var(--accent);
-  color: var(--accent-text);
+  border-radius: var(--radius-sm);
+  background: var(--green-800);
+  color: #ffffff;
   font-variant-numeric: tabular-nums;
+  font-weight: 660;
   text-align: center;
 }
 
@@ -535,7 +1336,7 @@ th {
    read as one set rather than four unrelated numbers. */
 .player-figures {
   display: flex;
-  gap: 1.1rem;
+  gap: var(--space-4);
   flex-wrap: wrap;
   margin-left: auto;
 }
@@ -543,21 +1344,26 @@ th {
 .player-figures .stat {
   display: flex;
   flex-direction: column;
-  min-width: 3.5rem;
+  min-width: 4rem;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 
 .player-figures .stat .n {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.55rem;
+  font-weight: 660;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
 }
 
 .player-figures .stat .label {
-  font-size: 0.7rem;
-  color: var(--muted);
+  font-size: 0.68rem;
+  color: var(--subtle);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  font-weight: 640;
 }
 
 /* The photograph itself fills its frame. */
@@ -565,7 +1371,6 @@ th {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: var(--radius);
   display: block;
 }
 
@@ -574,11 +1379,12 @@ th {
    overlay on a larger picture. */
 .crop-stage {
   display: inline-block;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   overflow: hidden;
-  background: var(--bg);
+  background: var(--bg-sunk);
   line-height: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .crop-canvas {
@@ -592,6 +1398,72 @@ th {
 }
 
 .crop-canvas:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--focus);
   outline-offset: -2px;
+}
+
+/* -------------------------------------------------------- responsive */
+
+@media (max-width: 40rem) {
+  .shell {
+    padding: var(--space-4) var(--space-4) var(--space-6);
+  }
+
+  .masthead {
+    gap: var(--space-2);
+  }
+
+  .session-strip {
+    align-items: flex-start;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  }
+
+  .player-figures {
+    margin-left: 0;
+  }
+}
+
+/* --------------------------------------------------- motion and print */
+
+/* Everything above animates for polish only; nothing here communicates by
+   moving, so all of it can be turned off with no loss of meaning. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* A registrar printing a queue or a pack preview wants the rows, not the
+   chrome — and a sticky masthead repeated on every page is worse than no
+   masthead at all. */
+@media print {
+  body {
+    background: #ffffff;
+    background-image: none;
+  }
+
+  .masthead,
+  .app-nav,
+  .session-strip,
+  .skip-link,
+  .site-footer,
+  .hero::after {
+    display: none !important;
+  }
+
+  .card,
+  .stat,
+  .table-scroll,
+  .table-wrap {
+    box-shadow: none;
+    break-inside: avoid;
+  }
 }
