@@ -4,9 +4,9 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
 **Delivered as:** branch `claude/referee-lifecycle`.
-**Status: WP1's database half delivered and proved (migration 0023,
-13 scenarios); its screens are not built. WP2–WP4 specified. C5 (referee
-finance) is explicitly not in this initiative.**
+**Status: WP1 delivered (migration 0023 + the roster screen). WP2 and WP3
+delivered in the database (0024, 0025) — their screens are not built. WP4
+specified. C5 (referee finance) is explicitly not in this initiative.**
 
 C4 has been in the capability model since the first bootstrap and has never
 had a line of code. Its **business rules, unusually, are already written** —
@@ -156,7 +156,7 @@ Nothing else can be checked until this exists.
 - **Outcome:** the club can answer what an official is qualified to do, and
   BR8 and BR10 have something to read.
 
-### WP2 — Availability
+### WP2 — Availability *(database delivered; screens not built)*
 
 - **Deliverables:** `referee_availability` (windows, not per-fixture
   answers — a referee says "Saturday mornings", not "yes" to forty
@@ -165,7 +165,26 @@ Nothing else can be checked until this exists.
 - **Outcome:** a coordinator proposes from a list of people who said they
   could, rather than from memory.
 
-### WP3 — Designation and the conflict engine
+### WP3 — Designation and the conflict engine *(database delivered; screens not built)*
+
+**What went into the database rather than the engine, and why.** BR6, BR9
+and BR109 are enforced by a trigger on `match_official_appointment`, not by
+the pure module. Their failure mode is not an untidy screen — it is a person
+on a pitch who should not be there — and there will be more than one surface
+that appoints. BR83 set the precedent for team officials. What remains for
+the engine is BR8's competency and BR11's four warnings, which are judgment
+presented to a human.
+
+**BR109 is enforced within a club only.** The rule says the check is made
+against the one `Person` across every club; `person` is tenant-scoped, so
+the platform cannot know the two rows are one human. The half that can be
+enforced is; the half that cannot is not claimed. [#69](./open-questions.md).
+
+**BR8 cannot be completed here.** It compares a classification against *the
+competition's minimum*, and no competition record exists — C11. The engine
+can say an official has no classification recorded; it cannot say whether
+the one they have is enough. Recorded rather than approximated: a minimum
+invented per grade would be a number somebody would rely on.
 
 - **Deliverables:** `match_official_appointment` against `fixture`
   (BR20a), with `state` ∈ {proposed, accepted, declined, withdrawn}, the
