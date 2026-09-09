@@ -39,6 +39,36 @@ describe('public config', () => {
       );
     }
   });
+
+  it('falls back to the publishable-key name Supabase\'s dashboard shows today', () => {
+    const config = readPublicConfig({
+      NEXT_PUBLIC_SUPABASE_URL: VALID.NEXT_PUBLIC_SUPABASE_URL,
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_placeholder',
+    });
+    assert.equal(config.supabaseAnonKey, 'sb_publishable_placeholder');
+  });
+
+  it('prefers the anon-key name when both are set, rather than picking arbitrarily', () => {
+    const config = readPublicConfig({
+      ...VALID,
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_placeholder',
+    });
+    assert.equal(config.supabaseAnonKey, 'anon-key-placeholder');
+  });
+
+  it('names both variables when neither is set', () => {
+    assert.throws(
+      () =>
+        readPublicConfig({
+          NEXT_PUBLIC_SUPABASE_URL: VALID.NEXT_PUBLIC_SUPABASE_URL,
+        }),
+      (error: Error) =>
+        error instanceof ConfigError &&
+        /NEXT_PUBLIC_SUPABASE_ANON_KEY \(or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY\)/.test(
+          error.message,
+        ),
+    );
+  });
 });
 
 describe('service config', () => {

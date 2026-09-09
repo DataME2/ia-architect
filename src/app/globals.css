@@ -1220,7 +1220,19 @@ td {
 
 /* "Which club am I in?" — the two answers are styled apart on purpose.
    Mistaking real children's records for fictional ones is the error that
-   costs something, so it does not get to look like the reassuring one. */
+   costs something, so it does not get to look like the reassuring one.
+
+   Both states are a paragraph or a short form, never a table or a grid — so
+   the card is capped to reading width instead of stretching to the shell's
+   full 74rem. An uncapped card here left a bare rectangle of empty surface
+   beside the (36rem) form on anything wider than a laptop, which reads as a
+   layout bug rather than as a page that is simply done saying what it has
+   to say. */
+.demo-card,
+.real-card {
+  max-width: var(--reading-width);
+}
+
 .demo-card {
   border-color: var(--warn-dot);
   border-left: 4px solid var(--warn-dot);
