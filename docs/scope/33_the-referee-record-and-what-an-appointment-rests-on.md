@@ -4,8 +4,9 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
 **Delivered as:** branch `claude/referee-lifecycle`.
-**Status: WP1 in progress. WP2–WP4 specified. C5 (referee finance) is
-explicitly not in this initiative.**
+**Status: WP1's database half delivered and proved (migration 0023,
+13 scenarios); its screens are not built. WP2–WP4 specified. C5 (referee
+finance) is explicitly not in this initiative.**
 
 C4 has been in the capability model since the first bootstrap and has never
 had a line of code. Its **business rules, unusually, are already written** —
@@ -140,7 +141,7 @@ argument for the association tier rather than a defect to patch around.
 
 ## Work packages and deliverables
 
-### WP1 — The referee's own record *(in progress)*
+### WP1 — The referee's own record *(database delivered; screens not built)*
 
 Nothing else can be checked until this exists.
 
