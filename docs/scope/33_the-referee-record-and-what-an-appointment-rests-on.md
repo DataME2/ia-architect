@@ -156,14 +156,24 @@ Nothing else can be checked until this exists.
 - **Outcome:** the club can answer what an official is qualified to do, and
   BR8 and BR10 have something to read.
 
-### WP2 — Availability *(database delivered; screens not built)*
+### WP2 — Availability *(delivered)*
 
 - **Deliverables:** `referee_availability` (windows, not per-fixture
   answers — a referee says "Saturday mornings", not "yes" to forty
-  fixtures), the declaring screen, and the coordinator's view of who is
-  available for a given fixture.
+  fixtures), `referee_unavailability` for the exceptions, the declaring
+  panel on `/registrar/referees`, and `src/web/availability-view.ts` for
+  the screen's decisions. The coordinator's view of who is available is
+  the designation screen (WP3), where it is one warning among several
+  rather than a page of its own.
+
+  **The officials page became season-scoped** to carry this, since
+  availability is declared per season and a window from last year must not
+  quietly apply to this one.
 - **Outcome:** a coordinator proposes from a list of people who said they
-  could, rather than from memory.
+  could, rather than from memory. **"Nothing declared" is shown as a
+  warning rather than a blank**, because an official who has declared
+  nothing is never offered and a blank cell would read as "no
+  restrictions".
 
 ### WP3 — Designation and the conflict engine *(delivered)*
 

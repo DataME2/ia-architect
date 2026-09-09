@@ -1,7 +1,11 @@
 import { redirect } from 'next/navigation';
 
-import { loadReferees, loadRefereeCandidates } from '../../../data/officiating.ts';
-import { loadTenantContext } from '../../../data/queries.ts';
+import {
+  loadDeclaredAvailability,
+  loadRefereeCandidates,
+  loadReferees,
+} from '../../../data/officiating.ts';
+import { loadSeasons, loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { rosterOrder } from '../../../web/referee-view.ts';
 import { todayIn } from '../../../web/today.ts';
@@ -22,7 +26,11 @@ export const dynamic = 'force-dynamic';
  * because the alternative is a screen that renders an empty roster and
  * looks like a club with no referees.
  */
-export default async function RefereesPage() {
+export default async function RefereesPage({
+  searchParams,
+}: {
+  readonly searchParams: Promise<{ readonly season?: string }>;
+}) {
   const client = await createRequestClient();
   const user = await currentUser(client);
   if (user === null) redirect('/sign-in?next=%2Fregistrar%2Freferees');
@@ -49,9 +57,16 @@ export default async function RefereesPage() {
     );
   }
 
-  const [referees, candidates] = await Promise.all([
+  const seasons = await loadSeasons(client, tenant.clubId);
+  const params = await searchParams;
+  const season = seasons.find((s) => s.id === params.season) ?? seasons[0];
+
+  const [referees, candidates, declared] = await Promise.all([
     loadReferees(client, tenant.clubId),
     loadRefereeCandidates(client, tenant.clubId),
+    season === undefined
+      ? Promise.resolve({ windows: new Map(), ranges: new Map() })
+      : loadDeclaredAvailability(client, tenant.clubId, season.id),
   ]);
 
   const asOf = todayIn();
@@ -71,14 +86,36 @@ export default async function RefereesPage() {
         <em>said</em> &mdash; an unverified record is shown as unverified rather than counted.
       </p>
 
-      <RefereeRoster referees={rosterOrder(referees, asOf)} asOf={asOf} />
+      {seasons.length > 1 && (
+        <p className="hint">
+          Availability is declared per season.{' '}
+          {seasons.map((s) => (
+            <a
+              key={s.id}
+              href={`/registrar/referees?season=${s.id}`}
+              style={{ marginRight: '0.6rem', fontWeight: s.id === season?.id ? 700 : 400 }}
+            >
+              {s.name}
+            </a>
+          ))}
+        </p>
+      )}
+
+      <RefereeRoster
+        referees={rosterOrder(referees, asOf)}
+        asOf={asOf}
+        seasonId={season?.id ?? null}
+        windows={declared.windows}
+        ranges={declared.ranges}
+      />
 
       <AddRefereeForm candidates={candidates.filter((c) => !rostered.has(c.personId))} />
 
       <p className="hint">
-        <strong>Nothing here appoints anybody yet.</strong> Availability, designations and the
-        conflict checks (BR6&ndash;BR11, BR109) are the next work packages of{' '}
-        <span className="mono">scope 33</span>. This is the record they will read.
+        <strong>Silence is not availability.</strong> An official who has declared no window is
+        not offered for any fixture &mdash; the alternative reads silence as consent and puts
+        somebody on a match sheet who never said they could do it. Designations are made on{' '}
+        <a href="/registrar/designations">Designations</a>.
       </p>
     </>
   );

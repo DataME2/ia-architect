@@ -10,6 +10,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { Candidate } from '../domain/officiating/conflicts.ts';
+import type {
+  AvailabilityWindow,
+  UnavailabilityRange,
+} from '../web/availability-view.ts';
 import type { RefereeSummary } from '../web/referee-view.ts';
 
 interface ProfileRow {
@@ -343,4 +347,67 @@ export async function loadCandidates(
       sameDayAppointments: sameDay.get(r.personId) ?? 0,
       available: availableOf.get(r.personId) ?? false,
     }));
+}
+
+export interface DeclaredAvailability {
+  readonly windows: ReadonlyMap<string, readonly AvailabilityWindow[]>;
+  readonly ranges: ReadonlyMap<string, readonly UnavailabilityRange[]>;
+}
+
+/**
+ * What every official on the roster has declared for one season.
+ *
+ * Loaded for the whole club rather than per official, because the roster
+ * screen shows them all and one round trip per referee would be a query
+ * per row.
+ *
+ * **Unavailability is not season-scoped** — somebody away for three weeks
+ * in January does not know which season the club considers that — so it is
+ * read for the club and shown against whichever season is being edited.
+ */
+export async function loadDeclaredAvailability(
+  client: SupabaseClient,
+  clubId: string,
+  seasonId: string,
+): Promise<DeclaredAvailability> {
+  const [{ data: windowRows }, { data: rangeRows }] = await Promise.all([
+    client
+      .from('referee_availability')
+      .select('id, person_id, weekday, from_time, to_time, note')
+      .eq('club_id', clubId)
+      .eq('season_id', seasonId),
+    client
+      .from('referee_unavailability')
+      .select('id, person_id, starts_on, ends_on, reason')
+      .eq('club_id', clubId),
+  ]);
+
+  const windows = new Map<string, AvailabilityWindow[]>();
+  for (const row of (windowRows ?? []) as Record<string, string | number | null>[]) {
+    const person = String(row.person_id);
+    const list = windows.get(person) ?? [];
+    list.push({
+      id: String(row.id),
+      weekday: Number(row.weekday),
+      fromTime: row.from_time === null ? null : String(row.from_time),
+      toTime: row.to_time === null ? null : String(row.to_time),
+      note: row.note === null ? null : String(row.note),
+    });
+    windows.set(person, list);
+  }
+
+  const ranges = new Map<string, UnavailabilityRange[]>();
+  for (const row of (rangeRows ?? []) as Record<string, string | null>[]) {
+    const person = String(row.person_id);
+    const list = ranges.get(person) ?? [];
+    list.push({
+      id: String(row.id),
+      startsOn: String(row.starts_on),
+      endsOn: String(row.ends_on),
+      reason: row.reason === null ? null : String(row.reason),
+    });
+    ranges.set(person, list);
+  }
+
+  return { windows, ranges };
 }
