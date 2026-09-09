@@ -3,10 +3,11 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** branch `diseno-ux`, alongside
-[scope 31](./31_the-interface-and-the-southern-ocean-palette.md), which it
-supersedes. **Partially delivered** — WP1, WP4, WP5 and the seams of WP6 are
-in; WP2 and WP3 are not, and the reason is in the gap notes.
+**Delivered as:** branch `diseno-ux`, in two pull requests — #26 (WP1, WP4,
+WP5, the seams of WP6) and its successor (WP2, WP3, the sign-in). Supersedes
+[scope 31](./31_the-interface-and-the-southern-ocean-palette.md). What is
+*coming soon* inside the delivered workspaces is listed in the gap notes,
+each named for what it waits on.
 
 **BR61 has been written down since the business layer was drafted and has
 never once been executed.** "A Person holding several roles operates in one
@@ -86,7 +87,7 @@ flowchart LR
 - **Outcome:** BR61 exists as executable, tested logic rather than a
   sentence in a table.
 
-### WP2 — The application shell · **components only**
+### WP2 — The application shell · **delivered**
 
 - **Deliverables:** `src/app/_components/IdentityRail.tsx`,
   `RoleSwitcher.tsx`, `ContourField.tsx`, and a shell layout under
@@ -95,7 +96,7 @@ flowchart LR
 - **Outcome:** the layout carries the argument — the rail never changes, the
   workspace always does. Large enough to want the `story-sharding` skill.
 
-### WP3 — The five role workspaces · **not started**
+### WP3 — The five role workspaces · **delivered, with named gaps**
 
 - **Deliverables:** routes for player, coach, referee, guardian and
   committee contexts. **Committee and guardian are mostly buildable today**
@@ -165,14 +166,26 @@ flowchart LR
   is [decision 1](../decisions/1_ai-assistant-autonomy-level.md)'s: any work
   that gives it inference is a new initiative with its own decision record,
   and its autonomy level is advisory until a record says otherwise.
-- **The shell exists as components and is not yet mounted.** `IdentityRail`
-  and `AssistantNote` render, are typechecked and carry the styles, but no
-  route composes them yet — because the workspaces they would frame are
-  WP3, and two of those five are drawn against capability that is not
-  started. Mounting the rail over the existing registrar screens would put a
-  five-role switcher above a surface that only serves one of the five, which
-  is worse than not mounting it. **The honest next step is guardian and
-  committee**, which are buildable today.
+- **The shell is mounted at `/me`, and what it cannot show it says so.**
+  Every *coming soon* panel names what it waits on. The ones that matter:
+  **availability responses** (player, coach) wait on BR62, which has no
+  table; **the official's own record** (referee) waits on a read policy —
+  C4 built the coordinator's side and every referee table is readable only
+  by admin, registrar and coordinator, so an official sees their own
+  appointments as *coming soon* rather than as an empty list; **a
+  family-facing document upload** (guardian) does not exist, a registrar
+  records what was sighted; **hardship requests** (committee) wait on
+  [#50](./open-questions.md). None of these is rendered as a true "none".
+- **The referee read policy is the cheapest of those to close** and the one
+  C4's owner should decide: a `select` policy on `referee_profile`,
+  `match_official_appointment` and `referee_availability` for the person
+  the row is about, alongside the officer policy. BR65 says a Person sees
+  their own status; today the referee cannot.
+- **Two implementations of BR6/BR109 now exist** — `src/web/role-context.ts`
+  (this initiative, no database enforcement, called by nothing outside its
+  tests) and `src/domain/officiating/conflicts.ts` (scope 33, backed by
+  migration 0025). The second is the one that should win; the first is
+  retained pending review, deliberately.
 - **Superseding scope 31 mid-review is a sequencing problem.** Scope 31 is
   open as a pull request and not merged. It is a coherent, complete step —
   it repaired four undefined classes and gave the stylesheet a token

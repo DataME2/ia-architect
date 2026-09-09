@@ -1,3 +1,4 @@
+import { ROLE_HUE, initialsOf } from '../../web/me-view.ts';
 import {
   ROLE_LABEL,
   chipCount,
@@ -25,18 +26,19 @@ export function IdentityRail({
   contexts,
   active,
   clubCount,
+  officerHref,
+  signOut,
 }: {
   readonly personName: string;
   readonly legalName: string;
   readonly contexts: readonly RoleHolding[];
   readonly active: ActiveContext | null;
   readonly clubCount: number;
+  /** `/registrar` for a club officer; null for a person who holds no such role. */
+  readonly officerHref: string | null;
+  readonly signOut: () => Promise<void>;
 }) {
-  const initials = personName
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join('');
+  const initials = initialsOf(personName);
 
   return (
     <aside className="identity-rail" aria-label="You, and the roles you hold">
@@ -63,7 +65,7 @@ export function IdentityRail({
       <div className="rail-ledger">
         <div>
           <b>1</b>
-          <span>Person record</span>
+          <span>Sign-in</span>
         </div>
         <div>
           <b>{contexts.length}</b>
@@ -121,22 +123,19 @@ export function IdentityRail({
         <b>One active role at a time.</b> Switching is explicit and never merges two
         roles&rsquo; views. The counts are your own; the detail waits behind the switch.
       </p>
+
+      <div className="rail-foot">
+        {officerHref !== null && (
+          <a className="rail-link" href={officerHref}>
+            Club administration &rarr;
+          </a>
+        )}
+        <form action={signOut}>
+          <button type="submit" className="rail-signout">
+            Sign out
+          </button>
+        </form>
+      </div>
     </aside>
   );
 }
-
-/**
- * A hue per role, used only as an accent on the active chip and the
- * acting-as swatch.
- *
- * Deliberately **not** the status palette: these say *which lens*, and
- * nothing here may be mistaken for ready / waiting / blocked. Desert orange
- * is absent because it belongs to the Assistant.
- */
-const ROLE_HUE: Readonly<Record<string, string>> = {
-  player: '#7fb08c',
-  coach: '#e0b071',
-  referee: '#8fc7dd',
-  guardian: '#d9a08a',
-  committee: '#b0a4c9',
-};

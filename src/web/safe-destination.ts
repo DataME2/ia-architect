@@ -16,6 +16,9 @@ export const SAFE_DESTINATIONS = [
   '/register',
   '/set-password',
   '/platform',
+  // The person-facing shell (scope 32). Listed here so a sign-in that
+  // started from "Your roles" lands on your roles.
+  '/me',
 ] as const;
 
 export type SafeDestination = (typeof SAFE_DESTINATIONS)[number];

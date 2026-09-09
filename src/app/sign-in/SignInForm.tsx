@@ -16,7 +16,7 @@ export function SignInForm({ next }: { readonly next: string }) {
       )}
 
       <fieldset>
-        <legend>Sign in</legend>
+        <legend>Email and password</legend>
         <input type="hidden" name="next" value={next} />
 
         <div className="field">

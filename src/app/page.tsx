@@ -20,16 +20,29 @@ export default function HomePage() {
           guess that errors and comes back weeks later.
         </p>
         <div className="hero-actions">
-          <a className="button" href="/register">
-            Start a registration
+          <a className="button" href="/sign-in?next=/me">
+            Sign in to your roles
           </a>
-          <a className="button secondary" href="/registrar">
-            Open the club queue
+          <a className="button secondary" href="/register">
+            Start a registration
           </a>
         </div>
       </section>
 
       <div className="card-grid">
+        <article className="card card-link">
+          <h3 style={{ marginTop: 0 }}>Your roles</h3>
+          <p className="hint">
+            Player, coach, referee, guardian, committee &mdash; one sign-in, one record. Switch role in the
+            rail; the person never changes, only the lens does.
+          </p>
+          <p style={{ marginBottom: 0 }}>
+            <a className="button secondary" href="/me">
+              Open your roles
+            </a>
+          </p>
+        </article>
+
         <article className="card card-link">
           <h3 style={{ marginTop: 0 }}>Registrar</h3>
           <p className="hint">
