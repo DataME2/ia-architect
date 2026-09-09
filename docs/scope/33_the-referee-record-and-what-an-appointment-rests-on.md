@@ -216,12 +216,22 @@ invented per grade would be a number somebody would rely on.
 
 ## Gap notes
 
-- **C5 is not deferred out of laziness.** It is blocked on
-  [#1](./open-questions.md): the fee schedule's determinants are confirmed
-  (BR41) and the actual rate table is unknown, so every number a claim
-  screen displayed would be invented. [#4](./open-questions.md) — what
-  banking details may be held for a minor referee — is a second blocker
-  with a legal answer nobody has given, and MiniRefs are twelve.
+- **C5 is deferred, and the reason given here was wrong.** This document
+  first claimed it was blocked on [#1](./open-questions.md) and
+  [#4](./open-questions.md). **Both were resolved in August 2026**, and the
+  error was mine — I read them as pending without checking which section of
+  the log they were in.
+
+  What #1 actually says matters, because it *specifies* the design rather
+  than blocking it: the question was dissolved rather than answered — there
+  is **no single rate table**, each club's Committee sets its own, so the
+  platform ships a **fee-schedule editor** and seeds nothing. And #4 adopts
+  an operational interpretation for a minor's banking details while stating
+  plainly that it is not a legal sign-off.
+
+  So C5 is deferred only because **BR13 requires a verified match** and
+  verification is WP4 of this document. It is sequencing, not a blocker.
+  Taken up in [scope 34](./34_paying_the_officials.md).
 - **BR42's notification half is unbuildable here.** The rule says a
   withdrawal notifies the Referee Coordinator. The platform sends no email,
   no SMS and no reminder, so the withdrawal is recorded and the coordinator
