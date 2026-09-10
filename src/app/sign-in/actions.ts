@@ -57,8 +57,11 @@ export async function signInAction(
   // allowlist is the control, and an address in application code would be a
   // second, weaker one that could disagree with it.
   const { data: isPlatform } = await client.rpc('app_is_platform');
+  // A guardian holds no club_membership (decision 11) — checked directly
+  // rather than assumed, so a genuine officer's landing page is unaffected.
+  const { data: membershipRows } = await client.from('club_membership').select('id').limit(1);
 
-  redirect(landingFor(requested, isPlatform === true));
+  redirect(landingFor(requested, isPlatform === true, (membershipRows?.length ?? 0) > 0));
 }
 
 export async function signOutAction(): Promise<void> {

@@ -2,9 +2,10 @@
 
 _[← Decisions](./README.md) · [Enterprise architecture](../ea/README.md)_
 
-**Status:** Accepted (September 2026). **Not built** — the family surface is
-deferred behind [scope 35](../scope/35_narrowing_what_a_member_can_read.md)'s
-read-narrowing by decision.
+**Status:** Accepted (September 2026). **Built** — migration 0028, WP4,
+resumed out of the original sequencing: the design below never touches the
+26 policies [scope 35](../scope/35_narrowing_what_a_member_can_read.md)'s
+WP1–3 still have to narrow, so there was no reason left to wait for them.
 
 ## The question
 
@@ -86,16 +87,23 @@ anywhere.
 
 ## What this does not decide
 
-**When the family surface is built.** The product owner chose to narrow the
-reads first, so this is a design waiting for its turn rather than a design
-being implemented. Recorded now because it is the reason the narrowing is
-urgent, and a decision written after the fact reads as a justification.
+**When the family surface would be built** was the open question this
+document originally recorded — the product owner had chosen to narrow the
+reads first. It was resumed within the same conversation that asked for a
+guardian invitation, once it was clear the design below does not depend on
+that narrowing at all: nothing here grants a `club_membership` row, so
+nothing here touches the 26 policies WP1–3 still have to narrow. The
+sequencing reasoning held for the rejected `guardian`-role design; it never
+applied to this one.
 
-**Who links a family account to a Person.** Today only an administrator can
-(BR107), and doing that by hand for six hundred families is not a plan. The
-shape that would work is decision 7's again — a link the club issues, which
-the person follows — but sending it needs the platform to send email, which
-it cannot do at all.
+**Who links a family account to a Person** is answered the way it was
+predicted here: decision 7's shape again, a link the club issues which the
+person follows, sent the same way `/platform`'s club-contact invitation
+already is — an ordinary magic-link sign-up on the anon key, no
+service-role key involved. `guardian_invitation` records the admin's
+assertion before the account exists (BR126 refuses it before a linked
+child is COMPLETE), and `claim_family_access()` executes that assertion on
+arrival — `claim_club_access()`'s shape, for a link rather than a role.
 
 **Whether a thirteen-year-old sees the same workspace as their guardian.**
 They do not: BR63 as restated gives them an account, and BR48, BR49, BR57
@@ -105,8 +113,11 @@ reopened).
 
 ## Consequences
 
-- `loadMe` needs a path that does not begin at `club_membership`, which it
-  does today — it returns an empty snapshot when there is none.
+- `loadMe` needed a path that did not begin at `club_membership` — it
+  returned an empty snapshot whenever that table held no row, which was
+  every guardian, unconditionally. Fixed alongside 0028: it now reads
+  `account_person` regardless, since that row carries its own
+  membership-independent select policy.
 - Every family read is a function, so the surface is small, greppable, and
   each addition is a deliberate act rather than a policy that quietly
   already covered it.

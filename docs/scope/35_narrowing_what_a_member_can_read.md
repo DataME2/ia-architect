@@ -4,8 +4,8 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
 **Delivered as:** branch `claude/narrow-the-reads`.
-**Status: aligned and unblocked, not implemented.** The club answered every
-question this waited on, September 2026.
+**Status: WP1–WP3 aligned and unblocked, not implemented. WP4 resumed,
+September 2026** — see below.
 
 This initiative exists because of a request it does not deliver.
 
@@ -66,11 +66,11 @@ question was asked and the answer was already written down.
 
 | Layer | Impact |
 | ----- | ------ |
-| 1_strategy | **No new capability; P5 is applied, not amended.** The narrowing makes P5 mean more rather than less — today a member of the right club sees almost everything in it, which satisfies tenant isolation and nothing else |
-| 2_business | **BR63 restated** (an account at 13, rights at 18) and **BR120–BR122 added**: what each role may read, that a family reads only their own household, and that a narrowing is proved by a test that fails when it is widened. #58 answered in full, and BR78, BR97, BR123–BR125 follow from the club's replies |
-| 3_information | No new table. **Twenty-six select policies rewritten**, and a new `app_my_person_ids()` — the caller's own Person plus the children they hold authority over — as the scoping predicate |
-| 4_application | No new route. `loadMe` gains a path that does not require a `club_membership`, which is what family access will need once it is unblocked |
-| 5_technology | **No change.** Policies and one function on the stack that exists |
+| 1_strategy | **No new capability; P5 is applied, not amended.** The narrowing makes P5 mean more rather than less — today a member of the right club sees almost everything in it, which satisfies tenant isolation and nothing else. WP4's family surface is the same principle from the other side: not a P5 exception, a caller who is never a tenant reader at all |
+| 2_business | **BR63 restated** (an account at 13, rights at 18) and **BR120–BR122 added**: what each role may read, that a family reads only their own household, and that a narrowing is proved by a test that fails when it is widened. #58 answered in full, and BR78, BR97, BR123–BR125 follow from the club's replies. **BR126 added** (WP4, September 2026): a guardian is invited only once a linked child is COMPLETE |
+| 3_information | WP1–3: no new table, twenty-six select policies to rewrite. **WP4, built:** one new table, `guardian_invitation` (BR126's gate is a trigger on it), and two new functions — `app_family_club_ids()` and `app_my_family_person_ids()`, the caller's own Person plus the children they hold authority over — as an *additive* scoping predicate on twelve existing tables, never a rewrite of the twenty-six WP1–3 still owns |
+| 4_application | WP1–3: no new route. **WP4, built:** `loadMe` gained the path that does not require `club_membership` — it was returning an empty snapshot whenever that table held no row, which was every guardian; a registrar's registration-detail screen gained a guardian-invite panel, gated on COMPLETE |
+| 5_technology | **No change.** Policies and functions on the stack that exists |
 
 ## The design, and why not the obvious one
 
@@ -96,7 +96,7 @@ That is recorded as [decision 11](../decisions/11_a_family_reads_through_functio
 | Plateau | State |
 | ------- | ------- |
 | **Baseline** (today) | 26 of 44 tables readable by any member in any role. A coach reads every family's balance. Families cannot sign in at all |
-| **Target** (this initiative) | Reads scoped to what a role needs. A coach sees their own teams; money reaches the roles that handle it. The family surface has somewhere safe to attach, and attaches in a later initiative |
+| **Target** (this initiative) | Reads scoped to what a role needs. A coach sees their own teams; money reaches the roles that handle it. A guardian, invited once a child's registration is verified COMPLETE, reads their own household through decision 11's functions and nothing else |
 
 ## Work packages and deliverables
 
@@ -129,20 +129,42 @@ That is recorded as [decision 11](../decisions/11_a_family_reads_through_functio
   `appearance` narrowed to the roles [#64](./open-questions.md) names,
   which is now a narrowing owed rather than a question open.
 
-### WP4 — The family surface *(deferred by decision)*
+### WP4 — The family surface *(resumed, September 2026)*
 
-- **Deliverables:** none in this initiative. Recorded so the sequencing is
-  legible: the ask that motivated all of the above is the last thing built,
-  because it is the thing that makes the rest urgent.
+- **Deliverables:** `app_family_club_ids()` and `app_my_family_person_ids()`
+  — the decision-11 functions, deriving the caller's own Person and the
+  children they hold `is_authority` over from `auth.uid()`, never from an
+  argument. Additive `_select_family` policies on the twelve tables the
+  built guardian workspace ([scope 32](./32_the-role-context-shell-and-a-second-palette.md))
+  already reads: `account_person`, `club`, `season`, `person`,
+  `guardianship`, `registration`, `consent`, `payment_plan`, `payment`,
+  `payment_installment`, `team_member`, `team`, `fixture`. `guardian_invitation`,
+  gated by BR126, and `claim_family_access()` — decision 10's identity
+  assertion, executed on arrival rather than inferred, the same shape
+  `claim_club_access()` already uses for `club_contact`.
+- **Reopened out of order, and why that is sound rather than a reversal.**
+  The original deferral reasoned about the rejected design — a `guardian`
+  role on `club_membership` — where shipping family accounts before the
+  narrowing meant every parent inherited the 26 wide-open policies during
+  the window between the two. Decision 11 replaced that design before this
+  initiative was written down: **no membership is ever granted**, so no
+  guardian account touches the tables WP1–WP3 narrow. There is no window,
+  because there is nothing shared to widen. WP1–WP3 remain unblocked and
+  undone, tracked separately.
+- **Additive, not a rewrite.** Every `_select_family` policy sits alongside
+  the existing membership-based one — Postgres combines permissive policies
+  with `or` — so a club officer's read is unchanged and a family's read is a
+  second, narrower door into the same tables.
 
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |
 | -------- | ------------------------------------------ |
-| The scoping function and its proof | **Family accounts** — deferred deliberately, WP4 |
-| Narrowing money and the child's record | Narrowing the referee record, already narrowed by scope 33 |
-| BR63 restated: an account at 13 | Consent, erasure, publicity or the calendar feed at 13 — those stay at 18 |
-| Answering #58 in full | **BR123's committee decision record** — a new object, and its own initiative |
+| The scoping function and its proof | Narrowing the referee record, already narrowed by scope 33 |
+| Narrowing money and the child's record | Consent, erasure, publicity or the calendar feed at 13 — those stay at 18 |
+| BR63 restated: an account at 13 | **BR123's committee decision record** — a new object, and its own initiative |
+| Answering #58 in full | A family-facing document upload — `GuardianWorkspace` still says a registrar records what was sighted |
+| **Family accounts (WP4)**, resumed September 2026: `guardian_invitation`, the family-scoped read functions, `claim_family_access()` | WP1–WP3 themselves — the staff-facing narrowing is still aligned and unimplemented |
 
 ## Gap notes
 

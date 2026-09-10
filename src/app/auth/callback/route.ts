@@ -43,12 +43,26 @@ export async function GET(request: NextRequest) {
 
   await client.rpc('claim_club_access');
 
+  // A guardian invited under scope 35's WP4 has no club_membership to claim
+  // — this links their account to the Person the invitation already named
+  // (decision 10), and grants nothing club_membership would (decision 11).
+  // Both calls are cheap no-ops when nothing is pending, so no branch is
+  // needed to tell an officer's link from a guardian's.
+  await client.rpc('claim_family_access');
+
   // A reset link asks to land on the password page; an invitation names
   // nothing and falls back to the club — or to the console, for the one
   // identity that has no club and never will. `landingFor` keeps this from
   // becoming an open redirect on the one route that hands out sessions:
   // anything not on the published list is discarded rather than followed.
   const { data: isPlatform } = await client.rpc('app_is_platform');
-  const next = landingFor(request.nextUrl.searchParams.get('next'), isPlatform === true);
+  // A guardian holds no club_membership (decision 11) — checked directly
+  // rather than assumed, so a genuine officer's landing page is unaffected.
+  const { data: membershipRows } = await client.from('club_membership').select('id').limit(1);
+  const next = landingFor(
+    request.nextUrl.searchParams.get('next'),
+    isPlatform === true,
+    (membershipRows?.length ?? 0) > 0,
+  );
   return NextResponse.redirect(`${origin}${next}`);
 }

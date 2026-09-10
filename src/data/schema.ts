@@ -107,6 +107,18 @@ export interface GuardianshipRow {
   is_contact: boolean;
 }
 
+/** BR126 (scope 35 WP4): a recorded intent to invite a guardian, before their account exists. */
+export interface GuardianInvitationRow {
+  id: string;
+  club_id: string;
+  guardian_person_id: string;
+  email: string;
+  invited_by_user_id: string;
+  invited_at: InstantString;
+  claimed_user_id: string | null;
+  claimed_at: InstantString | null;
+}
+
 export interface RegistrationRow {
   id: string;
   club_id: string;
