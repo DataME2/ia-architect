@@ -23,8 +23,17 @@ import { readPublicConfig } from './data/env.ts';
  * has no account, which is the entire point of BR72. Its authorisation is
  * the token, checked by the database when the form is submitted — not by
  * anything here.
+ *
+ * **`/set-password` was on this list and should never have been.** The same
+ * argument applies to it word for word: the person who needs that page is
+ * the person who has no working credential, and guarding it sent them to a
+ * form asking for the password they came to create. It is guarded where it
+ * matters instead — `setPasswordAction` refuses without a session, and it
+ * changes the password of whoever is signed in rather than one named in the
+ * form, so there is no account to point it at. Signed out, the page asks for
+ * an address and sends a link (BR98).
  */
-const PROTECTED = ['/registrar', '/register', '/set-password'];
+const PROTECTED = ['/registrar', '/register'];
 
 /**
  * `/platform` is deliberately absent from that list.

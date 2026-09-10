@@ -25,6 +25,22 @@ export type SafeDestination = (typeof SAFE_DESTINATIONS)[number];
 
 export const DEFAULT_DESTINATION: SafeDestination = '/registrar';
 
+/**
+ * Where somebody holding no working credential is sent.
+ *
+ * Named because the obvious answer is wrong. A dead invitation link, a
+ * reset link used twice, `/auth/callback` reached with no code at all —
+ * every one of them used to land on `/sign-in`, which asks for a password.
+ * For the person most likely to be holding a broken link, that is the one
+ * thing they do not have, and the page that would give them one had the
+ * same redirect: a closed circle whose only exit was asking somebody to
+ * send another link by hand.
+ *
+ * So it is `/set-password`, which without a session asks for an address and
+ * sends a fresh link. This must never be a page that asks for a password.
+ */
+export const NO_CREDENTIAL_DESTINATION: SafeDestination = '/set-password';
+
 /** The requested destination if it is one we publish, otherwise the default. */
 export function safeDestination(value: string | undefined | null): SafeDestination {
   if (typeof value !== 'string') return DEFAULT_DESTINATION;
@@ -45,13 +61,24 @@ export function safeDestination(value: string | undefined | null): SafeDestinati
  * `/set-password` needs to arrive at `/set-password` whoever they are, and
  * an operator who asks for the queue is entitled to see the same empty
  * answer anybody else would.
+ *
+ * **A guardian holds no club membership either** (decision 11), and `/registrar`
+ * is exactly as wrong an answer for them as it is for the platform identity
+ * — a queue for a club they administer nothing at. `hasMembership` (default
+ * `true`, so every existing caller keeps its answer unless it says
+ * otherwise) sends anybody without one to `/me` instead, which already
+ * offers a club officer a link back to `/registrar` — so this never costs a
+ * staff sign-in anything, and never sends a guardian looking for a queue
+ * that was never theirs.
  */
 export function landingFor(
   requested: string | undefined | null,
   isPlatform: boolean,
+  hasMembership = true,
 ): SafeDestination {
   if (typeof requested === 'string' && SAFE_DESTINATIONS.includes(requested as SafeDestination)) {
     return requested as SafeDestination;
   }
-  return isPlatform ? '/platform' : DEFAULT_DESTINATION;
+  if (isPlatform) return '/platform';
+  return hasMembership ? DEFAULT_DESTINATION : '/me';
 }

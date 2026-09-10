@@ -55,8 +55,18 @@ export interface ClubLink {
 
 export interface MeSnapshot {
   readonly userId: string;
-  /** Any club at all — without one, RLS shows nothing and there is no lens. */
-  readonly hasMembership: boolean;
+  /**
+   * Any access at all — a club_membership row, an account_person link, or
+   * both. Without either, RLS shows nothing and there is no lens.
+   *
+   * **Not the same question as "is this account a club officer."** A
+   * guardian invited under scope 35's WP4 holds an account_person link and
+   * deliberately no club_membership row (decision 11) — `hasAccess` is true
+   * for them, `isClubOfficer` is false. The field kept its old name
+   * (`hasMembership`) once too, when membership was the only door; it is
+   * renamed because that stopped being true in migration 0028.
+   */
+  readonly hasAccess: boolean;
   /** The Person, from the first linked club. Null is BR108's honest answer. */
   readonly person: { readonly name: string; readonly legalName: string } | null;
   readonly links: readonly ClubLink[];
@@ -79,14 +89,20 @@ export async function loadMe(client: SupabaseClient, userId: string, today: stri
     'club_membership',
     await client.from('club_membership').select('id, club_id, user_id, role, created_at').eq('user_id', userId),
   );
-  if (memberships.length === 0) {
-    return { userId, hasMembership: false, person: null, links: [], holdings: [], isClubOfficer: false };
-  }
 
+  // A guardian invited under WP4 holds an account_person link and no
+  // club_membership row at all (decision 11) — reading this unconditionally
+  // is the fix for a bug that quietly meant "only a club officer has a
+  // workspace": the row this reads has its own select policy
+  // (account_person_select_own) that needs no membership either.
   const linkRows = unwrap<{ club_id: string; person_id: string }[]>(
     'account_person',
     await client.from('account_person').select('club_id, person_id').eq('user_id', userId),
   );
+
+  if (memberships.length === 0 && linkRows.length === 0) {
+    return { userId, hasAccess: false, person: null, links: [], holdings: [], isClubOfficer: false };
+  }
 
   const clubIds = [...new Set(linkRows.map((l) => l.club_id))];
   const clubs =
@@ -222,7 +238,7 @@ export async function loadMe(client: SupabaseClient, userId: string, today: stri
   const first = links[0];
   return {
     userId,
-    hasMembership: true,
+    hasAccess: true,
     person: first === undefined ? null : { name: displayNameFor(first.person), legalName: fullLegalName(first.person) },
     links,
     holdings: buildContexts(holdings),

@@ -8,6 +8,7 @@ import {
 } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { loadFinance } from '../../../data/finance.ts';
+import { loadGuardianCandidates } from '../../../data/family.ts';
 import { loadVouchers, voucherFileUrl } from '../../../data/vouchers.ts';
 import { voucherSummary } from '../../../domain/finance/voucher.ts';
 import { playEligibility } from '../../../domain/finance/eligibility.ts';
@@ -26,6 +27,7 @@ import {
   verifyLegalNameAction,
   verifyVoucherAction,
 } from '../actions.ts';
+import { GuardianInvite } from './GuardianInvite.tsx';
 import { AttachVoucherForm } from './VoucherPanel.tsx';
 import { OutstandingForm } from './OutstandingForm.tsx';
 import { NewPlanForm, PlanSchedule, RecordPaymentForm } from './PaymentPlanPanel.tsx';
@@ -88,6 +90,11 @@ export default async function RegistrationDetailPage({
 
   const season = seasons.find((s) => s.id === seasonId);
   const { entry, person, documents, consents, duplicates } = detail;
+
+  // Only fetched once the registration is COMPLETE — before that BR126
+  // refuses the invite regardless, and the panel just says why.
+  const guardianCandidates =
+    entry.status === 'COMPLETE' ? await loadGuardianCandidates(client, tenant.clubId, person.id) : [];
 
   const finance = await loadFinance(client, tenant.clubId, registrationId);
   const vouchers = await loadVouchers(client, tenant.clubId, registrationId);
@@ -231,6 +238,18 @@ export default async function RegistrationDetailPage({
               </tbody>
             </table>
           </div>
+        )}
+      </section>
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>Guardian workspace (BR126)</h3>
+        {entry.status !== 'COMPLETE' ? (
+          <p className="hint" style={{ margin: 0 }}>
+            A guardian can be invited to their own workspace once this registration is COMPLETE — an empty
+            workspace is not a welcome. {entry.outcomes.length > 0 && 'See what is still outstanding above.'}
+          </p>
+        ) : (
+          <GuardianInvite registrationId={registrationId} guardians={guardianCandidates} />
         )}
       </section>
 

@@ -116,13 +116,14 @@ async function Workspace({
  * roles at all, which has three honest causes and gets three answers.
  */
 function Prompt({ me }: { readonly me: Awaited<ReturnType<typeof loadMe>> }) {
-  if (!me.hasMembership) {
+  if (!me.hasAccess) {
     return (
       <div className="role-prompt">
-        <h2>Signed in, but a member of no club</h2>
+        <h2>Signed in, but with no access recorded</h2>
         <p className="lede">
           You can see nothing, which is the correct answer to give a stranger — access comes from a club
-          membership, not from having an account. Not sure which club you are in?{' '}
+          membership or a family invitation, never from having an account by itself. Not sure which club you
+          are in?{' '}
           <a href="/demo">Ask the front door.</a>
         </p>
       </div>

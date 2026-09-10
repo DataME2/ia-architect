@@ -1,7 +1,10 @@
 'use server';
 
+import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
 
+import { readPublicConfig } from '../../data/env.ts';
 import {
   applyDerivedStatus,
   applySeasonChecklist,
@@ -19,12 +22,14 @@ import {
   createPaymentPlan,
   recordPayment,
 } from '../../data/finance.ts';
+import { recordGuardianInvitation } from '../../data/family.ts';
 import {
   attachVoucher,
   loadVouchers,
   rejectVoucher,
   verifyVoucher,
 } from '../../data/vouchers.ts';
+import { formFailed, formOk, type FormResult } from '../../web/form-result.ts';
 import { parseAmountCents } from '../../web/money.ts';
 import { parseDueDate, parseMethod, parsePlanDraft } from '../../web/plan-view.ts';
 import { todayIn } from '../../web/today.ts';
@@ -409,4 +414,46 @@ export async function rejectVoucherAction(formData: FormData): Promise<void> {
 
   revalidatePath(`/registrar/${registrationId}`);
   revalidatePath('/registrar');
+}
+
+/**
+ * Invite a guardian to their own workspace (scope 35, WP4).
+ *
+ * **This is an ordinary magic-link sign-up on the anon key**, exactly the
+ * shape `/platform`'s club-contact invitation already uses — no
+ * service-role key enters this action. The database refuses the write
+ * (BR126) before any email is sent if the named child is not yet COMPLETE,
+ * so there is nothing further to check here.
+ */
+export async function inviteGuardianAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const registrationId = String(formData.get('registrationId') ?? '');
+  const guardianPersonId = String(formData.get('guardianPersonId') ?? '');
+  const email = String(formData.get('email') ?? '').trim().toLowerCase();
+  if (registrationId === '' || guardianPersonId === '') return formFailed('Nothing to invite.');
+  if (email === '' || !email.includes('@')) return formFailed('This guardian has no email address on record.');
+
+  const { client, user, tenant } = await requireTenant();
+
+  const result = await recordGuardianInvitation(client, tenant.clubId, guardianPersonId, email, user.id);
+  if ('error' in result) return formFailed(result.error);
+
+  const requestHeaders = await headers();
+  const host = requestHeaders.get('host') ?? 'localhost:3000';
+  const proto = requestHeaders.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
+  const { supabaseUrl, supabaseAnonKey } = readPublicConfig();
+  const anon = createClient(supabaseUrl, supabaseAnonKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { error: sendError } = await anon.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: true, emailRedirectTo: `${proto}://${host}/auth/callback` },
+  });
+
+  revalidatePath(`/registrar/${registrationId}`);
+
+  if (sendError !== null) return formFailed(`Recorded, but the email did not send: ${sendError.message}`);
+  return formOk(
+    result.alreadyInvited ? `A new link was sent to ${email}.` : `${email} was invited to their workspace.`,
+  );
 }
