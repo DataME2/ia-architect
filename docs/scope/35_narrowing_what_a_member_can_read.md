@@ -4,8 +4,8 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
 **Delivered as:** branch `claude/narrow-the-reads`.
-**Status: aligned, not implemented.** Two of the three role answers need the
-club's confirmation before the migration is written.
+**Status: aligned and unblocked, not implemented.** The club answered every
+question this waited on, September 2026.
 
 This initiative exists because of a request it does not deliver.
 
@@ -67,7 +67,7 @@ question was asked and the answer was already written down.
 | Layer | Impact |
 | ----- | ------ |
 | 1_strategy | **No new capability; P5 is applied, not amended.** The narrowing makes P5 mean more rather than less — today a member of the right club sees almost everything in it, which satisfies tenant isolation and nothing else |
-| 2_business | **BR63 restated** (an account at 13, rights at 18) and **BR120–BR122 added**: what each role may read, that a family reads only their own household, and that a narrowing is proved by a test that fails when it is widened. #58 answered for three of the seven roles; two need the club |
+| 2_business | **BR63 restated** (an account at 13, rights at 18) and **BR120–BR122 added**: what each role may read, that a family reads only their own household, and that a narrowing is proved by a test that fails when it is widened. #58 answered in full, and BR78, BR97, BR123–BR125 follow from the club's replies |
 | 3_information | No new table. **Twenty-six select policies rewritten**, and a new `app_my_person_ids()` — the caller's own Person plus the children they hold authority over — as the scoping predicate |
 | 4_application | No new route. `loadMe` gains a path that does not require a `club_membership`, which is what family access will need once it is unblocked |
 | 5_technology | **No change.** Policies and one function on the stack that exists |
@@ -95,7 +95,7 @@ That is recorded as [decision 11](../decisions/11_a_family_reads_through_functio
 
 | Plateau | State |
 | ------- | ------- |
-| **Baseline** (today) | 26 of 44 tables readable by any member in any role. A coach reads every family's balance. Families cannot sign in at all. #58 recorded and unanswered |
+| **Baseline** (today) | 26 of 44 tables readable by any member in any role. A coach reads every family's balance. Families cannot sign in at all |
 | **Target** (this initiative) | Reads scoped to what a role needs. A coach sees their own teams; money reaches the roles that handle it. The family surface has somewhere safe to attach, and attaches in a later initiative |
 
 ## Work packages and deliverables
@@ -108,22 +108,26 @@ That is recorded as [decision 11](../decisions/11_a_family_reads_through_functio
   `24_player_record.sql` established for physique.
 - **Outcome:** the mechanism exists and is proved before any policy moves.
 
-### WP2 — Money and contact details *(needs the club's answer)*
+### WP2 — Money and contact details *(unblocked, September 2026)*
 
 - **Deliverables:** `payment`, `payment_plan`, `payment_installment`,
   `registration_voucher` narrowed to admin, treasurer and registrar.
-- **Blocked on:** whether a **coach** should see a family's balance. BR78
-  currently says *any* club member may read what a family owes, so this
-  restates BR78 and needs the club rather than a guess.
+- **Answered:** a coach sees **whether a player is clear to take the
+  field, never the balance** — BR78 as restated. The answer is what makes
+  the narrowing buildable: BR79 is computed fresh every time rather than
+  stored, so the verdict can be shown without the figure behind it.
 
-### WP3 — The child's record *(needs the club's answer)*
+### WP3 — The child's record *(unblocked, September 2026)*
 
 - **Deliverables:** `registration`, `consent`, `guardianship`,
   `registration_document`, `validation_result` narrowed to the roles that
   process them, plus the coach's own team.
-- **Blocked on:** [#58](./open-questions.md) proper — what a coach should
-  see. Majestri, which these clubs already use, withholds financial data
-  from team officials; that is evidence, not an answer.
+- **Answered:** a coach sees whether a player is **completely
+  registered**, whether they are **clear to play**, and **which consents
+  are granted** — the photograph consent in particular, since a coach
+  takes team photographs. Also in this package: `fixture` and
+  `appearance` narrowed to the roles [#64](./open-questions.md) names,
+  which is now a narrowing owed rather than a question open.
 
 ### WP4 — The family surface *(deferred by decision)*
 
@@ -138,15 +142,17 @@ That is recorded as [decision 11](../decisions/11_a_family_reads_through_functio
 | The scoping function and its proof | **Family accounts** — deferred deliberately, WP4 |
 | Narrowing money and the child's record | Narrowing the referee record, already narrowed by scope 33 |
 | BR63 restated: an account at 13 | Consent, erasure, publicity or the calendar feed at 13 — those stay at 18 |
-| Answering #58 for three roles | Answering it for `coach` and `committee` — the club's call |
+| Answering #58 in full | **BR123's committee decision record** — a new object, and its own initiative |
 
 ## Gap notes
 
-- **Two work packages are blocked on the club, and that is the point.**
-  BR52 says the privacy framework is recorded per tenant rather than assumed
-  platform-wide, and what a coach may see about a child is exactly that kind
-  of decision. Guessing it would be the failure this document exists to
-  prevent, one layer up.
+- **The club answered, and the answer was better than the question.** #58
+  asked what a coach should *see*; the reply drew the line at what a coach
+  should *know* — completely registered, clear to play, consents granted —
+  and put finance on the other side of it. That is buildable precisely
+  because BR79 is a computed verdict rather than a stored balance, so the
+  coach can be told *clear* without being shown a figure. A guess would
+  have narrowed the table and shown them the number.
 - **Nothing here gives a family an account**, so the ask remains
   unfulfilled until WP4. The cost of the sequencing is that a parent still
   cannot sign in; the cost of the alternative is that they could, and so
