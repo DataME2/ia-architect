@@ -452,7 +452,19 @@ export async function inviteGuardianAction(
 
   revalidatePath(`/registrar/${registrationId}`);
 
-  if (sendError !== null) return formFailed(`Recorded, but the email did not send: ${sendError.message}`);
+  if (sendError !== null) {
+    // Supabase's built-in sender is throttled to a handful of messages an
+    // hour and is documented as not meant for production use -- this is
+    // that limit, not anything this application imposes. It resets on its
+    // own; raising it for real needs custom SMTP configured in the
+    // Supabase dashboard, which is outside what a registrar's screen can
+    // fix by retrying.
+    return formFailed(
+      sendError.message.includes('rate limit')
+        ? 'Recorded, but too many invitation emails have gone out recently. Wait a few minutes and try again.'
+        : `Recorded, but the email did not send: ${sendError.message}`,
+    );
+  }
   return formOk(
     result.alreadyInvited ? `A new link was sent to ${email}.` : `${email} was invited to their workspace.`,
   );
