@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { createRequestClient } from '../../../data/server.ts';
-import { landingFor } from '../../../web/safe-destination.ts';
+import { landingFor, NO_CREDENTIAL_DESTINATION } from '../../../web/safe-destination.ts';
 
 /**
  * Where a sign-in link lands.
@@ -22,8 +22,13 @@ export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
   const origin = request.nextUrl.origin;
 
+  // No code and a dead code both mean the same thing to the person holding
+  // the link: it did not work. Sending them to `/sign-in` asked for a
+  // password they may never have had — the same closed circle `/set-password`
+  // used to have — so both land there instead, where a fresh link is one
+  // address away.
   if (code === null) {
-    return NextResponse.redirect(`${origin}/sign-in?next=%2Fregistrar`);
+    return NextResponse.redirect(`${origin}${NO_CREDENTIAL_DESTINATION}`);
   }
 
   const client = await createRequestClient();
@@ -33,7 +38,7 @@ export async function GET(request: NextRequest) {
     // A link that is expired, already used, or simply wrong. Not
     // distinguished, for the reason BR73 gives about registration tokens:
     // telling a prober which guesses were close is the whole attack.
-    return NextResponse.redirect(`${origin}/sign-in?next=%2Fregistrar`);
+    return NextResponse.redirect(`${origin}${NO_CREDENTIAL_DESTINATION}`);
   }
 
   await client.rpc('claim_club_access');

@@ -25,6 +25,22 @@ export type SafeDestination = (typeof SAFE_DESTINATIONS)[number];
 
 export const DEFAULT_DESTINATION: SafeDestination = '/registrar';
 
+/**
+ * Where somebody holding no working credential is sent.
+ *
+ * Named because the obvious answer is wrong. A dead invitation link, a
+ * reset link used twice, `/auth/callback` reached with no code at all —
+ * every one of them used to land on `/sign-in`, which asks for a password.
+ * For the person most likely to be holding a broken link, that is the one
+ * thing they do not have, and the page that would give them one had the
+ * same redirect: a closed circle whose only exit was asking somebody to
+ * send another link by hand.
+ *
+ * So it is `/set-password`, which without a session asks for an address and
+ * sends a fresh link. This must never be a page that asks for a password.
+ */
+export const NO_CREDENTIAL_DESTINATION: SafeDestination = '/set-password';
+
 /** The requested destination if it is one we publish, otherwise the default. */
 export function safeDestination(value: string | undefined | null): SafeDestination {
   if (typeof value !== 'string') return DEFAULT_DESTINATION;
