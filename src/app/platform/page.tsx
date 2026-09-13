@@ -11,6 +11,8 @@ import {
 import { todayIn } from '../../web/today.ts';
 import { LicenceForm, LicencePill } from './LicenceForm.tsx';
 import { ProvisionForm } from './ProvisionForm.tsx';
+import { AssociationForm, CompetitionForm, LevelForm } from './CatalogueForms.tsx';
+import { loadAssociations, loadCompetitions, loadLevels } from '../../data/competitions.ts';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,6 +56,14 @@ export default async function PlatformPage() {
       </>
     );
   }
+
+  // The shared catalogue (BR134). Maintained here because a club editing
+  // shared reference data is how per-club copies start disagreeing again.
+  const [associations, levels, competitions] = await Promise.all([
+    loadAssociations(client),
+    loadLevels(client),
+    loadCompetitions(client),
+  ]);
 
   type Row = PlatformClub & { licence: ClubLicence | null; isDemo: boolean };
 
@@ -254,6 +264,51 @@ export default async function PlatformPage() {
       </div>
 
       <ProvisionForm />
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>Competition catalogue (BR134)</h3>
+        <p className="hint">
+          Shared reference data — every club reads it, only this console writes it (decision 15).
+          It ships empty on purpose: seeding it with a pathway somebody guessed would refuse the
+          real levels, which is why a classification was free text in the first place.
+        </p>
+
+        <h4>Associations <span className="hint">({associations.length})</span></h4>
+        {associations.length > 0 && (
+          <ul className="hint">
+            {associations.map((a) => <li key={a.id}>{a.name} — {a.jurisdiction}</li>)}
+          </ul>
+        )}
+        <AssociationForm />
+
+        <h4 style={{ marginTop: 'var(--space-4)' }}>
+          Classification levels <span className="hint">({levels.length})</span>
+        </h4>
+        {levels.length > 0 && (
+          <ul className="hint">
+            {levels.map((l) => <li key={l.id}>{l.name} — rank {l.rank}</li>)}
+          </ul>
+        )}
+        <LevelForm associations={associations} />
+
+        <h4 style={{ marginTop: 'var(--space-4)' }}>
+          Competitions <span className="hint">({competitions.length})</span>
+        </h4>
+        {competitions.length > 0 && (
+          <ul className="hint">
+            {competitions.map((c) => (
+              <li key={c.id}>
+                {c.name}
+                {c.tier !== null && <> · {c.tier}</>}
+                {' · '}
+                {c.minimum === null ? 'no minimum stated' : `needs ${c.minimum.name}`}
+              </li>
+            ))}
+          </ul>
+        )}
+        <CompetitionForm associations={associations} levels={levels} />
+      </section>
+
     </>
   );
 }

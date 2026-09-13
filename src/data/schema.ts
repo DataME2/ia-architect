@@ -344,9 +344,13 @@ export interface FixtureRow {
   season_id: string;
   team_id: string | null;
   played_on: string;
+  kick_off: string | null;
   opponent: string;
   home_away: string;
+  /** Free text recorded before the catalogue existed (0032). */
   competition: string | null;
+  /** The catalogued competition (0032). Null is a friendly or a trial. */
+  competition_id: string | null;
   venue: string | null;
   goals_for: number | null;
   goals_against: number | null;

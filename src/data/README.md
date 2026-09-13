@@ -49,6 +49,7 @@ something that happens by accident, and that is the design.
 | `queries.ts` | The registration slice's reads and writes |
 | `finance.ts`, `vouchers.ts`, `teams.ts`, `governance.ts`, `officiating.ts`, `performance.ts`, `packs.ts`, `invitations.ts`, `photos.ts`, `me.ts`, `family.ts`, `household.ts` | One module per slice |
 | `messaging.ts` | The unsubscribe token (a server secret, so it cannot live in `src/domain/`), the transport interface, and the send path that checks suppression **before** the provider is reached |
+| `competitions.ts` | The shared catalogue and the club's participation in it. Two plain queries joined in TypeScript rather than a PostgREST embed, which reads tersely and types badly |
 | `privacy.ts` | Erasure, retention and the club's export. Thin: each act deletes a Person or refuses to, so the rule lives in the database where it cannot be routed around |
 | `reminders.ts`, `notifications.ts` | Joining a message to a registration, a withdrawal, or an approval |
 

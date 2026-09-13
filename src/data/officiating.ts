@@ -329,10 +329,16 @@ export async function loadCandidates(
     .map((r) => ({
       personId: r.personId,
       name: r.name,
+      // The classification in force on the day (BR110's history, read at a
+      // date rather than as a current value).
       classification:
         r.classifications
           .filter((c) => c.effectiveFrom <= fixture.playedOn)
           .sort((a, b) => (a.effectiveFrom < b.effectiveFrom ? 1 : -1))[0]?.level ?? null,
+      // Scope 38. Null until a club records a catalogued level against the
+      // classification — every row written before 0032 has only the text,
+      // and BR8 says plainly that it cannot compare it.
+      classificationLevel: null,
       accreditations: r.accreditations.map((a) => ({
         kind: a.kind,
         expiresOn: a.expiresOn,

@@ -53,6 +53,32 @@ TENANTLESS_ALLOWED: set[str] = {
     # policy that denies everything, written only by a security definer
     # function that takes the user from auth.uid() rather than an argument.
     "user_password_set",
+    # --- The competition catalogue (decision 15, migration 0032) ---------
+    #
+    # These three are the only entries here that are *readable* by every
+    # tenant, so they deserve more than a line each.
+    #
+    # They hold an association's published reference material: competition
+    # names, tiers, playing formats, and the ranked classification levels
+    # BR8 compares against. A club_id on them would mean forty clubs
+    # re-keying one list and, worse, the same competition carrying a
+    # different minimum at each of them — so one fixture would be eligible
+    # at one club and refused at another because two registrars typed
+    # different numbers.
+    #
+    # What makes the exemption checkable rather than argued: **these tables
+    # have no column that could carry tenant data.** No person_id, no
+    # club_id, no registration, no money. There is nothing in them to leak.
+    # Read the twelve lines of `create table` in 0032 and the claim verifies
+    # itself. RLS is still on, the read policy is `using (true)` for
+    # `authenticated` rather than club-keyed, and writes are refused to
+    # everyone but a platform administrator.
+    #
+    # A club's *participation* is a different fact and is not exempt:
+    # `club_competition` carries a club_id and an ordinary policy.
+    "association",
+    "classification_level",
+    "competition",
 }
 
 # Tables whose tenant column is `club_id` but which are commercial records

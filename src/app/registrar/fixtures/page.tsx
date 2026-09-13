@@ -4,6 +4,8 @@ import { loadSeasons, loadTenantContext } from '../../../data/queries.ts';
 import { loadFixtures } from '../../../data/performance.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { FixtureForm } from './FixtureForm.tsx';
+import { loadClubCompetitions } from '../../../data/competitions.ts';
+import { EditFixtureForm } from './EditFixtureForm.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,6 +43,15 @@ export default async function FixturesPage({
 
   const fixtures = await loadFixtures(client, tenant.clubId, season.id);
 
+  // The club's competitions this season (scope 38), so the form selects
+  // rather than types. Empty is ordinary — a club may catalogue none.
+  const competitions = await loadClubCompetitions(client, tenant.clubId, season.id);
+
+  // Prefer the catalogue; fall back to the text a club recorded before it
+  // existed (scope 38 does not rewrite history).
+  const competitionName = (f: { competition_id?: string | null; competition?: string | null }) =>
+    competitions.find((c) => c.id === f.competition_id)?.name ?? f.competition ?? null;
+
   return (
     <>
       <h2>Fixtures &mdash; {season.name}</h2>
@@ -75,7 +86,9 @@ export default async function FixturesPage({
                       {f.home_away === 'home' ? 'v' : f.home_away === 'away' ? 'at' : 'vs'}{' '}
                       {f.opponent}
                     </td>
-                    <td>{f.competition ?? <span className="hint">&mdash;</span>}</td>
+                    <td>
+                      {competitionName(f) ?? <span className="hint">&mdash;</span>}
+                    </td>
                     <td>
                       {f.goals_for === null || f.goals_against === null ? (
                         <span className="hint">not recorded</span>
@@ -98,7 +111,32 @@ export default async function FixturesPage({
         )}
       </div>
 
-      <FixtureForm seasonId={season.id} />
+      {fixtures.length > 0 && (
+        <section className="card">
+          <h3 style={{ marginTop: 0 }}>Change a fixture (BR64)</h3>
+          <p className="hint">
+            A change to the time, venue or status reaches everyone appointed to it and everyone in
+            the team. A change to nothing tells nobody.
+          </p>
+          <ul className="stack" style={{ listStyle: 'none', padding: 0 }}>
+            {fixtures.map((f) => (
+              <li key={f.id}>
+                <strong>
+                  {f.played_on} {f.home_away === 'home' ? 'v' : 'at'} {f.opponent}
+                </strong>
+                <EditFixtureForm
+                  fixtureId={f.id}
+                  kickOff={f.kick_off ?? null}
+                  venue={f.venue ?? null}
+                  status={f.status}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <FixtureForm competitions={competitions} seasonId={season.id} />
     </>
   );
 }

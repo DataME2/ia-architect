@@ -9,7 +9,7 @@ acceptance criteria** and a build queue derived from them.
 | ---- | ------- |
 | [requirements.md](./requirements.md) | **What the system must do** — 37 numbered requirements, each with a user story and `WHEN … THEN … SHALL` acceptance criteria, each criterion marked implemented, partial, or not implemented |
 | [design.md](./design.md) | **How it is built** — architecture, schema, policies, patterns, with the code and SQL that implement them, plus proposed designs for what is not built |
-| [tasks.md](./tasks.md) | **What is left** — 213 checkboxed tasks in 15 phases — 158 of them already done, each referencing the requirement it satisfies and the design decision that shaped it |
+| [tasks.md](./tasks.md) | **What is left** — 223 checkboxed tasks in 15 phases — 171 of them already done, each referencing the requirement it satisfies and the design decision that shaped it |
 
 ## Two spec sets, on purpose
 

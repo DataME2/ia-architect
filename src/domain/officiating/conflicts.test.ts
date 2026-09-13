@@ -9,12 +9,17 @@ import {
   type FixtureContext,
 } from './conflicts.ts';
 
-const fixture: FixtureContext = { playedOn: '2026-06-06', hasKickOff: true };
+const fixture: FixtureContext = {
+  playedOn: '2026-06-06',
+  hasKickOff: true,
+  minimumClassification: null,
+};
 
 const candidate = (over: Partial<Candidate> = {}): Candidate => ({
   personId: 'p1',
   name: 'Neutral Nina',
   classification: 'Level 4',
+  classificationLevel: null,
   accreditations: [{ kind: 'fitness', expiresOn: '2027-01-01', verifiedAt: '2026-01-01' }],
   playedInFixture: false,
   inFixtureTeam: false,
@@ -28,6 +33,12 @@ const candidate = (over: Partial<Candidate> = {}): Candidate => ({
 });
 
 const rules = (findings: readonly { rule: string }[]) => findings.map((f) => f.rule);
+
+// Scope 38: a competition with a real minimum, so BR8 has something to
+// compare against for the first time.
+const level4 = { id: 'l4', associationId: 'fq', name: 'Level 4', rank: 40 };
+const level3 = { id: 'l3', associationId: 'fq', name: 'Level 3', rank: 30 };
+const inLeague: FixtureContext = { ...fixture, minimumClassification: level4 };
 
 test('assess — blocking', async (t) => {
   await t.test('a clean candidate is offerable with nothing said', () => {
@@ -93,6 +104,29 @@ test('assess — BR11 same-club affiliation', async (t) => {
   });
 });
 
+test('assess — BR8, a rule at last (scope 38)', async (t) => {
+  await t.test('refuses an official below the competition minimum', () => {
+    const a = assess(candidate({ classificationLevel: level3 }), inLeague);
+    // A blocker, not a warning. BR8 is listed among the blocking conflicts
+    // in the business layer and was a warning only because it could not be
+    // evaluated at all.
+    assert.deepEqual(rules(a.blockers), ['BR8']);
+    assert.equal(a.offerable, false);
+    assert.equal(a.blockers[0]?.message, 'Classified Level 3; this competition needs Level 4.');
+  });
+
+  await t.test('allows an official exactly at the minimum', () => {
+    const a = assess(candidate({ classificationLevel: level4 }), inLeague);
+    assert.deepEqual(rules(a.blockers), []);
+    assert.deepEqual(rules(a.warnings), []);
+  });
+
+  await t.test('allows an official above the minimum', () => {
+    const senior = { id: 'l5', associationId: 'fq', name: 'Level 5', rank: 50 };
+    assert.deepEqual(rules(assess(candidate({ classificationLevel: senior }), inLeague).blockers), []);
+  });
+});
+
 test('assess — the other warnings', async (t) => {
   await t.test('BR11 — consecutive matches, at two and not at one', () => {
     assert.deepEqual(rules(assess(candidate({ sameDayAppointments: 1 }), fixture).warnings), []);
@@ -116,7 +150,7 @@ test('assess — the other warnings', async (t) => {
   });
 
   await t.test('BR10 — measured against the fixture, not against anything else', () => {
-    const later: FixtureContext = { playedOn: '2026-04-01', hasKickOff: true };
+    const later: FixtureContext = { ...fixture, playedOn: '2026-04-01' };
     const c = candidate({
       accreditations: [{ kind: 'fitness', expiresOn: '2026-05-01', verifiedAt: '2026-01-01' }],
     });
@@ -134,9 +168,32 @@ test('assess — the other warnings', async (t) => {
     assert.deepEqual(rules(a.warnings), []);
   });
 
-  await t.test('BR8 — no classification means eligibility cannot be judged', () => {
+  await t.test('BR8 — silent where the competition states no minimum', () => {
+    // Changed by scope 38, deliberately. This used to warn whenever a
+    // classification was missing, including on a friendly with no
+    // competition — a warning about falling short of a standard that does
+    // not exist, which teaches a coordinator to ignore warnings.
     const a = assess(candidate({ classification: null }), fixture);
+    assert.deepEqual(rules(a.warnings), []);
+  });
+
+  await t.test('BR8 — cannot judge an official with no classification against a real minimum', () => {
+    const a = assess(candidate({ classification: null }), inLeague);
     assert.deepEqual(rules(a.warnings), ['BR8']);
+    assert.equal(a.offerable, true, 'not knowing is not a refusal');
+  });
+
+  await t.test('BR8 — cannot compare free text that is not in the catalogue', () => {
+    const a = assess(candidate({ classification: 'Level 4', classificationLevel: null }), inLeague);
+    assert.deepEqual(rules(a.warnings), ['BR8']);
+    // The club has an answer; saying so beats pretending there is nothing.
+    assert.match(a.warnings[0]?.message ?? '', /not in the catalogue/);
+  });
+
+  await t.test('BR8 — never compares levels from different associations (BR135)', () => {
+    const a = assess(candidate({ classificationLevel: { ...level4, associationId: 'other-body' } }), inLeague);
+    assert.deepEqual(rules(a.warnings), ['BR8']);
+    assert.match(a.warnings[0]?.message ?? '', /different association/);
   });
 
   await t.test('an undeclared official is flagged but still offerable', () => {
@@ -146,7 +203,7 @@ test('assess — the other warnings', async (t) => {
   });
 
   await t.test('the undeclared message follows whether the fixture has a time', () => {
-    const noTime: FixtureContext = { playedOn: '2026-06-06', hasKickOff: false };
+    const noTime: FixtureContext = { ...fixture, hasKickOff: false };
     assert.match(
       assess(candidate({ available: false }), noTime).warnings[0]!.message,
       /that day/,

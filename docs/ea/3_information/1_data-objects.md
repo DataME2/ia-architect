@@ -177,11 +177,39 @@ than adding a redaction path. BR82's merge tombstone is deliberately not
 reused: a tombstone that identified the erased Person would defeat the
 erasure.
 
+## The competition catalogue
+
+Added September 2026 by [scope 38](../../scope/38_the_catalogue_that_makes_br8_computable.md).
+**The first three tables in this schema with no tenant column**, and the
+only ones every club can read — see
+[decision 15](../../decisions/15_the_competition_catalogue_is_shared_reference_data.md).
+
+| Data Object | Realises | Notes |
+| ----------- | -------- | ----- |
+| **`association`** | Governing Body | The body that runs competitions. **No `club_id`** — it belongs to no tenant |
+| **`classification_level`** | Classification | Ranked within its association (BR135). The rank is what makes BR8 a comparison rather than a string match, and **the one field in the catalogue where a typo changes an eligibility decision** |
+| **`competition`** | Competition | Tier and playing format as free text beside the reference, for the reason `referee_classification.level` was free text: a constraint listing the formats somebody guessed would refuse the real ones. `minimum_classification_id` is BR8's floor, and a trigger keeps it inside the competition's own association |
+| **`club_competition`** | Competition Participation | Which competitions this club plays in. **Tenant-scoped like everything else** — participation is the club's own business even though the catalogue is not |
+
+`fixture` gains `competition_id` and `referee_classification` gains
+`classification_level_id`, each **beside** the free text rather than
+instead of it: rows recorded before the catalogue stay readable exactly as
+the club entered them.
+
+**Why the three tenantless tables do not weaken P5**, structurally rather
+than by argument: they have **no column that could carry tenant data** — no
+person, no club, no registration, no money. There is nothing in them to
+leak, and a reader verifies that by reading twelve lines of `create table`.
+RLS is still on; the read policy is `using (true)` for `authenticated`
+rather than club-keyed, and writes are refused to everyone but a platform
+administrator. `scripts/check_rls.py` carries the same reasoning as the
+justification for its three new exemptions.
+
 ## Not yet modeled
 
-Competitions and their regulations (`fixture.competition` is free text
-because C11 does not exist and a dropdown nobody has filled is worse than a
-box), carnivals and their public view, calendar subscriptions, and the
+Competition **Regulations** as documents (the catalogue above holds names,
+tiers, formats and minimum classifications, not the rulebooks C11 also
+names), carnivals and their public view, calendar subscriptions, and the
 mobile client's `participation_response`. All exist as business objects and
 none has a table.
 

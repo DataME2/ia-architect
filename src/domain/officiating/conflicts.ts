@@ -15,6 +15,9 @@
  * somebody the database would refuse — which is BR109's own wording, and
  * the defect WP3 of scope 29 exists to stop repeating.
  */
+import { classificationVerdict } from '../competition/eligibility.ts';
+import type { ClassificationLevel } from '../competition/types.ts';
+
 
 export type OfficialRole = 'referee' | 'assistant_referee' | 'fourth_official';
 
@@ -27,7 +30,16 @@ export interface CandidateAccreditation {
 export interface Candidate {
   readonly personId: string;
   readonly name: string;
+  /** What the club typed, before the catalogue existed (0023). */
   readonly classification: string | null;
+  /**
+   * The catalogued level they hold, where one has been recorded (0032).
+   *
+   * Beside the free text rather than instead of it: a club that recorded
+   * "Level 4" years ago still has that answer, and BR8 says plainly that it
+   * cannot compare it rather than discarding it.
+   */
+  readonly classificationLevel: ClassificationLevel | null;
   readonly accreditations: readonly CandidateAccreditation[];
 
   /** Played in this fixture (BR6). */
@@ -66,6 +78,14 @@ export interface FixtureContext {
   /** ISO date the fixture is played on — every date question is asked of it. */
   readonly playedOn: string;
   readonly hasKickOff: boolean;
+  /**
+   * The competition's minimum classification (BR8), or `null`.
+   *
+   * Null covers two ordinary cases and is not an error in either: a
+   * friendly with no competition ([#78](../../../docs/scope/open-questions.md)),
+   * and a competition that states no floor.
+   */
+  readonly minimumClassification: ClassificationLevel | null;
 }
 
 export interface Finding {
@@ -144,14 +164,24 @@ export function assess(candidate: Candidate, fixture: FixtureContext): Assessmen
     });
   }
 
-  // BR8 — cannot be completed. It compares a classification against the
-  // *competition's minimum*, and no competition record exists. What can be
-  // said is that there is nothing to compare.
-  if (candidate.classification === null) {
-    warnings.push({
+  // BR8 — a real rule at last (scope 38). This carried an apology until the
+  // catalogue existed: with no competition record there was no minimum, so
+  // a referee *below* one produced nothing at all.
+  const classification = classificationVerdict(
+    candidate.classificationLevel,
+    candidate.classification,
+    fixture.minimumClassification,
+  );
+  if (classification.kind === 'below') {
+    // A blocker, not a warning. BR8 is listed among the blocking conflicts
+    // in the business layer, and it has been a warning only because it
+    // could not be evaluated.
+    blockers.push({
       rule: 'BR8',
-      message: 'No classification recorded, so eligibility cannot be judged.',
+      message: `Classified ${classification.held}; this competition needs ${classification.required}.`,
     });
+  } else if (classification.kind === 'unknown') {
+    warnings.push({ rule: 'BR8', message: classification.why });
   }
 
   // Not a business rule — a declaration. A coordinator may still ask

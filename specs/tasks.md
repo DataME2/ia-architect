@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 158 of the 213 tasks below are already `[x]`; the phases are ordered so
+plan. 171 of the 223 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -416,23 +416,40 @@ everything attached is gone while the request remains, naming nobody.
 
 ---
 
-## Phase 10 — Competitions and the season calendar *(not started)*
+## Phase 10 — Competitions and the season calendar *(built — [scope 38](../docs/scope/38_the_catalogue_that_makes_br8_computable.md))*
 
-**Outcome when complete:** a fixture references a real competition, and
-Requirement 25.4 has a minimum classification to evaluate against.
+**Outcome:** a fixture references a real competition, and Requirement 25.4
+has a minimum classification to evaluate against.
+
+> **The point of it is one rule.** `conflicts.ts` carried BR8 with an
+> apology — *"cannot be completed… no competition record exists"* — so an
+> official **below** a competition's minimum produced nothing at all.
 
 ### 10.1 Backend — *R27*
-- [ ] Competition catalogue per association: tier, playing format, regulations — *R27.1*
-- [ ] Minimum official classification per competition, consumed by the conflict checks — *R27.3*
-- [ ] `fixture.competition` migrated from free text to a reference — *R27.2*
-- [ ] Configuration-not-code for every parameter that varies by classification, competition, association, season or event — *R27.4*
+- [x] Competition catalogue per association: tier, playing format, minimum classification — *R27.1*
+- [x] Held **once and shared**, not copied per club — *R27.2* ([decision 15](../docs/decisions/15_the_competition_catalogue_is_shared_reference_data.md))
+- [x] Ranked classification levels, confined to one association by a trigger — *R27.5* (BR135)
+- [x] Minimum classification consumed by the conflict checks; **BR8 is a blocker** — *R27.4*
+- [x] A competition with no minimum reports nothing to compare rather than inventing a floor — *R27.6*
+- [x] `fixture.competition_id` beside the free text, which stays readable — *R27.3*
+- [x] Configuration-not-code for every parameter that varies — *R27.7*
+- [ ] Competition Regulations as documents — *R27.8*. The catalogue holds names, tiers, formats and minimums, not rulebooks
+- [ ] A database refusal of free text. **Written and removed**: with an empty catalogue it leaves a club unable to record a competition at all. Revisit when the catalogue is reliably populated
 
 ### 10.2 Frontend
-- [ ] Catalogue maintenance, and a fixture form that selects rather than types
+- [x] Catalogue maintenance on the platform console — a club cannot write shared data
+- [x] The club's competitions on the season screen
+- [x] A fixture form that selects rather than types
 
-**Manually testable:** create a fixture in a competition with a minimum
-classification, then try to designate an official below it and be refused
-for that reason specifically.
+### 10.3 Closing Phase 8's loose end
+- [x] A fixture edit path for time, venue and status
+- [x] BR64's notification, wired at last — *R34.2*
+- [x] What changed computed from before and after, so a submit that changed nothing announces nothing
+
+**Manually testable:** catalogue an association with two ranked levels and a
+competition requiring the higher one, mark the club as playing in it, record
+a fixture in it, then try to designate an official classified at the lower
+level — and be refused, with the message naming the level required.
 
 ---
 
@@ -514,21 +531,26 @@ and reconcile one number by hand.
 | 7 | Person-facing frontend | 8 | 3 |
 | 8 | Communications | 12 | 4 |
 | 9 | Privacy rights | 16 | 1 |
-| 10 | Competitions | 0 | 5 |
+| 10 | Competitions | 13 | 2 |
 | 11 | Carnivals | 0 | 7 |
 | 12 | Calendar distribution | 0 | 6 |
 | 13 | Reporting | 0 | 4 |
 | 14 | Engineering quality | 0 | 3 |
-| | **Total** | **158** | **55** |
+| | **Total** | **171** | **52** |
 
-**Phases 0–9 are substantially complete** and constitute a working product
+**Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy
 obligations — which can now tell a family what is outstanding, be told to
 stop, honour an erasure request, and explain a refusal.
 
-What is left is **capability rather than obligation**: competitions,
-carnivals, calendar distribution, mobile, reporting. None of it is
-statutory, and none of it is blocked by anything above it.
+What is left is **capability rather than obligation**: carnivals, calendar
+distribution, mobile, reporting. None of it is statutory, and none of it is
+blocked by anything above it.
+
+Phase 10 also spent Phase 8's last IOU — BR64's notification had been built
+with no caller, and a fixture that can be edited gave it one. **One
+uncalled notification remains**: claim approval, waiting on task 5.4's
+fee-schedule and claims screens.
 
 Two unchecked items outrank the rest despite sitting in earlier phases.
 **Task 0.4's production environment** now gates three things rather than

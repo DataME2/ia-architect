@@ -672,7 +672,9 @@ interest is not discovered at the ground.
 3. WHEN a proposed official already holds a designation at the same time,
    THEN the system SHALL refuse it. ✅
 4. WHEN a proposed official's classification is below the competition's
-   minimum, THEN the system SHALL refuse it. ✅
+   minimum, THEN the system SHALL refuse it. ✅ *(Genuinely, from scope 38.
+   Before the catalogue this was a warning that said it could not judge, so
+   an official **below** a minimum produced nothing at all.)*
 5. WHEN a proposed official's mandatory accreditation has expired as at the
    fixture date, THEN the system SHALL refuse it. ✅
 6. WHEN the conflict is same-club affiliation, a family relationship with a
@@ -737,21 +739,35 @@ does not silently restate what we owed.
 playing formats and regulations held as reference data, so that every club
 is not re-keying the same catalogue into a free-text box.
 
-**Traces to:** BR20, BR8, BR12 · C11 · **Status: ⬜ Not implemented**
+**Traces to:** BR20, BR8, BR12, BR134, BR135 · C11 · **Status: 🟡 Partial**
 
 ### Acceptance criteria
 
 1. The system SHALL hold each governing association's competition catalogue,
-   including tier, playing format and minimum official classification. ⬜
-2. WHEN a fixture is created, THEN the system SHALL reference a competition
-   from that catalogue rather than accepting free text. ⬜ *(Today
-   `fixture.competition` is free text, deliberately: a dropdown nobody has
-   filled is worse than a box.)*
-3. WHEN a competition defines a minimum classification, THEN Requirement
-   25.4 SHALL evaluate against it. ⬜
-4. Rule parameters that vary by classification, competition, association,
+   including tier, playing format and minimum official classification. ✅
+2. The catalogue SHALL be held **once** and read by every club, and SHALL
+   NOT be copied per club. ✅ *(BR134,
+   [decision 15](../docs/decisions/15_the_competition_catalogue_is_shared_reference_data.md)
+   — a per-club minimum makes the same fixture eligible at one club and
+   refused at another.)*
+3. WHEN a fixture is created, THEN the system SHALL reference a competition
+   from that catalogue rather than accepting free text. 🟡 *(Enforced at
+   the write path; **not** refused by the database. A trigger doing that was
+   written and removed: with an empty catalogue it leaves a club unable to
+   record a competition at all.)*
+4. WHEN a competition defines a minimum classification, THEN Requirement
+   25.4 SHALL evaluate against it. ✅
+5. A classification level SHALL be ranked within its association, and levels
+   from different associations SHALL NOT be compared. ✅ *(BR135, enforced
+   by a trigger rather than by convention.)*
+6. WHEN a competition states no minimum, THEN the system SHALL report that
+   there is nothing to compare, and SHALL NOT invent a floor. ✅
+7. Rule parameters that vary by classification, competition, association,
    season or event SHALL be configuration data, and SHALL NOT be hardcoded.
-   ✅ *(Principle honoured; the catalogue that would carry them is absent.)*
+   ✅
+8. The system SHALL hold each association's Competition Regulations as
+   documents. ⬜ *(The catalogue holds names, tiers, formats and minimums,
+   not rulebooks.)*
 
 ## Requirement 28 — Community carnivals and grassroots events
 
@@ -914,8 +930,9 @@ outstanding, so that chasing forty families is not forty manual emails.
    guardian. ✅ *(Composed from the registration's own rule outcomes, re-read
    at send time so what the family is told is true when it is sent.)*
 2. WHEN a fixture changes, THEN the system SHALL notify every affected
-   participant. 🟡 *(The notification is built; nothing in the application
-   edits a fixture, so it has no caller — see Requirement 27.)*
+   participant. ✅ *(Wired by [scope 38](../docs/scope/38_the_catalogue_that_makes_br8_computable.md):
+   a fixture now has an edit path. What changed is computed from before and
+   after, so a submit that changed nothing announces nothing.)*
 3. WHEN an official withdraws after accepting, THEN the system SHALL notify
    the Referee Coordinator. ✅
 4. WHEN a claim is approved, THEN the system SHALL notify the official. 🟡
@@ -1036,16 +1053,20 @@ actions, so that "who approved this, and when" is answerable years later.
 | D — Finance | 16–19 | 3 | 1 | 0 |
 | E — Teams, safeguarding, governance | 20–22 | 1 | 2 | 0 |
 | F — Referee management | 23–26 | 2 | 2 | 0 |
-| G — Competitions and carnivals | 27–29 | 0 | 0 | 3 |
+| G — Competitions and carnivals | 27–29 | 0 | 1 | 2 |
 | H — Person-facing experience | 30–32 | 2 | 0 | 1 |
 | I — Cross-cutting | 33–37 | 4 | 3 | 0 |
-| **Total** | **37** | **24** | **10** | **3** |
+| **Total** | **37** | **24** | **11** | **2** |
 
 **Read that last row carefully.** Twenty-four requirements implemented is a
 working product for one club's registration, finance, officiating and
 privacy obligations. The three unimplemented ones are not scattered:
-**competitions, carnivals and calendar distribution are the whole of Part
-G**, and they are the whole of what is left unstarted.
+**carnivals and calendar distribution are the whole of what is left
+unstarted**, and both are in Part G. Competitions joined them in September
+2026 ([scope 38](../docs/scope/38_the_catalogue_that_makes_br8_computable.md)),
+which mattered less for the catalogue itself than for the rule it unblocked:
+**BR8 had been a warning that said it could not judge**, so an official
+below a competition's minimum produced nothing at all.
 
 Requirement 34 moved from *not implemented* to *partial* in September 2026
 ([scope 36](../docs/scope/36_the_platform_learns_to_send_and_to_stop.md)),

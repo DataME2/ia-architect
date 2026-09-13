@@ -50,6 +50,7 @@ them being present.
 | `governance/` | Committee terms, and whether a mandate has lapsed (BR85–BR87) |
 | `performance/` | A player's season record, and what a statistic is honestly worth (BR101–BR104) |
 | `submission/` | Assembling, versioning, freezing and serialising a submission pack (BR58–BR60) |
+| `competition/` | The catalogue as the domain sees it, and **BR8's verdict** (BR134, BR135). Four outcomes rather than two, because *cannot judge* is a real answer |
 | `privacy/` | Erasure and retention (BR40, BR49, BR52, BR69–BR71). One vocabulary of reasons a record must stay, read from both directions — an erasure asks about one Person, a review asks about all of them |
 | `messaging/` | What a message says, who it goes to, and whether it may be sent (BR127–BR131). The suppression verdict lives here rather than at the email provider, which is BR129 |
 | `test-fixtures.ts` | Shared builders, so a test states only what it is actually about |

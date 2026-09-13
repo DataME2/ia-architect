@@ -115,7 +115,7 @@ the most.
 | # | Capability | Blocked by | Size |
 | - | ---------- | ---------- | ---- |
 | T4.1 | **C8 — Reporting and dashboards.** The registration, financial and referee numbers a committee actually asks for | Nothing. The data exists | L |
-| T4.2 | **C11 — Competition and calendar.** `fixture.competition` is free text because no catalogue exists; BR20 and BR8's classification minimums both want one | Nothing | L |
+| ~~T4.2~~ | **C11 — Competition and calendar.** **Done** — [scope 38](../scope/38_the_catalogue_that_makes_br8_computable.md). `fixture.competition` is free text because no catalogue exists; BR20 and BR8's classification minimums both want one | Nothing | L |
 | T4.3 | **C9 — Historical data consolidation.** The pilot club committed three years; C8 is what it is *for* | **Open question [#57](../scope/open-questions.md)** — the lawful basis for importing it | L |
 | T4.4 | **C13 — Calendar distribution.** A Person's own confirmed commitments as a subscribable feed | Nothing. [Decision 4](../decisions/4_calendar-distribution-by-feed-not-account-access.md) settles the approach | M |
 | T4.5 | **C12 — Carnival and event management**, including the account-free public view — the one deliberate P5 exception | C11 | L |
