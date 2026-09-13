@@ -213,7 +213,10 @@ create or replace function app_unsubscribe(
 returns table (subject text, operational boolean, marketing boolean)
 language plpgsql
 security definer
-set search_path = public
+-- `extensions` because Supabase installs pgcrypto there and digest() below
+-- lives in it; `public` alone passes the local test (pgcrypto in public)
+-- and fails every real link. 0005 records the same trap.
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_hash text := encode(digest(coalesce(p_token, ''), 'sha256'), 'hex');
