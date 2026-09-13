@@ -28,7 +28,7 @@ export const dynamic = 'force-dynamic';
 export default async function MePage({
   searchParams,
 }: {
-  readonly searchParams: Promise<{ readonly role?: string; readonly club?: string }>;
+  readonly searchParams: Promise<{ readonly role?: string; readonly club?: string; readonly child?: string }>;
 }) {
   const params = await searchParams;
   const client = await createRequestClient();
@@ -76,7 +76,7 @@ export default async function MePage({
                 {link.season !== null && ` · ${link.season.name.toUpperCase()}`}
               </span>
             </p>
-            <Workspace active={active.holding} link={link} client={client} today={today} />
+            <Workspace active={active.holding} link={link} client={client} today={today} childId={params.child ?? null} />
           </>
         ) : (
           <Prompt me={me} />
@@ -91,11 +91,13 @@ async function Workspace({
   link,
   client,
   today,
+  childId,
 }: {
   readonly active: RoleHolding;
   readonly link: ClubLink;
   readonly client: Awaited<ReturnType<typeof createRequestClient>>;
   readonly today: string;
+  readonly childId: string | null;
 }) {
   switch (active.key) {
     case 'player':
@@ -105,7 +107,7 @@ async function Workspace({
     case 'referee':
       return <RefereeWorkspace client={client} link={link} />;
     case 'guardian':
-      return <GuardianWorkspace client={client} link={link} today={today} />;
+      return <GuardianWorkspace client={client} link={link} today={today} childId={childId} />;
     case 'committee':
       return <CommitteeWorkspace client={client} link={link} today={today} />;
   }

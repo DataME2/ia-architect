@@ -1,20 +1,15 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { planState } from '../../../domain/finance/plan.ts';
 import { formatMoney } from '../../../domain/finance/money.ts';
+import { planState } from '../../../domain/finance/plan.ts';
 import { loadFinance } from '../../../data/finance.ts';
-import {
-  loadChildren,
-  loadConsents,
-  loadMyRegistration,
-  loadMyTeams,
-  loadTeamFixtures,
-  type ClubLink,
-} from '../../../data/me.ts';
-import { nextFixture, shortDate } from '../../../web/me-view.ts';
-import { displayNameFor } from '../../../web/queue-view.ts';
+import { loadHousehold } from '../../../data/household.ts';
+import { loadConsents, loadMyTeams, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
+import { loadVouchers } from '../../../data/vouchers.ts';
+import { RULE_TITLE, childCard, remainingFigure, selectChild, type Tone } from '../../../web/household-view.ts';
+import { ROLE_HUE, nextFixture, shortDate } from '../../../web/me-view.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
-import { ComingSoon, FixtureCard, Panel, RegistrationPill, WorkspaceHead } from './shared.tsx';
+import { ComingSoon, FixtureCard, Panel, WorkspaceHead } from './shared.tsx';
 
 const CONSENT_LABEL: Readonly<Record<string, string>> = {
   REGISTRATION_COLLECTION_NOTICE: 'Collection notice',
@@ -22,38 +17,44 @@ const CONSENT_LABEL: Readonly<Record<string, string>> = {
   PUBLICITY: 'Publicity',
 };
 
+const CONSENT_RULE: Readonly<Record<string, string>> = {
+  IDENTIFICATION_PHOTOGRAPH: 'BR56',
+  PUBLICITY: 'BR57',
+};
+
+const TONE_CLASS: Readonly<Record<Tone, string>> = {
+  ok: 'pill pill-ok',
+  wait: 'pill pill-warn',
+  stop: 'pill pill-stop',
+  none: 'pill',
+};
+
 /**
  * Acting for a child. The account and every response on their behalf are
  * the guardian's, not the child's (BR63), until the handover at 18 (BR67).
+ *
+ * One card per child across the top — status, what is outstanding, money —
+ * and the chosen child's detail beneath. The choice is a URL (`&child=`),
+ * the same way the role switch is, so it survives the back button.
  */
 export async function GuardianWorkspace({
   client,
   link,
   today,
+  childId,
 }: {
   readonly client: SupabaseClient;
   readonly link: ClubLink;
   readonly today: string;
+  readonly childId: string | null;
 }) {
   const season = link.season;
-  const children = await loadChildren(client, link.clubId, link.personId);
-  const first = children[0] ?? null;
+  const household = await loadHousehold(client, link.clubId, season?.id ?? null, link.personId, today);
+  const cards = household.map((h) => childCard(h, today));
+  const card = selectChild(cards, childId);
+  const child = card === null ? undefined : household.find((h) => h.person.id === card.personId);
 
-  const registration =
-    season === null || first === null ? null : await loadMyRegistration(client, link.clubId, season.id, first.id);
-  const finance = registration === null ? null : await loadFinance(client, link.clubId, registration.id);
-  const plan =
-    finance === null || finance.plan === null
-      ? null
-      : planState(finance.plan.totalCents, finance.plan.installments, finance.payments, today);
-  const consents = first === null ? [] : await loadConsents(client, link.clubId, first.id);
-  const teams = season === null || first === null ? [] : await loadMyTeams(client, link.clubId, season.id, first.id);
-  const team = teams.find((t) => t.role === 'player') ?? null;
-  const fixtures =
-    season === null || team === null ? [] : await loadTeamFixtures(client, link.clubId, season.id, team.team.id);
-  const next = nextFixture(fixtures, today);
-
-  if (first === null) {
+  if (card === null || child === undefined) {
     return (
       <WorkspaceHead title="Acting as a guardian">
         No child is recorded under your authority at {link.clubName}. A registrar records guardianship when a
@@ -62,78 +63,131 @@ export async function GuardianWorkspace({
     );
   }
 
-  const childName = displayNameFor(first);
-  const blocked = registration !== null && registration.status !== 'COMPLETE';
+  const registration = child.registration;
+  const finance = registration === null ? null : await loadFinance(client, link.clubId, registration.id);
+  const plan =
+    finance === null || finance.plan === null
+      ? null
+      : planState(finance.plan.totalCents, finance.plan.installments, finance.payments, today);
+  const remaining = plan === null ? null : remainingFigure(plan.outstandingCents);
+  const vouchers = registration === null ? [] : await loadVouchers(client, link.clubId, registration.id);
+  const relief = vouchers.filter((v) => v.state === 'VERIFIED' || v.state === 'CLAIMED');
+  const consents = await loadConsents(client, link.clubId, card.personId);
+  const teams = season === null ? [] : await loadMyTeams(client, link.clubId, season.id, card.personId);
+  const team = teams.find((t) => t.role === 'player') ?? null;
+  const fixtures = season === null || team === null ? [] : await loadTeamFixtures(client, link.clubId, season.id, team.team.id);
+  const next = nextFixture(fixtures, today);
+
+  const firstBlocker = card.blockers[0];
+  const guardianRecorded = child.outcomes.some((o) => o.ruleId === 'BR1' && o.status === 'pass');
+  const needsDocument = card.blockers.some((o) => o.ruleId === 'BR2');
+  const where = [link.clubName, team?.team.name].filter((s): s is string => s !== undefined).join(' · ');
 
   return (
     <>
-      <WorkspaceHead title={`Acting for ${childName}`}>
+      <WorkspaceHead title={`Acting for ${card.name} · ${card.age}`}>
         A minor&rsquo;s account and every response on their behalf belong to <b>you</b>, not to them — until
         their eighteenth birthday, when it transfers as a recorded, notified transition.
-        {children.length > 1 && ` You hold authority for ${children.length} children here; the first is shown.`}
+        {cards.length > 1 && ` You hold authority for ${cards.length} children here — choose one below.`}
       </WorkspaceHead>
+
+      {cards.length > 1 && (
+        <nav className="household" aria-label="Your children">
+          {cards.map((c) => (
+            <a
+              key={c.personId}
+              className="child-card"
+              href={`?role=guardian&club=${encodeURIComponent(link.clubId)}&child=${encodeURIComponent(c.personId)}`}
+              aria-current={c.personId === card.personId ? 'true' : undefined}
+              style={{ ['--role-hue' as string]: ROLE_HUE.guardian }}
+            >
+              <span className="child-card-name">{c.name}</span>
+              <span className="child-card-meta">
+                Age {c.age}
+                {season !== null && ` · ${season.name}`}
+              </span>
+              <span className={TONE_CLASS[c.tone]}>{c.label}</span>
+              {c.money !== null && <span className="child-card-note">{c.money}</span>}
+            </a>
+          ))}
+        </nav>
+      )}
+
       <div className="cols">
         <div className="stack">
-          <Panel title={blocked ? 'Registration — not finished' : 'Registration'} meta={season?.name.toUpperCase()}>
+          <Panel title={card.blockers.length > 0 ? 'Registration — blocked' : 'Registration'} meta={where.toUpperCase()}>
             {registration === null ? (
               <p className="empty" style={{ margin: 0 }}>
                 No registration this season.
               </p>
             ) : (
               <>
-                <RegistrationPill status={registration.status} outstandingCents={registration.outstanding_amount_cents} />
+                <span className={TONE_CLASS[card.tone]}>{card.label}</span>
                 <ul className="check">
-                  {consents.length === 0 ? (
-                    <li>
+                  {card.blockers.map((o) => (
+                    <li key={o.ruleId}>
                       <span className="box todo" aria-hidden="true" />
                       <span>
-                        <span className="ctitle">No consents recorded</span>
+                        <span className="ctitle">{RULE_TITLE[o.ruleId] ?? o.ruleId}</span>
+                        <br />
+                        <span className="cnote">{o.message}</span>
                       </span>
-                      <span className="rid">BR48</span>
+                      <span className="rid">{o.ruleId}</span>
                     </li>
-                  ) : (
-                    consents.map((c) => (
-                      <li key={c.id}>
-                        <span className={`box ${c.revoked_at === null ? 'done' : 'todo'}`} aria-hidden="true" />
-                        <span>
-                          <span className="ctitle">{CONSENT_LABEL[c.purpose] ?? c.purpose}</span>
-                          <br />
-                          <span className="cnote">
-                            {c.revoked_at === null ? `Given ${shortDate(c.granted_at.slice(0, 10))}` : 'Withdrawn'}
-                            {' · revocable at any time'}
-                          </span>
-                        </span>
-                        <span className="rid">{c.purpose === 'PUBLICITY' ? 'BR57' : c.purpose === 'IDENTIFICATION_PHOTOGRAPH' ? 'BR56' : 'BR48'}</span>
-                      </li>
-                    ))
+                  ))}
+                  {guardianRecorded && (
+                    <li>
+                      <span className="box done" aria-hidden="true" />
+                      <span>
+                        <span className="ctitle">Guardian recorded</span>
+                        <br />
+                        <span className="cnote">You — authority and contact, kept apart</span>
+                      </span>
+                      <span className="rid">BR1</span>
+                    </li>
                   )}
+                  {consents.map((c) => (
+                    <li key={c.id}>
+                      <span className={`box ${c.revoked_at === null ? 'done' : 'todo'}`} aria-hidden="true" />
+                      <span>
+                        <span className="ctitle">{CONSENT_LABEL[c.purpose] ?? c.purpose}</span>
+                        <br />
+                        <span className="cnote">
+                          {c.revoked_at === null ? `Given ${shortDate(c.granted_at.slice(0, 10))}` : 'Withdrawn'}
+                          {' · revocable at any time'}
+                        </span>
+                      </span>
+                      <span className="rid">{CONSENT_RULE[c.purpose] ?? 'BR48'}</span>
+                    </li>
+                  ))}
                 </ul>
               </>
             )}
           </Panel>
-          <ComingSoon title="Upload a document" waitsOn="a family-facing upload — today a registrar records what was sighted">
-            Proof of age and the other required documents will be uploadable here. Until then the registrar
-            records them from what you bring.
-          </ComingSoon>
-          {blocked && (
+          {needsDocument && (
+            <ComingSoon title="Upload a document" waitsOn="a family-facing upload — today a registrar records what was sighted">
+              The missing document will be uploadable here. Until then the registrar records it from what you
+              bring.
+            </ComingSoon>
+          )}
+          {firstBlocker !== undefined && (
             <AssistantNote kind="explaining">
-              A registration that is not finished cannot be named on a team sheet, and a child can still train
-              while it is outstanding. The registrar can say exactly which document is missing.
+              {firstBlocker.message} {card.name} can train while this is outstanding but cannot be named on a
+              team sheet.
             </AssistantNote>
           )}
         </div>
         <div className="stack">
-          <Panel title="Fees" meta={plan === null ? undefined : `${plan.installments.length} INSTALMENTS`}>
-            {plan === null ? (
+          <Panel title="Fees" meta={plan === null ? undefined : `PLAN · ${plan.installments.length} INSTALMENTS`}>
+            {plan === null || remaining === null ? (
               registration === null ? (
                 <p className="empty" style={{ margin: 0 }}>
                   Nothing to show.
                 </p>
               ) : (
                 <p className="hint" style={{ margin: 0 }}>
-                  {registration.outstanding_amount_cents === 0
-                    ? 'Paid in full.'
-                    : `${formatMoney(registration.outstanding_amount_cents)} outstanding, no payment plan agreed.`}
+                  {card.money}
+                  {child.balanceCents > 0 && ' — no payment plan agreed'}.
                 </p>
               )
             ) : (
@@ -144,20 +198,25 @@ export async function GuardianWorkspace({
                     <span>Paid</span>
                   </div>
                   <div>
-                    <b>{formatMoney(plan.outstandingCents)}</b>
-                    <span>Remaining</span>
+                    <b>{formatMoney(remaining.cents)}</b>
+                    <span>{remaining.label}</span>
                   </div>
                 </div>
                 {plan.nextDue !== null && (
                   <span className={`pill ${plan.nextDue.overdue ? 'pill-stop' : 'pill-warn'}`}>
-                    Next instalment {formatMoney(plan.nextDue.installment.amountCents)} · due{' '}
+                    Next instalment {formatMoney(plan.nextDue.outstandingCents)} · due{' '}
                     {shortDate(plan.nextDue.installment.dueOn)}
                   </span>
                 )}
               </>
             )}
+            {relief.map((v) => (
+              <p key={v.id} className="hint" style={{ margin: 0 }}>
+                A {v.program} voucher covered {formatMoney(v.faceValueCents)}.
+              </p>
+            ))}
           </Panel>
-          <Panel title={`${childName}'s next match`}>
+          <Panel title={`${card.name}'s next match`}>
             {next !== null && team !== null ? (
               <FixtureCard fixture={next} teamName={team.team.name} />
             ) : (
