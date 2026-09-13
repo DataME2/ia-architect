@@ -900,25 +900,43 @@ accountability for a decision always rests with a person.
 **User story.** As a registrar, I want the system to tell a family what is
 outstanding, so that chasing forty families is not forty manual emails.
 
-**Traces to:** BR42, BR64, BR93 · C7 · **Status: ⬜ Not implemented**
+**Traces to:** BR42, BR64, BR93, BR127–BR131 · C7 · **Status: 🟡 Partial**
 
 ### Acceptance criteria
 
 1. WHEN a registration is missing a document, payment or consent, THEN the
    system SHALL be able to send a templated reminder to the responsible
-   guardian. ⬜
+   guardian. ✅ *(Composed from the registration's own rule outcomes, re-read
+   at send time so what the family is told is true when it is sent.)*
 2. WHEN a fixture changes, THEN the system SHALL notify every affected
-   participant. ⬜
+   participant. 🟡 *(The notification is built; nothing in the application
+   edits a fixture, so it has no caller — see Requirement 27.)*
 3. WHEN an official withdraws after accepting, THEN the system SHALL notify
-   the Referee Coordinator. ⬜
-4. WHEN a claim is approved, THEN the system SHALL notify the official. ⬜
+   the Referee Coordinator. ✅
+4. WHEN a claim is approved, THEN the system SHALL notify the official. 🟡
+   *(Built and uncalled: claim approval is database-only — R26 has no
+   approval screen.)*
 5. WHEN a recipient has given marketing consent, THEN every message sent
    under it SHALL carry a working unsubscribe, and withdrawal SHALL take
-   effect without an account. ⬜ **This is the one gap that is a live
-   exposure rather than an absent feature: consent is being collected today
-   with no way to withdraw it.**
+   effect without an account. ✅ **This was the one gap that was a live
+   exposure rather than an absent feature. It is closed** — and the link is
+   durable rather than per-message, so one in a year-old email still works
+   ([decision 12](../docs/decisions/12_an_unsubscribe_link_is_derived_not_stored.md)).
 6. Suppression state SHALL be held by the platform rather than by the
-   message provider, so that it survives a provider change. ⬜
+   message provider, so that it survives a provider change. ✅
+7. Marketing and operational contact SHALL be suppressed separately, and
+   suppressing operational contact SHALL be shown to the club so it falls
+   back to another channel rather than assuming delivery. ✅ *(BR130.)*
+8. Every message SHALL be recorded, including the ones deliberately not
+   sent. ✅ *(BR127 — an absent row would mean both "never attempted" and
+   "correctly withheld".)*
+9. WHEN no email provider is configured, THEN the system SHALL record the
+   attempt as failed and say so, and SHALL NOT report a success. ✅
+10. WHEN a recipient has withdrawn, THEN no sender SHALL be able to override
+    it — there SHALL be no force, priority or importance flag that sends
+    anyway. ✅
+11. The system SHALL support campaigns, and SHALL consume the provider's
+    bounce and complaint feedback. ⬜
 
 ## Requirement 35 — Privacy rights: erasure and retention
 
@@ -998,15 +1016,20 @@ actions, so that "who approved this, and when" is answerable years later.
 | F — Referee management | 23–26 | 2 | 2 | 0 |
 | G — Competitions and carnivals | 27–29 | 0 | 0 | 3 |
 | H — Person-facing experience | 30–32 | 2 | 0 | 1 |
-| I — Cross-cutting | 33–37 | 2 | 1 | 2 |
-| **Total** | **37** | **21** | **10** | **6** |
+| I — Cross-cutting | 33–37 | 2 | 2 | 1 |
+| **Total** | **37** | **21** | **11** | **5** |
 
 **Read that last row carefully.** Twenty-one requirements implemented is a
 working product for one club's registration, finance and officiating. The
-six unimplemented ones are not evenly distributed: **competitions,
-carnivals and calendar distribution are the whole of Part G**, and
-Requirement 34's unsubscribe is the only item on this list that is arguably
-non-compliant today rather than merely absent.
+five unimplemented ones are not evenly distributed: **competitions,
+carnivals and calendar distribution are the whole of Part G**.
+
+Requirement 34 moved from *not implemented* to *partial* in September 2026
+([scope 36](../docs/scope/36_the_platform_learns_to_send_and_to_stop.md)),
+which closed the only item on this list that was arguably non-compliant
+today rather than merely absent. What remains of it is ordinary missing
+feature — campaigns, bounce handling, and two notifications waiting on
+screens that belong to other requirements.
 
 A status here is a claim about code, checked in September 2026. The
 reproducible measurements behind it are in

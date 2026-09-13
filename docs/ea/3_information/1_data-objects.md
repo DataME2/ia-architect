@@ -104,6 +104,28 @@ March?", or until [#32](../../scope/open-questions.md)'s measurement needs
 the failure history that nobody kept. Storing them makes the baseline
 decomposition a query rather than a new instrumentation project.
 
+## Communications
+
+Added September 2026 by [scope 36](../../scope/36_the_platform_learns_to_send_and_to_stop.md),
+which built the withdrawal before anything that sends.
+
+| Data Object | Realises | Notes |
+| ----------- | -------- | ----- |
+| **`message_subscriber`** | Contactable Party | One row per Person per club: the address, the suppression state of **each purpose separately** (BR130), and the salt behind their unsubscribe link. **Person-scoped, not address-scoped** — families share an inbox, which is why decision 10 refuses to infer identity from an email, and suppressing "this address" would silence a parent because their partner unsubscribed |
+| **`message_log`** | — (realises BR127) | Append-only, by the absence of an update policy. Records the **suppressed and the failed as well as the sent**, because an absent row would mean both "never attempted" and "correctly withheld", and telling those apart is the only reason the log exists. Carries the template key **and version** — the wording lives in code, so a row holding a copy of it would be a second source of the same truth |
+
+`prospect` gains an unsubscribe salt and token hash so a prospect — who
+belongs to no tenant (BR92) — walks through the same door as everyone else,
+withdrawing the `marketing_consent_revoked_at` that 0014 already modelled.
+
+**The token is derived rather than stored**
+([decision 12](../../decisions/12_an_unsubscribe_link_is_derived_not_stored.md)):
+the row keeps a non-secret salt and the token's hash, and the secret that
+joins them lives only in the server's environment. BR73's hash-only pattern
+was refused here for a reason worth recording — with only a hash, the
+plaintext exists for one message and every older message's link is dead,
+which is precisely the failure BR128 exists to prevent.
+
 ## The referee slice
 
 Added September 2026 by [scope 33](../../scope/33_the-referee-record-and-what-an-appointment-rests-on.md)
@@ -131,6 +153,11 @@ because C11 does not exist and a dropdown nobody has filled is worse than a
 box), carnivals and their public view, calendar subscriptions, and the
 mobile client's `participation_response`. All exist as business objects and
 none has a table.
+
+A **campaign** is the near one: `message_subscriber` now records who may be
+sent marketing and `message_log` records what was, but nothing models the
+thing being sent — so the consent the demonstration door collects is
+withdrawable and still not usable.
 
 Three further absences are worth naming separately, because they are rules
 rather than features: **BR40's retention** and **BR49's erasure** have no

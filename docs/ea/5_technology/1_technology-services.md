@@ -17,6 +17,7 @@ with users and real data.
 | **Hosting / CI-CD** | **Vercel** | Zero-config for Next.js, a preview deployment per pull request — which matters for a project whose review artifact has been a PR description all along |
 | **CI** | **GitHub Actions** | Already assumed by the repo's link-check workflow and PR conventions |
 | **File storage** | **Supabase Storage** | Identification photographs (BR56) and identity documents. Same access-control model as the database, so a photo cannot be more readable than the row that references it |
+| **Transactional email** | **Resend**, behind a `MessageTransport` interface | Chosen for a plain HTTP API and no SDK to pin. **The interface matters more than the choice**: BR129 says a withdrawal is the platform's record and never the vendor's, so suppression is checked against our own rows before the provider is reached, and changing provider is a new implementation of three lines that takes no withdrawal with it |
 | **Region** | **Sydney (`ap-southeast-2`)** | Australian data residency for children's personal information. Not a legal requirement under the APPs — cross-border disclosure is permitted with accountability (APP 8) — but keeping it onshore removes a question no club committee wants to answer |
 
 ## What the choice buys, in this project's terms
@@ -54,5 +55,6 @@ with users and real data.
   and the API this stack exposes serves either.
 - **Payments.** Square is the adopted provider (C3), not in the first
   slice.
-- **Email/SMS.** Needed for C7, not for registration capture. Push
-  notification (BR64) belongs with the mobile decision.
+- **SMS.** Email arrived with C7 ([scope 36](../../scope/36_the_platform_learns_to_send_and_to_stop.md));
+  SMS buys little that email does not until a club asks. Push notification
+  (BR64) still belongs with the mobile decision.

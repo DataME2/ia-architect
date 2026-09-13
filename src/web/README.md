@@ -48,6 +48,7 @@ it:
 | `plan-view.ts`, `money.ts` | Instalment ledgers, arrears, and money formatted one way everywhere |
 | `referee-view.ts`, `availability-view.ts` | The officiating roster and who may officiate what |
 | `player-view.ts`, `team-view.ts`, `people-view.ts`, `governance-view.ts`, `access-view.ts`, `platform-view.ts`, `pack-view.ts`, `invitation-view.ts` | One screen's decisions each |
+| `unsubscribe.ts` | Reading an unsubscribe link out of an inbox — mail clients wrap URLs and append punctuation, so what counts as a readable link is the part worth testing |
 | `nav.ts`, `safe-destination.ts`, `password.ts`, `today.ts` | Cross-cutting: the club menu, where a redirect may legitimately go, password rules, and a timezone-correct "today" |
 
 ## Where the architecture lives

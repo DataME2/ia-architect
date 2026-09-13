@@ -48,6 +48,8 @@ something that happens by accident, and that is the design.
 | `mappers.ts` | Rows in, domain values out. Pure — the only module that knows both shapes, which is what keeps the domain free of `snake_case` and of the database's idea of null |
 | `queries.ts` | The registration slice's reads and writes |
 | `finance.ts`, `vouchers.ts`, `teams.ts`, `governance.ts`, `officiating.ts`, `performance.ts`, `packs.ts`, `invitations.ts`, `photos.ts`, `me.ts`, `family.ts`, `household.ts` | One module per slice |
+| `messaging.ts` | The unsubscribe token (a server secret, so it cannot live in `src/domain/`), the transport interface, and the send path that checks suppression **before** the provider is reached |
+| `reminders.ts`, `notifications.ts` | Joining a message to a registration, a withdrawal, or an approval |
 
 Explicit `club_id` filters in these queries are **belt and braces, not the
 mechanism**. The mechanism is `supabase/migrations/0002_rls_policies.sql`,

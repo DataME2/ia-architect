@@ -47,6 +47,7 @@ Numbered by concern, run in order:
 | `22`–`25` | Club access, platform administration, the player record, the account↔Person link |
 | `26`–`30` | The referee slice: record, availability, appointments, verification and fees, claims and batches |
 | `31`–`32` | Family access, and what a household may read |
+| `33` | Communications — a withdrawal is honoured, indistinguishable when refused, separate per purpose, and not undoable by an officer's ordinary update |
 | `99_grants.sql` | Table privileges for the Supabase roles. **RLS decides which rows; GRANT decides whether the role may touch the table at all** — a policy without a grant denies everything, and a grant without a policy is the leak `check_rls.py` exists to catch |
 
 ## Writing one

@@ -45,6 +45,7 @@ which names the code that realises each one.
 | ------------------- | -------- | --------- | ------- | ------ |
 | **Player finance management** | C3 | Payment plans with instalments that **must** sum to the plan total (BR74), append-only payments and refunds (BR77), vouchers attached, verified or rejected with the relief receipt they imply (BR81), and the no-pay-no-play eligibility rule including the case that looks finished everywhere and is not (BR79) | **No payment provider.** Square is the confirmed choice and nothing integrates with it: every payment is recorded by hand by a treasurer. No invoicing, no reconciliation, no treasurer's own screen — finance is worked from the registration detail page | **Partial** |
 | **Referee finance management** | C5 | A claim requires a verified match, and **nobody verifies the match they were paid for** (BR13, BR119). Fee rates resolved from a dated schedule and **stored on the claim at the amount it was computed at**, never recomputed at read time (BR115, BR116). No claim for a cancelled match; an abandoned one needs the official's explanation (BR17, BR18). No double payment (BR14), batches closed before they are paid (BR117), and a remittance that records what the club paid elsewhere (BR118) | **The fee-schedule editor is not built** — the schema and rate resolution are delivered, but a club cannot author a schedule through a screen ([scope 34, WP2](../../scope/34_paying_the_officials.md)). BR12's decline-rate threshold waits on a season of history to set it, and **BR113 — a designation for an under-18 official is proposed to their guardian — has no code**, which is a duty-of-care gap rather than a convenience one. No banking details, deliberately | **Partial** |
+| **Communications** | C7 | A guardian reminder composed from the registration's **own rule outcomes**, so what a family is told is what the rules say (BR127, BR131). An unsubscribe reachable **without an account** (BR128), with marketing and operational suppressed separately (BR130) and suppression held here rather than at the provider (BR129). An append-only `message_log` recording the suppressed as well as the sent — an absent row would mean both *never attempted* and *correctly withheld* | **No campaigns**, so the marketing consent the demonstration door collects is now withdrawable but still not usable. **No bounce handling** — the provider knows a message died and this does not. **Two of the four notification points have no caller**: nothing in the application edits a fixture (BR64) and claim approval is database-only, so those notifications are built and unwired rather than pretended | **Partial** |
 | **Consent & privacy rights** | C15 | Capture: the collection notice, identification photograph and publicity consents as three independent revocable records (BR48, BR56, BR57), plus prospect marketing consent (BR93) | **No data-subject rights.** Access, correction, erasure and de-identification (BR49) are designed in the retention annex and unimplemented. **No revocation route**: `revoked_at` exists on both consent records and nothing sets it | **Partial** |
 | **Multitenant platform operations** | C10 | Tenant isolation (above), role-based access through `club_membership`, per-season configuration, roles granted and revoked at a club (`/registrar/access`), and **the owner-issued onboarding link of [decision 7](../../decisions/7_tenant-provisioning-by-owner-issued-invitation.md)** — `/platform` emails a club's named contacts a magic link that creates the account on first use, and `claim_club_access()` attaches the membership the club recorded for that address | **No club branding** — narrowed, not closed. The *platform* now has an identity and a design system ([scope 31](../../scope/31_the-interface-and-the-southern-ocean-palette.md)); a **club** still has none, and on a multiclub product that is the branding a club asks for first. The token layer is the seam it would arrive through, but the open part is what a club's palette may *not* override — a club playing in red and green makes *passing* and *blocked* ambiguous on the queue ([#65](../../scope/open-questions.md)). And no way to invite a colleague from inside a club: `/registrar/access` grants a role to an account that already exists, so anyone but a club's first two contacts still signs up on their own before an admin can attach them | **Partial** |
 
@@ -66,7 +67,6 @@ for the scope of what was promised.
 
 | Capability | What it would offer |
 | ---------- | ------------------- |
-| **C7 — Communications** | Templated transactional messages and reminders. **Note this one**: the marketing consent captured at the demonstration door has nothing to send it with, and no unsubscribe route until this exists |
 | **C8 — Reporting & dashboards** | The registration, financial and referee dashboards that imported history (C9) is *for* |
 | **C11 — Competition & calendar** | Association competition catalogue, regulations, playing formats |
 | **C12 — Carnival & event management** | Multi-club events and the account-free public view — the one deliberate P5 exception ([decision 3](../../decisions/3_public-event-data-crosses-tenant-isolation.md)) |
@@ -91,11 +91,19 @@ rule (BR113) rather than a missing screen.
 
 Three things are worth saying plainly about the rest.
 
-**Nothing sends anything.** No email, no SMS, no reminder, no unsubscribe.
-Every communication in the product today is a human copying something out of
-a screen, and the marketing consent now being collected has nowhere to go
-until C7 exists. This is the gap that is not merely absent but arguably
-non-compliant: consent was asked for, and there is no way to withdraw it.
+**It has just learned to send — and to stop.** C7's first code landed in
+[scope 36](../../scope/36_the_platform_learns_to_send_and_to_stop.md), and
+it was built in the reverse of the obvious order: the **unsubscribe before
+anything that sends**, because marketing consent had been collected at the
+demonstration door since scope 28 with no way to withdraw it. That was the
+one gap in this document that was not merely absent but arguably
+non-compliant, and it is closed.
+
+What is *not* closed: there are still no campaigns, so the consent is now
+withdrawable and still not usable; nothing reads the provider's bounces; and
+with no provider configured a send fails loudly rather than happening.
+Everything the product says beyond a registration reminder is still a human
+copying something out of a screen.
 
 **Nothing takes money.** Square is chosen and unintegrated; a treasurer
 types in what arrived. The rules about money are enforced; the movement of

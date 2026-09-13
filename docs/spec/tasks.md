@@ -59,7 +59,7 @@ and no code performs.
 
 | # | Task | Rules | Size | Gate |
 | - | ---- | ----- | ---- | ---- |
-| T1.1 | **Communications and, specifically, an unsubscribe** (recommendation R1). Marketing consent is being collected at the demonstration door with nothing to send it and **no way to withdraw** — the only gap here that is arguably non-compliant *today* rather than merely missing | C7, BR93 | L | Suppression state in Postgres under RLS; a pure `src/domain/messaging/` template layer; an unsubscribe that works without an account |
+| ~~T1.1~~ | **Communications and, specifically, an unsubscribe** (recommendation R1). **Done** — [scope 36](../scope/36_the_platform_learns_to_send_and_to_stop.md), built unsubscribe-first. Marketing consent is being collected at the demonstration door with nothing to send it and **no way to withdraw** — the only gap here that is arguably non-compliant *today* rather than merely missing | C7, BR93 | L | Suppression state in Postgres under RLS; a pure `src/domain/messaging/` template layer; an unsubscribe that works without an account |
 | T1.2 | **Right to erasure** — honoured unless a named lawful basis requires retention, and the basis recorded when it refuses | BR49 | L | A pure function explains every refusal; the refusal names its basis; a test proves an erasure that must be refused *is* |
 | T1.3 | **Retention by participation status**, with the ten-year floor and the life-member override | BR40, BR70 | L | Scheduled function under `createAdminClient('scheduled-job')`; no life member is ever discarded |
 | T1.4 | **Continuous WWCC verification**: expiry withdraws the holder from every *future* assignment rather than only blocking new ones | BR50, BR51 | M | A lapse removes the holder from future match sheets; a test asserts the withdrawal, not just the block |
@@ -67,9 +67,11 @@ and no code performs.
 | T1.6 | **A minor official's designation is proposed to their guardian**, not to them (recommendation R4) | BR113 | S | Mirrors BR33's routing; no under-18 official is designated directly |
 | T1.7 | **Per-tenant privacy framework**, determined by jurisdiction and recorded rather than assumed | BR52 | S | A column, read by the rules that vary by regime |
 
-> T1.1–T1.3 are one another's neighbours and should be sequenced together:
-> erasure and retention are the same machinery seen from two directions
-> (recommendation R2), and both will want to *tell* somebody, which is T1.1.
+> T1.1 is done (September 2026). T1.2 and T1.3 remain, and are one another's
+> neighbours: erasure and retention are the same machinery seen from two
+> directions (recommendation R2), and both wanted something to *tell*
+> somebody with — which is why T1.1 went first and why they are now
+> unblocked.
 
 ---
 

@@ -50,6 +50,7 @@ them being present.
 | `governance/` | Committee terms, and whether a mandate has lapsed (BR85–BR87) |
 | `performance/` | A player's season record, and what a statistic is honestly worth (BR101–BR104) |
 | `submission/` | Assembling, versioning, freezing and serialising a submission pack (BR58–BR60) |
+| `messaging/` | What a message says, who it goes to, and whether it may be sent (BR127–BR131). The suppression verdict lives here rather than at the email provider, which is BR129 |
 | `test-fixtures.ts` | Shared builders, so a test states only what it is actually about |
 
 Tests sit beside the code they exercise as `*.test.ts` and run with

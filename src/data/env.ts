@@ -14,6 +14,26 @@ export interface ServiceConfig {
   readonly supabaseServiceRoleKey: string;
 }
 
+export interface MessagingConfig {
+  /**
+   * The secret behind every unsubscribe link (decision 12).
+   *
+   * Server-scoped, like the service-role key. The token in a message is
+   * `HMAC(this, the subscriber's salt)`, so the database stores nothing
+   * that is a credential — and rotating this invalidates every link already
+   * sitting in somebody's inbox, which is why it is rotated deliberately or
+   * not at all.
+   */
+  readonly unsubscribeSecret: string;
+  /** Absolute, because the link is read outside the app. */
+  readonly siteUrl: string;
+}
+
+export interface TransportConfig {
+  readonly apiKey: string;
+  readonly fromAddress: string;
+}
+
 export class ConfigError extends Error {
   constructor(variable: string, detail: string) {
     super(`${variable}: ${detail}`);
@@ -105,4 +125,50 @@ export function readServiceConfig(
     );
   }
   return { supabaseServiceRoleKey: required(source, 'SUPABASE_SERVICE_ROLE_KEY') };
+}
+
+/**
+ * Configuration for composing an unsubscribe link.
+ *
+ * Refuses a `NEXT_PUBLIC_` unsubscribe secret for the same reason the
+ * service-role key is refused: the prefix ships it to every browser, and
+ * anyone holding it can derive the unsubscribe token for any salt they can
+ * read.
+ */
+export function readMessagingConfig(
+  source: Record<string, string | undefined> = process.env,
+): MessagingConfig {
+  if (source['NEXT_PUBLIC_MESSAGING_UNSUBSCRIBE_SECRET'] !== undefined) {
+    throw new ConfigError(
+      'NEXT_PUBLIC_MESSAGING_UNSUBSCRIBE_SECRET',
+      'must not exist — a NEXT_PUBLIC_ prefix ships the value to every browser, ' +
+        'and this secret derives the unsubscribe token of every recipient',
+    );
+  }
+  const siteUrl = required(source, 'NEXT_PUBLIC_SITE_URL').replace(/\/$/, '');
+  return {
+    unsubscribeSecret: required(source, 'MESSAGING_UNSUBSCRIBE_SECRET'),
+    siteUrl,
+  };
+}
+
+/**
+ * The email provider's credentials, or `null` when none is configured.
+ *
+ * Null rather than a throw, so the send path can distinguish "not set up"
+ * from "misconfigured" and say the true thing on the screen. What it must
+ * never do is treat an absent provider as a successful send — silence is
+ * not a success state, and a reminder nobody received is worse than a
+ * reminder the registrar knows failed.
+ */
+export function readTransportConfig(
+  source: Record<string, string | undefined> = process.env,
+): TransportConfig | null {
+  const apiKey = source['MESSAGING_PROVIDER_API_KEY'];
+  const fromAddress = source['MESSAGING_FROM_ADDRESS'];
+  if (apiKey === undefined || apiKey.trim() === '') return null;
+  if (fromAddress === undefined || fromAddress.trim() === '') {
+    throw new ConfigError('MESSAGING_FROM_ADDRESS', 'is required when MESSAGING_PROVIDER_API_KEY is set');
+  }
+  return { apiKey, fromAddress };
 }

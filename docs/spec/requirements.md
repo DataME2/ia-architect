@@ -32,7 +32,7 @@ Measurements taken 13 September 2026 on `spec-driven-development`:
 | Database policy test files | **24** | `supabase/tests/*.sql` |
 | Migrations applied | **29** | `supabase/migrations/` |
 | Tables under RLS | **45** | `python3 scripts/check_rls.py` (a table without RLS, a policy and a `club_id` fails the build) |
-| Business rules documented | **126** (BR1–BR126) | [5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md) |
+| Business rules documented | **131** (BR1–BR131) | [5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md) |
 | Business rules whose identifier appears in `src/` or `supabase/` | **85** | `grep -rhoE 'BR[0-9]+' src supabase` |
 
 > **An identifier appearing in the source is evidence of reach, not of
@@ -145,6 +145,7 @@ a business rule without an intermediate mapping table.
 | FR-C15.4 | Right to erasure, honoured unless a named lawful basis requires retention | BR49 | **Not built** | The largest compliance gap — see §5 |
 | FR-C15.5 | Retention by participation status, with a ten-year floor for the still-active | BR40 | **Not built** | No retention job exists |
 | FR-C15.6 | The club may export its complete data on demand | BR68 | **Not built** | "Nearly free" under Postgres, and not written |
+| FR-C15.8 | A recipient may withdraw consent to be contacted without an account, and the withdrawal is the platform's record rather than a vendor's | BR128, BR129 | **Verified** | `app_unsubscribe()`, `supabase/tests/33_communications.sql` (10 scenarios) |
 | FR-C15.7 | The privacy framework binding a tenant is recorded per tenant, never assumed | BR52 | **Partial** | Referenced in source; no per-tenant configuration column is in use |
 
 ### FR-C10 / C19 — Platform operations and governance
@@ -181,13 +182,13 @@ a business rule without an intermediate mapping table.
 | FR-C17.4 | A family reads their own household and nothing else, through a function rather than a membership | BR121, decision 11 | **Verified** | migrations 0028–0029, `tests/31`, `tests/32` |
 | FR-C17.5 | A guardian is invited only once a child under their authority has a COMPLETE registration | BR126 | **Verified** | trigger on `guardian_invitation` |
 | FR-C17.6 | A native mobile client, read-only offline, showing last-sync time | BR66 | **Not built** | Deferred deliberately; the API serves either choice |
-| FR-C17.7 | A fixture change notifies every affected participant | BR64 | **Not built** | Blocked on C7 — nothing sends anything |
+| FR-C17.7 | A fixture change notifies every affected participant | BR64 | **Partial** | C7 exists now and the notification is written; **nothing in the application edits a fixture**, so it has no caller (`src/data/notifications.ts`) |
 
 ### Capabilities with no code at all
 
 | Capability | Rules stranded | Status |
 | ---------- | -------------- | ------ |
-| **C7 — Communications** | BR42's notification, BR64, and the marketing consent already being collected with nowhere to send it and **no unsubscribe** | **Not built** |
+| **C7 — Communications** | BR64 and claim approval remain unwired — see FR-C17.7 | **Partial** — built September 2026 ([scope 36](../scope/36_the_platform_learns_to_send_and_to_stop.md)): a guardian reminder, BR42's coordinator notification, and an account-free unsubscribe with suppression held here rather than at the provider (BR127–BR131). No campaigns, no bounce handling |
 | **C8 — Reporting & dashboards** | — | **Not built** |
 | **C9 — Historical data consolidation** | BR90 | **Designed**, blocked on open question #57 (lawful basis) |
 | **C11 — Competition & calendar** | BR20's competition catalogue | **Not built** — `fixture.competition` is free text |

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 
 import { loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
+import { loadCoordinator, notifyOfficialWithdrew } from '../../../data/notifications.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
 
 /**
@@ -115,6 +116,55 @@ export async function withdrawDesignationAction(
 
   if (error !== null) return formFailed(error.message.replace(/^.*?:\s*/, ''));
 
+  // BR42 — the coordinator is told, because a withdrawal after acceptance
+  // leaves a fixture without an official and that is somebody's problem
+  // this afternoon. The notification never fails the withdrawal: the
+  // record is the thing that had to happen, and a coordinator who was not
+  // emailed is a worse outcome than a withdrawal that did not save.
+  const notice = await notifyCoordinatorOfWithdrawal(client, tenant, fixtureId, personId, reason);
+
   revalidatePath('/registrar/designations');
-  return formOk('Withdrawn, with the reason recorded.');
+  return notice === null
+    ? formOk('Withdrawn, with the reason recorded.')
+    : formOk(`Withdrawn, with the reason recorded. ${notice}`);
+}
+
+/**
+ * Tell whoever coordinates the officials, if the club has one recorded.
+ *
+ * Returns a sentence about the attempt, or `null` when there was nobody to
+ * tell — never throws. A club with no coordinator membership is an ordinary
+ * state, not an error, and BR42 is satisfied by the club being told rather
+ * than by a particular person existing.
+ */
+async function notifyCoordinatorOfWithdrawal(
+  client: Awaited<ReturnType<typeof createRequestClient>>,
+  tenant: { readonly clubId: string; readonly clubName: string },
+  fixtureId: string,
+  personId: string,
+  reason: string,
+): Promise<string | null> {
+  const coordinator = await loadCoordinator(client, tenant.clubId);
+  if (coordinator === null) return null;
+
+  const [official, fixture] = await Promise.all([
+    client.from('person').select('preferred_name, legal_given_names, legal_family_name')
+      .eq('club_id', tenant.clubId).eq('id', personId).maybeSingle(),
+    client.from('fixture').select('opponent, played_on')
+      .eq('club_id', tenant.clubId).eq('id', fixtureId).maybeSingle(),
+  ]);
+
+  const officialName = official.data === null
+    ? 'An official'
+    : `${official.data.preferred_name ?? official.data.legal_given_names} ${official.data.legal_family_name}`;
+  const fixtureLabel = fixture.data === null
+    ? 'a fixture'
+    : `${fixture.data.opponent}, ${fixture.data.played_on}`;
+
+  const result = await notifyOfficialWithdrew(
+    client, tenant.clubId, tenant.clubName, coordinator, officialName, personId, fixtureLabel, reason,
+  );
+
+  if (result.outcome === 'sent') return `${coordinator.name} has been told.`;
+  return `${coordinator.name} was not emailed — ${result.detail ?? 'the message did not send'}.`;
 }

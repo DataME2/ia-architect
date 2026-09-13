@@ -241,7 +241,12 @@ These are recommendations, not decisions. Each would need the EA-first walk
 and a scope document before implementation.
 
 **R1 — Build C7 (communications) next, before any new user-facing
-capability.** It is the constraint that makes three other things impossible:
+capability.** ✅ **Done, September 2026** — [scope 36](../scope/36_the_platform_learns_to_send_and_to_stop.md)
+took the recommendation below, including suppression in Postgres rather than
+at the provider. The recommendation is kept rather than deleted because what
+it predicted is what shipped, and the reasoning is the record.
+
+ It is the constraint that makes three other things impossible:
 BR42's coordinator notification, BR64's fixture-change notification, and
 telling a referee their claim was approved (they currently find out by being
 paid). It is also a **compliance exposure today**: marketing consent is

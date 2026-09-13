@@ -28,6 +28,7 @@ import {
   verifyVoucherAction,
 } from '../actions.ts';
 import { GuardianInvite } from './GuardianInvite.tsx';
+import { ReminderPanel } from './ReminderPanel.tsx';
 import { AttachVoucherForm } from './VoucherPanel.tsx';
 import { OutstandingForm } from './OutstandingForm.tsx';
 import { NewPlanForm, PlanSchedule, RecordPaymentForm } from './PaymentPlanPanel.tsx';
@@ -91,10 +92,11 @@ export default async function RegistrationDetailPage({
   const season = seasons.find((s) => s.id === seasonId);
   const { entry, person, documents, consents, duplicates } = detail;
 
-  // Only fetched once the registration is COMPLETE — before that BR126
-  // refuses the invite regardless, and the panel just says why.
-  const guardianCandidates =
-    entry.status === 'COMPLETE' ? await loadGuardianCandidates(client, tenant.clubId, person.id) : [];
+  // Loaded whatever the status. BR126 still refuses the *invitation* until
+  // the registration is COMPLETE — the panel below says why — but a
+  // reminder is needed most when it is not, so the guardians have to be
+  // known either way (scope 36, WP4).
+  const guardianCandidates = await loadGuardianCandidates(client, tenant.clubId, person.id);
 
   const finance = await loadFinance(client, tenant.clubId, registrationId);
   const vouchers = await loadVouchers(client, tenant.clubId, registrationId);
@@ -251,6 +253,16 @@ export default async function RegistrationDetailPage({
         ) : (
           <GuardianInvite registrationId={registrationId} guardians={guardianCandidates} />
         )}
+      </section>
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>Tell the family (BR127, BR131)</h3>
+        <ReminderPanel
+          registrationId={registrationId}
+          seasonId={seasonId}
+          outstandingCount={blocking.length}
+          guardianCount={guardianCandidates.length}
+        />
       </section>
 
       <section className="card">

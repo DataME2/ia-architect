@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 130 of the 202 tasks below are already `[x]`; the phases are ordered so
+plan. 142 of the 207 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -336,35 +336,44 @@ registrar of another club and confirm you see neither.
 
 ---
 
-## Phase 8 — Communications *(not started — highest priority)*
+## Phase 8 — Communications *(built — [scope 36](../docs/scope/36_the_platform_learns_to_send_and_to_stop.md))*
 
-**Outcome when complete:** the platform can tell a family what is
-outstanding, and anyone who consented to marketing can withdraw it.
+**Outcome:** the platform can tell a family what is outstanding, and anyone
+who consented to marketing can withdraw it.
 
-> **The only item in this document that is a live compliance exposure rather
-> than an absent feature.** Marketing consent is being collected at the
-> demonstration door today with no way to withdraw it — *R34.5*.
+> **It was built in the reverse of the obvious order.** The unsubscribe
+> landed before anything that sends, because marketing consent had been
+> collected at the demonstration door since scope 28 with no way to withdraw
+> it — a promise collected against and not honourable, rather than a screen
+> nobody wrote. *R34.5 is closed.*
 
 ### 8.1 Backend — *R34, D11.1*
-- [ ] `src/domain/messaging/` — pure templates and recipient resolution
-- [ ] `message_suppression` in Postgres, club-scoped and under RLS, so withdrawal survives a provider change — *R34.6*
-- [ ] `message_log`, append-only, recording sent **and** suppressed
-- [ ] Provider adapter behind an interface (Resend or AWS SES)
-- [ ] Every send checks suppression before the adapter is reached — *D11.1*
+- [x] `src/domain/messaging/` — pure templates, recipient resolution and the suppression verdict
+- [x] `message_subscriber` in Postgres, club-scoped and under RLS, with marketing and operational suppressed separately — *R34.6, R34.7*
+- [x] `message_log`, append-only by the absence of an update policy, recording sent **and** suppressed **and** failed — *R34.8*
+- [x] Provider adapter behind a `MessageTransport` interface (Resend) — *D11.1*
+- [x] Every send checks suppression before the adapter is reached — *D11.1, R34.10*
+- [x] A derived, durable unsubscribe token so a year-old message's link still works — [decision 12](../docs/decisions/12_an_unsubscribe_link_is_derived_not_stored.md)
+- [x] One door for suppression: an officer may correct an address and may not clear a withdrawal
+- [x] Unconfigured provider fails loudly rather than reporting a success — *R34.9*
+- [ ] Campaigns, so the marketing consent collected is usable and not merely withdrawable — *R34.11*
+- [ ] Bounce and complaint webhooks feeding suppression — *R34.11*
 
 ### 8.2 Frontend
-- [ ] Unsubscribe page reachable **without an account** — *R34.5*
-- [ ] Reminder composition from the registrar's queue — *R34.1*
+- [x] Unsubscribe page reachable **without an account**, offering club news or every email — *R34.5, R34.7*
+- [x] Reminder composition on the registration reached from the registrar's queue — *R34.1*
 
 ### 8.3 Triggers
-- [ ] Outstanding document, payment or consent → guardian reminder — *R34.1*
-- [ ] Fixture time, venue or status change → affected participants — *R34.2*
-- [ ] Withdrawal after acceptance → Referee Coordinator — *R34.3*
-- [ ] Claim approved → official — *R34.4*
+- [x] Outstanding document, payment or consent → guardian reminder — *R34.1*
+- [x] Withdrawal after acceptance → Referee Coordinator — *R34.3*
+- [ ] Fixture time, venue or status change → affected participants — *R34.2*. **Built and uncalled**: nothing in the application edits a fixture, so this waits on Phase 10
+- [ ] Claim approved → official — *R34.4*. **Built and uncalled**: claim approval is database-only, so this waits on task 5.4's fee/claims screens
 
-**Manually testable:** tick the marketing box at the demonstration door,
-receive a message, click unsubscribe without signing in, and confirm the
-next send is suppressed and recorded as suppressed.
+**Manually testable:** open a registration with something outstanding, send
+the reminder, and read it. Then follow the unsubscribe link in a signed-out
+private window, choose *every email*, and confirm the next reminder is
+recorded as suppressed rather than sent — and that the registrar is told to
+ring them instead.
 
 ---
 
@@ -492,17 +501,22 @@ and reconcile one number by hand.
 | 5 | Referee management | 18 | 3 |
 | 6 | Club-facing frontend | 23 | 2 |
 | 7 | Person-facing frontend | 8 | 3 |
-| 8 | Communications | 0 | 11 |
+| 8 | Communications | 12 | 4 |
 | 9 | Privacy rights | 0 | 11 |
 | 10 | Competitions | 0 | 5 |
 | 11 | Carnivals | 0 | 7 |
 | 12 | Calendar distribution | 0 | 6 |
 | 13 | Reporting | 0 | 4 |
 | 14 | Engineering quality | 0 | 3 |
-| | **Total** | **130** | **72** |
+| | **Total** | **142** | **65** |
 
-**Phases 0–7 are substantially complete** and constitute a working product
-for one club's registration, finance, safeguarding and officiating. Phases
-8–14 are the queue, and their order is not arbitrary: Phase 8 is first
-because it is the only live compliance exposure and because Phases 9, 11 and
-12 all eventually need something to notify with.
+**Phases 0–8 are substantially complete** and constitute a working product
+for one club's registration, finance, safeguarding and officiating — which
+can now also tell a family what is outstanding, and be told to stop.
+
+Phase 8 was first for two reasons, and only one of them has been spent. The
+live compliance exposure is closed. The other reason still holds: **Phases
+9, 11 and 12 all eventually need something to notify with**, and now there
+is something. Phase 9 (erasure and retention) is next — it is statutory
+rather than desirable, and it needs to tell someone the outcome of their
+request.

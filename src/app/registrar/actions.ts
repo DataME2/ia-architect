@@ -23,6 +23,7 @@ import {
   recordPayment,
 } from '../../data/finance.ts';
 import { recordGuardianInvitation } from '../../data/family.ts';
+import { sendRegistrationReminder } from '../../data/reminders.ts';
 import {
   attachVoucher,
   loadVouchers,
@@ -468,4 +469,59 @@ export async function inviteGuardianAction(
   return formOk(
     result.alreadyInvited ? `A new link was sent to ${email}.` : `${email} was invited to their workspace.`,
   );
+}
+
+
+/**
+ * Send a guardian a reminder of what is outstanding (BR127, BR131).
+ *
+ * Open to any officer whose role can already read the registration
+ * ([#74](../../../docs/scope/open-questions.md)): the message contains
+ * nothing they cannot already see on this screen, and inventing a
+ * permission for it would be the platform deciding the club's staffing.
+ *
+ * The rule outcomes are re-read here rather than posted from the form. What
+ * a family is told must be true when it is sent, not when the page was
+ * rendered — a document provided ten minutes ago should not produce a
+ * reminder to provide it.
+ */
+export async function sendReminderAction(_previous: FormResult, formData: FormData): Promise<FormResult> {
+  const registrationId = String(formData.get('registrationId') ?? '');
+  const seasonId = String(formData.get('seasonId') ?? '');
+  if (registrationId === '' || seasonId === '') return formFailed('Nothing to remind about.');
+
+  const { client, tenant } = await requireTenant();
+
+  const detail = await loadRegistrationDetail(client, tenant.clubId, seasonId, registrationId, todayIn());
+  if (detail === null) return formFailed('That registration is no longer here.');
+
+  const results = await sendRegistrationReminder(
+    client,
+    tenant.clubId,
+    tenant.clubName,
+    detail.person.id,
+    detail.entry.displayName,
+    detail.entry.outcomes,
+  );
+
+  revalidatePath(`/registrar/${registrationId}`);
+
+  if (results.length === 0) {
+    return formFailed('No guardian with authority is recorded for this player, so there is nobody to remind.');
+  }
+
+  const sent = results.filter((r) => r.outcome === 'sent');
+  const withheld = results.filter((r) => r.outcome !== 'sent');
+
+  // Never one averaged verdict: "sent to one, suppressed for the other" is
+  // the ordinary case in a household, and the registrar's next move depends
+  // on which of the two it was.
+  if (withheld.length === 0) {
+    return formOk(`Reminder sent to ${sent.map((r) => r.to).join(' and ')}.`);
+  }
+
+  const detailLine = withheld.map((r) => `${r.to} — ${r.detail ?? 'not sent'}`).join('; ');
+  return sent.length === 0
+    ? formFailed(`Nothing was sent. ${detailLine}`)
+    : formFailed(`Sent to ${sent.map((r) => r.to).join(' and ')}. Not sent: ${detailLine}`);
 }
