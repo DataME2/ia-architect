@@ -1606,7 +1606,9 @@ td {
   color: var(--rail-text-2);
 }
 
+/* Block, not inline: as inline spans a long name ran straight into "LEGAL:". */
 .rail-name {
+  display: block;
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -1614,6 +1616,7 @@ td {
 }
 
 .rail-legal {
+  display: block;
   font-family: var(--font-mono);
   font-size: 0.66rem;
   letter-spacing: 0.03em;
@@ -2289,6 +2292,60 @@ td {
   background: var(--neutral-bg);
   color: var(--text);
   margin-top: 0.3rem;
+}
+
+/* a guardian's household: one card per child, the chosen one lit */
+.household {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-3);
+}
+
+.child-card {
+  display: grid;
+  gap: 0.3rem;
+  align-content: start;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-decoration: none;
+  color: var(--text);
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow var(--dur) var(--ease);
+}
+
+.child-card:hover {
+  box-shadow: var(--shadow-md);
+  color: var(--text);
+}
+
+.child-card[aria-current='true'] {
+  border-color: var(--role-hue, var(--accent));
+  box-shadow: inset 4px 0 0 var(--role-hue, var(--accent)), var(--shadow-xs);
+}
+
+.child-card .pill {
+  justify-self: start;
+}
+
+.child-card-name {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.child-card-meta {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.child-card-note {
+  font-size: 0.8rem;
+  color: var(--muted);
 }
 
 /* rail footer: the way to the club screens, and the way out */

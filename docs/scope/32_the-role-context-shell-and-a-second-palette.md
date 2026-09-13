@@ -174,7 +174,10 @@ flowchart LR
   by admin, registrar and coordinator, so an official sees their own
   appointments as *coming soon* rather than as an empty list; **a
   family-facing document upload** (guardian) does not exist, a registrar
-  records what was sighted; **hardship requests** (committee) wait on
+  records what was sighted — though since
+  [scope 35](./35_narrowing_what_a_member_can_read.md)'s WP5 the guardian
+  context shows every child as a card and names exactly which document is
+  missing; **hardship requests** (committee) wait on
   [#50](./open-questions.md). None of these is rendered as a true "none".
 - **The referee read policy is the cheapest of those to close** and the one
   C4's owner should decide: a `select` policy on `referee_profile`,

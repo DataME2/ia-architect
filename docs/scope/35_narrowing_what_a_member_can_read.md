@@ -156,6 +156,28 @@ That is recorded as [decision 11](../decisions/11_a_family_reads_through_functio
   with `or` — so a club officer's read is unchanged and a family's read is a
   second, narrower door into the same tables.
 
+### WP5 — The household view *(September 2026)*
+
+- **Deliverables:** one card per child a guardian holds authority over —
+  registration status, what is still outstanding, money — with the chosen
+  child's detail beneath, laid out as the scope 32 prototype draws the
+  guardian context. Migration 0029: additive family reads on
+  `registration_document` and `registration_voucher`, proved by
+  `supabase/tests/32_household_reads.sql`.
+- **Why 0029 was not optional.** The cards run the registrar's own rules
+  engine, and BR2 answers "which documents are missing" from the rows the
+  caller can read. With no family read on `registration_document`, a
+  parent was told every document was attached — over the birth certificate
+  the registrar was waiting on. A silent pass is worse than a refusal.
+- **A credit is not a negative.** An overpaid plan read *-$135.00
+  remaining*; the domain is right to carry the negative (the club holds a
+  credit), and the family's screen now says so.
+- **Not built, and named on screen rather than rendered as "none":** a
+  family-facing document upload (no write path or bucket policy exists), and
+  every panel of the player, coach and referee contexts that waits on BR62
+  availability responses or the official's own read policy — see
+  [scope 32](./32_the-role-context-shell-and-a-second-palette.md)'s gap notes.
+
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |
