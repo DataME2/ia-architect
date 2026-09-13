@@ -27,12 +27,19 @@ the docs true. They are first because every one of them makes a reader
 believe the project is earlier than it is — including a reader deciding
 what to build next.
 
-> **T0.1–T0.4 are done** (13 September 2026): the four documents findings
-> F1–F4 named now describe the system as it is. Correcting the
+> **T0 is complete** (13 September 2026). The four documents findings F1–F4
+> named now describe the system as it is; correcting the
 > application-components inventory turned up a fifth omission in passing —
 > the referee slice had **no component rows at all**, so the six that
 > realise it were added rather than left for a reader to find in the
-> migrations. **T0.5 and T0.6 remain open.**
+> migrations. The seven directory READMEs
+> [steering §3](../steering/2_code-commenting-and-documentation.md) requires
+> now exist, and `CONTRIBUTING.md`'s gate table names all seven gates rather
+> than four.
+>
+> The rows stay listed rather than deleted: T0 is the record of how far the
+> documentation had drifted, and the next reader benefits more from that
+> than from a shorter table.
 
 | # | Task | Size | Gate |
 | - | ---- | ---- | ---- |
@@ -40,8 +47,8 @@ what to build next.
 | ~~T0.2~~ | **Correct [`docs/ea/README.md`](../ea/README.md)'s status table.** Layers 3–5 are marked "Not started" and "have nothing to say yet"; all three are written (finding F2) | S | The table matches the files, and the "Reading order" paragraph stops deferring to a future initiative |
 | ~~T0.3~~ | **Correct [`4_application/1_application-services.md`](../ea/4_application/1_application-services.md).** C4 and C5 are listed under "Not started — no design and no code", and the closing section states "the referee half of the product does not exist". Scope 33 and 34 built it (finding F3) | S | C4/C5 rows move to Delivered or Partial with their gaps named; the closing section is rewritten |
 | ~~T0.4~~ | **Correct [`3_information/1_data-objects.md`](../ea/3_information/1_data-objects.md)'s "Not yet modeled" section**, which lists finance, referee appointments and payment, and fixtures — all modeled and built (finding F4) | S | Section lists only what is genuinely unmodelled (carnivals, calendar subscriptions, participation responses) |
-| T0.5 | **Add the READMEs [steering §3](../steering/2_code-commenting-and-documentation.md) now requires** to `src/domain/`, `src/web/`, `src/app/`, `src/data/`, `supabase/migrations/`, `supabase/tests/` and `scripts/`. None exists today | M | Each carries Purpose, Key dependencies, Layout, and a link to its governing EA document |
-| T0.6 | **Update [CONTRIBUTING.md](../../CONTRIBUTING.md)**, which still says "BR1–BR68" where there are 126 rules, and omits `check_server_actions.py` from its gate table | S | Rule range and gate table match reality |
+| ~~T0.5~~ | **Add the READMEs [steering §3](../steering/2_code-commenting-and-documentation.md) now requires** to `src/domain/`, `src/web/`, `src/app/`, `src/data/`, `supabase/migrations/`, `supabase/tests/` and `scripts/`. None exists today | M | Each carries Purpose, Key dependencies, Layout, and a link to its governing EA document |
+| ~~T0.6~~ | **Update [CONTRIBUTING.md](../../CONTRIBUTING.md)**, which still says "BR1–BR68" where there are 126 rules, and omits `check_server_actions.py` from its gate table | S | Rule range and gate table match reality |
 
 ---
 
