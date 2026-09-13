@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { formatMoney } from '../../../domain/finance/money.ts';
+import { STATUS_LABEL } from '../../../web/household-view.ts';
 import { shortDate, type FixtureLike, type SeasonFigures } from '../../../web/me-view.ts';
 import type { RegistrationStatusRow } from '../../../data/schema.ts';
 
@@ -105,14 +106,6 @@ export function Figures({ figures }: { readonly figures: SeasonFigures }) {
     </div>
   );
 }
-
-const STATUS_LABEL: Readonly<Record<RegistrationStatusRow, string>> = {
-  DRAFT: 'Draft',
-  PENDING_DOCUMENTS: 'Awaiting documents',
-  PENDING_PAYMENT: 'Awaiting payment',
-  PENDING_EXTERNAL_REGISTRATION: 'Sent — not yet registered',
-  COMPLETE: 'Registered',
-};
 
 /** A registration's status as a pill, with BR79's money caveat alongside. */
 export function RegistrationPill({
