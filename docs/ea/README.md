@@ -21,15 +21,20 @@ this order — strategy first, technology last — and captured in a
 | --- | -------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------ | ------ |
 | 1   | [1_strategy/](./1_strategy/README.md)       | Motivation + Strategy    | Why does this exist? Who cares? What capabilities and value stream?           | Drafted |
 | 2   | [2_business/](./2_business/README.md)       | Business layer           | Who does what? Which services are offered, through which processes?          | Drafted |
-| 3   | [3_information/](./3_information/README.md) | Passive structure (data) | What information exists, where does it live, how does it flow?               | Not started |
-| 4   | [4_application/](./4_application/README.md) | Application layer        | Which software services and components realize the business services?       | Not started |
-| 5   | [5_technology/](./5_technology/README.md)   | Technology layer         | What runs it all — runtimes, tooling, build, hosting, deployment?            | Not started |
+| 3   | [3_information/](./3_information/README.md) | Passive structure (data) | What information exists, where does it live, how does it flow?               | Drafted |
+| 4   | [4_application/](./4_application/README.md) | Application layer        | Which software services and components realize the business services?       | Drafted |
+| 5   | [5_technology/](./5_technology/README.md)   | Technology layer         | What runs it all — runtimes, tooling, build, hosting, deployment?            | Drafted |
 
-Layers 3–5 have nothing to say yet: no MVP-build initiative has been
-scoped, so there is no data model, no code, and no stack to document (see
-[docs/scope/1_bootstrap-strategy-and-business-architecture.md](../scope/1_bootstrap-strategy-and-business-architecture.md)).
-Their folders keep the template's placeholder content until that
-initiative assesses them.
+**All five layers are now written.** Layers 3–5 were opened by the MVP-build
+initiative ([scope document 17](../scope/17_mvp-registration-slice.md)) and
+have been extended by every initiative since; the stack was chosen in August
+2026 ([5_technology/1_technology-services.md](./5_technology/1_technology-services.md)).
+
+*Drafted* means the layer describes the system as it is, not that every
+capability is built. The honest ledger of what has code, what is partial,
+and what has none at all is
+[4_application/1_application-services.md](./4_application/1_application-services.md)
+— read it before concluding anything about scope from this table.
 
 Files inside each layer folder are numbered the same way; each layer README
 explains its own analysis order. Delivered initiatives (ArchiMate
@@ -88,12 +93,12 @@ flowchart TB
     actor["«Business Actor»<br>Club staff, families,<br>referees, Assistant (AI)"]:::business
   end
 
-  subgraph APP["Application layer — not started"]
-    app["«Application Component»<br>Pending — no MVP-build<br>initiative scoped yet"]:::application
+  subgraph APP["Application layer"]
+    app["«Application Component»<br>Rules engine, registration,<br>finance, officiating, screens"]:::application
   end
 
-  subgraph TEC["Technology layer — not started"]
-    tech["«Node»<br>Pending — no stack<br>chosen yet"]:::technology
+  subgraph TEC["Technology layer"]
+    tech["«Node»<br>Next.js on Vercel,<br>Supabase Postgres (Sydney)"]:::technology
   end
 
   goal -->|realized by| vs
@@ -116,15 +121,16 @@ Top-down (recommended for newcomers — the same order as the folder numbers):
 → [1_strategy/3_value-stream.md](./1_strategy/3_value-stream.md)
 → [2_business/1_business-actors-and-roles.md](./2_business/1_business-actors-and-roles.md)
 → [2_business/2_business-services.md](./2_business/2_business-services.md)
-→ [2_business/5_domain-context-and-rules.md](./2_business/5_domain-context-and-rules.md).
-Layers 3–5 (`3_information/1_data-objects.md`,
-`4_application/2_application-components.md`, `5_technology/2_deployment.md`)
-are not started yet — see the Status column above.
+→ [2_business/5_domain-context-and-rules.md](./2_business/5_domain-context-and-rules.md)
+→ [3_information/1_data-objects.md](./3_information/1_data-objects.md)
+→ [4_application/1_application-services.md](./4_application/1_application-services.md)
+→ [5_technology/2_deployment.md](./5_technology/2_deployment.md).
 
-Bottom-up (for developers verifying alignment, once layers 3–5 exist):
-start from `4_application/2_application-components.md`, which links each
-component to its source file, then trace upward via the "realizes"
-relationships. Until then, the business layer is the deepest verifiable
-point — every "Pending" row in
-[2_business/2_business-services.md](./2_business/2_business-services.md)
-is exactly what a future MVP-build initiative needs to resolve.
+Bottom-up (for developers verifying alignment): start from
+[4_application/2_application-components.md](./4_application/2_application-components.md),
+which links each component to its source file, then trace upward via the
+"realizes" relationships. Pair it with
+[4_application/1_application-services.md](./4_application/1_application-services.md)
+— a list of delivered components says nothing about the capabilities nobody
+started, and reading the first without the second gives a misleading
+impression of scope.

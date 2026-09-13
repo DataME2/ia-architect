@@ -243,34 +243,41 @@ was promised:
 ## 5. Verification findings
 
 The double-check this document was written to perform produced four
-findings. Each is carried into [tasks.md](./tasks.md) with a priority.
+findings, **all four now corrected** (13 September 2026, tasks
+[T0.1–T0.4](./tasks.md)). They are kept here rather than deleted: what the
+documentation got wrong, and in which direction, is the evidence for the
+rule that now guards against it.
 
-**F1 — The root [README.md](../../README.md) describes a repository that no
-longer exists.** It states "no application code exists yet", that layers 3–5
+**F1 — The root [README.md](../../README.md) described a repository that no
+longer exists.** *(Corrected.)* It states "no application code exists yet", that layers 3–5
 are undrafted, and that development commands "will be added… once a
 technology stack is chosen". There are 29 migrations, 45 tables, 561 passing
 assertions and a chosen stack. This is the most visible document in the
 repository and it is wrong in its second paragraph.
 
-**F2 — [`docs/ea/README.md`](../ea/README.md)'s status table marks layers
+**F2 — [`docs/ea/README.md`](../ea/README.md)'s status table marked layers
 3, 4 and 5 "Not started" and states they "have nothing to say yet."** All
 three are written, and `CLAUDE.md` says so.
 
 **F3 — [`4_application/1_application-services.md`](../ea/4_application/1_application-services.md)
-lists C4 (referee lifecycle) and C5 (referee finance) under "Not started —
-no design and no code".** Migrations 0023–0027, `src/domain/officiating/`,
+listed C4 (referee lifecycle) and C5 (referee finance) under "Not started —
+no design and no code".** *(Corrected — and it ran deeper than the status
+column: [2_application-components.md](../ea/4_application/2_application-components.md)
+carried **no rows at all** for the referee slice, so six were added.)* Migrations 0023–0027, `src/domain/officiating/`,
 `src/data/officiating.ts`, two screens and five SQL test files say
 otherwise. The document's own closing section — "the referee half of the
 product does not exist" — is the reverse of the truth as of scope 33 and 34.
 
 **F4 — [`3_information/1_data-objects.md`](../ea/3_information/1_data-objects.md)'s
-"Not yet modeled" section lists finance, referee appointments and payment,
-and fixtures.** All are modeled and built.
+"Not yet modeled" section listed finance, referee appointments and payment,
+and fixtures.** All are modeled and built. *(Corrected; `guardian_invitation`,
+the one table named in no document, was added at the same time.)*
 
 > **The pattern is one-directional and worth naming.** Every drift found is
 > documentation *understating* what exists — never overstating it. That is
 > the benign direction, but it is the direction that makes a reader
-> conclude the project is earlier than it is, and it has now happened four
-> times. It is the reason
+> conclude the project is earlier than it is, and it had happened four
+> times — five, counting the missing component rows F3's correction
+> uncovered. It is the reason
 > [steering document 2, §3.3](../steering/2_code-commenting-and-documentation.md)
 > makes a stale README a defect rather than a tidy-up.

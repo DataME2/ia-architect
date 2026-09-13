@@ -5,10 +5,12 @@ _[← Information layer](./README.md) · [EA home](../README.md)_
 **ArchiMate elements:** Data Object.
 
 The persisted form of the
-[business objects](../2_business/4_business-objects.md), scoped to the
-**registration slice** ([scope document 17](../../scope/17_mvp-registration-slice.md)).
-Objects outside that slice — finance, referee appointments, carnivals,
-calendar — are modeled in the business layer and deliberately not here yet.
+[business objects](../2_business/4_business-objects.md). This document
+opened with the **registration slice**
+([scope document 17](../../scope/17_mvp-registration-slice.md)) and has
+grown with every initiative since: finance, governance, the player record,
+platform administration, family access, and — from September 2026 — the
+referee slice. What is still only a business object is listed at the end.
 
 ## The tension this layer had to resolve first
 
@@ -62,6 +64,7 @@ de-scoping the table.
 | **`player_profile`** | Player Profile | Height, weight, positions, foot and squad number, one per registration and therefore **per season** (BR99) — a twelve-year-old's height in two seasons is two facts. **Read is narrowed** to admin, registrar, coordinator and coach, following `clearance` rather than the schema-wide default: a treasurer has no use for a child's weight |
 | **`prospect`** | Prospect | **The only table in the schema with no `club_id`**, deliberately: a prospect belongs to no tenant and giving them one would drag the marketing surface into the world it exists to stay out of (BR92). Isolated by having *no API access in either direction* rather than by a tenant column — its sole writer is `enter_demo()`, which owns it — which is why it is the one entry in `check_rls.py`'s `TENANTLESS_ALLOWED`. One row per address, not per visit: `created_at` is the first look and `last_seen_at` the most recent. Marketing consent is recorded as **`marketing_consent_at` plus the exact `marketing_consent_wording` shown** (BR93), never a boolean — consent to words that were later edited is not evidence. `marketing_consent_revoked_at` exists and **nothing sets it yet**: no unsubscribe mechanism is built, and an unticked box on a return visit is not treated as a withdrawal, because somebody who did not notice a checkbox has not withdrawn anything |
 | **`club_membership`** | Account ↔ Club Membership | Which Account may act for which club, and in what role. Unique on `(club_id, user_id, role)`, so **two roles are two rows** — which is why the WP1 link could not live here (see below) |
+| **`guardian_invitation`** | Family Access Invitation | The magic link that lets a guardian claim their own workspace. **A trigger refuses the row** unless a child under that guardian's authority already has a registration at COMPLETE (BR126) — sending a link to an empty workspace reads as broken rather than as early |
 | **`account_person`** | Account Link | `(club_id, user_id, person_id)`, written only by an administrator through `link_account_to_person()` ([decision 10](../../decisions/10_identity_is_asserted_never_inferred.md)), unique in **both** directions (BR106), with a composite foreign key to `person (club_id, id)` so the database refuses a Person from another club rather than trusting a screen |
 | **`club_licence`** | Licence | Term, state, fee and currency for one club's right to use the product. Read by the platform console only; a lapsed licence is **shown and not enforced** (BR97, [#61](../../scope/open-questions.md)) |
 | **`platform_admin`** | — | The cross-tenant allowlist. Its policy is `for all using (false) with check (false)`, so **the API can neither read it nor write it in either direction** — it is reachable only from inside a `security definer` function ([decision 9](../../decisions/9_platform_administration_provisions_but_never_reads.md)) |
@@ -101,9 +104,37 @@ March?", or until [#32](../../scope/open-questions.md)'s measurement needs
 the failure history that nobody kept. Storing them makes the baseline
 decomposition a query rather than a new instrumentation project.
 
+## The referee slice
+
+Added September 2026 by [scope 33](../../scope/33_the-referee-record-and-what-an-appointment-rests-on.md)
+and [scope 34](../../scope/34_paying_the_officials.md), on the same terms as
+everything above: club-scoped, under RLS, and history rather than current
+values wherever a past answer has to stay answerable.
+
+| Data Object | Realises | Notes |
+| ----------- | -------- | ----- |
+| **`referee_profile`** | Match Official | A profile on a Person who is already one (P1) — never a second identity |
+| **`referee_classification`** | Classification | **One row per classification, dated** (BR110). The current standing is the latest row, never an overwritten column — so "what were they in 2024?" stays a query |
+| **`referee_accreditation`** | Accreditation | Checked against the **fixture's** date rather than today (BR111), for the reason BR54 gives for a Working with Children Check |
+| **`referee_suspension`** | Suspension | Disciplinary status; blocks a designation outright (BR9) |
+| **`referee_availability`** / **`referee_unavailability`** | Availability | Two tables, because "has not said" and "has said no" are different answers and only the second is a fact (BR62) |
+| **`match_official_appointment`** | Match Official Appointment | Carries the **appointing party** (BR114), which is what BR16 pays on, and the reason recorded with any decline or withdrawal — without which nothing is recorded at all (BR42, BR112) |
+| **`appointment_verification`** | — (realises BR13) | The verified match a claim requires. **Nobody verifies the match they were paid for** (BR119) |
+| **`referee_fee_schedule`** / **`referee_fee_rate`** | Fee Schedule | A **dated version, not an edited row** (BR115). Raising a rate publishes a new schedule; the old one stays readable |
+| **`referee_payment_claim`** | Payment Claim | Stores **the amount it was computed at**, alongside the schedule it came from (BR116) — never a rate resolved at read time |
+| **`referee_payment_batch`** | Payment Batch | **Closed before it is paid**, and a closed batch admits no further claims (BR117) |
+
 ## Not yet modeled
 
-Finance (`invoice`, `payment_plan`, `voucher_*`), referee appointments and
-payment, competitions and fixtures, carnivals, calendar subscriptions, and
-the mobile client's `participation_response` and active role context. All
-exist as business objects; none are in the registration slice.
+Competitions and their regulations (`fixture.competition` is free text
+because C11 does not exist and a dropdown nobody has filled is worse than a
+box), carnivals and their public view, calendar subscriptions, and the
+mobile client's `participation_response`. All exist as business objects and
+none has a table.
+
+Three further absences are worth naming separately, because they are rules
+rather than features: **BR40's retention** and **BR49's erasure** have no
+persisted lawful-basis record to evaluate against, and **BR52's per-tenant
+privacy framework** is not a column on `club` yet. A schema that holds
+children's personal data and cannot yet express why it is keeping a row
+should say so here.
