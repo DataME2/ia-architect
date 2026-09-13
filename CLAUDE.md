@@ -28,7 +28,18 @@ documented behavior can skip the alignment, but still keep the docs true.
   always be consulted synchronously); `docs/decisions/` — kept: starts with
   the AI assistant's autonomy level; `docs/annexes/` — operational artifacts
   that realise a rule rather than describe one (consent wording, retention
-  schedule, commercial terms, submission-pack instructions).
+  schedule, commercial terms, submission-pack instructions);
+  [`docs/steering/`](./docs/steering/README.md) — **standing rules for how
+  work is done, which you follow without being asked**: the
+  [git workflow](./docs/steering/1_git-workflow.md) (branch naming, commit
+  practice, the merge workflow, and which git actions to perform, ask about,
+  or never do) and
+  [code commenting and documentation](./docs/steering/2_code-commenting-and-documentation.md)
+  (what a comment must carry, and which directories carry a README);
+  [`docs/spec/`](./docs/spec/README.md) — a derived planning view of the
+  other two: verified [requirements](./docs/spec/requirements.md), the
+  [design](./docs/spec/design.md) decisions everything follows from, and the
+  prioritised [task](./docs/spec/tasks.md) queue.
 - `src/domain/` — types and the business rules engine, pure and
   I/O-free so every rule is unit-testable without a database; `src/web/` —
   the screens' *decisions*, equally pure (form parsing, queue grouping,

@@ -12,10 +12,28 @@ appointments, conflict checks, and payment), all built around a single
 coach, guardian, committee member) instead of separate, duplicated
 identities per concern.
 
-**Status:** pre-MVP. The [strategy](./docs/ea/1_strategy/README.md) and
-[business](./docs/ea/2_business/README.md) architecture layers are drafted
-from the project's discovery material; no application code exists yet (see
-[docs/scope/1_bootstrap-strategy-and-business-architecture.md](./docs/scope/1_bootstrap-strategy-and-business-architecture.md)).
+**Status:** pre-MVP, and further along than that phrase suggests. All five
+[architecture layers](./docs/ea/README.md) are written, and the
+**registration slice works end to end** — identity, capture, deterministic
+validation, submission packs, teams, safeguarding, governance, and the money
+that gates eligibility — under tenant isolation the database enforces. The
+**referee slice** (profile, classification, availability, appointments and
+conflict checks, fee schedules, claims and payment batches) landed in
+September 2026.
+
+Three things are worth saying plainly about the rest. **Nothing sends
+anything** — no email, no SMS, no reminder, no unsubscribe. **Nothing takes
+money** — Square is chosen and unintegrated; a treasurer records what
+arrived. And there is **no production environment yet**: everything points
+at a development Supabase project that nonetheless holds the only copy of
+the data there is.
+
+What exists, what is partial, and what has no code at all is tracked per
+capability in
+[docs/ea/4_application/1_application-services.md](./docs/ea/4_application/1_application-services.md),
+and as a verified requirement list in
+[docs/spec/requirements.md](./docs/spec/requirements.md).
+
 A pilot club has committed at least three years of historical data to
 validate the platform against. **Target for the first live version: before
 the end of Q4 2026.**
@@ -43,14 +61,50 @@ full process, actors, and definition of done.
 - [`docs/decisions/`](./docs/decisions/README.md) — smaller, consequential
   calls that don't rise to a full initiative — starting with the AI
   assistant's autonomy level.
+- [`docs/steering/`](./docs/steering/README.md) — standing rules for how
+  work is done here: the [git workflow](./docs/steering/1_git-workflow.md)
+  and
+  [code commenting and documentation](./docs/steering/2_code-commenting-and-documentation.md).
+- [`docs/spec/`](./docs/spec/README.md) — a derived planning view of the
+  other two: verified [requirements](./docs/spec/requirements.md), the
+  [design](./docs/spec/design.md) decisions the code follows from, and the
+  prioritised [task](./docs/spec/tasks.md) queue.
+- `src/` — [`domain/`](./docs/ea/4_application/2_application-components.md)
+  (types and the business rules engine, pure and I/O-free), `web/` (what the
+  screens *decide*, equally pure), `app/` (the Next.js App Router pages,
+  which render those decisions and little else), `data/` (typed queries and
+  the RLS-respecting Supabase clients).
+- `supabase/` — `migrations/` (schema, Row-Level Security policies and the
+  triggers that enforce the rules a message cannot), and `tests/` (the SQL
+  scenarios proving those policies actually hold).
 
 ## Commands
 
-No application code exists yet — this repository currently holds only the
-strategy and business architecture. Development commands will be added to
-this section and to [CONTRIBUTING.md](./CONTRIBUTING.md) once a technology
-stack is chosen (see the `stack-selection` skill) as part of the MVP-build
-initiative.
+The stack is **Next.js + Supabase + Vercel**, Sydney region — chosen for one
+property above all: Supabase enforces tenant isolation *in the database* via
+Row-Level Security, so a query missing its filter returns nothing rather
+than everything (see
+[5_technology/1_technology-services.md](./docs/ea/5_technology/1_technology-services.md)).
+Node 22 or newer; no build step for the tests, because Node strips the types
+at run time.
+
+```bash
+npm install
+npm run dev            # next dev — needs .env.local, see .env.example
+npm run build          # next build; also the only check of typed routes
+npm run typecheck      # tsc --noEmit, twice — the second pass has no DOM
+npm test               # node --test over src/**/*.test.ts
+npm run check          # everything CI runs on a pull request, in its order
+bash scripts/test_rls.sh   # tenant isolation, proved against a real Postgres
+npm run check:full     # npm run check, plus that behavioural RLS test
+```
+
+Four of those are gates rather than lints, and
+[CONTRIBUTING.md](./CONTRIBUTING.md) says what each one guards. The one that
+matters most is the last: `check_rls.py` proves a policy *exists*;
+`test_rls.sh` applies the real migrations to a throwaway Postgres and proves
+the policies *work*. A policy can be present and wrong, and that failure is
+silent.
 
 ## Origin of this documentation
 
