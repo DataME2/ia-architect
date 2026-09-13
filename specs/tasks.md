@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 142 of the 207 tasks below are already `[x]`; the phases are ordered so
+plan. 158 of the 213 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -377,31 +377,42 @@ ring them instead.
 
 ---
 
-## Phase 9 — Privacy rights: erasure and retention *(not started)*
+## Phase 9 — Privacy rights: erasure and retention *(built — [scope 37](../docs/scope/37_forgetting_and_the_reasons_not_to.md))*
 
-**Outcome when complete:** the platform can honour an erasure request, and
-can explain in writing why it refused one.
+**Outcome:** the platform can honour an erasure request, and can explain in
+writing why it refused one.
+
+> **Statutory rather than desirable**, which is the whole argument for doing
+> it ahead of competitions, carnivals and dashboards — all of which are more
+> visible and none of which a regulator asks about.
 
 ### 9.1 Backend — *R35, D11.2*
-- [ ] `retention_basis` naming the lawful basis and its expiry — *R35.2*
-- [ ] `erasureVerdict()` as a pure function, so a refusal is explainable — *R35.1–35.2*
-- [ ] Retention job under `createAdminClient('scheduled-job')` — the bypass reason already exists — *D6*
-- [ ] Ten-year floor for the still-active — *R35.3*
-- [ ] Life member: indefinite retention, and never a communication attempt — *R35.4*
-- [ ] Living life member's details flagged when unconfirmed past the configured period — *R35.5*
-- [ ] Per-tenant privacy framework recorded on the club, never assumed — *R35.6*
+- [x] `retention_basis` naming the lawful basis and its expiry — *R35.2*
+- [x] `erasureVerdict()` as a pure function, so a refusal is explainable — *R35.1–35.2*
+- [x] Erasure **deletes or refuses and never redacts** — [decision 13](../docs/decisions/13_erasure_is_all_or_nothing.md) — *R35.3*
+- [x] The request survives its own subject, naming nobody — *R35.4* (BR132)
+- [x] Retention computed and **proposed, never executed** — [decision 14](../docs/decisions/14_retention_proposes_a_person_disposes.md) — *R35.6* (BR133)
+- [x] Ten-year floor for the still-active — *R35.5*
+- [x] Life member: indefinite retention, never proposed for disposal — *R35.7*
+- [x] Living life member's details flagged when unconfirmed past the configured period — *R35.8*
+- [x] Per-tenant privacy framework recorded on the club, never assumed — *R35.9*
+- [x] Statutory minimums as per-framework configuration rather than constants
+- [ ] The review running on a schedule rather than a button — *R35.10*. Waits on a production environment (task 0.4)
 
 ### 9.2 Frontend
-- [ ] Request intake, and a refusal that states its basis in words a parent can read
+- [x] Request intake, and a refusal that states its bases and their expiry in words a parent can read
+- [x] Disposal proposals grouped apart from every other retention state, and only that group given an action
 
 ### 9.3 Related
-- [ ] Life member as an indefinite `person_role` with no season — *R35.4*
-- [ ] Rights transfer at eighteen — *R11.6*
-- [ ] Complete club-scoped data export — *R36.1*
+- [x] Life member as a **seasonless** `person_role`, enforced in both directions — *R35.7*
+- [x] `deceased_on` as a date rather than a flag — an honour roll needs *when*
+- [x] Authority transfers at eighteen; contactability does not — *R11.6* (BR67)
+- [x] Complete club-scoped data export, audited — *R36.1* (BR68)
 
-**Manually testable:** request erasure for a person with an active
-eligibility record, receive a refusal naming the basis; request it for a
-person with none, and confirm the record is gone.
+**Manually testable:** record a retention basis against a person, request
+erasure for them, and read the refusal — it names the basis and the date it
+lapses. Request it for someone with no basis, and confirm the record and
+everything attached is gone while the request remains, naming nobody.
 
 ---
 
@@ -502,21 +513,26 @@ and reconcile one number by hand.
 | 6 | Club-facing frontend | 23 | 2 |
 | 7 | Person-facing frontend | 8 | 3 |
 | 8 | Communications | 12 | 4 |
-| 9 | Privacy rights | 0 | 11 |
+| 9 | Privacy rights | 16 | 1 |
 | 10 | Competitions | 0 | 5 |
 | 11 | Carnivals | 0 | 7 |
 | 12 | Calendar distribution | 0 | 6 |
 | 13 | Reporting | 0 | 4 |
 | 14 | Engineering quality | 0 | 3 |
-| | **Total** | **142** | **65** |
+| | **Total** | **158** | **55** |
 
-**Phases 0–8 are substantially complete** and constitute a working product
-for one club's registration, finance, safeguarding and officiating — which
-can now also tell a family what is outstanding, and be told to stop.
+**Phases 0–9 are substantially complete** and constitute a working product
+for one club's registration, finance, safeguarding, officiating and privacy
+obligations — which can now tell a family what is outstanding, be told to
+stop, honour an erasure request, and explain a refusal.
 
-Phase 8 was first for two reasons, and only one of them has been spent. The
-live compliance exposure is closed. The other reason still holds: **Phases
-9, 11 and 12 all eventually need something to notify with**, and now there
-is something. Phase 9 (erasure and retention) is next — it is statutory
-rather than desirable, and it needs to tell someone the outcome of their
-request.
+What is left is **capability rather than obligation**: competitions,
+carnivals, calendar distribution, mobile, reporting. None of it is
+statutory, and none of it is blocked by anything above it.
+
+Two unchecked items outrank the rest despite sitting in earlier phases.
+**Task 0.4's production environment** now gates three things rather than
+one — the retention schedule, the email provider, and the first real club's
+data. And **task 2.1's historical import** is still blocked on
+[open question #57](../docs/scope/open-questions.md), which is a question for
+a lawyer rather than an engineer.

@@ -60,18 +60,21 @@ and no code performs.
 | # | Task | Rules | Size | Gate |
 | - | ---- | ----- | ---- | ---- |
 | ~~T1.1~~ | **Communications and, specifically, an unsubscribe** (recommendation R1). **Done** — [scope 36](../scope/36_the_platform_learns_to_send_and_to_stop.md), built unsubscribe-first. Marketing consent is being collected at the demonstration door with nothing to send it and **no way to withdraw** — the only gap here that is arguably non-compliant *today* rather than merely missing | C7, BR93 | L | Suppression state in Postgres under RLS; a pure `src/domain/messaging/` template layer; an unsubscribe that works without an account |
-| T1.2 | **Right to erasure** — honoured unless a named lawful basis requires retention, and the basis recorded when it refuses | BR49 | L | A pure function explains every refusal; the refusal names its basis; a test proves an erasure that must be refused *is* |
-| T1.3 | **Retention by participation status**, with the ten-year floor and the life-member override | BR40, BR70 | L | Scheduled function under `createAdminClient('scheduled-job')`; no life member is ever discarded |
+| ~~T1.2~~ | **Right to erasure** — honoured unless a named lawful basis requires retention, and the basis recorded when it refuses | BR49 | L | A pure function explains every refusal; the refusal names its basis; a test proves an erasure that must be refused *is* |
+| ~~T1.3~~ | **Retention by participation status**, with the ten-year floor and the life-member override | BR40, BR70 | L | Scheduled function under `createAdminClient('scheduled-job')`; no life member is ever discarded |
 | T1.4 | **Continuous WWCC verification**: expiry withdraws the holder from every *future* assignment rather than only blocking new ones | BR50, BR51 | M | A lapse removes the holder from future match sheets; a test asserts the withdrawal, not just the block |
-| T1.5 | **Transfer of rights at eighteen** — consent, erasure, calendar, account and publicity move from guardian to the young person | BR67 | M | A dated, audited transfer; the guardian's authority ends and their contact role does not |
+| ~~T1.5~~ | **Transfer of rights at eighteen** — consent, erasure, calendar, account and publicity move from guardian to the young person | BR67 | M | A dated, audited transfer; the guardian's authority ends and their contact role does not |
 | T1.6 | **A minor official's designation is proposed to their guardian**, not to them (recommendation R4) | BR113 | S | Mirrors BR33's routing; no under-18 official is designated directly |
-| T1.7 | **Per-tenant privacy framework**, determined by jurisdiction and recorded rather than assumed | BR52 | S | A column, read by the rules that vary by regime |
+| ~~T1.7~~ | **Per-tenant privacy framework**, determined by jurisdiction and recorded rather than assumed | BR52 | S | A column, read by the rules that vary by regime |
 
-> T1.1 is done (September 2026). T1.2 and T1.3 remain, and are one another's
-> neighbours: erasure and retention are the same machinery seen from two
-> directions (recommendation R2), and both wanted something to *tell*
-> somebody with — which is why T1.1 went first and why they are now
-> unblocked.
+> **T1.1, T1.2, T1.3, T1.5 and T1.7 are done** (September 2026) —
+> [scope 36](../scope/36_the_platform_learns_to_send_and_to_stop.md) and
+> [scope 37](../scope/37_forgetting_and_the_reasons_not_to.md). Recommendation
+> R2 was right that erasure and retention are one machinery seen from two
+> directions, and they were built as one. **T1.4 and T1.6 remain**, and both
+> are safeguarding rather than privacy: a lapsed clearance still only blocks
+> new assignments instead of withdrawing existing ones, and an under-18
+> official's designation still goes to them rather than their guardian.
 
 ---
 
@@ -99,8 +102,8 @@ Work where most of the slice exists and a named piece does not.
 | T3.1 | **The fee schedule editor.** Schema and rate resolution are delivered; a club cannot author a schedule through a screen (scope 34, WP2) | BR115 | M | A new rate publishes a new dated schedule; the old one stays readable |
 | T3.2 | **The decline-rate threshold**, deliberately deferred until a season of history exists to set it | BR12 | S | Configurable per classification/competition, never hardcoded |
 | T3.3 | **The committee's own dated resolutions.** Approvals resting on committee authority currently point at nothing | BR123 | M | A resolution names what was decided, who moved it, and its term |
-| T3.4 | **Life member register** — an indefinite role with no season, surviving death | BR69–BR71, C18 | M | Design exists ([scope 18](../scope/18_life-members.md)); waiting on priority alone |
-| T3.5 | **The club's data export.** "Nearly free" under Postgres and not written | BR68 | M | A complete, club-scoped export the club can take elsewhere |
+| ~~T3.4~~ | **Life member register** — an indefinite role with no season, surviving death | BR69–BR71, C18 | M | Design exists ([scope 18](../scope/18_life-members.md)); waiting on priority alone |
+| ~~T3.5~~ | **The club's data export.** "Nearly free" under Postgres and not written | BR68 | M | A complete, club-scoped export the club can take elsewhere |
 
 ---
 

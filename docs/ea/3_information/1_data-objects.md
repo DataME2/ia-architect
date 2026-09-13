@@ -146,6 +146,37 @@ values wherever a past answer has to stay answerable.
 | **`referee_payment_claim`** | Payment Claim | Stores **the amount it was computed at**, alongside the schedule it came from (BR116) — never a rate resolved at read time |
 | **`referee_payment_batch`** | Payment Batch | **Closed before it is paid**, and a closed batch admits no further claims (BR117) |
 
+## Privacy rights
+
+Added September 2026 by [scope 37](../../scope/37_forgetting_and_the_reasons_not_to.md).
+Erasure and retention are one piece of machinery seen from two directions —
+both ask *is there a reason this record must stay?* — so there is **one**
+table of reasons and both directions read it.
+
+| Data Object | Realises | Notes |
+| ----------- | -------- | ----- |
+| **`retention_basis`** | Retention Basis | Why a record must be kept, and until when. `expires_on` null is indefinite (BR70 and a legal hold); everything else lapses, which is what turns a refusal from *no* into *no, until this date* |
+| **`erasure_request`** | Erasure Request | The question and its answer (BR49, BR132). **`person_id` is `on delete set null`, not cascade** — the request has to survive the erasure it authorised, because "we deleted them" and "we were asked and refused" are both answers a regulator may want years later. It carries no name, so what survives records *that* an erasure happened and never *whose* |
+| **`retention_review`** | — (realises BR40, BR133) | What the schedule proposed and what a person did about it. Kept rather than recomputed, because over-retention needs evidence of *when* a record was flagged and who acted |
+
+`person_role` admits a **seasonless** `life_member` (BR69) — enforced in
+both directions by a check constraint, because a nullable column with a
+convention attached is a column that holds a season for a life member by
+Friday — plus `contact_confirmed_at` for BR71. `person` gains `deceased_on`,
+a date rather than a flag because an honour roll and an anniversary both
+need *when*. `club` gains `privacy_framework`, derived from the
+`jurisdiction` it has carried since 0001 and then recorded, so a club that
+changes jurisdiction does not retroactively change the framework its
+existing records were collected under (BR52).
+
+**Erasure deletes; it never redacts**
+([decision 13](../../decisions/13_erasure_is_all_or_nothing.md)). A blanked
+`person` row still joins to a team sheet and is re-identifiable in a minute,
+so the schema relies on the `on delete cascade` it has had since 0001 rather
+than adding a redaction path. BR82's merge tombstone is deliberately not
+reused: a tombstone that identified the erased Person would defeat the
+erasure.
+
 ## Not yet modeled
 
 Competitions and their regulations (`fixture.competition` is free text

@@ -32,7 +32,7 @@ Measurements taken 13 September 2026 on `spec-driven-development`:
 | Database policy test files | **24** | `supabase/tests/*.sql` |
 | Migrations applied | **29** | `supabase/migrations/` |
 | Tables under RLS | **45** | `python3 scripts/check_rls.py` (a table without RLS, a policy and a `club_id` fails the build) |
-| Business rules documented | **131** (BR1–BR131) | [5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md) |
+| Business rules documented | **133** (BR1–BR133) | [5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md) |
 | Business rules whose identifier appears in `src/` or `supabase/` | **85** | `grep -rhoE 'BR[0-9]+' src supabase` |
 
 > **An identifier appearing in the source is evidence of reach, not of
@@ -58,7 +58,7 @@ a business rule without an intermediate mapping table.
 | FR-C1.4 | Two Person records that look like one human are flagged for a human to decide, never merged silently | BR5 | **Verified** | `src/domain/identity/br5-duplicate-candidates.ts` |
 | FR-C1.5 | A confirmed duplicate is resolved by a human choosing a survivor; the other is kept as a tombstone | BR82 | **Verified** | `merge_person()`, `src/app/registrar/duplicates/` |
 | FR-C1.6 | A sign-in account is linked to at most one Person per club, by an administrator, never inferred from an email | BR106–BR108 | **Verified** | `account_person`, `supabase/tests/25_account_person.sql` |
-| FR-C1.7 | Life membership is an indefinite role with no season, surviving the holder's death | BR69–BR71 | **Designed** | [Scope 18](../scope/18_life-members.md) — `person_role` carries no life-member role yet |
+| FR-C1.7 | Life membership is an indefinite role with no season, surviving the holder's death | BR69–BR71 | **Verified** | A seasonless `person_role`, enforced both ways; `deceased_on` on `person`; never proposed for disposal |
 
 ### FR-C2 — Player registration
 
@@ -142,11 +142,11 @@ a business rule without an intermediate mapping table.
 | FR-C15.1 | Consent is one row per purpose — collection notice, identification photograph, publicity — each independently revocable | BR48, BR56, BR57 | **Verified** | `consent`, `docs/annexes/consent-wording.md` |
 | FR-C15.2 | A photograph without an unrevoked consent for that purpose is refused **by the database** | BR56 | **Verified** | trigger on `person`, migration 0021 |
 | FR-C15.3 | A photograph is cropped and re-encoded in the browser; the chosen file is never stored | BR105 | **Verified** | `src/web/photo-crop.ts`, `PhotoCropper.tsx` (strips EXIF/location) |
-| FR-C15.4 | Right to erasure, honoured unless a named lawful basis requires retention | BR49 | **Not built** | The largest compliance gap — see §5 |
-| FR-C15.5 | Retention by participation status, with a ten-year floor for the still-active | BR40 | **Not built** | No retention job exists |
-| FR-C15.6 | The club may export its complete data on demand | BR68 | **Not built** | "Nearly free" under Postgres, and not written |
+| FR-C15.4 | Right to erasure, honoured unless a named lawful basis requires retention | BR49, BR132 | **Verified** | `app_decide_erasure()`, `src/domain/privacy/erasure.ts`, `supabase/tests/34_privacy_rights.sql` (12 scenarios) |
+| FR-C15.5 | Retention by participation status, with a ten-year floor for the still-active | BR40, BR133 | **Partial** | Computed and **proposed**; disposal is a person's act by design ([decision 14](../decisions/14_retention_proposes_a_person_disposes.md)). No scheduler until there is a production environment |
+| FR-C15.6 | The club may export its complete data on demand | BR68 | **Verified** | `export_club_data()`, audited — an export is every child's record leaving the building |
 | FR-C15.8 | A recipient may withdraw consent to be contacted without an account, and the withdrawal is the platform's record rather than a vendor's | BR128, BR129 | **Verified** | `app_unsubscribe()`, `supabase/tests/33_communications.sql` (10 scenarios) |
-| FR-C15.7 | The privacy framework binding a tenant is recorded per tenant, never assumed | BR52 | **Partial** | Referenced in source; no per-tenant configuration column is in use |
+| FR-C15.7 | The privacy framework binding a tenant is recorded per tenant, never assumed | BR52 | **Verified** | `club.privacy_framework`, derived from jurisdiction at provisioning and then recorded | Referenced in source; no per-tenant configuration column is in use |
 
 ### FR-C10 / C19 — Platform operations and governance
 

@@ -259,7 +259,14 @@ the provider — so the unsubscribe survives a provider change and is subject
 to the same RLS as everything else.
 
 **R2 — Implement BR49 (erasure) and BR40 (retention) together, as one
-initiative.** They are the same machinery seen from two directions, both are
+initiative.** ✅ **Done, September 2026** — [scope 37](../scope/37_forgetting_and_the_reasons_not_to.md)
+built them as one machinery over one `retention_basis` table, with the
+refusal as a pure function exactly as proposed. Two things the
+recommendation did not anticipate, both settled in decision records:
+erasure **deletes or refuses and never redacts**, and the retention job
+**proposes rather than executes**.
+
+ They are the same machinery seen from two directions, both are
 statutory rather than desirable, and neither exists. *Recommended approach:*
 a `retention_basis` table naming the lawful basis that refuses an erasure,
 evaluated by a pure domain function so the refusal is explainable, executed

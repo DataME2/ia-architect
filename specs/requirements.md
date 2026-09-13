@@ -306,7 +306,7 @@ answer rather than something I work out per child.
 and to withdraw it, so that agreeing to my child being registered is not
 also agreeing to their photograph appearing on social media.
 
-**Traces to:** P7, BR48, BR56, BR57, BR67 · C15 · **Status: 🟡 Partial**
+**Traces to:** P7, BR48, BR56, BR57, BR67 · C15 · **Status: ✅ Implemented**
 
 ### Acceptance criteria
 
@@ -321,9 +321,14 @@ also agreeing to their photograph appearing on social media.
    consent, THEN the system SHALL fail rule BR48. ✅
 5. WHEN consent is given to hold a photograph, THEN the system SHALL NOT
    treat that as consent to transmit or publish it. ✅
-6. WHEN a Person reaches 18, THEN the system SHALL transfer consent,
-   erasure, calendar, account and publicity rights from the guardian to
-   them. ⬜
+6. WHEN a Person reaches 18, THEN the system SHALL transfer authority from
+   the guardian to them, and SHALL leave contactability untouched. ✅
+   *(BR67 — `is_authority` and `is_contact` were two flags from the first
+   migration for exactly this.)*
+7. WHEN authority transfers, THEN the system SHALL NOT reset the answers a
+   guardian already gave. ✅ *(BR67 transfers the rights, not the
+   consents. Whether an eighteen-year-old is asked again about publicity is
+   an unanswered product question, not a defect.)*
 
 ## Requirement 12 — The identification photograph
 
@@ -944,27 +949,42 @@ outstanding, so that chasing forty families is not forty manual emails.
 and be told plainly if the law requires the club to keep some of it, so that
 "no" is a reason rather than a silence.
 
-**Traces to:** P7, BR40, BR49, BR52, BR69–BR71 · C15 · **Status: ⬜ Not implemented**
+**Traces to:** P7, BR40, BR49, BR52, BR69–BR71, BR132, BR133 · C15 · **Status: 🟡 Partial**
 
 ### Acceptance criteria
 
 1. WHEN a data subject or their guardian requests erasure, THEN the system
-   SHALL honour it unless a named lawful basis requires retention. ⬜
-2. WHEN erasure is refused, THEN the system SHALL record and state the
-   lawful basis for the refusal. ⬜
-3. WHEN a Person is still active in football, THEN the system SHALL retain
-   their record for at least ten years. ⬜
-4. WHEN a Person is a deceased Life Member, THEN the system SHALL retain
+   SHALL honour it unless a named lawful basis requires retention. ✅
+2. WHEN erasure is refused, THEN the system SHALL record and state **every**
+   basis that bound it, and the date the last of them expires. ✅
+3. WHEN erasure is honoured, THEN the system SHALL delete the Person and
+   everything attached, and SHALL NOT redact in place — a blanked record is
+   re-identifiable from any team sheet
+   ([decision 13](../docs/decisions/13_erasure_is_all_or_nothing.md)). ✅
+4. WHEN an erasure is honoured, THEN the record of the request SHALL survive
+   it, carrying no personal data of the erased Person. ✅ *(BR132.)*
+5. WHEN a Person is still active in football, THEN the system SHALL retain
+   their record for at least ten years. ✅
+6. WHEN a record is past its retention period, THEN the system SHALL
+   **propose** disposal to a person, and no schedule SHALL delete a
+   Person's record on its own. ✅ *(BR133,
+   [decision 14](../docs/decisions/14_retention_proposes_a_person_disposes.md).)*
+7. WHEN a Person is a deceased Life Member, THEN the system SHALL retain
    their record indefinitely for the club's history, overriding
    participation-based retention, and SHALL never attempt a communication.
-   ⬜
-5. WHEN a living Life Member's contact details have not been reconfirmed
+   ✅ *(Never proposed for disposal; contact suppressed under R34.)*
+8. WHEN a living Life Member's contact details have not been reconfirmed
    within the configured period, THEN the system SHALL flag them for review.
-   ⬜
-6. The privacy framework applying to a tenant SHALL be determined by
+   ✅
+9. The privacy framework applying to a tenant SHALL be determined by
    jurisdiction and recorded in that tenant's configuration, and SHALL NOT
-   be assumed platform-wide. 🟡 *(Referenced in code; no per-tenant
-   configuration is in use.)*
+   be assumed platform-wide. ✅ *(`club.privacy_framework`, derived at
+   provisioning and then recorded — a club that changes jurisdiction does
+   not retroactively change the framework its records were collected
+   under.)*
+10. The retention review SHALL run on a schedule without a person pressing
+    a button. ⬜ *(Idempotent and callable by hand; there is no production
+    environment to schedule it in.)*
 
 ## Requirement 36 — The club owns its data
 
@@ -972,12 +992,14 @@ and be told plainly if the law requires the club to keep some of it, so that
 know we can take our data and leave, so that adopting it is not a one-way
 door.
 
-**Traces to:** BR68, BR39 · C10 · **Status: ⬜ Not implemented**
+**Traces to:** BR68, BR39 · C10 · **Status: ✅ Implemented**
 
 ### Acceptance criteria
 
 1. WHEN a club requests its data, THEN the system SHALL produce a complete,
-   club-scoped export in a machine-readable format. ⬜
+   club-scoped export in a machine-readable format. ✅ *(One JSON document,
+   scoped by the same `club_id` every policy keys off, and audited — an
+   export is every child's record leaving the building.)*
 2. The system SHALL hold club data as a **processor on the club's behalf**,
    never as owner. ✅ *(Stated and honoured; the export that makes it
    operative is absent.)*
@@ -1010,19 +1032,20 @@ actions, so that "who approved this, and when" is answerable years later.
 | ---- | ------------ | ----------- | ------- | --------------- |
 | A — Identity | 1–4 | 4 | 0 | 0 |
 | B — Multitenancy and access | 5–7 | 2 | 1 | 0 |
-| C — Registration and documents | 8–15 | 5 | 3 | 0 |
+| C — Registration and documents | 8–15 | 6 | 2 | 0 |
 | D — Finance | 16–19 | 3 | 1 | 0 |
 | E — Teams, safeguarding, governance | 20–22 | 1 | 2 | 0 |
 | F — Referee management | 23–26 | 2 | 2 | 0 |
 | G — Competitions and carnivals | 27–29 | 0 | 0 | 3 |
 | H — Person-facing experience | 30–32 | 2 | 0 | 1 |
-| I — Cross-cutting | 33–37 | 2 | 2 | 1 |
-| **Total** | **37** | **21** | **11** | **5** |
+| I — Cross-cutting | 33–37 | 4 | 3 | 0 |
+| **Total** | **37** | **24** | **10** | **3** |
 
-**Read that last row carefully.** Twenty-one requirements implemented is a
-working product for one club's registration, finance and officiating. The
-five unimplemented ones are not evenly distributed: **competitions,
-carnivals and calendar distribution are the whole of Part G**.
+**Read that last row carefully.** Twenty-four requirements implemented is a
+working product for one club's registration, finance, officiating and
+privacy obligations. The three unimplemented ones are not scattered:
+**competitions, carnivals and calendar distribution are the whole of Part
+G**, and they are the whole of what is left unstarted.
 
 Requirement 34 moved from *not implemented* to *partial* in September 2026
 ([scope 36](../docs/scope/36_the_platform_learns_to_send_and_to_stop.md)),
@@ -1030,6 +1053,13 @@ which closed the only item on this list that was arguably non-compliant
 today rather than merely absent. What remains of it is ordinary missing
 feature — campaigns, bounce handling, and two notifications waiting on
 screens that belong to other requirements.
+
+Requirement 35 followed it ([scope 37](../docs/scope/37_forgetting_and_the_reasons_not_to.md)),
+which matters for a different reason: erasure and retention are **statutory
+rather than desirable**, and a platform holding children's data across two
+legal regimes could not previously honour an erasure request or explain a
+refusal. What remains of that one is a scheduler, and there is no production
+environment to run it in.
 
 A status here is a claim about code, checked in September 2026. The
 reproducible measurements behind it are in

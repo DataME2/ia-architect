@@ -60,6 +60,7 @@ The next migration takes the next number.
 | `0023`–`0027` | The referee slice: record, availability, appointments, verification and fee schedules, claims and batches |
 | `0028`–`0029` | Family access, and what a household may read |
 | `0030` | Communications: who may be contacted, what was sent, and the withdrawal that stops it |
+| `0031` | Privacy rights: the reasons a record must stay, erasure, retention proposed rather than executed, life membership, and the club's export |
 
 **Each file opens with a banner** naming the number, the outcome in one
 line, the scope document and work package, and what was settled and what was
