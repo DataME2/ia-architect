@@ -13,6 +13,8 @@ import { LicenceForm, LicencePill } from './LicenceForm.tsx';
 import { ProvisionForm } from './ProvisionForm.tsx';
 import { AssociationForm, CompetitionForm, LevelForm } from './CatalogueForms.tsx';
 import { loadAssociations, loadCompetitions, loadLevels } from '../../data/competitions.ts';
+import { loadEnquiries } from '../../data/enquiries.ts';
+import { EnquiryList } from './EnquiryList.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,7 +61,8 @@ export default async function PlatformPage() {
 
   // The shared catalogue (BR134). Maintained here because a club editing
   // shared reference data is how per-club copies start disagreeing again.
-  const [associations, levels, competitions] = await Promise.all([
+  const [enquiries, associations, levels, competitions] = await Promise.all([
+    loadEnquiries(client),
     loadAssociations(client),
     loadLevels(client),
     loadCompetitions(client),
@@ -262,6 +265,8 @@ export default async function PlatformPage() {
           </tbody>
         </table>
       </div>
+
+      <EnquiryList enquiries={enquiries} />
 
       <ProvisionForm />
 

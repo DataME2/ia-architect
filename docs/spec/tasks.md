@@ -122,6 +122,7 @@ the most.
 | T4.6 | **C17 — Native mobile client.** Recommended deferred (R5): `/me` already delivers the substance; offline (BR66) is the trigger to revisit | Nothing, but not yet warranted | L |
 | T4.7 | **C14 — External reconciliation** against SQUADI / PlayFootball | **Externally blocked.** API access is restricted to approved system partners; open questions [#39–#41](../scope/open-questions.md). A commercial motion, not a technical one | L |
 | T4.8 | **Payments (C3's remaining half).** Square is chosen and unintegrated; a treasurer types in what arrived | A decision that it is time | L |
+| T4.9 | **The marketing surface's first third — *explain*.** [Scope 44](../scope/44_a_club_says_it_is_interested.md) built *qualify* and scope 28 §3's *capture* was already there; there is still no pricing page, feature tour or case study, so `/interest` assumes a visitor who already knows roughly what this is | Nothing | M |
 
 ---
 

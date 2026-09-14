@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 207 of the 251 tasks below are already `[x]`; the phases are ordered so
+plan. 223 of the 267 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -601,6 +601,27 @@ anybody remembering to check them.
 
 ---
 
+## Phase 15 — The club that is not here yet *(built, less the explaining)*
+
+**Outcome when complete:** a club that has heard about this can start a
+conversation, and it reaches somebody.
+
+- [x] A public enquiry page capturing **the club** — name, jurisdiction, size, what it runs today — not just an email address
+- [x] Two required fields and six invited ones (*BR144*); the database enforces the two, because a public function is reachable without the form
+- [x] An enquiry grants **no club, no account, no membership, no access** (*BR145*), and the page says why rather than leaving a gap where a "start free trial" button would be
+- [x] The lead list readable in the platform console — **the first time anything in the app has read `prospect` at all**
+- [x] One lead per club however many doors they came through; a blank field never erases an earlier answer, and an unticked consent box is not a withdrawal (*BR93*)
+- [x] The dead-ended "signed in, member of no club" card now leads somewhere
+- [ ] Somebody is **told** when an enquiry arrives — it lands in the table and nothing alerts anyone
+- [ ] The *explain* third of scope 28 §3: pricing, a feature tour, a case study
+- [ ] A status and next action on a lead — **deliberately not built**; a list to read is not a CRM and should stay one until leads are actually worked through stages
+
+**Manually testable:** submit an enquiry from `/interest` as a signed-out
+visitor, confirm no club or membership appears, then open `/platform` as the
+owner and find it at the top of the list.
+
+---
+
 ## Summary
 
 | Phase | Subject | Done | Remaining |
@@ -620,8 +641,9 @@ anybody remembering to check them.
 | 12 | Calendar distribution | 12 | 2 |
 | 13 | Reporting | 5 | 1 |
 | 14 | Engineering quality | 5 | 3 |
-| 10b | Officiating at registration | 12 | 1 |
-| | **Total** | **216** | **41** |
+| 15 | The club that is not here yet | 6 | 3 |
+| 10b | Officiating at registration | 13 | 1 |
+| | **Total** | **223** | **44** |
 
 **Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy
@@ -629,8 +651,10 @@ obligations — which can now tell a family what is outstanding, be told to
 stop, honour an erasure request, and explain a refusal.
 
 What is left is **capability rather than obligation**: the mobile
-experience, and the reporting residue named in Phase 13. None of it is
-statutory, and none of it is blocked by anything above it.
+experience, the reporting residue named in Phase 13, the four accessibility
+criteria Phase 14 named unverified rather than checked, and the *explain*
+third of the marketing surface. None of it is statutory, and none of it is
+blocked by anything above it.
 
 Phase 10 also spent Phase 8's last IOU — BR64's notification had been built
 with no caller, and a fixture that can be edited gave it one. **One

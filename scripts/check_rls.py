@@ -39,8 +39,11 @@ TENANTLESS_ALLOWED: set[str] = {
     # A prospect is someone who has not become a club and may never. Giving
     # this table a club_id would put the marketing surface inside the tenant
     # world it exists to stay out of (scope 28 section 3). It is isolated by
-    # having no API access at all rather than by a tenant column: its only
-    # writer is enter_demo(), which owns it.
+    # having no API access at all rather than by a tenant column: its
+    # writers are enter_demo() and record_interest(), which own it, and its
+    # one reader is app_enquiries(), restricted to the platform owner.
+    # supabase/tests/40 asserts the table still has no club_id, because the
+    # whole exemption rests on that and a migration could add one.
     "prospect",
     # The platform-administration allowlist (decision 9). It is about the
     # platform's own operators, not about any club, so a club_id would be

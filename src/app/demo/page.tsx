@@ -79,10 +79,23 @@ export default async function DemoPage() {
             the correct answer to give a stranger &mdash; access comes from a club membership,
             not from having an account.
           </p>
-          <p className="hint" style={{ marginBottom: 0 }}>
+          <p className="hint">
             If you were expecting the demonstration club, it has to be seeded into this
             deployment and your account attached to it. It is not part of the schema and does not
             appear on its own.
+          </p>
+          {/*
+            The one card on this page that used to dead-end. A club officer
+            whose club is not here yet was told what they could not see and
+            given nowhere to go — and there is no access code to type,
+            because a tenant is created on the owner's authorisation and not
+            by redeeming something (decision 7, BR145). So the honest exit is
+            the conversation, not a code field that would imply otherwise.
+          */}
+          <p style={{ marginBottom: 0 }}>
+            <a className="button secondary" href="/interest">
+              My club is not here yet
+            </a>
           </p>
         </div>
       )}

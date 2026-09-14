@@ -1187,6 +1187,60 @@ somebody's recollection and a spreadsheet.
 11. Arrears SHALL be aged. ⬜ *(Overdue is a count and a total, not
     30/60/90.)*
 
+## Requirement 40 — A club says it is interested
+
+**User story.** As a club secretary who has heard about this and is not
+using it, I want to tell you about my club and get a reply, so that the
+first conversation is about my situation rather than a round of questions I
+have to answer first.
+
+**Traces to:** BR144, BR145, BR92, BR93 · decisions 5 and 7 · **Status: 🟡 Partial**
+
+### Acceptance criteria
+
+1. WHEN a visitor with no account submits an enquiry, THEN the system SHALL
+   record it. ✅ *(No session of any kind is created — unlike the
+   demonstration door, nothing here needs a subject.)*
+2. WHEN an enquiry is recorded, THEN the system SHALL create **no club, no
+   account, no membership and no access**. ✅ *(BR145, and asserted
+   behaviourally by counting clubs and memberships either side of the
+   call.)*
+3. WHEN a visitor asks how to get access, THEN the surface SHALL **say why
+   there is none** rather than omitting it. ✅ *(An empty tenant is worth
+   nothing to a club; the value is their data migrated —
+   [decision 7](../docs/decisions/7_tenant-provisioning-by-owner-issued-invitation.md).)*
+4. The system SHALL require only the club's name and one way to reply, and
+   SHALL invite everything else. ✅ *(BR144, enforced in the database too,
+   because a public function is reachable without the form.)*
+5. WHEN a club that has already been seen enquires again, THEN the system
+   SHALL hold **one** lead, and a field left blank SHALL NOT erase what an
+   earlier visit supplied. ✅
+6. WHEN a returning enquirer leaves the marketing consent box unticked,
+   THEN consent given earlier SHALL NOT be treated as withdrawn. ✅
+   *(BR93 — inferring withdrawal from silence is the same mistake as
+   inferring consent from it.)*
+7. WHEN marketing consent is granted, THEN the system SHALL record the
+   moment and the exact words shown, from a server-side constant. ✅
+8. The platform owner SHALL be able to read the lead list; **nobody else
+   SHALL**, including a club admin. ✅ *(The first time anything in the
+   application has read `prospect` at all.)*
+9. A prospect SHALL hold no tenant. ✅ *(BR92, asserted against
+   `information_schema` because the table's whole isolation argument rests
+   on it.)*
+10. WHEN an enquiry arrives, THEN somebody SHALL be told. ⬜ *(It lands in
+    the table and nothing alerts anyone — the owner has to open the console.
+    A large improvement on a `psql` prompt and still not a notification.)*
+11. A lead SHALL carry a status and a next action. ⬜ *(Deliberately not
+    built: this is a list to read, not a CRM, and it should stay one until
+    somebody is actually working leads through stages.)*
+12. The marketing surface SHALL **explain** — pricing, a feature tour, a
+    case study. ⬜ *(Scope 28 §3's first third is still unbuilt; `/interest`
+    assumes a visitor who already knows roughly what this is.)*
+
+---
+
+---
+
 ## Coverage summary
 
 | Part | Requirements | Implemented | Partial | Not implemented |
@@ -1202,7 +1256,8 @@ somebody's recollection and a spreadsheet.
 | I — Cross-cutting | 33–37 | 3 | 2 | 0 |
 | J — Referee recruitment | 38 | 1 | 0 | 0 |
 | K — Reporting | 39 | 0 | 1 | 0 |
-| **Total** | **39** | **25** | **13** | **1** |
+| L — Growth | 40 | 0 | 1 | 0 |
+| **Total** | **40** | **25** | **14** | **1** |
 
 **Read that last row carefully, and count it yourself.** The counts above
 are derived from the status line on each requirement, and they had drifted

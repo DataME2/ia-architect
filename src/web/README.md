@@ -42,7 +42,7 @@ it:
 | Module | Decides |
 | ------ | ------- |
 | `queue-view.ts` | How the registrar's season queue groups, and what each pile is waiting on |
-| `registration-form.ts`, `registration-form-state.ts`, `prospect-form.ts` | Parsing and validating what a form actually submitted |
+| `registration-form.ts`, `registration-form-state.ts`, `prospect-form.ts`, `enquiry-form.ts` | Parsing and validating what a form actually submitted. The last two are the same shape one door apart, and the difference is the design: the demonstration door requires one field because a visitor who only wants to look has decided nothing (BR91); an enquiry requires two and invites six, because typing your club's name has already decided something (BR144) |
 | `form-result.ts` | The one shape every action hands back — `idle \| ok \| error`, **always with a message**, because silence is not a success state |
 | `household-view.ts`, `me-view.ts`, `role-context.ts` | The person-facing surface: one record, one active role at a time (BR61, BR63, BR65) |
 | `plan-view.ts`, `money.ts` | Instalment ledgers, arrears, and money formatted one way everywhere |
