@@ -60,6 +60,7 @@ The next migration takes the next number.
 | `0023`–`0027` | The referee slice: record, availability, appointments, verification and fee schedules, claims and batches |
 | `0028`–`0029` | Family access, and what a household may read |
 | `0030` | Communications: who may be contacted, what was sent, and the withdrawal that stops it |
+| `0034` | Carnivals: the only deliberate exception to P5, made narrow by the tables having no person column |
 | `0033` | Officiating interest: what a family declared at registration, and the review that turns a claim into a referee |
 | `0032` | The competition catalogue: shared reference data, ranked classification levels, and the reference a fixture carries |
 | `0031` | Privacy rights: the reasons a record must stay, erasure, retention proposed rather than executed, life membership, and the club's export |

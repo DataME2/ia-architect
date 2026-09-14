@@ -219,11 +219,35 @@ profile and the season role, and records the declared level as a
 refuses to count. That is the whole design in one sentence: the club gains a
 referee and gains nothing it has not verified.
 
+## Carnivals, and the one public surface
+
+Added September 2026 by [scope 40](../../scope/40_carnivals_and_the_one_thing_the_public_may_see.md).
+The product's **only deliberate exception to P5** (P6,
+[decision 3](../../decisions/3_public-event-data-crosses-tenant-isolation.md)).
+
+| Data Object | Realises | Notes |
+| ----------- | -------- | ----- |
+| **`carnival_event`** | Carnival/Grassroots Event | Host club, dates, venue, the Carnival Conditions and the points system (BR29), and `published_at` — the single explicit, reversible act that invokes P6 (BR140) |
+| **`carnival_entry`** | Event Entry | A club and a team taking part. The entrant is free text as well as an optional club reference, because a carnival's whole point is that clubs outside this platform take part |
+| **`carnival_fixture`** | Carnival Fixture | The draw. A team cannot play itself, and half a score is refused — a ladder computed from one is a guess |
+
+**These tables carry no `person_id` column, and that is the exception's
+safety property** (BR139). Not "the policy excludes personal data" — there
+is no column in which personal data could sit, so reading every row in full
+discloses nothing about any child. `supabase/tests/37` asserts it against
+`information_schema` rather than trusting it, because the whole grant rests
+on it.
+
+All three carry the **host** club's `club_id` and have ordinary
+membership policies, with the public read *added* beside them — so unlike
+[the competition catalogue](#the-competition-catalogue) they needed no
+`check_rls.py` exemption and took none.
+
 ## Not yet modeled
 
 Competition **Regulations** as documents (the catalogue above holds names,
 tiers, formats and minimum classifications, not the rulebooks C11 also
-names), carnivals and their public view, calendar subscriptions, and the
+names) and their public view, calendar subscriptions, and the
 mobile client's `participation_response`. All exist as business objects and
 none has a table.
 

@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 184 of the 237 tasks below are already `[x]`; the phases are ordered so
+plan. 195 of the 243 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -489,24 +489,36 @@ designation against a competition minimum refuses to count it.
 
 ---
 
-## Phase 11 — Community carnivals and the public view *(not started)*
+## Phase 11 — Community carnivals and the public view *(built — [scope 40](../docs/scope/40_carnivals_and_the_one_thing_the_public_may_see.md))*
 
-**Outcome when complete:** a parent follows a regional carnival on their
-phone without an account, and sees no child's name.
+**Outcome:** a parent follows a regional carnival on their phone without an
+account, and sees no child's name.
+
+> **The product's only deliberate exception to P5.** Everything else in this
+> document is about keeping one club's data away from another's; this
+> publishes something on purpose, so the grant is made as narrow as the
+> *schema* can make it rather than as narrow as the policies remember to be.
 
 ### 11.1 Backend — *R28, D11.3*
-- [ ] `carnival_event` spanning multiple clubs by design — *R28.1*
-- [ ] `carnival_fixture` carrying club and team identifiers and **no `person_id` column at all**, so there is no name for a filter to forget — *R28.4, D11.3*
-- [ ] Public read policy keyed on `published_at`, not on membership — *R28.2, D11.3*
-- [ ] Carnival Conditions writable only by the recorded Events Coordinator, whatever else they hold — *R28.6*
-- [ ] Official appointments to carnival fixtures reusing Phase 5's conflict checks — *R28.5*
+- [x] `carnival_event` spanning multiple clubs by design, including clubs outside the platform — *R28.1*
+- [x] The public tables carry **no `person_id` column at all** — *R28.4* (BR139)
+- [x] Asserted against `information_schema`, not trusted — a future migration could add one unnoticed
+- [x] Public read policy keyed on `published_at`, additive beside the membership policy — *R28.2*
+- [x] Publication as one explicit, reversible, audited act — *R28.5* (BR140)
+- [x] Unpublished is invisible to anon **and** to other clubs — *R28.6*
+- [x] anon reads and never writes — *R28.7*
+- [x] Carnival Conditions writable only by the recorded Events Coordinator, whatever else they hold — *R28.8*
+- [x] Publishing opens exactly three tables and nothing else — *R28.9*
+- [ ] Official appointments to carnival fixtures reusing Phase 5's conflict checks — *R28.10*. **Not wired at all** rather than wired loosely: `match_official_appointment` references `fixture`, a different table, and a half-checked appointment is worse than an unbuilt one
 
 ### 11.2 Frontend
-- [ ] Public event view: draw, next unplayed fixture, ladder where the format has one — *R28.3*
-- [ ] Coordinator screens: create, schedule, publish
+- [x] Public event view: draw, standings, each team's next unplayed fixture — *R28.3*
+- [x] Coordinator screens: create, enter teams, schedule, record results, publish and take down
+- [ ] An index of published events — *R28.11*. A visitor follows a link their club sent them
 
-**Manually testable:** publish a carnival, open its public URL in a signed-
-out private window, confirm the draw is visible and no individual name is.
+**Manually testable:** publish a carnival, open its public URL in a
+signed-out private window, confirm the draw and standings are visible and no
+individual name is — then take it down and confirm the page 404s.
 
 ---
 
@@ -568,19 +580,19 @@ and reconcile one number by hand.
 | 8 | Communications | 12 | 4 |
 | 9 | Privacy rights | 16 | 1 |
 | 10 | Competitions | 13 | 2 |
-| 11 | Carnivals | 0 | 7 |
+| 11 | Carnivals | 11 | 2 |
 | 12 | Calendar distribution | 0 | 6 |
 | 13 | Reporting | 0 | 4 |
 | 14 | Engineering quality | 0 | 3 |
 | 10b | Officiating at registration | 12 | 1 |
-| | **Total** | **184** | **53** |
+| | **Total** | **195** | **48** |
 
 **Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy
 obligations — which can now tell a family what is outstanding, be told to
 stop, honour an erasure request, and explain a refusal.
 
-What is left is **capability rather than obligation**: carnivals, calendar
+What is left is **capability rather than obligation**: calendar
 distribution, mobile, reporting. None of it is statutory, and none of it is
 blocked by anything above it.
 

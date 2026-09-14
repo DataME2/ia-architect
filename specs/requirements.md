@@ -776,30 +776,48 @@ is not re-keying the same catalogue into a free-text box.
 and the results on my phone without an account, so that following my child's
 weekend does not require joining a platform.
 
-**Traces to:** P6, BR26–BR29, decision 3 · C12 · **Status: ⬜ Not implemented**
+**Traces to:** P6, BR26–BR29, BR139, BR140, decision 3 · C12 · **Status: 🟡 Partial**
 
 ### Acceptance criteria
 
 1. WHEN an Events Coordinator creates a carnival or grassroots event, THEN
-   the system SHALL permit it to span multiple clubs by design. ⬜
+   the system SHALL permit it to span multiple clubs by design, **including
+   clubs that do not use this platform**. ✅
 2. WHEN an Events Coordinator publishes an event, THEN its Public Event View
    SHALL be visible to unauthenticated visitors across every participating
-   club. ⬜
+   club. ✅
 3. The Public Event View SHALL show, at club and team level only: the
    fixture schedule and draw with date, kickoff time and venue; each team's
    next unplayed fixture; and the ladder or standings where the format has
-   one. ⬜
-4. The Public Event View SHALL NOT show individual participants' names by
-   default, and SHALL NOT show any registration, finance or compliance data.
-   ⬜
-5. WHEN a match official is appointed to a carnival fixture, THEN the system
-   SHALL apply the same eligibility and conflict checks as Requirement 25.
-   ⬜
-6. WHEN a person other than the recorded Events Coordinator attempts to
-   create or change the Carnival Conditions, THEN the system SHALL refuse
-   it, regardless of any other role they hold. ⬜
-7. Publication SHALL be the only mechanism by which tenant-isolated data
-   becomes public, and SHALL be scoped to the content in criterion 3. ⬜
+   one. ✅
+4. The Public Event View SHALL NOT show individual participants' names, and
+   SHALL NOT show any registration, finance or compliance data. ✅ **By
+   construction, not by filtering**: the tables carry no `person_id` column
+   at all (BR139), asserted against `information_schema` rather than
+   trusted.
+5. WHEN an event is unpublished, THEN it SHALL be invisible outside the host
+   club again. ✅ *(BR140. Nothing recalls what was already copied.)*
+6. Before publication, an event SHALL be invisible to every club but the
+   host. ✅ *(#81 — P5 holds right up to the moment P6 is invoked.)*
+7. An unauthenticated visitor SHALL be able to read a published event and
+   SHALL NOT be able to write any part of it. ✅
+8. WHEN a person other than the recorded Events Coordinator attempts to
+   change the Carnival Conditions, THEN the system SHALL refuse it,
+   regardless of any other role they hold — while leaving the rest of the
+   event an ordinary club officer's work. ✅ *(BR29.)*
+9. Publication SHALL be the only mechanism by which tenant-isolated data
+   becomes public, and SHALL be scoped to the content in criterion 3. ✅
+   *(Publishing a carnival exposes exactly three tables and nothing else —
+   asserted.)*
+10. WHEN a match official is appointed to a carnival fixture, THEN the
+    system SHALL apply the same eligibility and conflict checks as
+    Requirement 25. ⬜ *(`match_official_appointment` references `fixture`,
+    a different table, so the path is **not wired at all** rather than
+    wired loosely — a half-checked appointment would be worse than an
+    unbuilt one.)*
+11. The system SHALL provide an index of published events. ⬜ *(A visitor
+    follows a link their club sent them. A directory would raise a P6
+    question nobody has asked.)*
 
 ## Requirement 29 — Calendar distribution
 
@@ -1101,17 +1119,22 @@ the people who could do it.
 | D — Finance | 16–19 | 3 | 1 | 0 |
 | E — Teams, safeguarding, governance | 20–22 | 1 | 2 | 0 |
 | F — Referee management | 23–26 | 2 | 2 | 0 |
-| G — Competitions and carnivals | 27–29 | 0 | 1 | 2 |
+| G — Competitions and carnivals | 27–29 | 0 | 2 | 1 |
 | H — Person-facing experience | 30–32 | 2 | 0 | 1 |
 | I — Cross-cutting | 33–37 | 4 | 3 | 0 |
 | J — Referee recruitment | 38 | 1 | 0 | 0 |
-| **Total** | **38** | **25** | **11** | **2** |
+| **Total** | **38** | **25** | **12** | **1** |
 
 **Read that last row carefully.** Twenty-four requirements implemented is a
 working product for one club's registration, finance, officiating and
 privacy obligations. The three unimplemented ones are not scattered:
-**carnivals and calendar distribution are the whole of what is left
-unstarted**, and both are in Part G. Competitions joined them in September
+**calendar distribution is the only requirement left unstarted**, and
+Requirement 32's mobile client is the only other unbuilt thing of size.
+Carnivals joined the built column in September 2026
+([scope 40](../docs/scope/40_carnivals_and_the_one_thing_the_public_may_see.md)),
+which is also the product's only deliberate exception to P5 — made as narrow
+as the schema can make it rather than as narrow as the policies remember to
+be. Competitions joined them in September
 2026 ([scope 38](../docs/scope/38_the_catalogue_that_makes_br8_computable.md)),
 which mattered less for the catalogue itself than for the rule it unblocked:
 **BR8 had been a warning that said it could not judge**, so an official
