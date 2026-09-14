@@ -581,11 +581,23 @@ which role it belongs to rather than showing zeros.
 
 ---
 
-## Phase 14 — Engineering quality
+## Phase 14 — Engineering quality *(built, with four items named unverified)*
 
-- [ ] Performance budgets, starting with pack generation across ~700 registrations — the one operation whose cost is not obviously bounded
-- [ ] Accessibility audit of the club-facing screens against WCAG 2.2 AA, then an automated check in `code-check`
-- [ ] An automated assertion that the AI assistant surface exposes no committing control — *R33.6*
+**Outcome when complete:** the things that are true stay true without
+anybody remembering to check them.
+
+- [x] Performance budgets stated and measured — and the finding they existed to catch: **BR5's duplicate detection was quadratic on three screens**, 495 ms per load at 1,400 people, now 4.8 ms and linear
+- [x] The budget gated by a test that asserts **the curve, not a millisecond ceiling** — a wall-clock gate on a shared runner becomes noise, and noise becomes an ignored check
+- [x] Accessibility audit of the club-facing screens against WCAG 2.2 AA — thirteen criteria assessed, one defect found and fixed (an unnamed `<select>` between two named inputs)
+- [x] The mechanical half enforced by `check_a11y.py` in `npm run check` and `code-check`
+- [x] An automated assertion that the AI assistant surface exposes no committing control — *R33.6*. Also: exactly one surface, and no generative client anywhere in `src/`
+- [ ] Contrast ratios, target size (2.5.8), focus visibility and reflow at 320px — **named unverified rather than checked**, because half-checking them would convert *not verified* into *checked* while changing nothing
+- [ ] A screen-reader session, and a keyboard pass by somebody who depends on one — the items no script substitutes for
+- [ ] Restore rehearsal (NFR-17) — still nothing, against a project holding the only copy of the data there is
+
+**Manually testable:** break one thing each check claims to catch (remove an
+`aria-label`, add a submit button to `AssistantNote`) and confirm
+`npm run check` fails saying so.
 
 ---
 
@@ -607,9 +619,9 @@ which role it belongs to rather than showing zeros.
 | 11 | Carnivals | 11 | 2 |
 | 12 | Calendar distribution | 12 | 2 |
 | 13 | Reporting | 5 | 1 |
-| 14 | Engineering quality | 0 | 3 |
+| 14 | Engineering quality | 5 | 3 |
 | 10b | Officiating at registration | 12 | 1 |
-| | **Total** | **211** | **41** |
+| | **Total** | **216** | **41** |
 
 **Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy

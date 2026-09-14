@@ -133,7 +133,7 @@ export function ResultForm({
       <input type="hidden" name="fixtureId" value={fixtureId} />
       <input name="homeGoals" inputMode="numeric" defaultValue={homeGoals ?? ''} style={{ width: '3.5rem' }} aria-label="Home goals" />
       <input name="awayGoals" inputMode="numeric" defaultValue={awayGoals ?? ''} style={{ width: '3.5rem' }} aria-label="Away goals" />
-      <select name="status" defaultValue={status}>
+      <select name="status" defaultValue={status} aria-label="Result">
         <option value="scheduled">To play</option>
         <option value="played">Played</option>
         <option value="cancelled">Cancelled</option>

@@ -129,8 +129,8 @@ the most.
 
 | # | Task | Requirement | Size | Gate |
 | - | ---- | ----------- | ---- | ---- |
-| T5.1 | **Define and measure performance budgets**, starting with pack generation across a full season (~700 registrations) — the one operation whose cost is not obviously bounded | NFR-16 | M | A stated budget and a measurement against it |
-| T5.2 | **Accessibility audit** of the club-facing screens against WCAG 2.2 AA, and an automated check in `code-check` | NFR-15 | M | A baseline, then a gate |
+| ~~T5.1~~ | **Define and measure performance budgets.** **Done** — [scope 43](../scope/43_the_screens_hold_up_and_say_so.md), [budgets](../annexes/performance-budgets.md). Found the unbounded cost it was written to find: BR5's duplicate detection was quadratic on three screens, 495 ms → 4.8 ms at 1,400 people. End-to-end pack generation is still unmeasured, and said so | NFR-16 | M | A stated budget and a measurement against it |
+| ~~T5.2~~ | **Accessibility audit** against WCAG 2.2 AA, and an automated check in `code-check`. **Done** — [audit](../annexes/accessibility-audit.md), `check_a11y.py`. Four criteria (contrast, target size, focus visibility, reflow) are **named unverified rather than checked**, and no screen-reader session has been run | NFR-15 | M | A baseline, then a gate |
 | T5.3 | **Rehearse a restore.** No backup has ever been restored, against a project holding the only copy of the data there is | NFR-17 | S | A documented RPO/RTO and one successful rehearsal |
 | T5.4 | **Stand up a real production environment** and stop pointing local development at the project that holds the data | NFR-9 | M | Preview never reaches production; per-environment variables verified |
 | T5.5 | **Mechanically prevent editing an applied migration.** Today it is convention, and the consequence is irreversible | NFR-10 | S | A check that fails when a migration already on `main` changes |

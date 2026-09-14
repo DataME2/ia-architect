@@ -939,7 +939,7 @@ exactly the moment connectivity fails.
 automated system approved a document or rejected a child, so that
 accountability for a decision always rests with a person.
 
-**Traces to:** P3, P4, BR15, decision 1 · C6 · **Status: 🟡 Partial**
+**Traces to:** P3, P4, BR15, decision 1 · C6 · **Status: ✅ Implemented**
 
 ### Acceptance criteria
 
@@ -955,7 +955,14 @@ accountability for a decision always rests with a person.
    otherwise uncontrolled generative AI service. ✅ *(Vacuously true: no
    generative integration exists.)*
 6. WHEN a generative integration is added, THEN criteria 2–5 SHALL be
-   asserted by an automated check rather than by convention. ⬜
+   asserted by an automated check rather than by convention. ✅
+   *(`scripts/check_assistant.py`, in `npm run check` and CI — and written
+   **before** the integration on purpose: it fails the moment a generative
+   client is imported anywhere in `src/`, which is the moment to re-read
+   [decision 1](../docs/decisions/1_ai-assistant-autonomy-level.md) rather
+   than to discover the guardrail was a comment. It also asserts there is
+   exactly one Assistant surface: a second is where a send button arrives
+   "just for the reminder case".)*
 
 ## Requirement 34 — Communications
 
@@ -1186,25 +1193,29 @@ somebody's recollection and a spreadsheet.
 | ---- | ------------ | ----------- | ------- | --------------- |
 | A — Identity | 1–4 | 4 | 0 | 0 |
 | B — Multitenancy and access | 5–7 | 2 | 1 | 0 |
-| C — Registration and documents | 8–15 | 6 | 2 | 0 |
+| C — Registration and documents | 8–15 | 7 | 1 | 0 |
 | D — Finance | 16–19 | 3 | 1 | 0 |
 | E — Teams, safeguarding, governance | 20–22 | 1 | 2 | 0 |
 | F — Referee management | 23–26 | 2 | 2 | 0 |
 | G — Competitions and carnivals | 27–29 | 0 | 3 | 0 |
 | H — Person-facing experience | 30–32 | 2 | 0 | 1 |
-| I — Cross-cutting | 33–37 | 4 | 3 | 0 |
+| I — Cross-cutting | 33–37 | 3 | 2 | 0 |
 | J — Referee recruitment | 38 | 1 | 0 | 0 |
 | K — Reporting | 39 | 0 | 1 | 0 |
-| **Total** | **39** | **25** | **14** | **0** |
+| **Total** | **39** | **25** | **13** | **1** |
 
-**Read that last row carefully.** Twenty-five requirements implemented is a
-working product for one club's registration, finance, officiating and
-privacy obligations. **Nothing is left unstarted.** Every requirement in
-this document is now implemented or partial, which is a different claim from
-*finished*: fourteen are partial, and what is missing from each is named on the criterion rather
-than in a summary. Requirement 32's mobile client is the largest single
-absence, and Requirement 35.10's retention schedule is the one waiting on a
-production environment rather than on work. Competitions joined them in September
+**Read that last row carefully, and count it yourself.** The counts above
+are derived from the status line on each requirement, and they had drifted
+from it twice before September 2026 — in both directions, which is the
+reason to re-derive rather than to adjust.
+
+Twenty-five requirements implemented is a working product for one club's
+registration, finance, officiating and privacy obligations. **One is not
+started at all** — Requirement 32's mobile client — and thirteen are
+partial, which is a different claim from *finished*: what is missing from
+each is named on the criterion rather than in a summary. Requirement 35.10's
+retention schedule is the one waiting on a production environment rather
+than on work. Competitions joined them in September
 2026 ([scope 38](../docs/scope/38_the_catalogue_that_makes_br8_computable.md)),
 which mattered less for the catalogue itself than for the rule it unblocked:
 **BR8 had been a warning that said it could not judge**, so an official

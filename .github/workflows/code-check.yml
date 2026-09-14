@@ -5,7 +5,7 @@ on:
     paths:
       - "src/**"
       - "supabase/**"
-      - "scripts/check_rls.py"
+      - "scripts/*.py"
       - "package.json"
       - "tsconfig*.json"
       - "next.config.ts"
@@ -44,6 +44,14 @@ jobs:
       # at build time — a green build is not evidence the page loads.
       - name: Server action exports
         run: python3 scripts/check_server_actions.py
+      # NFR-15. The mechanical half of WCAG 2.2 AA — the part a later edit
+      # can undo while the screen still looks right to the person making it.
+      - name: Accessibility
+        run: python3 scripts/check_a11y.py
+      # R33.6. Decision 1's autonomy level asserted rather than reviewed:
+      # one advisory surface, committing nothing, and no model called.
+      - name: Assistant autonomy
+        run: python3 scripts/check_assistant.py
 
   # check_rls.py proves a policy exists. This proves it works — a policy can
   # be present and wrong, and the failure is silent until one club reads
