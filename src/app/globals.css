@@ -1203,62 +1203,100 @@ td {
   color: var(--subtle);
 }
 
-/* The club-facing menu. On every screen, so no journey between two of them
-   has to pass through a third. */
-.app-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  margin-bottom: var(--space-5);
-  padding: var(--space-1);
+/* The club-facing menu, as a vertical rail on the right of every screen.
+   It used to be a bar above the content, and twelve destinations wrapped
+   onto two crowded lines that pushed the thing the screen actually opened
+   for below the fold. Stacked in a column beside the content instead: a
+   list reads in one pass regardless of how many rows it has, and an
+   eleventh destination is one more row rather than a reflow. */
+.registrar-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 14rem;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.registrar-content {
+  min-width: 0;
+}
+
+.registrar-nav-rail {
+  position: sticky;
+  top: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow-xs);
 }
 
-.app-nav-link {
-  padding: 0.42rem 0.8rem;
+.registrar-nav-rail > .rail-label {
+  color: var(--subtle);
+  margin: 0;
+  padding: 0 var(--space-2);
+}
+
+.registrar-nav-list {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.registrar-nav-link {
+  padding: 0.5rem 0.7rem;
   border-radius: var(--radius-sm);
+  border-left: 3px solid transparent;
   font-size: 0.88rem;
   font-weight: 550;
   color: var(--muted);
   text-decoration: none;
-  white-space: nowrap;
-  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
 }
 
-.app-nav-link:hover {
+.registrar-nav-link:hover {
   background: var(--accent-soft);
   color: var(--accent);
 }
 
-.app-nav-link.is-current {
-  background: var(--accent);
-  color: var(--accent-text);
+.registrar-nav-link.is-current {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-left-color: var(--accent);
   font-weight: 640;
-  box-shadow: var(--shadow-xs);
 }
 
-.app-nav-link.is-current:hover {
-  background: var(--accent-hover);
-  color: var(--accent-text);
-}
+/* A rail beside the content works down to tablet width; below that it goes
+   back to being a horizontal, scrollable strip above the content — a
+   column narrower than the rail itself has nowhere to put one. */
+@media (max-width: 55rem) {
+  .registrar-shell {
+    grid-template-columns: 1fr;
+  }
 
-/* Ten destinations do not wrap gracefully onto a phone, and a menu that
-   grows to four lines pushes the screen's actual content below the fold.
-   Narrow viewports get one scrolling rail instead. */
-@media (max-width: 45rem) {
-  .app-nav {
-    flex-wrap: nowrap;
+  .registrar-nav-rail {
+    position: static;
+    order: -1;
+  }
+
+  .registrar-nav-list {
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: thin;
     scroll-snap-type: x proximity;
+    padding-bottom: 0.2rem;
   }
 
-  .app-nav-link {
+  .registrar-nav-link {
     scroll-snap-align: start;
+    white-space: nowrap;
+  }
+
+  .registrar-nav-rail > .rail-label {
+    display: none;
   }
 }
 
@@ -1513,7 +1551,7 @@ td {
   }
 
   .masthead,
-  .app-nav,
+  .registrar-nav-rail,
   .session-strip,
   .skip-link,
   .site-footer,

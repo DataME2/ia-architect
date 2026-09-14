@@ -57,12 +57,16 @@ export default async function RegistrarLayout({
         </p>
       )}
       <SessionStrip user={user} tenant={tenant} demo={demo} platform={platform} />
-      {user !== null && tenant !== null && (
-        <Suspense fallback={null}>
-          <RegistrarNav />
-        </Suspense>
+      {user !== null && tenant !== null ? (
+        <div className="registrar-shell">
+          <div className="registrar-content">{children}</div>
+          <Suspense fallback={null}>
+            <RegistrarNav />
+          </Suspense>
+        </div>
+      ) : (
+        children
       )}
-      {children}
     </>
   );
 }
