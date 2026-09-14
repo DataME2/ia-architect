@@ -172,3 +172,30 @@ export function readTransportConfig(
   }
   return { apiKey, fromAddress };
 }
+
+/**
+ * Where an operator alert goes, or `null` when nobody is being told.
+ *
+ * **Configuration rather than data**, and deliberately so. The obvious
+ * alternative — read the platform administrators' own addresses out of
+ * `platform_admin` — would mean a public, unauthenticated code path
+ * obtaining them, either through a function granted to `anon` (which then
+ * discloses them to anyone who calls it) or through the service-role
+ * client (which hands a full Row-Level Security bypass to the one path on
+ * the site that any stranger can reach). Neither is worth a convenience.
+ *
+ * It is also the more accurate model: the address an enquiry should land
+ * at is usually a shared inbox somebody watches, not the login address of
+ * whoever happens to be on the allowlist.
+ *
+ * Null when unset, like `readTransportConfig`, so the caller can record
+ * *nobody was told and here is why* rather than treating silence as
+ * success (BR146, and BR127's reasoning one level out).
+ */
+export function readPlatformAlertAddress(
+  source: Record<string, string | undefined> = process.env,
+): string | null {
+  const address = source['PLATFORM_ALERT_TO'];
+  if (address === undefined || address.trim() === '') return null;
+  return address.trim();
+}

@@ -8,6 +8,8 @@ import { readPublicConfig } from '../../data/env.ts';
 import { createRequestClient } from '../../data/server.ts';
 import { formFailed, formOk, type FormResult } from '../../web/form-result.ts';
 import { parseProvision, type ProvisionDraft } from '../../web/platform-view.ts';
+import { addAssociation, addCompetition, addLevel } from '../../data/competitions.ts';
+import { retryFailedAlerts } from '../../data/enquiries.ts';
 
 /**
  * Invite one contact by email.
@@ -173,4 +175,132 @@ export async function setLicenceAction(
 
   revalidatePath('/platform');
   return formOk(`Licence recorded for ${clubName}: ${state}, ${startsOn} to ${endsOn}.`);
+}
+
+/**
+ * The competition catalogue (BR134, scope 38).
+ *
+ * Written here and nowhere else. A club cannot correct it — decision 15
+ * takes that cost deliberately, because a club editing shared reference
+ * data is how per-club copies start disagreeing again, which is the failure
+ * the shared catalogue exists to prevent.
+ *
+ * Authorisation is the database's: every `association`, `competition` and
+ * `classification_level` write policy is `app_is_platform()`, so these
+ * actions carry no check of their own that could drift from it.
+ */
+export async function addAssociationAction(_prev: FormResult, form: FormData): Promise<FormResult> {
+  const name = String(form.get('name') ?? '').trim();
+  const jurisdiction = String(form.get('jurisdiction') ?? '').trim();
+  if (name === '') return formFailed('What is the association called?');
+  if (jurisdiction === '') return formFailed('Which jurisdiction does it run?');
+
+  const client = await createRequestClient();
+  const error = await addAssociation(client, name, jurisdiction);
+
+  revalidatePath('/platform');
+  return error === null ? formOk(`${name} added.`) : formFailed(error.replace(/^.*?:\s*/, ''));
+}
+
+export async function addLevelAction(_prev: FormResult, form: FormData): Promise<FormResult> {
+  const associationId = String(form.get('associationId') ?? '');
+  const name = String(form.get('name') ?? '').trim();
+  const rank = Number(String(form.get('rank') ?? ''));
+
+  if (associationId === '') return formFailed('Whose classification is this?');
+  if (name === '') return formFailed('What is the level called?');
+  // BR135's rank is the one field in the catalogue where a typo changes an
+  // eligibility decision, so it is checked here as well as by the column.
+  if (!Number.isInteger(rank) || rank < 0) {
+    return formFailed('A rank is a whole number, and higher means more senior.');
+  }
+
+  const client = await createRequestClient();
+  const error = await addLevel(client, associationId, name, rank);
+
+  revalidatePath('/platform');
+  return error === null
+    ? formOk(`${name} added at rank ${rank}. BR8 can now compare against it.`)
+    : formFailed(error.replace(/^.*?:\s*/, ''));
+}
+
+export async function addCompetitionAction(_prev: FormResult, form: FormData): Promise<FormResult> {
+  const associationId = String(form.get('associationId') ?? '');
+  const name = String(form.get('name') ?? '').trim();
+  const minimum = String(form.get('minimumClassificationId') ?? '');
+
+  if (associationId === '') return formFailed('Which association runs it?');
+  if (name === '') return formFailed('What is the competition called?');
+
+  const client = await createRequestClient();
+  const error = await addCompetition(
+    client,
+    associationId,
+    name,
+    String(form.get('tier') ?? '').trim() || null,
+    String(form.get('playingFormat') ?? '').trim() || null,
+    minimum === '' ? null : minimum,
+  );
+
+  revalidatePath('/platform');
+  return error === null
+    ? formOk(minimum === ''
+        ? `${name} added, with no minimum classification — BR8 will have nothing to compare against.`
+        : `${name} added.`)
+    : formFailed(error.replace(/^.*?:\s*/, ''));
+}
+
+/**
+ * Retries every enquiry alert that failed (BR147).
+ *
+ * No authorisation check here, and that is not an omission: both functions
+ * this reaches — `app_enquiries` and `app_record_alert_outcome` — check
+ * `app_is_platform()` themselves and raise. A check in this action would be
+ * a second copy of the rule, and the copy is the one that goes stale.
+ *
+ * **Delivery is terminal**, enforced twice: `alertsPending` does not select
+ * a delivered row, and the database refuses to record an outcome against
+ * one anyway. The second is what makes a double-clicked button harmless.
+ */
+export async function retryAlertsAction(
+  _previous: FormResult,
+  _formData: FormData,
+): Promise<FormResult> {
+  const client = await createRequestClient();
+
+  let summary;
+  try {
+    summary = await retryFailedAlerts(client);
+  } catch (error) {
+    return formFailed(
+      error instanceof Error
+        ? error.message.replace(/^.*?:\s*/, '')
+        : 'The retry could not be run.',
+    );
+  }
+
+  revalidatePath('/platform');
+
+  if (summary.attempted === 0) {
+    return formOk('Nothing was waiting — every enquiry has been alerted.');
+  }
+
+  if (summary.stillFailing.length === 0) {
+    return formOk(
+      summary.delivered === 1
+        ? 'Sent. One alert that had failed is now delivered.'
+        : `Sent. ${summary.delivered} alerts that had failed are now delivered.`,
+    );
+  }
+
+  // Names the clubs rather than counting them. "3 still failing" sends the
+  // operator back to the table to work out which; the reason is usually
+  // identical across all of them and is the thing to act on.
+  const reasons = summary.stillFailing.map((f) => `${f.clubName} — ${f.error}`).join('; ');
+
+  return formFailed(
+    summary.delivered > 0
+      ? `${summary.delivered} delivered, ${summary.stillFailing.length} still failing: ${reasons}`
+      : `Still failing: ${reasons}`,
+  );
 }

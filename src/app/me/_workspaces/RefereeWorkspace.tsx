@@ -2,6 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { loadOfficialSelfView, type ClubLink } from '../../../data/me.ts';
 import { ComingSoon, Panel, WorkspaceHead } from './shared.tsx';
+import { loadSubscription } from '../../../data/calendar.ts';
+import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
 
 /**
  * The official's own view.
@@ -21,6 +23,10 @@ export async function RefereeWorkspace({
   readonly link: ClubLink;
 }) {
   const self = await loadOfficialSelfView(client, link.clubId, link.personId);
+
+
+  // The calendar feed, from the official's own side (scope 41).
+  const subscription = await loadSubscription(client, link.clubId, link.personId);
 
   return (
     <>
@@ -66,6 +72,16 @@ export async function RefereeWorkspace({
           </ComingSoon>
         </div>
       </div>
+    
+      <Panel title="Your calendar (BR30–BR34)">
+        <CalendarPanel
+          clubId={link.clubId}
+          personId={link.personId}
+          subscriptionId={subscription?.id ?? null}
+          subscribed={subscription !== null && subscription.revokedAt === null}
+          rotatedAt={subscription?.rotatedAt ?? null}
+        />
+      </Panel>
     </>
   );
 }

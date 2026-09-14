@@ -114,14 +114,15 @@ the most.
 
 | # | Capability | Blocked by | Size |
 | - | ---------- | ---------- | ---- |
-| T4.1 | **C8 — Reporting and dashboards.** The registration, financial and referee numbers a committee actually asks for | Nothing. The data exists | L |
-| T4.2 | **C11 — Competition and calendar.** `fixture.competition` is free text because no catalogue exists; BR20 and BR8's classification minimums both want one | Nothing | L |
+| ~~T4.1~~ | **C8 — Reporting and dashboards.** **Done** — [scope 42](../scope/42_numbers_a_committee_can_act_on.md). The registration, financial and referee numbers a committee actually asks for, computed authoritatively because RLS hides rows and does not refuse sums (BR142) | Nothing | L |
+| ~~T4.2~~ | **C11 — Competition and calendar.** **Done** — [scope 38](../scope/38_the_catalogue_that_makes_br8_computable.md). `fixture.competition` is free text because no catalogue exists; BR20 and BR8's classification minimums both want one | Nothing | L |
 | T4.3 | **C9 — Historical data consolidation.** The pilot club committed three years; C8 is what it is *for* | **Open question [#57](../scope/open-questions.md)** — the lawful basis for importing it | L |
-| T4.4 | **C13 — Calendar distribution.** A Person's own confirmed commitments as a subscribable feed | Nothing. [Decision 4](../decisions/4_calendar-distribution-by-feed-not-account-access.md) settles the approach | M |
-| T4.5 | **C12 — Carnival and event management**, including the account-free public view — the one deliberate P5 exception | C11 | L |
+| ~~T4.4~~ | **C13 — Calendar distribution.** **Done** — [scope 41](../scope/41_the_feed_a_referee_already_has_a_calendar_for.md), on [decision 4](../decisions/4_calendar-distribution-by-feed-not-account-access.md)'s terms. A Person's own confirmed commitments as a subscribable feed | Nothing | M |
+| ~~T4.5~~ | **C12 — Carnival and event management**, including the account-free public view — the one deliberate P5 exception. **Done** — [scope 40](../scope/40_carnivals_and_the_one_thing_the_public_may_see.md); BR28's conflict checks for carnival officials remain unwired | C11 | L |
 | T4.6 | **C17 — Native mobile client.** Recommended deferred (R5): `/me` already delivers the substance; offline (BR66) is the trigger to revisit | Nothing, but not yet warranted | L |
 | T4.7 | **C14 — External reconciliation** against SQUADI / PlayFootball | **Externally blocked.** API access is restricted to approved system partners; open questions [#39–#41](../scope/open-questions.md). A commercial motion, not a technical one | L |
 | T4.8 | **Payments (C3's remaining half).** Square is chosen and unintegrated; a treasurer types in what arrived | A decision that it is time | L |
+| T4.9 | **The marketing surface's first third — *explain*.** [Scope 44](../scope/44_a_club_says_it_is_interested.md) built *qualify* and scope 28 §3's *capture* was already there; there is still no pricing page, feature tour or case study, so `/interest` assumes a visitor who already knows roughly what this is | Nothing | M |
 
 ---
 
@@ -129,8 +130,8 @@ the most.
 
 | # | Task | Requirement | Size | Gate |
 | - | ---- | ----------- | ---- | ---- |
-| T5.1 | **Define and measure performance budgets**, starting with pack generation across a full season (~700 registrations) — the one operation whose cost is not obviously bounded | NFR-16 | M | A stated budget and a measurement against it |
-| T5.2 | **Accessibility audit** of the club-facing screens against WCAG 2.2 AA, and an automated check in `code-check` | NFR-15 | M | A baseline, then a gate |
+| ~~T5.1~~ | **Define and measure performance budgets.** **Done** — [scope 43](../scope/43_the_screens_hold_up_and_say_so.md), [budgets](../annexes/performance-budgets.md). Found the unbounded cost it was written to find: BR5's duplicate detection was quadratic on three screens, 495 ms → 4.8 ms at 1,400 people. End-to-end pack generation is still unmeasured, and said so | NFR-16 | M | A stated budget and a measurement against it |
+| ~~T5.2~~ | **Accessibility audit** against WCAG 2.2 AA, and an automated check in `code-check`. **Done** — [audit](../annexes/accessibility-audit.md), `check_a11y.py`. Four criteria (contrast, target size, focus visibility, reflow) are **named unverified rather than checked**, and no screen-reader session has been run | NFR-15 | M | A baseline, then a gate |
 | T5.3 | **Rehearse a restore.** No backup has ever been restored, against a project holding the only copy of the data there is | NFR-17 | S | A documented RPO/RTO and one successful rehearsal |
 | T5.4 | **Stand up a real production environment** and stop pointing local development at the project that holds the data | NFR-9 | M | Preview never reaches production; per-environment variables verified |
 | T5.5 | **Mechanically prevent editing an applied migration.** Today it is convention, and the consequence is irreversible | NFR-10 | S | A check that fails when a migration already on `main` changes |

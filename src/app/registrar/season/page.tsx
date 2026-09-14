@@ -4,6 +4,8 @@ import { loadSeasons, loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { formatCents } from '../../../web/money.ts';
 import { RequirementsForm } from './RequirementsForm.tsx';
+import { loadClubCompetitions, loadCompetitions } from '../../../data/competitions.ts';
+import { CompetitionsPanel } from './CompetitionsPanel.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +40,13 @@ export default async function SeasonPage({
 
   const params = await searchParams;
   const season = seasons.find((s) => s.id === params.season) ?? seasons[0]!;
+
+
+  // The shared catalogue, and which of it this club plays in (scope 38).
+  const [catalogue, playing] = await Promise.all([
+    loadCompetitions(client),
+    loadClubCompetitions(client, tenant.clubId, season.id),
+  ]);
 
   return (
     <>
@@ -86,6 +95,16 @@ export default async function SeasonPage({
           : `${season.required_document_types.length} required document${season.required_document_types.length === 1 ? '' : 's'}`}
         , fee {formatCents(season.registration_fee_cents)}.
       </p>
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>Competitions this season (BR134)</h3>
+        <CompetitionsPanel
+          seasonId={season.id}
+          catalogue={catalogue}
+          playing={playing.map((c) => c.id)}
+        />
+      </section>
+
     </>
   );
 }

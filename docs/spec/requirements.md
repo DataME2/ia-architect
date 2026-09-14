@@ -32,7 +32,7 @@ Measurements taken 13 September 2026 on `spec-driven-development`:
 | Database policy test files | **24** | `supabase/tests/*.sql` |
 | Migrations applied | **29** | `supabase/migrations/` |
 | Tables under RLS | **45** | `python3 scripts/check_rls.py` (a table without RLS, a policy and a `club_id` fails the build) |
-| Business rules documented | **133** (BR1–BR133) | [5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md) |
+| Business rules documented | **135** (BR1–BR135) | [5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md) |
 | Business rules whose identifier appears in `src/` or `supabase/` | **85** | `grep -rhoE 'BR[0-9]+' src supabase` |
 
 > **An identifier appearing in the source is evidence of reach, not of
@@ -105,7 +105,7 @@ a business rule without an intermediate mapping table.
 | - | ----------- | ----- | ------ | ----------- |
 | FR-C4.1 | A referee's classification is a history of dated rows, never an overwritten column | BR110 | **Verified** | `referee_classification`, migration 0023 |
 | FR-C4.2 | A referee declares availability and unavailability per season | BR62 | **Verified** | `referee_availability`, `src/web/availability-view.ts` |
-| FR-C4.3 | A designation is refused on direct role conflict, double-booking, insufficient classification, suspension, or expired accreditation | BR6–BR10, BR109 | **Verified** | `src/domain/officiating/conflicts.ts` |
+| FR-C4.3 | A designation is refused on direct role conflict, double-booking, insufficient classification, suspension, or expired accreditation | BR6–BR10, BR109 | **Verified** | `src/domain/officiating/conflicts.ts`. **BR8 only became real in scope 38** — before the catalogue it was a warning that could not judge |
 | FR-C4.4 | Same-club affiliation, family relationship, travel and consecutive-match load produce an audited **warning**, not a block | BR11 | **Verified** | `conflicts.ts`, `audit_event` |
 | FR-C4.5 | Accreditation is checked against the **fixture's** date, not today | BR111 | **Verified** | `conflicts.ts` |
 | FR-C4.6 | Every designation records which party made it — club or association | BR114 | **Verified** | `match_official_appointment` |
@@ -182,18 +182,18 @@ a business rule without an intermediate mapping table.
 | FR-C17.4 | A family reads their own household and nothing else, through a function rather than a membership | BR121, decision 11 | **Verified** | migrations 0028–0029, `tests/31`, `tests/32` |
 | FR-C17.5 | A guardian is invited only once a child under their authority has a COMPLETE registration | BR126 | **Verified** | trigger on `guardian_invitation` |
 | FR-C17.6 | A native mobile client, read-only offline, showing last-sync time | BR66 | **Not built** | Deferred deliberately; the API serves either choice |
-| FR-C17.7 | A fixture change notifies every affected participant | BR64 | **Partial** | C7 exists now and the notification is written; **nothing in the application edits a fixture**, so it has no caller (`src/data/notifications.ts`) |
+| FR-C17.7 | A fixture change notifies every affected participant | BR64 | **Verified** | Wired by scope 38, which gave a fixture an edit path |
 
 ### Capabilities with no code at all
 
 | Capability | Rules stranded | Status |
 | ---------- | -------------- | ------ |
 | **C7 — Communications** | BR64 and claim approval remain unwired — see FR-C17.7 | **Partial** — built September 2026 ([scope 36](../scope/36_the_platform_learns_to_send_and_to_stop.md)): a guardian reminder, BR42's coordinator notification, and an account-free unsubscribe with suppression held here rather than at the provider (BR127–BR131). No campaigns, no bounce handling |
-| **C8 — Reporting & dashboards** | — | **Not built** |
+| **C8 — Reporting & dashboards** | — | **Partial** — built September 2026 ([scope 42](../scope/42_numbers_a_committee_can_act_on.md)): three summaries computed authoritatively and **refused** rather than partially computed for a reader whose role may not have them (BR142, BR143). No trend, no comparison, no export, nothing scheduled |
 | **C9 — Historical data consolidation** | BR90 | **Designed**, blocked on open question #57 (lawful basis) |
-| **C11 — Competition & calendar** | BR20's competition catalogue | **Not built** — `fixture.competition` is free text |
-| **C12 — Carnival & event management** | BR26–BR29 | **Not built** — the one deliberate P5 exception |
-| **C13 — Calendar distribution** | BR30–BR34 | **Not built** |
+| **C11 — Competition & calendar** | Competition Regulations as documents | **Partial** — the catalogue, ranked classification levels and **BR8 as a real blocker** ([scope 38](../scope/38_the_catalogue_that_makes_br8_computable.md)) |
+| **C12 — Carnival & event management** | BR28 — conflict checks for carnival officials are not wired | **Partial** — built September 2026 ([scope 40](../scope/40_carnivals_and_the_one_thing_the_public_may_see.md)): the one deliberate P5 exception, made narrow by the tables carrying no person column at all (BR139) |
+| **C13 — Calendar distribution** | — | **Partial** — built September 2026 ([scope 41](../scope/41_the_feed_a_referee_already_has_a_calendar_for.md)): a revocable per-Person iCalendar feed (BR30–BR34). Referee appointments only |
 | **C14 — External reconciliation** | BR39, BR44–BR47, BR53 | **Blocked externally** |
 | **C18 — Life member register** | BR69–BR71 | **Designed** |
 
@@ -215,10 +215,10 @@ a business rule without an intermediate mapping table.
 | NFR-10 | **Migrations are immutable once applied.** Corrections are new migrations | Absolute | **Convention** | Not mechanically enforced; merging to `main` applies to the linked project with no second confirmation |
 | NFR-11 | **Documentation traceability.** Every architecture element names the module realising it, or says "pending" | 100% | **Partial** | Enforced socially and by `check_links.py` for links only — see §5 |
 | NFR-12 | **Documentation language is English**, using the glossary's terms | Absolute | **Verified** | — |
-| NFR-13 | **AI autonomy ceiling.** The assistant drafts, summarises or flags; it never approves, rejects, or moves money | Absolute (P3) | **Verified structurally** | `AssistantNote.tsx` exposes exactly two controls and no escape hatch |
+| NFR-13 | **AI autonomy ceiling.** The assistant drafts, summarises or flags; it never approves, rejects, or moves money | Absolute (P3) | **Verified, and gated** | `AssistantNote.tsx` exposes exactly two controls and no escape hatch; `check_assistant.py` asserts it in CI — one surface, committing nothing, and no generative client imported anywhere in `src/` ([scope 43](./../scope/43_the_screens_hold_up_and_say_so.md)) |
 | NFR-14 | **Cost at pilot scale** | Free tier | **Verified** | ~800 players sits inside Supabase and Vercel free limits |
-| NFR-15 | **Accessibility and responsive behaviour** of the club-facing screens | WCAG 2.2 AA | **Not verified** | A design system exists (`globals.css`, dark theme); no audit, no automated check |
-| NFR-16 | **Performance budgets** — queue render, pack generation at ~700 registrations | Undefined | **Not defined** | No budget stated and none measured |
+| NFR-15 | **Accessibility and responsive behaviour** of the club-facing screens | WCAG 2.2 AA | **Partly verified** | [Audited by inspection](../annexes/accessibility-audit.md) — thirteen criteria assessed, one defect found and fixed, and **four named unverified**: contrast, target size (2.5.8), focus visibility, reflow. The mechanical half is gated by `check_a11y.py`. No screen-reader session has been run |
+| NFR-16 | **Performance budgets** — queue render, pack generation at ~700 registrations | [Stated](../annexes/performance-budgets.md) | **Partly measured** | BR5's duplicate detection was quadratic on three screens — **495 ms → 4.8 ms at 1,400 people**, and gated by a test that asserts the *curve* rather than a millisecond ceiling. Nothing is measured against a database, and end-to-end pack generation still is not |
 | NFR-17 | **Availability and backup/restore** | Undefined | **Not defined** | Supabase defaults; no stated RPO/RTO, no restore rehearsal |
 | NFR-18 | **Portability.** The club owns its data and may take it elsewhere | BR68 | **Structural, unbuilt** | Postgres underneath makes it a query; the export does not exist |
 

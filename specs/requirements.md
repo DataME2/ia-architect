@@ -672,7 +672,10 @@ interest is not discovered at the ground.
 3. WHEN a proposed official already holds a designation at the same time,
    THEN the system SHALL refuse it. ✅
 4. WHEN a proposed official's classification is below the competition's
-   minimum, THEN the system SHALL refuse it. ✅
+   minimum, THEN the system SHALL refuse it. ✅ *(Genuinely, from scope 38.
+   Before the catalogue this was a warning that said it could not judge, so
+   an official **below** a minimum produced nothing at all.)* **Only a
+   sighted classification is compared** (BR138, Requirement 38.8).
 5. WHEN a proposed official's mandatory accreditation has expired as at the
    fixture date, THEN the system SHALL refuse it. ✅
 6. WHEN the conflict is same-club affiliation, a family relationship with a
@@ -737,21 +740,35 @@ does not silently restate what we owed.
 playing formats and regulations held as reference data, so that every club
 is not re-keying the same catalogue into a free-text box.
 
-**Traces to:** BR20, BR8, BR12 · C11 · **Status: ⬜ Not implemented**
+**Traces to:** BR20, BR8, BR12, BR134, BR135 · C11 · **Status: 🟡 Partial**
 
 ### Acceptance criteria
 
 1. The system SHALL hold each governing association's competition catalogue,
-   including tier, playing format and minimum official classification. ⬜
-2. WHEN a fixture is created, THEN the system SHALL reference a competition
-   from that catalogue rather than accepting free text. ⬜ *(Today
-   `fixture.competition` is free text, deliberately: a dropdown nobody has
-   filled is worse than a box.)*
-3. WHEN a competition defines a minimum classification, THEN Requirement
-   25.4 SHALL evaluate against it. ⬜
-4. Rule parameters that vary by classification, competition, association,
+   including tier, playing format and minimum official classification. ✅
+2. The catalogue SHALL be held **once** and read by every club, and SHALL
+   NOT be copied per club. ✅ *(BR134,
+   [decision 15](../docs/decisions/15_the_competition_catalogue_is_shared_reference_data.md)
+   — a per-club minimum makes the same fixture eligible at one club and
+   refused at another.)*
+3. WHEN a fixture is created, THEN the system SHALL reference a competition
+   from that catalogue rather than accepting free text. 🟡 *(Enforced at
+   the write path; **not** refused by the database. A trigger doing that was
+   written and removed: with an empty catalogue it leaves a club unable to
+   record a competition at all.)*
+4. WHEN a competition defines a minimum classification, THEN Requirement
+   25.4 SHALL evaluate against it. ✅
+5. A classification level SHALL be ranked within its association, and levels
+   from different associations SHALL NOT be compared. ✅ *(BR135, enforced
+   by a trigger rather than by convention.)*
+6. WHEN a competition states no minimum, THEN the system SHALL report that
+   there is nothing to compare, and SHALL NOT invent a floor. ✅
+7. Rule parameters that vary by classification, competition, association,
    season or event SHALL be configuration data, and SHALL NOT be hardcoded.
-   ✅ *(Principle honoured; the catalogue that would carry them is absent.)*
+   ✅
+8. The system SHALL hold each association's Competition Regulations as
+   documents. ⬜ *(The catalogue holds names, tiers, formats and minimums,
+   not rulebooks.)*
 
 ## Requirement 28 — Community carnivals and grassroots events
 
@@ -759,52 +776,92 @@ is not re-keying the same catalogue into a free-text box.
 and the results on my phone without an account, so that following my child's
 weekend does not require joining a platform.
 
-**Traces to:** P6, BR26–BR29, decision 3 · C12 · **Status: ⬜ Not implemented**
+**Traces to:** P6, BR26–BR29, BR139, BR140, decision 3 · C12 · **Status: 🟡 Partial**
 
 ### Acceptance criteria
 
 1. WHEN an Events Coordinator creates a carnival or grassroots event, THEN
-   the system SHALL permit it to span multiple clubs by design. ⬜
+   the system SHALL permit it to span multiple clubs by design, **including
+   clubs that do not use this platform**. ✅
 2. WHEN an Events Coordinator publishes an event, THEN its Public Event View
    SHALL be visible to unauthenticated visitors across every participating
-   club. ⬜
+   club. ✅
 3. The Public Event View SHALL show, at club and team level only: the
    fixture schedule and draw with date, kickoff time and venue; each team's
    next unplayed fixture; and the ladder or standings where the format has
-   one. ⬜
-4. The Public Event View SHALL NOT show individual participants' names by
-   default, and SHALL NOT show any registration, finance or compliance data.
-   ⬜
-5. WHEN a match official is appointed to a carnival fixture, THEN the system
-   SHALL apply the same eligibility and conflict checks as Requirement 25.
-   ⬜
-6. WHEN a person other than the recorded Events Coordinator attempts to
-   create or change the Carnival Conditions, THEN the system SHALL refuse
-   it, regardless of any other role they hold. ⬜
-7. Publication SHALL be the only mechanism by which tenant-isolated data
-   becomes public, and SHALL be scoped to the content in criterion 3. ⬜
+   one. ✅
+4. The Public Event View SHALL NOT show individual participants' names, and
+   SHALL NOT show any registration, finance or compliance data. ✅ **By
+   construction, not by filtering**: the tables carry no `person_id` column
+   at all (BR139), asserted against `information_schema` rather than
+   trusted.
+5. WHEN an event is unpublished, THEN it SHALL be invisible outside the host
+   club again. ✅ *(BR140. Nothing recalls what was already copied.)*
+6. Before publication, an event SHALL be invisible to every club but the
+   host. ✅ *(#81 — P5 holds right up to the moment P6 is invoked.)*
+7. An unauthenticated visitor SHALL be able to read a published event and
+   SHALL NOT be able to write any part of it. ✅
+8. WHEN a person other than the recorded Events Coordinator attempts to
+   change the Carnival Conditions, THEN the system SHALL refuse it,
+   regardless of any other role they hold — while leaving the rest of the
+   event an ordinary club officer's work. ✅ *(BR29.)*
+9. Publication SHALL be the only mechanism by which tenant-isolated data
+   becomes public, and SHALL be scoped to the content in criterion 3. ✅
+   *(Publishing a carnival exposes exactly three tables and nothing else —
+   asserted.)*
+10. WHEN a match official is appointed to a carnival fixture, THEN the
+    system SHALL apply the same eligibility and conflict checks as
+    Requirement 25. ⬜ *(`match_official_appointment` references `fixture`,
+    a different table, so the path is **not wired at all** rather than
+    wired loosely — a half-checked appointment would be worse than an
+    unbuilt one.)*
+11. The system SHALL provide an index of published events. ⬜ *(A visitor
+    follows a link their club sent them. A directory would raise a P6
+    question nobody has asked.)*
 
 ## Requirement 29 — Calendar distribution
 
 **User story.** As a referee, I want my appointments in my own phone
 calendar, so that I do not check a website to know where I am on Saturday.
 
-**Traces to:** BR30–BR34, decision 4 · C13 · **Status: ⬜ Not implemented**
+**Traces to:** BR30–BR34, BR141, decision 4 · C13 · **Status: 🟡 Partial**
 
 ### Acceptance criteria
 
 1. WHEN a Person subscribes, THEN the feed SHALL contain only that Person's
    own appointments, and never another Person's, a club's, or a
-   competition's schedule. ⬜
-2. The feed URL SHALL be unguessable, and the subscriber SHALL be able to
-   revoke or rotate it at any time with immediate effect on the old URL. ⬜
-3. A calendar event SHALL carry only non-personal match detail —
-   competition, date, time, venue, and the subscriber's own role. ⬜
-4. WHEN the subscriber is a minor, THEN the system SHALL issue the
-   subscription to their parent or guardian rather than to them. ⬜
-5. WHEN a calendar event is changed or deleted in a personal calendar, THEN
+   competition's schedule. ✅
+2. The feed SHALL be a **projection with no parameter the holder can vary**,
+   rather than a filtered query. ✅ *(BR141 — the holder of the URL is
+   unauthenticated by definition.)*
+3. The feed URL SHALL be unguessable, and the subscriber SHALL be able to
+   revoke or rotate it at any time with immediate effect on the old URL. ✅
+   *([Decision 12](../docs/decisions/12_an_unsubscribe_link_is_derived_not_stored.md)'s
+   construction reused — a new salt, and no revocation list to maintain.)*
+4. The URL SHALL be displayed once and SHALL NOT be redisplayed from stored
+   state. ✅ *(It is a bearer credential; the same reason BR73 shows an
+   invitation link once.)*
+5. A calendar event SHALL carry only non-personal match detail —
+   competition, date, time, venue, and the subscriber's own role. ✅
+   *(Asserted against the function's own output columns, not trusted.)*
+6. WHEN an appointment is proposed rather than accepted, THEN the event
+   SHALL say so. ✅ *(A calendar showing a proposal as a commitment sends
+   somebody to a ground they never agreed to attend.)*
+7. WHEN a fixture is cancelled, THEN the event SHALL be marked cancelled
+   rather than disappearing. ✅
+8. WHEN the subscriber is a minor, THEN the system SHALL issue the
+   subscription to their parent or guardian rather than to them. ✅
+   *(A trigger, not a screen — a feed is a record of where a child will be.)*
+9. WHEN a calendar event is changed or deleted in a personal calendar, THEN
    the system SHALL NOT treat that as accepting, declining or cancelling a
-   designation. ⬜
+   designation. ✅ *(BR34, enforced by absence: no function accepts calendar
+   data.)*
+10. The feed SHALL carry a player's fixtures as well as an official's
+    appointments. ⬜ *(Decision 4 says "initially referee appointments";
+    honoured rather than widened.)*
+11. The feed SHALL emit a `VTIMEZONE` component. ⬜ *(Events carry a TZID and
+    rely on the client resolving the IANA name. A strict RFC 5545 reader may
+    refuse it; correct transition rules per zone are a library's job.)*
 
 ---
 
@@ -882,7 +939,7 @@ exactly the moment connectivity fails.
 automated system approved a document or rejected a child, so that
 accountability for a decision always rests with a person.
 
-**Traces to:** P3, P4, BR15, decision 1 · C6 · **Status: 🟡 Partial**
+**Traces to:** P3, P4, BR15, decision 1 · C6 · **Status: ✅ Implemented**
 
 ### Acceptance criteria
 
@@ -898,7 +955,14 @@ accountability for a decision always rests with a person.
    otherwise uncontrolled generative AI service. ✅ *(Vacuously true: no
    generative integration exists.)*
 6. WHEN a generative integration is added, THEN criteria 2–5 SHALL be
-   asserted by an automated check rather than by convention. ⬜
+   asserted by an automated check rather than by convention. ✅
+   *(`scripts/check_assistant.py`, in `npm run check` and CI — and written
+   **before** the integration on purpose: it fails the moment a generative
+   client is imported anywhere in `src/`, which is the moment to re-read
+   [decision 1](../docs/decisions/1_ai-assistant-autonomy-level.md) rather
+   than to discover the guardrail was a comment. It also asserts there is
+   exactly one Assistant surface: a second is where a send button arrives
+   "just for the reminder case".)*
 
 ## Requirement 34 — Communications
 
@@ -914,8 +978,9 @@ outstanding, so that chasing forty families is not forty manual emails.
    guardian. ✅ *(Composed from the registration's own rule outcomes, re-read
    at send time so what the family is told is true when it is sent.)*
 2. WHEN a fixture changes, THEN the system SHALL notify every affected
-   participant. 🟡 *(The notification is built; nothing in the application
-   edits a fixture, so it has no caller — see Requirement 27.)*
+   participant. ✅ *(Wired by [scope 38](../docs/scope/38_the_catalogue_that_makes_br8_computable.md):
+   a fixture now has an edit path. What changed is computed from before and
+   after, so a submit that changed nothing announces nothing.)*
 3. WHEN an official withdraws after accepting, THEN the system SHALL notify
    the Referee Coordinator. ✅
 4. WHEN a claim is approved, THEN the system SHALL notify the official. 🟡
@@ -1024,6 +1089,180 @@ actions, so that "who approved this, and when" is answerable years later.
 3. WHEN a rule outcome is recorded, THEN it SHALL carry the business rule
    identifier so that the record stays readable against this document. ✅
 
+## Requirement 38 — Asking whether they also officiate
+
+**User story.** As a club referee coordinator, I want every registration to
+ask whether the player or their family would like to officiate, so that
+recruiting referees is not word of mouth in a club whose players are exactly
+the people who could do it.
+
+**Traces to:** BR136–BR138, BR63, BR84 · C4 · **Status: ✅ Implemented**
+
+### Acceptance criteria
+
+1. WHEN a registration is captured through **either** entry point — the
+   registrar's form or the account-free family link — THEN the system SHALL
+   ask whether they would like to officiate, whether they have officiated
+   before, and for an accreditation number and level. ✅
+2. WHEN neither question is answered affirmatively, THEN the system SHALL
+   record nothing. ✅ *(A row of falses is noise a coordinator must read and
+   dismiss.)*
+3. WHEN a declaration is recorded, THEN the system SHALL create **no**
+   referee role, referee profile or classification. ✅ *(BR136.)*
+4. WHEN a declaration is recorded, THEN the system SHALL record who made it.
+   ✅ *(BR137 — "their mother thought they were Level 4" and "they said they
+   were Level 4" are different conversations to have with the register.)*
+5. WHEN a person under thirteen attempts to declare their own interest, THEN
+   the database SHALL refuse it; a guardian with authority MAY declare for
+   them at any age. ✅ *(BR63's threshold governs who may declare for
+   themselves, not who may be declared — MiniRefs are children.)*
+6. WHEN a person with no authority over the subject attempts to declare,
+   THEN the database SHALL refuse it. ✅
+7. WHEN a coordinator accepts a declaration, THEN the system SHALL create
+   the referee profile and the season role **of the season the registration
+   was for**, and SHALL record any declared level as **unsighted**. ✅
+8. WHEN the declared level is unsighted, THEN it SHALL count towards nothing
+   in Requirement 25.4's comparison, and SHALL be reported as *unchecked*
+   rather than as *none*. ✅ *(BR138.)*
+9. WHEN BR84 refuses the season role because the person is an adult with no
+   verified clearance, THEN the system SHALL still record the decision and
+   SHALL say that a card is what is missing. ✅
+10. WHEN a declaration is declined, THEN the system SHALL keep it as
+    declined rather than removing it. ✅ *(#79.)*
+11. An accreditation number SHALL be readable only by the roles that act on
+    it, and SHALL NOT appear on the player record. ✅ *(BR120.)*
+12. WHEN a declaration is decided, THEN the family SHALL be told. ⬜ *(C7
+    exists; the template and the call do not.)*
+
+---
+
+---
+
+## Requirement 39 — Numbers a committee can act on
+
+**User story.** As a club committee member, I want the registration,
+financial and officiating figures on a screen, so that the questions a
+committee meeting asks are answered from the system rather than from
+somebody's recollection and a spreadsheet.
+
+**Traces to:** BR142, BR143, BR78, BR81 · C8 · **Status: 🟡 Partial**
+
+### Acceptance criteria
+
+1. WHEN a reader whose role may not have a figure requests it, THEN the
+   system SHALL **refuse** the report and SHALL NOT compute a partial one.
+   ✅ *(BR142. Row-Level Security hides rows and does not refuse sums, so a
+   finance report aggregating what the caller can see would hand a coach
+   `$0 outstanding` — correct isolation producing a confident lie.)*
+2. WHEN a reader whose role may have a figure requests it, THEN the system
+   SHALL compute it over **all** of the club's rows for that season,
+   including rows an ordinary query as that reader would not have returned.
+   ✅
+3. WHEN the role check is made, THEN it SHALL be made **per report** rather
+   than once for all three — a treasurer has the finance summary and not the
+   registrar's queue; a coordinator the reverse. ✅
+4. WHEN a figure is shown, THEN it SHALL state what it was computed over and
+   the moment it was computed. ✅ *(BR143 — a screen with no as-at is read
+   as current however old the tab is.)*
+5. WHEN a proportion has a base of zero, THEN the system SHALL show no
+   percentage. ✅ *(0 of 0 is 100% complete is arithmetically defensible and
+   operationally a lie.)*
+6. WHEN money is summarised, THEN amounts owed and amounts in credit SHALL
+   be counted apart and SHALL NOT be netted. ✅ *(A club owed $80 that owes
+   $20 back is not a club owed $60; netting names neither the arrears to
+   chase nor the refunds to pay.)*
+7. WHEN voucher relief is summarised, THEN only a voucher that has been
+   verified or claimed SHALL count. ✅ *(BR81 — an attached voucher has
+   moved no money, and counting it overstates what the club has collected.)*
+8. WHEN registrations blocked by a rule are counted, THEN each registration
+   SHALL count once for that rule however many times it has been
+   re-evaluated. ✅ *(`validation_result` is a history; counting every row
+   makes the number worse the more diligently the registrar works.)*
+9. WHEN a report is requested for a club the reader holds no membership at,
+   THEN it SHALL be refused. ✅
+10. A committee SHALL be able to compare a season against the one before it.
+    ⬜ *(One club, one season, one moment. No trend, no comparison, no
+    export, and nothing scheduled — waiting on imported history, which is
+    blocked on [#57](../docs/scope/open-questions.md).)*
+11. Arrears SHALL be aged. ⬜ *(Overdue is a count and a total, not
+    30/60/90.)*
+
+## Requirement 40 — A club says it is interested
+
+**User story.** As a club secretary who has heard about this and is not
+using it, I want to tell you about my club and get a reply, so that the
+first conversation is about my situation rather than a round of questions I
+have to answer first.
+
+**Traces to:** BR144, BR145, BR92, BR93 · decisions 5 and 7 · **Status: 🟡 Partial**
+
+### Acceptance criteria
+
+1. WHEN a visitor with no account submits an enquiry, THEN the system SHALL
+   record it. ✅ *(No session of any kind is created — unlike the
+   demonstration door, nothing here needs a subject.)*
+2. WHEN an enquiry is recorded, THEN the system SHALL create **no club, no
+   account, no membership and no access**. ✅ *(BR145, and asserted
+   behaviourally by counting clubs and memberships either side of the
+   call.)*
+3. WHEN a visitor asks how to get access, THEN the surface SHALL **say why
+   there is none** rather than omitting it. ✅ *(An empty tenant is worth
+   nothing to a club; the value is their data migrated —
+   [decision 7](../docs/decisions/7_tenant-provisioning-by-owner-issued-invitation.md).)*
+4. The system SHALL require only the club's name and one way to reply, and
+   SHALL invite everything else. ✅ *(BR144, enforced in the database too,
+   because a public function is reachable without the form.)*
+5. WHEN a club that has already been seen enquires again, THEN the system
+   SHALL hold **one** lead, and a field left blank SHALL NOT erase what an
+   earlier visit supplied. ✅
+6. WHEN a returning enquirer leaves the marketing consent box unticked,
+   THEN consent given earlier SHALL NOT be treated as withdrawn. ✅
+   *(BR93 — inferring withdrawal from silence is the same mistake as
+   inferring consent from it.)*
+7. WHEN marketing consent is granted, THEN the system SHALL record the
+   moment and the exact words shown, from a server-side constant. ✅
+8. The platform owner SHALL be able to read the lead list; **nobody else
+   SHALL**, including a club admin. ✅ *(The first time anything in the
+   application has read `prospect` at all.)*
+9. A prospect SHALL hold no tenant. ✅ *(BR92, asserted against
+   `information_schema` because the table's whole isolation argument rests
+   on it.)*
+10. WHEN an enquiry arrives, THEN somebody SHALL be told. ✅ *(An email to
+    the configured alert address, carrying what the club said. It is **not**
+    a message to a data subject — no unsubscribe link, no `message_log` row,
+    and nothing from inside any club (BR146).)*
+10a. WHEN the alert cannot be sent, THEN the system SHALL record that nobody
+    was told, and SHALL NOT treat silence as success. ✅ *(Three states, not
+    two: a provider outage must not read as a quiet week. The console counts
+    the failures at the top of the panel.)*
+10b. WHEN the alert fails, THEN the enquiry SHALL still be recorded and
+    acknowledged. ✅ *(A club that typed its details and got an error because
+    an email provider was down has been failed twice. `alertPlatform` never
+    throws and gives up after five seconds.)*
+10c. A failed alert SHALL be retried. ✅ *(By a person, from the console —
+    BR147. Nothing here runs on a schedule, and retrying opportunistically
+    on the next enquiry would fire hardest in the week it was least needed:
+    a quiet week is when a missed lead matters most.)*
+10d. WHEN an alert has been delivered, THEN it SHALL NOT be sent again. ✅
+    *(Enforced twice — the selection skips it and the database refuses to
+    record an outcome against it, which is what makes a double-clicked
+    button harmless. An operator emailed three times about one club stops
+    reading the alerts.)*
+10e. WHEN an alert is retried, THEN the message SHALL be the one that
+    failed. ✅ *(One composer, two callers. A second composer would drift,
+    and only ever in the retried copy — the one nobody is watching.)*
+10f. A retry SHALL back off or stop itself. ⬜ *(Deliberately not: nothing
+    stops somebody who has just fixed the provider and wants to try now.
+    The attempt count is shown so they can see what they are doing.)*
+11. A lead SHALL carry a status and a next action. ⬜ *(Deliberately not
+    built: this is a list to read, not a CRM, and it should stay one until
+    somebody is actually working leads through stages.)*
+12. The marketing surface SHALL **explain** — pricing, a feature tour, a
+    case study. ⬜ *(Scope 28 §3's first third is still unbuilt; `/interest`
+    assumes a visitor who already knows roughly what this is.)*
+
+---
+
 ---
 
 ## Coverage summary
@@ -1032,20 +1271,34 @@ actions, so that "who approved this, and when" is answerable years later.
 | ---- | ------------ | ----------- | ------- | --------------- |
 | A — Identity | 1–4 | 4 | 0 | 0 |
 | B — Multitenancy and access | 5–7 | 2 | 1 | 0 |
-| C — Registration and documents | 8–15 | 6 | 2 | 0 |
+| C — Registration and documents | 8–15 | 7 | 1 | 0 |
 | D — Finance | 16–19 | 3 | 1 | 0 |
 | E — Teams, safeguarding, governance | 20–22 | 1 | 2 | 0 |
 | F — Referee management | 23–26 | 2 | 2 | 0 |
-| G — Competitions and carnivals | 27–29 | 0 | 0 | 3 |
+| G — Competitions and carnivals | 27–29 | 0 | 3 | 0 |
 | H — Person-facing experience | 30–32 | 2 | 0 | 1 |
-| I — Cross-cutting | 33–37 | 4 | 3 | 0 |
-| **Total** | **37** | **24** | **10** | **3** |
+| I — Cross-cutting | 33–37 | 3 | 2 | 0 |
+| J — Referee recruitment | 38 | 1 | 0 | 0 |
+| K — Reporting | 39 | 0 | 1 | 0 |
+| L — Growth | 40 | 0 | 1 | 0 |
+| **Total** | **40** | **25** | **14** | **1** |
 
-**Read that last row carefully.** Twenty-four requirements implemented is a
-working product for one club's registration, finance, officiating and
-privacy obligations. The three unimplemented ones are not scattered:
-**competitions, carnivals and calendar distribution are the whole of Part
-G**, and they are the whole of what is left unstarted.
+**Read that last row carefully, and count it yourself.** The counts above
+are derived from the status line on each requirement, and they had drifted
+from it twice before September 2026 — in both directions, which is the
+reason to re-derive rather than to adjust.
+
+Twenty-five requirements implemented is a working product for one club's
+registration, finance, officiating and privacy obligations. **One is not
+started at all** — Requirement 32's mobile client — and thirteen are
+partial, which is a different claim from *finished*: what is missing from
+each is named on the criterion rather than in a summary. Requirement 35.10's
+retention schedule is the one waiting on a production environment rather
+than on work. Competitions joined them in September
+2026 ([scope 38](../docs/scope/38_the_catalogue_that_makes_br8_computable.md)),
+which mattered less for the catalogue itself than for the rule it unblocked:
+**BR8 had been a warning that said it could not judge**, so an official
+below a competition's minimum produced nothing at all.
 
 Requirement 34 moved from *not implemented* to *partial* in September 2026
 ([scope 36](../docs/scope/36_the_platform_learns_to_send_and_to_stop.md)),

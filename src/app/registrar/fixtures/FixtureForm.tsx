@@ -5,8 +5,16 @@ import { useActionState } from 'react';
 import { IDLE_FORM } from '../../../web/form-result.ts';
 import { FormNotice } from '../_components/FormNotice.tsx';
 import { createFixtureAction } from './actions.ts';
+import type { Competition } from '../../../domain/competition/types.ts';
 
-export function FixtureForm({ seasonId }: { readonly seasonId: string }) {
+export function FixtureForm({
+  seasonId,
+  competitions,
+}: {
+  readonly seasonId: string;
+  /** The club's competitions this season. Empty is an ordinary state. */
+  readonly competitions: readonly Competition[];
+}) {
   const [state, formAction, pending] = useActionState(createFixtureAction, IDLE_FORM);
 
   return (
@@ -37,12 +45,23 @@ export function FixtureForm({ seasonId }: { readonly seasonId: string }) {
 
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <div className="field" style={{ flex: '1 1 10rem' }}>
-            <label htmlFor="competition">Competition</label>
-            <input
-              id="competition"
-              name="competition"
-              placeholder="U12 Div 2, friendly, carnival…"
-            />
+            <label htmlFor="competitionId">Competition</label>
+            {/* Selected, not typed (R27.2). A free-text competition is now
+                refused by the database; what a club may still record with no
+                competition at all is a friendly or a trial (#78). */}
+            <select id="competitionId" name="competitionId" defaultValue="">
+              <option value="">None — a friendly or a trial</option>
+              {competitions.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}{c.tier !== null ? ` · ${c.tier}` : ''}
+                </option>
+              ))}
+            </select>
+            {competitions.length === 0 && (
+              <span className="hint">
+                This club plays in no catalogued competition yet — set that on the season screen.
+              </span>
+            )}
           </div>
           <div className="field" style={{ flex: '0 1 6rem' }}>
             <label htmlFor="goalsFor">Scored</label>

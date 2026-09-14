@@ -23,6 +23,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { claimApproved, fixtureChange, officialWithdrew } from '../domain/messaging/templates.ts';
 import type { MessageTemplate } from '../domain/messaging/types.ts';
+import { addresseesFor } from '../domain/messaging/recipients.ts';
+import type { IsoDate, Person } from '../domain/types.ts';
 import { todayIn } from '../web/today.ts';
 import { sendMessage, subscriberFor, toRecipient, unsubscribeUrlFor } from './messaging.ts';
 import type { SendResult } from './messaging.ts';
@@ -183,4 +185,151 @@ export async function loadCoordinator(
     email: person.email,
     name: `${person.preferred_name ?? person.legal_given_names} ${person.legal_family_name}`,
   };
+}
+
+// ------------------------------------------------------- fixture participants
+
+export interface FixtureNotice {
+  readonly opponent: string;
+  readonly playedOn: string;
+  readonly kickOff: string | null;
+  readonly venue: string | null;
+  readonly status: string;
+  readonly teamId: string | null;
+}
+
+/** The fixture as it stands, for comparing against what it becomes. */
+export async function loadFixtureForNotice(
+  client: SupabaseClient,
+  clubId: string,
+  fixtureId: string,
+): Promise<FixtureNotice | null> {
+  const { data } = await client
+    .from('fixture')
+    .select('opponent, played_on, kick_off, venue, status, team_id')
+    .eq('club_id', clubId)
+    .eq('id', fixtureId)
+    .maybeSingle();
+
+  if (data === null) return null;
+  const r = data as Record<string, unknown>;
+  return {
+    opponent: r.opponent as string,
+    playedOn: r.played_on as string,
+    kickOff: r.kick_off as string | null,
+    venue: r.venue as string | null,
+    status: r.status as string,
+    teamId: r.team_id as string | null,
+  };
+}
+
+/**
+ * Everyone a fixture change reaches (BR64), and what happened to each.
+ *
+ * Two groups: the officials designated to it, and the members of the team
+ * contesting it. Each is resolved through `addresseesFor`, so a minor's
+ * message goes to their guardians rather than to them — the same routing
+ * BR1 and BR67 already define, rather than a second idea of who is
+ * responsible.
+ *
+ * Returns a sentence for the registrar, never throws: a fixture that saved
+ * and was not announced is recoverable, and BR64 makes the platform's
+ * record authoritative over any notified copy anyway.
+ */
+export async function notifyFixtureParticipants(
+  client: SupabaseClient,
+  tenant: { readonly clubId: string; readonly clubName: string },
+  fixtureId: string,
+  fixture: FixtureNotice,
+  whatChanged: string,
+): Promise<string> {
+  const [officials, teamMembers] = await Promise.all([
+    client.from('match_official_appointment')
+      .select('person_id').eq('club_id', tenant.clubId).eq('fixture_id', fixtureId)
+      .in('state', ['proposed', 'accepted']),
+    fixture.teamId === null
+      ? Promise.resolve({ data: [] })
+      : client.from('team_member').select('person_id').eq('club_id', tenant.clubId).eq('team_id', fixture.teamId),
+  ]);
+
+  const personIds = [...new Set([
+    ...((officials.data ?? []) as { person_id: string }[]).map((r) => r.person_id),
+    ...((teamMembers.data ?? []) as { person_id: string }[]).map((r) => r.person_id),
+  ])];
+
+  if (personIds.length === 0) return 'Nobody is recorded as involved, so nobody was told.';
+
+  const [{ data: people }, { data: guardianships }] = await Promise.all([
+    client.from('person')
+      .select('id, club_id, legal_given_names, legal_family_name, preferred_name, date_of_birth, email')
+      .eq('club_id', tenant.clubId).in('id', personIds),
+    client.from('guardianship')
+      .select('person_id, guardian_person_id, is_authority, is_contact')
+      .eq('club_id', tenant.clubId).in('person_id', personIds),
+  ]);
+
+  // Guardians are Persons too, and may not be among the participants — so
+  // they are fetched alongside rather than assumed present.
+  const guardianIds = ((guardianships ?? []) as { guardian_person_id: string }[])
+    .map((g) => g.guardian_person_id);
+  const { data: guardianPeople } = guardianIds.length === 0
+    ? { data: [] }
+    : await client.from('person')
+        .select('id, club_id, legal_given_names, legal_family_name, preferred_name, date_of_birth, email')
+        .eq('club_id', tenant.clubId).in('id', guardianIds);
+
+  const byId = new Map<string, Person>();
+  for (const row of [...(people ?? []), ...(guardianPeople ?? [])] as Record<string, unknown>[]) {
+    byId.set(row.id as string, {
+      id: row.id as string,
+      clubId: row.club_id as string,
+      legalName: {
+        givenNames: row.legal_given_names as string,
+        familyName: row.legal_family_name as string,
+      },
+      legalNameVerifiedAt: null,
+      preferredName: row.preferred_name as string | null,
+      dateOfBirth: row.date_of_birth as IsoDate,
+      email: row.email as string | null,
+    } as Person);
+  }
+
+  const links = ((guardianships ?? []) as Record<string, unknown>[]).map((g) => ({
+    personId: g.person_id as string,
+    guardianPersonId: g.guardian_person_id as string,
+    isAuthority: g.is_authority as boolean,
+    isContact: g.is_contact as boolean,
+  }));
+
+  // One message per addressee, not per participant: a parent of two players
+  // in the same team is told once.
+  const addressees = new Map<string, { personId: string; email: string; name: string }>();
+  for (const personId of personIds) {
+    const subject = byId.get(personId);
+    if (subject === undefined) continue;
+    for (const a of addresseesFor(subject, links, byId)) {
+      addressees.set(a.personId, { personId: a.personId, email: a.email, name: a.displayName });
+    }
+  }
+
+  if (addressees.size === 0) return 'No email address is recorded for anyone involved.';
+
+  let sent = 0;
+  const withheld: string[] = [];
+  for (const party of addressees.values()) {
+    const result = await notifyFixtureChanged(
+      client, tenant.clubId, tenant.clubName, [party],
+      {
+        opponent: fixture.opponent,
+        kickOff: fixture.kickOff ?? fixture.playedOn,
+        venue: fixture.venue ?? 'to be confirmed',
+      },
+      whatChanged,
+    );
+    if (result[0]?.outcome === 'sent') sent += 1;
+    else withheld.push(`${party.name} — ${result[0]?.detail ?? 'not sent'}`);
+  }
+
+  if (withheld.length === 0) return `${sent} ${sent === 1 ? 'person was' : 'people were'} told.`;
+  return `${sent} told. Not told: ${withheld.join('; ')}.`;
 }

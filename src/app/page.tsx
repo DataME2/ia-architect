@@ -70,6 +70,20 @@ export default function HomePage() {
         </article>
 
         <article className="card card-link">
+          <h3 style={{ marginTop: 0 }}>For clubs</h3>
+          <p className="hint">
+            Not using this yet? Tell us about your club and we will reply directly. No account,
+            nothing to set up, and no free trial &mdash; an empty system is worth nothing to a
+            club.
+          </p>
+          <p style={{ marginBottom: 0 }}>
+            <a className="button secondary" href="/interest">
+              Talk to us about your club
+            </a>
+          </p>
+        </article>
+
+        <article className="card card-link">
           <h3 style={{ marginTop: 0 }}>Demonstration club</h3>
           <p className="hint">
             Which club the current session is in, and whether what it shows is fictional or a real

@@ -42,6 +42,14 @@ export interface RegistrationDraft {
   /** Required when `isMinor` (BR1); the parse fails without it. */
   readonly guardian: GuardianDraft | null;
   readonly consents: ConsentDraft;
+  /**
+   * A claim about officiating, or `null` when neither box was ticked
+   * (BR136, scope 39).
+   *
+   * Deliberately not part of `consents` — a consent is permission, and this
+   * is an assertion about the past that somebody still has to check.
+   */
+  readonly officiating: OfficiatingDeclaration | null;
 }
 
 export type ParseResult =
@@ -212,6 +220,8 @@ export function parseRegistrationForm(
     return { ok: false, errors };
   }
 
+  const officiating = parseOfficiating(input);
+
   return {
     ok: true,
     draft: {
@@ -227,6 +237,46 @@ export function parseRegistrationForm(
         photograph: isChecked(input['consentPhotograph']),
         publicity: isChecked(input['consentPublicity']),
       },
+      officiating,
     },
+  };
+}
+
+/**
+ * What the family said about officiating (BR136, scope 39).
+ *
+ * Parsed here rather than in the action for the usual reason, and for one
+ * specific to it: **this is a claim, and what a claim is allowed to say is
+ * worth a test.** A number and a level that arrive without either box
+ * ticked are dropped, because a level nobody asked for attached to somebody
+ * who does not want to officiate is noise a coordinator has to dismiss.
+ */
+export interface OfficiatingDeclaration {
+  readonly wantsToOfficiate: boolean;
+  readonly hasOfficiatedBefore: boolean;
+  readonly accreditationNumber: string | null;
+  readonly level: string | null;
+}
+
+export function parseOfficiating(
+  input: Readonly<Record<string, string | undefined>>,
+): OfficiatingDeclaration | null {
+  const wantsToOfficiate = isChecked(input['wantsToOfficiate']);
+  const hasOfficiatedBefore = isChecked(input['hasOfficiatedBefore']);
+
+  if (!wantsToOfficiate && !hasOfficiatedBefore) return null;
+
+  const clean = (value: string | undefined): string | null => {
+    const trimmed = (value ?? '').trim();
+    return trimmed === '' ? null : trimmed;
+  };
+
+  return {
+    wantsToOfficiate,
+    hasOfficiatedBefore,
+    // Only meaningful alongside having officiated. Somebody who has never
+    // refereed and types a number has misread the question.
+    accreditationNumber: hasOfficiatedBefore ? clean(input['accreditationNumber']) : null,
+    level: hasOfficiatedBefore ? clean(input['accreditationLevel']) : null,
   };
 }

@@ -329,10 +329,30 @@ export async function loadCandidates(
     .map((r) => ({
       personId: r.personId,
       name: r.name,
+      // The classification in force on the day (BR110's history, read at a
+      // date rather than as a current value) — **and only if the club has
+      // sighted it** (BR138).
+      //
+      // `referee_classification`'s own comment has said since it was
+      // written that a level somebody stated on a form and a level the club
+      // checked are different claims, and only the second should carry
+      // weight in BR8. This is where that stops being a comment: with
+      // scope 39 a guardian can state one, and BR8 now refuses
+      // designations rather than merely warning about them.
       classification:
+        r.classifications
+          .filter((c) => c.effectiveFrom <= fixture.playedOn && c.sightedAt !== null)
+          .sort((a, b) => (a.effectiveFrom < b.effectiveFrom ? 1 : -1))[0]?.level ?? null,
+      // What they claim, sighted or not — so the screen can say "unchecked"
+      // rather than "none", which are different things to a coordinator.
+      classificationClaimed:
         r.classifications
           .filter((c) => c.effectiveFrom <= fixture.playedOn)
           .sort((a, b) => (a.effectiveFrom < b.effectiveFrom ? 1 : -1))[0]?.level ?? null,
+      // Scope 38. Null until a club records a catalogued level against the
+      // classification — every row written before 0032 has only the text,
+      // and BR8 says plainly that it cannot compare it.
+      classificationLevel: null,
       accreditations: r.accreditations.map((a) => ({
         kind: a.kind,
         expiresOn: a.expiresOn,
@@ -410,4 +430,102 @@ export async function loadDeclaredAvailability(
   }
 
   return { windows, ranges };
+}
+
+// ---------------------------------------------------- officiating interest
+
+export interface OfficiatingInterestRow {
+  readonly id: string;
+  readonly personId: string;
+  readonly personName: string;
+  readonly wantsToOfficiate: boolean;
+  readonly hasOfficiatedBefore: boolean;
+  readonly declaredNumber: string | null;
+  readonly declaredLevel: string | null;
+  /** True where the declared level matched something catalogued (0032). */
+  readonly levelIsCatalogued: boolean;
+  readonly declaredAt: string;
+  readonly declaredByName: string | null;
+}
+
+/**
+ * Declarations waiting on a coordinator (BR136, scope 39).
+ *
+ * Pending only. A decided declaration is kept ([#79](../../docs/scope/open-questions.md))
+ * but it is history, and a queue that shows history is a queue nobody
+ * finishes.
+ */
+export async function loadPendingInterests(
+  client: SupabaseClient,
+  clubId: string,
+): Promise<readonly OfficiatingInterestRow[]> {
+  const { data } = await client
+    .from('officiating_interest')
+    .select('id, person_id, wants_to_officiate, has_officiated_before, '
+      + 'declared_accreditation_number, declared_level, declared_level_id, '
+      + 'declared_at, declared_by_person_id')
+    .eq('club_id', clubId)
+    .eq('state', 'pending')
+    .order('declared_at', { ascending: true });
+
+  const rows = (data ?? []) as unknown as Record<string, unknown>[];
+  if (rows.length === 0) return [];
+
+  const ids = [...new Set(rows.flatMap((r) => [
+    r.person_id as string,
+    r.declared_by_person_id as string | null,
+  ].filter((v): v is string => v !== null)))];
+
+  const { data: people } = await client
+    .from('person')
+    .select('id, preferred_name, legal_given_names, legal_family_name')
+    .eq('club_id', clubId)
+    .in('id', ids);
+
+  const names = new Map(((people ?? []) as unknown as Record<string, unknown>[]).map((p) => [
+    p.id as string,
+    `${(p.preferred_name as string | null)?.trim() || (p.legal_given_names as string)} ${p.legal_family_name as string}`,
+  ]));
+
+  return rows.map((r) => ({
+    id: r.id as string,
+    personId: r.person_id as string,
+    personName: names.get(r.person_id as string) ?? 'Unknown',
+    wantsToOfficiate: r.wants_to_officiate as boolean,
+    hasOfficiatedBefore: r.has_officiated_before as boolean,
+    declaredNumber: r.declared_accreditation_number as string | null,
+    declaredLevel: r.declared_level as string | null,
+    levelIsCatalogued: r.declared_level_id !== null,
+    declaredAt: r.declared_at as string,
+    declaredByName: r.declared_by_person_id === null
+      ? null
+      : names.get(r.declared_by_person_id as string) ?? null,
+  }));
+}
+
+/**
+ * The outcome, or an error.
+ *
+ * `accepted_without_role` is the interesting one: the decision was
+ * recorded, and BR84 refused the season role because the person is an adult
+ * with no verified Working with Children Check. Reported rather than
+ * swallowed — a club that accepted somebody and must now chase a card is in
+ * a better state than one whose accept silently did half of what it said.
+ */
+export type ReviewOutcome =
+  | 'accepted' | 'accepted_without_role' | 'accepted_without_season' | 'declined';
+
+export async function reviewInterest(
+  client: SupabaseClient,
+  interestId: string,
+  accept: boolean,
+  note: string | null,
+): Promise<{ outcome: ReviewOutcome } | { error: string }> {
+  const { data, error } = await client.rpc('app_review_interest', {
+    p_interest_id: interestId,
+    p_accept: accept,
+    p_note: note,
+  });
+  if (error !== null) return { error: error.message.replace(/^.*?:\s*/, '') };
+  return { outcome: (data as ReviewOutcome | null) ?? 'accepted' };
 }

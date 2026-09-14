@@ -49,7 +49,12 @@ something that happens by accident, and that is the design.
 | `queries.ts` | The registration slice's reads and writes |
 | `finance.ts`, `vouchers.ts`, `teams.ts`, `governance.ts`, `officiating.ts`, `performance.ts`, `packs.ts`, `invitations.ts`, `photos.ts`, `me.ts`, `family.ts`, `household.ts` | One module per slice |
 | `messaging.ts` | The unsubscribe token (a server secret, so it cannot live in `src/domain/`), the transport interface, and the send path that checks suppression **before** the provider is reached |
+| `calendar.ts` | The feed and the subscription behind it. The token is `messaging.ts`'s derivation reused, because rotation and durability are the same construction seen from two sides |
+| `carnivals.ts` | The host club's view and the public one, through **the same function and the same client** — what a visitor may see is decided by the policy on `published_at`, not by an `if` |
+| `competitions.ts` | The shared catalogue and the club's participation in it. Two plain queries joined in TypeScript rather than a PostgREST embed, which reads tersely and types badly |
 | `privacy.ts` | Erasure, retention and the club's export. Thin: each act deletes a Person or refuses to, so the rule lives in the database where it cannot be routed around |
+| `reporting.ts` | Calls the three summary functions and turns a Postgres raise citing BR142 into a `refused` report. The role check is the database's, not this module's — a figure must be refused wherever it is asked for, not wherever somebody remembered to ask |
+| `enquiries.ts` | A club's expression of interest, and the lead list behind it. Thin in both directions: what an enquiry may be, and who may read the list, are both decided in the database, because `prospect` denies every API request and a definer function is the only door there is. The retry is a person's act (BR147) and never re-sends a delivered alert — enforced both in the selection and in the database, because the second is what makes a double-clicked button harmless |
 | `reminders.ts`, `notifications.ts` | Joining a message to a registration, a withdrawal, or an approval |
 
 Explicit `club_id` filters in these queries are **belt and braces, not the

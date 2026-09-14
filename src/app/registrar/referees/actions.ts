@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
+import { reviewInterest } from '../../../data/officiating.ts';
 
 /**
  * Adding to the referee roster, and recording what the club has sighted.
@@ -164,4 +165,49 @@ export async function retireRefereeAction(
 
   revalidatePath('/registrar/referees');
   return formOk('Retired. Their record stays — who officiated what is still answerable.');
+}
+
+/**
+ * Accept or decline a declaration (BR136, scope 39).
+ *
+ * Accepting creates the referee profile and the season role, and records
+ * the declared level as an **unsighted** classification — which BR138 then
+ * refuses to count until somebody checks it against the register. The club
+ * gains a referee and gains nothing it has not verified.
+ */
+export async function reviewInterestAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const interestId = String(formData.get('interestId') ?? '');
+  const accept = String(formData.get('accept') ?? '') === 'yes';
+  if (interestId === '') return formFailed('Which declaration?');
+
+  const client = await createRequestClient();
+  const result = await reviewInterest(
+    client, interestId, accept, String(formData.get('note') ?? '').trim() || null,
+  );
+
+  revalidatePath('/registrar/referees');
+  if ('error' in result) return formFailed(result.error);
+
+  const unchecked = 'Any level they declared is recorded as unchecked until somebody sights it '
+    + 'against the register — an unsighted level counts towards nothing (BR138).';
+
+  switch (result.outcome) {
+    case 'declined':
+      return formOk('Declined, and recorded as declined rather than removed.');
+    case 'accepted_without_role':
+      // BR84 refused it. Said plainly, because the club's next action is a
+      // card rather than a shrug.
+      return formOk(
+        `Accepted — but they cannot hold the referee role yet: an adult needs a verified Working `
+        + `with Children Check covering the end of the season (BR84). Record the card and they are `
+        + `an official. ${unchecked}`,
+      );
+    case 'accepted_without_season':
+      return formOk(`Accepted. There is no current season to attach the role to. ${unchecked}`);
+    default:
+      return formOk(`Accepted. They are a match official for this season. ${unchecked}`);
+  }
 }

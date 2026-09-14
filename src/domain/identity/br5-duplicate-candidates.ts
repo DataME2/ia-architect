@@ -41,49 +41,111 @@ export interface DuplicateCandidate {
 
 const normalise = (value: string): string => value.trim().toLowerCase().replace(/\s+/g, ' ');
 
-function sameLegalName(a: Person, b: Person): boolean {
-  return (
-    normalise(a.legalName.givenNames) === normalise(b.legalName.givenNames) &&
-    normalise(a.legalName.familyName) === normalise(b.legalName.familyName)
-  );
+/**
+ * A person with their comparison keys computed once.
+ *
+ * `normalise` allocates a string and runs a regex, and the comparison below
+ * is quadratic in the number of people — so normalising inside the loop
+ * normalises the same name once per other person in the club. At a
+ * seven-hundred-registration club that was several million allocations to
+ * answer a question about a few hundred distinct names.
+ */
+interface Keyed {
+  readonly person: Person;
+  readonly given: string;
+  readonly family: string;
+  /** `null` where the record carries no email — which is a *third* state. */
+  readonly email: string | null;
 }
 
-function sameEmail(a: Person, b: Person): boolean {
-  return a.email !== null && b.email !== null && normalise(a.email) === normalise(b.email);
+function keyed(person: Person): Keyed {
+  return {
+    person,
+    given: normalise(person.legalName.givenNames),
+    family: normalise(person.legalName.familyName),
+    email: person.email === null ? null : normalise(person.email),
+  };
 }
 
-function emailsDisagree(a: Person, b: Person): boolean {
-  return a.email !== null && b.email !== null && normalise(a.email) !== normalise(b.email);
+function sameLegalName(a: Keyed, b: Keyed): boolean {
+  return a.given === b.given && a.family === b.family;
+}
+
+function sameEmail(a: Keyed, b: Keyed): boolean {
+  return a.email !== null && b.email !== null && a.email === b.email;
+}
+
+function emailsDisagree(a: Keyed, b: Keyed): boolean {
+  return a.email !== null && b.email !== null && a.email !== b.email;
 }
 
 /**
- * Candidates for `person` among `others`.
+ * People grouped by date of birth.
  *
- * `others` must already be tenant-scoped — at the point this is called
- * Row-Level Security has done that, and re-filtering here would imply the
- * caller might legitimately hold another club's rows.
+ * **Every basis above requires the dates of birth to agree** — a shared
+ * email is only a match when the birthday matches too (siblings on one
+ * family address), and a shared name likewise. So two people born on
+ * different days can never be candidates, and comparing them is work with a
+ * known answer.
+ *
+ * That makes the grouping **exact rather than a heuristic**: it is not a
+ * cheap pre-filter that might drop a real match, it is the matching rule
+ * read as an index. Nothing here decides anything the comparison below
+ * would not have decided.
  */
-export function findDuplicateCandidates(
+export interface DuplicateIndex {
+  readonly byDateOfBirth: ReadonlyMap<string, readonly Keyed[]>;
+}
+
+/**
+ * Builds the index once, for a caller that will ask about many people.
+ *
+ * A screen asking about one person does not need this — `others` has to be
+ * walked at least once either way. It is the *pack* and the *queue* that
+ * need it: both ask the same question of every registration in the season,
+ * and both were re-deriving the whole club's keys each time.
+ */
+export function buildDuplicateIndex(people: readonly Person[]): DuplicateIndex {
+  const byDateOfBirth = new Map<string, Keyed[]>();
+  for (const person of people) {
+    const bucket = byDateOfBirth.get(person.dateOfBirth);
+    if (bucket === undefined) byDateOfBirth.set(person.dateOfBirth, [keyed(person)]);
+    else bucket.push(keyed(person));
+  }
+  return { byDateOfBirth };
+}
+
+/**
+ * Candidates for one person, against a prepared index.
+ *
+ * Only the bucket for this person's own date of birth is walked, because no
+ * other bucket can contain a match — see `buildDuplicateIndex`.
+ */
+export function candidatesFromIndex(
+  index: DuplicateIndex,
   person: Person,
-  others: readonly Person[],
 ): readonly DuplicateCandidate[] {
+  const bucket = index.byDateOfBirth.get(person.dateOfBirth);
+  if (bucket === undefined) return [];
+
+  const subject = keyed(person);
   const candidates: DuplicateCandidate[] = [];
 
-  for (const other of others) {
-    if (other.id === person.id) continue;
+  for (const other of bucket) {
+    if (other.person.id === person.id) continue;
 
     // A shared email settles it whatever the names say — but the date of
-    // birth must agree too. Siblings are routinely registered under one
-    // family address, and matching on the address alone would declare two
-    // children to be one child.
-    if (sameEmail(person, other) && other.dateOfBirth === person.dateOfBirth) {
+    // birth must agree too, which being in this bucket is what establishes.
+    // Siblings are routinely registered under one family address, and
+    // matching on the address alone would declare two children to be one.
+    if (sameEmail(subject, other)) {
       candidates.push({
         personId: person.id,
-        otherPersonId: other.id,
+        otherPersonId: other.person.id,
         basis: 'email-and-dob',
         confidence: 'confirmed',
         evidence: `Same email address (${person.email}) and date of birth. ${
-          sameLegalName(person, other)
+          sameLegalName(subject, other)
             ? 'The names match too.'
             : 'The names differ — people abbreviate, marry, and mistype.'
         }`,
@@ -94,22 +156,40 @@ export function findDuplicateCandidates(
     // Name and date of birth agreeing is a strong hint and nothing more.
     // Two different emails mean two different humans, so the club is *not*
     // asked about them.
-    if (sameLegalName(person, other) && other.dateOfBirth === person.dateOfBirth) {
-      if (emailsDisagree(person, other)) continue;
+    if (sameLegalName(subject, other)) {
+      if (emailsDisagree(subject, other)) continue;
 
       candidates.push({
         personId: person.id,
-        otherPersonId: other.id,
+        otherPersonId: other.person.id,
         basis: 'legal-name-and-dob',
         confidence: 'possible',
         evidence: `Same legal name and date of birth (${person.dateOfBirth}), and no email on ${
-          person.email === null && other.email === null ? 'either record' : 'one of them'
+          person.email === null && other.person.email === null ? 'either record' : 'one of them'
         } to tell them apart.`,
       });
     }
   }
 
   return candidates;
+}
+
+/**
+ * Candidates for `person` among `others`.
+ *
+ * `others` must already be tenant-scoped — at the point this is called
+ * Row-Level Security has done that, and re-filtering here would imply the
+ * caller might legitimately hold another club's rows.
+ *
+ * For a single question this is the whole cost either way. A caller asking
+ * about every registration in a season should build the index once and use
+ * `candidatesFromIndex` instead, or it rebuilds the club on every row.
+ */
+export function findDuplicateCandidates(
+  person: Person,
+  others: readonly Person[],
+): readonly DuplicateCandidate[] {
+  return candidatesFromIndex(buildDuplicateIndex(others), person);
 }
 
 /** A pair, with the lower id first, so a pair is counted once not twice. */
@@ -132,8 +212,10 @@ export function findDuplicatePairs(people: readonly Person[]): readonly Duplicat
   const seen = new Set<string>();
   const pairs: DuplicatePair[] = [];
 
+  const index = buildDuplicateIndex(people);
+
   for (const person of people) {
-    for (const candidate of findDuplicateCandidates(person, people)) {
+    for (const candidate of candidatesFromIndex(index, person)) {
       const [aId, bId] =
         person.id < candidate.otherPersonId
           ? [person.id, candidate.otherPersonId]

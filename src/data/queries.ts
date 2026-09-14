@@ -10,8 +10,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import {
-  findDuplicateCandidates,
+  buildDuplicateIndex,
+  candidatesFromIndex,
   findDuplicatePairs,
+  type DuplicateIndex,
   type DuplicatePair,
 } from '../domain/identity/br5-duplicate-candidates.ts';
 import { evaluateRegistration } from '../domain/rules/index.ts';
@@ -233,10 +235,21 @@ interface SliceData {
   readonly registrations: readonly RegistrationRow[];
   readonly people: ReadonlyMap<string, Person>;
   readonly documents: ReadonlyMap<string, RegistrationDocumentRow[]>;
-  readonly guardianships: readonly GuardianshipRow[];
-  readonly consents: readonly ConsentRow[];
+  /**
+   * Guardianships and consents keyed by the person they concern.
+   *
+   * Every loader below walks the registrations of a season and asks, per
+   * registration, *which of these are this person's?* Answering that with
+   * `.filter()` re-reads every row in the club once per registration — a
+   * cost that is invisible at the twenty rows a test fixture holds and
+   * quadratic at the seven hundred a season holds.
+   */
+  readonly guardianshipsByPerson: ReadonlyMap<string, GuardianshipRow[]>;
+  readonly consentsByPerson: ReadonlyMap<string, ConsentRow[]>;
   /** Every person in the club, for BR5 — duplicates are a club-wide question. */
   readonly clubPeople: readonly Person[];
+  /** BR5's comparison index, built once per slice rather than per row. */
+  readonly duplicateIndex: DuplicateIndex;
   /** The live payment plan per registration, where one has been agreed. */
   readonly plans: ReadonlyMap<string, PaymentPlan>;
   /** Receipts per registration, oldest first. */
@@ -376,7 +389,31 @@ async function loadSlice(
   const clubPeople = clubPersonRows.map(toPerson);
   const people = new Map(clubPeople.map((p) => [p.id, p]));
 
-  return { registrations, people, documents, guardianships, consents, clubPeople, plans, payments };
+  const guardianshipsByPerson = new Map<string, GuardianshipRow[]>();
+  for (const row of guardianships) {
+    const list = guardianshipsByPerson.get(row.person_id);
+    if (list === undefined) guardianshipsByPerson.set(row.person_id, [row]);
+    else list.push(row);
+  }
+
+  const consentsByPerson = new Map<string, ConsentRow[]>();
+  for (const row of consents) {
+    const list = consentsByPerson.get(row.person_id);
+    if (list === undefined) consentsByPerson.set(row.person_id, [row]);
+    else list.push(row);
+  }
+
+  return {
+    registrations,
+    people,
+    documents,
+    guardianshipsByPerson,
+    consentsByPerson,
+    clubPeople,
+    duplicateIndex: buildDuplicateIndex(clubPeople),
+    plans,
+    payments,
+  };
 }
 
 /**
@@ -408,19 +445,14 @@ export async function loadQueue(
     const outcomes = evaluateRegistration({
       registration,
       person,
-      guardianships: slice.guardianships
-        .filter((g) => g.person_id === person.id)
-        .map(toGuardianship),
-      consents: slice.consents.filter((c) => c.person_id === person.id).map(toConsent),
+      guardianships: (slice.guardianshipsByPerson.get(person.id) ?? []).map(toGuardianship),
+      consents: (slice.consentsByPerson.get(person.id) ?? []).map(toConsent),
       paymentPlan: slice.plans.get(registrationRow.id) ?? null,
       payments: slice.payments.get(registrationRow.id) ?? [],
       asAt,
     });
 
-    const duplicates = findDuplicateCandidates(
-      person,
-      slice.clubPeople.filter((p) => p.id !== person.id),
-    );
+    const duplicates = candidatesFromIndex(slice.duplicateIndex, person);
 
     entries.push({
       registrationId: registration.id,
@@ -457,9 +489,7 @@ export async function loadPackCandidates(
     const person = slice.people.get(registrationRow.person_id);
     if (person === undefined) continue;
 
-    const guardianships = slice.guardianships
-      .filter((g) => g.person_id === person.id)
-      .map(toGuardianship);
+    const guardianships = (slice.guardianshipsByPerson.get(person.id) ?? []).map(toGuardianship);
 
     // The guardians themselves are ordinary `person` rows in the same club,
     // so they are already loaded — resolved here rather than re-queried.
@@ -472,13 +502,10 @@ export async function loadPackCandidates(
       person,
       guardianships,
       guardianPeople,
-      consents: slice.consents.filter((c) => c.person_id === person.id).map(toConsent),
+      consents: (slice.consentsByPerson.get(person.id) ?? []).map(toConsent),
       paymentPlan: slice.plans.get(registrationRow.id) ?? null,
       payments: slice.payments.get(registrationRow.id) ?? [],
-      duplicateCandidates: findDuplicateCandidates(
-        person,
-        slice.clubPeople.filter((p) => p.id !== person.id),
-      ),
+      duplicateCandidates: candidatesFromIndex(slice.duplicateIndex, person),
     });
   }
 
@@ -490,7 +517,7 @@ export interface RegistrationDetail {
   readonly person: Person;
   readonly documents: readonly RegistrationDocumentRow[];
   readonly consents: readonly ConsentRow[];
-  readonly duplicates: ReturnType<typeof findDuplicateCandidates>;
+  readonly duplicates: ReturnType<typeof candidatesFromIndex>;
 }
 
 /** One registration, with everything the detail screen needs. */
@@ -510,22 +537,19 @@ export async function loadRegistrationDetail(
 
   const documents = slice.documents.get(registrationRow.id) ?? [];
   const registration = toRegistration(registrationRow, documents);
-  const consents = slice.consents.filter((c) => c.person_id === person.id);
+  const consents = slice.consentsByPerson.get(person.id) ?? [];
 
   const outcomes = evaluateRegistration({
     registration,
     person,
-    guardianships: slice.guardianships.filter((g) => g.person_id === person.id).map(toGuardianship),
+    guardianships: (slice.guardianshipsByPerson.get(person.id) ?? []).map(toGuardianship),
     consents: consents.map(toConsent),
     paymentPlan: slice.plans.get(registrationRow.id) ?? null,
     payments: slice.payments.get(registrationRow.id) ?? [],
     asAt,
   });
 
-  const duplicates = findDuplicateCandidates(
-    person,
-    slice.clubPeople.filter((p) => p.id !== person.id),
-  );
+  const duplicates = candidatesFromIndex(slice.duplicateIndex, person);
 
   return {
     entry: {

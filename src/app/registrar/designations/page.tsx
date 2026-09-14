@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 
 import { loadCandidates, loadDesignationFixtures } from '../../../data/officiating.ts';
+import { loadFixtureMinimum } from '../../../data/competitions.ts';
 import { loadSeasons, loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { assess, offerable } from '../../../domain/officiating/conflicts.ts';
@@ -117,7 +118,15 @@ async function FixtureBoard({
   readonly fixture: Awaited<ReturnType<typeof loadDesignationFixtures>>[number];
 }) {
   const candidates = await loadCandidates(client, tenant.clubId, season, fixture);
-  const context = { playedOn: fixture.playedOn, hasKickOff: fixture.kickOff !== null };
+  // BR8's floor for this fixture (scope 38). Null where the fixture is a
+  // friendly or the competition states no minimum — both ordinary, and
+  // `assess` says nothing rather than inventing a standard.
+  const minimumClassification = await loadFixtureMinimum(client, fixture.fixtureId);
+  const context = {
+    playedOn: fixture.playedOn,
+    hasKickOff: fixture.kickOff !== null,
+    minimumClassification,
+  };
   const offered = offerable(candidates, context);
   const hidden = candidates.filter((c) => !assess(c, context).offerable).length;
 

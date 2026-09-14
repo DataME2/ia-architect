@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 158 of the 213 tasks below are already `[x]`; the phases are ordered so
+plan. 229 of the 273 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -416,87 +416,215 @@ everything attached is gone while the request remains, naming nobody.
 
 ---
 
-## Phase 10 — Competitions and the season calendar *(not started)*
+## Phase 10 — Competitions and the season calendar *(built — [scope 38](../docs/scope/38_the_catalogue_that_makes_br8_computable.md))*
 
-**Outcome when complete:** a fixture references a real competition, and
-Requirement 25.4 has a minimum classification to evaluate against.
+**Outcome:** a fixture references a real competition, and Requirement 25.4
+has a minimum classification to evaluate against.
+
+> **The point of it is one rule.** `conflicts.ts` carried BR8 with an
+> apology — *"cannot be completed… no competition record exists"* — so an
+> official **below** a competition's minimum produced nothing at all.
 
 ### 10.1 Backend — *R27*
-- [ ] Competition catalogue per association: tier, playing format, regulations — *R27.1*
-- [ ] Minimum official classification per competition, consumed by the conflict checks — *R27.3*
-- [ ] `fixture.competition` migrated from free text to a reference — *R27.2*
-- [ ] Configuration-not-code for every parameter that varies by classification, competition, association, season or event — *R27.4*
+- [x] Competition catalogue per association: tier, playing format, minimum classification — *R27.1*
+- [x] Held **once and shared**, not copied per club — *R27.2* ([decision 15](../docs/decisions/15_the_competition_catalogue_is_shared_reference_data.md))
+- [x] Ranked classification levels, confined to one association by a trigger — *R27.5* (BR135)
+- [x] Minimum classification consumed by the conflict checks; **BR8 is a blocker** — *R27.4*
+- [x] A competition with no minimum reports nothing to compare rather than inventing a floor — *R27.6*
+- [x] `fixture.competition_id` beside the free text, which stays readable — *R27.3*
+- [x] Configuration-not-code for every parameter that varies — *R27.7*
+- [ ] Competition Regulations as documents — *R27.8*. The catalogue holds names, tiers, formats and minimums, not rulebooks
+- [ ] A database refusal of free text. **Written and removed**: with an empty catalogue it leaves a club unable to record a competition at all. Revisit when the catalogue is reliably populated
 
 ### 10.2 Frontend
-- [ ] Catalogue maintenance, and a fixture form that selects rather than types
+- [x] Catalogue maintenance on the platform console — a club cannot write shared data
+- [x] The club's competitions on the season screen
+- [x] A fixture form that selects rather than types
 
-**Manually testable:** create a fixture in a competition with a minimum
-classification, then try to designate an official below it and be refused
-for that reason specifically.
+### 10.3 Closing Phase 8's loose end
+- [x] A fixture edit path for time, venue and status
+- [x] BR64's notification, wired at last — *R34.2*
+- [x] What changed computed from before and after, so a submit that changed nothing announces nothing
+
+**Manually testable:** catalogue an association with two ranked levels and a
+competition requiring the higher one, mark the club as playing in it, record
+a fixture in it, then try to designate an official classified at the lower
+level — and be refused, with the message naming the level required.
 
 ---
 
-## Phase 11 — Community carnivals and the public view *(not started)*
+## Phase 10b — Asking whether they also officiate *(built — [scope 39](../docs/scope/39_asking_at_the_door_whether_they_also_officiate.md))*
 
-**Outcome when complete:** a parent follows a regional carnival on their
-phone without an account, and sees no child's name.
+**Outcome:** every registration asks whether they would like to officiate,
+and what they have officiated before — as a claim a coordinator reviews.
+
+> **Numbered 10b rather than appended to a later phase** because it arrived
+> as a requirements change mid-queue, and renumbering the phases behind it
+> would break every reference in this document.
+
+### 10b.1 The safety fix, first — *R38.8*
+- [x] `loadCandidates` reads only a **sighted** classification (BR138)
+- [x] The warning distinguishes *unchecked* from *none* — different next actions
+- [x] Built **before** the form, so the unsafe path never existed
+
+### 10b.2 Backend — *R38*
+- [x] `officiating_interest`, recording what was declared and by whom — *R38.3, R38.4*
+- [x] BR137's authority as a trigger: thirteen to declare your own, a guardian otherwise — *R38.5, R38.6*
+- [x] `app_declare_interest`, reachable from the account-free path — *R38.1*
+- [x] Nothing declared records nothing — *R38.2*
+- [x] Accepting creates the profile and the role **of the registration's season**, and the level **unsighted** — *R38.7*
+- [x] A BR84 refusal does not lose the decision — *R38.9*
+- [x] A decline is kept, not removed — *R38.10*
+- [x] The accreditation number readable only by the roles that act on it — *R38.11*
+
+### 10b.3 Frontend
+- [x] Three fields on the registration form, on both entry points
+- [x] The coordinator's review queue, showing the claim and its author
+- [ ] Telling the family what was decided — *R38.12*. A template and a call; C7 exists
+
+**Manually testable:** register a child through the family link ticking both
+boxes with a level, confirm no referee role exists, accept it on the referee
+screen, and confirm the classification reads *unchecked* and that a
+designation against a competition minimum refuses to count it.
+
+---
+
+## Phase 11 — Community carnivals and the public view *(built — [scope 40](../docs/scope/40_carnivals_and_the_one_thing_the_public_may_see.md))*
+
+**Outcome:** a parent follows a regional carnival on their phone without an
+account, and sees no child's name.
+
+> **The product's only deliberate exception to P5.** Everything else in this
+> document is about keeping one club's data away from another's; this
+> publishes something on purpose, so the grant is made as narrow as the
+> *schema* can make it rather than as narrow as the policies remember to be.
 
 ### 11.1 Backend — *R28, D11.3*
-- [ ] `carnival_event` spanning multiple clubs by design — *R28.1*
-- [ ] `carnival_fixture` carrying club and team identifiers and **no `person_id` column at all**, so there is no name for a filter to forget — *R28.4, D11.3*
-- [ ] Public read policy keyed on `published_at`, not on membership — *R28.2, D11.3*
-- [ ] Carnival Conditions writable only by the recorded Events Coordinator, whatever else they hold — *R28.6*
-- [ ] Official appointments to carnival fixtures reusing Phase 5's conflict checks — *R28.5*
+- [x] `carnival_event` spanning multiple clubs by design, including clubs outside the platform — *R28.1*
+- [x] The public tables carry **no `person_id` column at all** — *R28.4* (BR139)
+- [x] Asserted against `information_schema`, not trusted — a future migration could add one unnoticed
+- [x] Public read policy keyed on `published_at`, additive beside the membership policy — *R28.2*
+- [x] Publication as one explicit, reversible, audited act — *R28.5* (BR140)
+- [x] Unpublished is invisible to anon **and** to other clubs — *R28.6*
+- [x] anon reads and never writes — *R28.7*
+- [x] Carnival Conditions writable only by the recorded Events Coordinator, whatever else they hold — *R28.8*
+- [x] Publishing opens exactly three tables and nothing else — *R28.9*
+- [ ] Official appointments to carnival fixtures reusing Phase 5's conflict checks — *R28.10*. **Not wired at all** rather than wired loosely: `match_official_appointment` references `fixture`, a different table, and a half-checked appointment is worse than an unbuilt one
 
 ### 11.2 Frontend
-- [ ] Public event view: draw, next unplayed fixture, ladder where the format has one — *R28.3*
-- [ ] Coordinator screens: create, schedule, publish
+- [x] Public event view: draw, standings, each team's next unplayed fixture — *R28.3*
+- [x] Coordinator screens: create, enter teams, schedule, record results, publish and take down
+- [ ] An index of published events — *R28.11*. A visitor follows a link their club sent them
 
-**Manually testable:** publish a carnival, open its public URL in a signed-
-out private window, confirm the draw is visible and no individual name is.
+**Manually testable:** publish a carnival, open its public URL in a
+signed-out private window, confirm the draw and standings are visible and no
+individual name is — then take it down and confirm the page 404s.
 
 ---
 
-## Phase 12 — Calendar distribution *(not started)*
+## Phase 12 — Calendar distribution *(built — [scope 41](../docs/scope/41_the_feed_a_referee_already_has_a_calendar_for.md))*
 
-**Outcome when complete:** an official's appointments appear in their own
-phone calendar.
+**Outcome:** an official's appointments appear in their own phone calendar.
+
+> **Implements a decision rather than making one.**
+> [Decision 4](../docs/decisions/4_calendar-distribution-by-feed-not-account-access.md)
+> settled the shape in July 2026 and its reasons still hold: a pull feed
+> needs no P2 exception, no per-vendor integration, and no custody of
+> credentials for accounts the platform does not own.
 
 ### 12.1 Backend — *R29, D11.4*
-- [ ] `calendar_subscription` with an unguessable, rotatable token — *R29.2*
-- [ ] Feed endpoint resolving to the subscriber's own appointments only — *R29.1*
-- [ ] Event bodies carrying no other participant's data — *R29.3*
-- [ ] A minor's subscription issued to their guardian — *R29.4*
-- [ ] One-way by construction: editing the calendar event accepts or cancels nothing — *R29.5*
+- [x] `calendar_subscription` with an unguessable, rotatable token — *R29.3*
+- [x] The token is [decision 12](../docs/decisions/12_an_unsubscribe_link_is_derived_not_stored.md)'s construction, **reused rather than reinvented**
+- [x] Feed resolving to the subscriber's own appointments only — *R29.1*
+- [x] A **projection with nothing the holder can vary** — *R29.2* (BR141)
+- [x] Event bodies carrying no other participant's data, asserted against the function's own columns — *R29.5*
+- [x] A proposal marked as not yet accepted; a cancellation marked cancelled — *R29.6, R29.7*
+- [x] A minor's subscription issued to their guardian, by trigger — *R29.8*
+- [x] One-way by absence: no function accepts calendar data — *R29.9*
+- [ ] A player's fixtures as well as an official's appointments — *R29.10*. Decision 4 says "initially referee appointments"
+- [ ] A `VTIMEZONE` component — *R29.11*. Correct transition rules per zone are a library's job
 
-### 12.2 Frontend
-- [ ] Subscribe, revoke and rotate, from the person's own workspace
+### 12.2 Document
+- [x] RFC 5545 escaping, octet-counted folding, CRLF
+- [x] **Stable UIDs**, so a refresh updates rather than duplicating
+
+### 12.3 Frontend
+- [x] Subscribe, rotate and revoke from the person's own workspace
+- [x] The URL shown **once** and never redisplayed — it is a bearer credential — *R29.4*
 
 **Manually testable:** subscribe in a phone calendar, confirm only your own
-appointments appear, rotate the URL and confirm the old one dies.
+appointments appear and no other official's, rotate the URL and confirm the
+old one stops updating.
 
 ---
 
-## Phase 13 — Reporting and dashboards *(not started)*
+## Phase 13 — Reporting and dashboards *(built, less the import)*
 
 **Outcome when complete:** the committee gets the numbers it actually asks
 for.
 
-- [ ] Registration dashboard: completion rate, and what the incomplete are blocked on
-- [ ] Financial dashboard: outstanding by age, plan adherence, voucher relief
-- [ ] Referee dashboard: appointments, declines, claims and batch state
+- [x] Registration dashboard: completion rate, and what the incomplete are blocked on — each blocker counted once per registration, not once per recheck
+- [x] Financial dashboard: outstanding and credit counted apart, plan adherence, voucher relief that excludes the merely attached (BR81)
+- [x] Referee dashboard: officials, appointments, declines, withdrawals, claims raised and approved, and the matches still unverified
+- [x] A figure a reader's role may not have is **refused, not computed** (BR142) — the trap this phase was mostly about
+- [x] Every figure states its base and the moment it was computed (BR143)
 - [ ] Historical import (C9) to give the dashboards more than one season — **blocked on open question #57**, the lawful basis for importing it
 
-**Manually testable:** open each dashboard against the demonstration club
-and reconcile one number by hand.
+**Not built, and named rather than implied:** no ageing buckets on arrears
+(overdue is a count and a total, not 30/60/90), no payment-batch state on
+the referee summary, no trend or season-on-season comparison, no export, and
+nothing scheduled — a committee reads the screen, it is not sent to them.
+
+**Manually testable:** open `/registrar/reports` as a registrar and
+reconcile one number by hand; then as a coach, and confirm each report says
+which role it belongs to rather than showing zeros.
 
 ---
 
-## Phase 14 — Engineering quality
+## Phase 14 — Engineering quality *(built, with four items named unverified)*
 
-- [ ] Performance budgets, starting with pack generation across ~700 registrations — the one operation whose cost is not obviously bounded
-- [ ] Accessibility audit of the club-facing screens against WCAG 2.2 AA, then an automated check in `code-check`
-- [ ] An automated assertion that the AI assistant surface exposes no committing control — *R33.6*
+**Outcome when complete:** the things that are true stay true without
+anybody remembering to check them.
+
+- [x] Performance budgets stated and measured — and the finding they existed to catch: **BR5's duplicate detection was quadratic on three screens**, 495 ms per load at 1,400 people, now 4.8 ms and linear
+- [x] The budget gated by a test that asserts **the curve, not a millisecond ceiling** — a wall-clock gate on a shared runner becomes noise, and noise becomes an ignored check
+- [x] Accessibility audit of the club-facing screens against WCAG 2.2 AA — thirteen criteria assessed, one defect found and fixed (an unnamed `<select>` between two named inputs)
+- [x] The mechanical half enforced by `check_a11y.py` in `npm run check` and `code-check`
+- [x] An automated assertion that the AI assistant surface exposes no committing control — *R33.6*. Also: exactly one surface, and no generative client anywhere in `src/`
+- [ ] Contrast ratios, target size (2.5.8), focus visibility and reflow at 320px — **named unverified rather than checked**, because half-checking them would convert *not verified* into *checked* while changing nothing
+- [ ] A screen-reader session, and a keyboard pass by somebody who depends on one — the items no script substitutes for
+- [ ] Restore rehearsal (NFR-17) — still nothing, against a project holding the only copy of the data there is
+
+**Manually testable:** break one thing each check claims to catch (remove an
+`aria-label`, add a submit button to `AssistantNote`) and confirm
+`npm run check` fails saying so.
+
+---
+
+## Phase 15 — The club that is not here yet *(built, less the explaining)*
+
+**Outcome when complete:** a club that has heard about this can start a
+conversation, and it reaches somebody.
+
+- [x] A public enquiry page capturing **the club** — name, jurisdiction, size, what it runs today — not just an email address
+- [x] Two required fields and six invited ones (*BR144*); the database enforces the two, because a public function is reachable without the form
+- [x] An enquiry grants **no club, no account, no membership, no access** (*BR145*), and the page says why rather than leaving a gap where a "start free trial" button would be
+- [x] The lead list readable in the platform console — **the first time anything in the app has read `prospect` at all**
+- [x] One lead per club however many doors they came through; a blank field never erases an earlier answer, and an unticked consent box is not a withdrawal (*BR93*)
+- [x] The dead-ended "signed in, member of no club" card now leads somewhere
+- [x] Somebody is **told** when an enquiry arrives — an email carrying what the club said, through C7's transport and **none** of its consent machinery (*BR146*)
+- [x] A failed alert is a **recorded state, not an absent one**, counted at the top of the console — a provider outage must not read as a quiet week
+- [x] A failed alert never fails the enquiry: `alertPlatform` does not throw and gives up after five seconds, because a club failed by an email provider has been failed twice
+- [x] A failed alert is **retried** by a person from the console (*BR147*) — a quiet week is when a missed lead matters most, and an opportunistic retry riding on the next enquiry would never fire in one
+- [x] A delivered alert is **never sent again**, enforced in the selection *and* in the database — an operator emailed three times about one club stops reading the alerts
+- [x] A retried alert is byte-identical to the one that failed — one composer, two callers, asserted by a test verified to fail
+- [ ] A **scheduler** runs it instead of a person — waits on task 0.4's production environment, like the retention review
+- [ ] The *explain* third of scope 28 §3: pricing, a feature tour, a case study
+- [ ] A status and next action on a lead — **deliberately not built**; a list to read is not a CRM and should stay one until leads are actually worked through stages
+
+**Manually testable:** submit an enquiry from `/interest` as a signed-out
+visitor, confirm no club or membership appears, then open `/platform` as the
+owner and find it at the top of the list.
 
 ---
 
@@ -514,21 +642,30 @@ and reconcile one number by hand.
 | 7 | Person-facing frontend | 8 | 3 |
 | 8 | Communications | 12 | 4 |
 | 9 | Privacy rights | 16 | 1 |
-| 10 | Competitions | 0 | 5 |
-| 11 | Carnivals | 0 | 7 |
-| 12 | Calendar distribution | 0 | 6 |
-| 13 | Reporting | 0 | 4 |
-| 14 | Engineering quality | 0 | 3 |
-| | **Total** | **158** | **55** |
+| 10 | Competitions | 13 | 2 |
+| 11 | Carnivals | 11 | 2 |
+| 12 | Calendar distribution | 12 | 2 |
+| 13 | Reporting | 5 | 1 |
+| 14 | Engineering quality | 5 | 3 |
+| 15 | The club that is not here yet | 12 | 3 |
+| 10b | Officiating at registration | 13 | 1 |
+| | **Total** | **229** | **44** |
 
-**Phases 0–9 are substantially complete** and constitute a working product
+**Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy
 obligations — which can now tell a family what is outstanding, be told to
 stop, honour an erasure request, and explain a refusal.
 
-What is left is **capability rather than obligation**: competitions,
-carnivals, calendar distribution, mobile, reporting. None of it is
-statutory, and none of it is blocked by anything above it.
+What is left is **capability rather than obligation**: the mobile
+experience, the reporting residue named in Phase 13, the four accessibility
+criteria Phase 14 named unverified rather than checked, and the *explain*
+third of the marketing surface. None of it is statutory, and none of it is
+blocked by anything above it.
+
+Phase 10 also spent Phase 8's last IOU — BR64's notification had been built
+with no caller, and a fixture that can be edited gave it one. **One
+uncalled notification remains**: claim approval, waiting on task 5.4's
+fee-schedule and claims screens.
 
 Two unchecked items outrank the rest despite sitting in earlier phases.
 **Task 0.4's production environment** now gates three things rather than
