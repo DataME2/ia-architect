@@ -64,6 +64,7 @@ The next migration takes the next number.
 | `0036` | Reporting: three `security definer` summaries that compute the true total or refuse, because RLS hides rows and does not refuse sums |
 | `0037` | A club's expression of interest: what the club *is* rather than one address, and the platform owner's first way to read the lead list at all |
 | `0038` | The alert that tells somebody a club enquired, and what happened to it — **not** in `message_log`, whose `club_id` is `not null` and whose rows are about a club's contact with a data subject (BR146) |
+| `0039` | Retrying a failed alert, as a person's act — and refusing to record an outcome against one already delivered, because *send everything unconfirmed* emails an operator three times about one club (BR147) |
 | `0034` | Carnivals: the only deliberate exception to P5, made narrow by the tables having no person column |
 | `0033` | Officiating interest: what a family declared at registration, and the review that turns a claim into a referee |
 | `0032` | The competition catalogue: shared reference data, ranked classification levels, and the reference a fixture carries |

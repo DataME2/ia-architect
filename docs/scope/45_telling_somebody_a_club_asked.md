@@ -144,11 +144,10 @@ Unset means no alerts, recorded as such — never a silent success, which is
 
 ## What this initiative does not do
 
-- **No retry.** A failed alert stays failed and is surfaced rather than
-  re-attempted. Retrying needs somewhere to queue from, and nothing in this
-  product runs on a schedule yet — the same missing piece that leaves
-  [scope 37](./37_forgetting_and_the_reasons_not_to.md)'s retention review a
-  button rather than a nightly job.
+- ~~**No retry.**~~ **Closed by
+  [scope 46](./46_trying_the_alert_again.md)** — as a button rather than a
+  schedule, for the same reason scope 37's retention review is one, and
+  with the guarantee that a delivered alert is never sent again (BR147).
 - **No alert for a demonstration-club visit.** Only an enquiry alerts;
   somebody looking at the demo does not. That is a judgement about volume
   rather than a rule, and it is the first thing to revisit if the demo

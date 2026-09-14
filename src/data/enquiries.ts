@@ -12,7 +12,7 @@ import { QueryError } from './queries.ts';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ClubEnquiry } from '../web/enquiry-form.ts';
 import { ENQUIRY_CONSENT_WORDING } from '../web/enquiry-form.ts';
-import { composeEnquiryAlert } from '../domain/messaging/platform-alert.ts';
+import { composeEnquiryAlert, type EnquiryAlertInput } from '../domain/messaging/platform-alert.ts';
 import { readPlatformAlertAddress } from './env.ts';
 import { resendTransport, type MessageTransport } from './messaging.ts';
 
@@ -86,7 +86,7 @@ export const ALERT_TIMEOUT_MS = 5_000;
  * was down has been failed twice.
  */
 export async function alertPlatform(
-  enquiry: ClubEnquiry,
+  enquiry: EnquiryAlertInput,
   transport: MessageTransport | null = resendTransport(),
   to: string | null = readPlatformAlertAddress(),
   // Injectable so the test that proves the timeout works does not have to
@@ -100,18 +100,11 @@ export async function alertPlatform(
     return { notified: false, error: 'No email provider is configured, so nothing was sent.' };
   }
 
-  const alert = composeEnquiryAlert({
-    clubName: enquiry.clubName,
-    email: enquiry.email,
-    contactName: enquiry.contactName,
-    contactRole: enquiry.contactRole,
-    jurisdiction: enquiry.jurisdiction,
-    clubSize: enquiry.clubSize,
-    currentSystem: enquiry.currentSystem,
-    note: enquiry.note,
-    phone: enquiry.phone,
-    marketingConsent: enquiry.marketingConsent,
-  });
+  // `ClubEnquiry` satisfies this structurally, so the enquiry path passes
+  // its parsed form straight through and the retry path maps a stored row
+  // into the same shape — **one composer, two callers**, which is what
+  // stops a retried alert quietly diverging from the original.
+  const alert = composeEnquiryAlert(enquiry);
 
   // The timer is cleared either way. Leaving it pending would hold the
   // process for five seconds after every successful send, and `unref()` is
@@ -169,6 +162,10 @@ export interface Enquiry {
   readonly notifiedAt: string | null;
   /** Why nobody was told, where that is known. */
   readonly notifyError: string | null;
+  /** How many times delivery has been attempted, successful or not. */
+  readonly notifyAttempts: number;
+  /** When it was last attempted. `notifiedAt` is the success; this is the try. */
+  readonly notifyAttemptedAt: string | null;
 }
 
 /** The lead list, for the platform owner. Raises for anybody else. */
@@ -194,5 +191,106 @@ export async function loadEnquiries(client: SupabaseClient): Promise<readonly En
     marketingConsentAt: (row['marketing_consent_at'] as string | null) ?? null,
     notifiedAt: (row['notified_at'] as string | null) ?? null,
     notifyError: (row['notify_error'] as string | null) ?? null,
+    notifyAttempts: Number(row['notify_attempts'] ?? 0),
+    notifyAttemptedAt: (row['notify_attempted_at'] as string | null) ?? null,
   }));
+}
+
+// ----------------------------------------------------------------- retrying
+
+/**
+ * A stored enquiry, as the alert composer wants it.
+ *
+ * **The same function composes both sends**, and that is the point of this
+ * three-line mapping rather than a second template. The first alert is
+ * built from the form the visitor submitted and a retry is built from the
+ * row it became, so two composers would drift — and the divergence would
+ * only ever be visible in the retried copy, which is the one nobody is
+ * watching.
+ */
+export function alertInputFor(enquiry: Enquiry): EnquiryAlertInput {
+  return {
+    // A prospect who only ever looked at the demonstration club has no club
+    // name, and is not a candidate below — but the type needs one, and the
+    // address is the honest fallback rather than an invented name.
+    clubName: enquiry.clubName ?? enquiry.email,
+    email: enquiry.email,
+    contactName: enquiry.contactName,
+    contactRole: enquiry.contactRole,
+    jurisdiction: enquiry.jurisdiction,
+    clubSize: enquiry.clubSize,
+    currentSystem: enquiry.currentSystem,
+    note: enquiry.note,
+    phone: enquiry.phone,
+    marketingConsent: enquiry.marketingConsentAt !== null,
+  };
+}
+
+/**
+ * The enquiries whose alert failed and has not since been delivered.
+ *
+ * **Delivery is terminal** (BR147): a row that was delivered is not a
+ * candidate, however many times it failed before. The obvious
+ * implementation of a retry — send everything not confirmed — emails an
+ * operator three times about one club, and an operator who is emailed three
+ * times about one club stops reading the alerts, which is the state the
+ * alert was built to fix.
+ */
+export function alertsPending(enquiries: readonly Enquiry[]): readonly Enquiry[] {
+  return enquiries.filter((e) => e.notifiedAt === null && e.notifyError !== null);
+}
+
+export interface RetrySummary {
+  readonly attempted: number;
+  readonly delivered: number;
+  /** One line per enquiry that failed again, so the screen can say which. */
+  readonly stillFailing: readonly { readonly clubName: string; readonly error: string }[];
+}
+
+/**
+ * Retries every alert that failed, as an explicit act by the platform owner.
+ *
+ * **A person, not a schedule** (BR147). Nothing in this product runs on a
+ * schedule — the same missing piece that leaves the retention review a
+ * button — and the tempting alternative, an opportunistic retry riding on
+ * the next enquiry, fails in exactly the wrong place: a quiet week is when
+ * a missed lead matters most, and a quiet week is when it would never fire.
+ *
+ * Written so that the day a scheduler exists it calls this, unchanged.
+ *
+ * Each send is recorded as it happens rather than at the end, so a run that
+ * dies half way has still banked the alerts it delivered — the alternative
+ * loses the record of messages that genuinely went out, and the next run
+ * sends them again.
+ */
+export async function retryFailedAlerts(
+  client: SupabaseClient,
+  transport: MessageTransport | null = resendTransport(),
+  to: string | null = readPlatformAlertAddress(),
+): Promise<RetrySummary> {
+  const pending = alertsPending(await loadEnquiries(client));
+
+  let delivered = 0;
+  const stillFailing: { clubName: string; error: string }[] = [];
+
+  for (const enquiry of pending) {
+    const result = await alertPlatform(alertInputFor(enquiry), transport, to);
+
+    const { error } = await client.rpc('app_record_alert_outcome', {
+      p_email: enquiry.email,
+      p_notified: result.notified,
+      p_error: result.error,
+    });
+    if (error !== null) throw new QueryError('app_record_alert_outcome', error.message);
+
+    if (result.notified) delivered += 1;
+    else {
+      stillFailing.push({
+        clubName: enquiry.clubName ?? enquiry.email,
+        error: result.error ?? 'The provider rejected the alert.',
+      });
+    }
+  }
+
+  return { attempted: pending.length, delivered, stillFailing };
 }

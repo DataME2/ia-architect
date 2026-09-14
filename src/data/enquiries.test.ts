@@ -8,7 +8,7 @@
  */
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import { alertPlatform } from './enquiries.ts';
+import { alertInputFor, alertPlatform, alertsPending, type Enquiry } from './enquiries.ts';
 import type { MessageTransport } from './messaging.ts';
 import type { ClubEnquiry } from '../web/enquiry-form.ts';
 
@@ -109,5 +109,118 @@ describe('alertPlatform — BR146', () => {
     assert.equal(result.notified, false);
     assert.match(result.error ?? '', /did not answer/);
     assert.ok(Date.now() - started < 5_000, 'the timeout did not fire');
+  });
+});
+
+describe('alertsPending — BR147, delivery is terminal', () => {
+  const base = {
+    email: 'sec@bayside.test',
+    phone: null,
+    clubName: 'Brisbane Bayside FC',
+    jurisdiction: null,
+    contactName: null,
+    contactRole: null,
+    clubSize: null,
+    currentSystem: null,
+    note: null,
+    source: 'enquiry',
+    enquiredAt: '2026-09-14T00:00:00Z',
+    firstSeenAt: '2026-09-14T00:00:00Z',
+    lastSeenAt: '2026-09-14T00:00:00Z',
+    marketingConsentAt: null,
+    notifiedAt: null,
+    notifyError: null,
+    notifyAttempts: 1,
+    notifyAttemptedAt: '2026-09-14T00:00:00Z',
+  };
+
+  it('selects an enquiry whose alert failed', () => {
+    const pending = alertsPending([{ ...base, notifyError: 'provider down' }]);
+    assert.equal(pending.length, 1);
+  });
+
+  it('never selects one that was delivered, however many times it failed first', () => {
+    // The obvious implementation of a retry — send everything not confirmed
+    // — emails an operator three times about one club, and an operator
+    // emailed three times about one club stops reading the alerts.
+    const delivered = { ...base, notifiedAt: '2026-09-14T01:00:00Z', notifyAttempts: 4 };
+    assert.deepEqual(alertsPending([delivered]), []);
+  });
+
+  it('does not select one that was never attempted', () => {
+    // Null/null is the third state: a row predating the alert entirely.
+    assert.deepEqual(alertsPending([base]), []);
+  });
+
+  it('does not select somebody who only looked at the demonstration club', () => {
+    const looker = { ...base, clubName: null, enquiredAt: null, notifyAttempts: 0 };
+    assert.deepEqual(alertsPending([looker]), []);
+  });
+});
+
+describe('a retried alert is the alert that failed', () => {
+  it('composes identically from a stored row and from the submitted form', async () => {
+    // The divergence this guards against is one-sided and invisible: the
+    // first alert is built from the form a visitor submitted and a retry is
+    // built from the row it became, so a field that maps wrongly is only
+    // ever wrong in the retried copy — the one nobody is watching, sent
+    // when something has already gone wrong once.
+    const form: ClubEnquiry = {
+      clubName: 'Brisbane Bayside FC',
+      email: 'sec@bayside.test',
+      contactName: 'A Secretary',
+      contactRole: 'Secretary',
+      jurisdiction: 'AU-QLD',
+      clubSize: 'about 400, mostly MiniRoos',
+      currentSystem: 'Majestri',
+      note: 'Season starts in March.',
+      phone: '0400 000 000',
+      marketingConsent: true,
+    };
+
+    const stored: Enquiry = {
+      email: form.email,
+      phone: form.phone,
+      clubName: form.clubName,
+      jurisdiction: form.jurisdiction,
+      contactName: form.contactName,
+      contactRole: form.contactRole,
+      clubSize: form.clubSize,
+      currentSystem: form.currentSystem,
+      note: form.note,
+      source: 'enquiry',
+      enquiredAt: '2026-09-14T00:00:00Z',
+      firstSeenAt: '2026-09-14T00:00:00Z',
+      lastSeenAt: '2026-09-14T00:00:00Z',
+      // The one field whose shape differs: a moment in the row, a boolean
+      // on the form.
+      marketingConsentAt: '2026-09-14T00:00:00Z',
+      notifiedAt: null,
+      notifyError: 'provider down',
+      notifyAttempts: 1,
+      notifyAttemptedAt: '2026-09-14T00:00:00Z',
+    };
+
+    const sent: { subject: string; body: string }[] = [];
+    const capture = { name: 'test', send: async (_to: string, subject: string, body: string) => {
+      sent.push({ subject, body });
+    } };
+
+    await alertPlatform(form, capture, 'leads@example.test');
+    await alertPlatform(alertInputFor(stored), capture, 'leads@example.test');
+
+    assert.equal(sent.length, 2);
+    assert.deepEqual(sent[1], sent[0], 'the retried alert is not the alert that failed');
+  });
+
+  it('falls back to the address when a stored row carries no club name', () => {
+    const looker: Enquiry = {
+      email: 'someone@example.test', phone: null, clubName: null, jurisdiction: null,
+      contactName: null, contactRole: null, clubSize: null, currentSystem: null, note: null,
+      source: 'demo', enquiredAt: null, firstSeenAt: '2026-09-14T00:00:00Z',
+      lastSeenAt: '2026-09-14T00:00:00Z', marketingConsentAt: null, notifiedAt: null,
+      notifyError: null, notifyAttempts: 0, notifyAttemptedAt: null,
+    };
+    assert.equal(alertInputFor(looker).clubName, 'someone@example.test');
   });
 });

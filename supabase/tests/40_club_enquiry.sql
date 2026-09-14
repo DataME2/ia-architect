@@ -27,6 +27,13 @@
 --   * A second enquiry's alert outcome **replaces** the first's rather than
 --     inheriting it — unlike every other field, where a blank preserves
 --     what was already there.
+--   * **Delivery is terminal** (BR147): recording an outcome against an
+--     already-delivered alert is refused, so a double-clicked retry
+--     button, a second operator or a future scheduler cannot overwrite a
+--     success — nor email one club three times.
+--   * Only the platform owner may record a retry's outcome. The enquiry
+--     path is anonymous by definition, and this is the function scope 45
+--     refused to create for it.
 
 \set ON_ERROR_STOP on
 
@@ -207,7 +214,104 @@ begin
   perform set_config('request.jwt.claim.sub', owner::text, true);
   perform set_config('role', 'authenticated', true);
 
-  -- 10. **A prospect still has no tenant** (BR92). The whole isolation
+  -- 10. **The attempt counter accumulates across enquiries.** It answers
+  --     "how much trouble has this club's alert been", which does not reset
+  --     because they wrote in again — and a club enquiring twice because
+  --     nobody answered the first time is exactly when the history matters.
+  select notify_attempts into n from app_enquiries() where email = 'secretary@bayside.test';
+  if n <> 2 then
+    failures := array_append(failures,
+      'the attempt count read ' || n || ' after two enquiries, expected 2');
+  end if;
+
+  -- 11. **A retry records its outcome, and only the owner may.**
+  perform app_record_alert_outcome('secretary@bayside.test', true, null);
+
+  select notified_at into v_when from app_enquiries() where email = 'secretary@bayside.test';
+  if v_when is null then
+    failures := array_append(failures, 'a successful retry was not recorded as delivered');
+  end if;
+
+  select notify_error into v_text from app_enquiries() where email = 'secretary@bayside.test';
+  if v_text is not null then
+    failures := array_append(failures,
+      'the old failure survived a successful retry, so the row claims both outcomes');
+  end if;
+
+  select notify_attempts into n from app_enquiries() where email = 'secretary@bayside.test';
+  if n <> 3 then
+    failures := array_append(failures, 'the retry did not count as an attempt (' || n || ')');
+  end if;
+
+  -- 12. **Delivery is terminal** (BR147). This is what makes a
+  --     double-clicked button harmless, and what stops a future scheduler
+  --     emailing one club three times.
+  begin
+    perform app_record_alert_outcome('secretary@bayside.test', false, 'a late failure');
+    failures := array_append(failures,
+      'an outcome was recorded against an already-delivered alert — a success can be overwritten');
+  exception when others then
+    if sqlerrm not like '%BR147%' then
+      failures := array_append(failures, 'the terminal-delivery refusal did not cite BR147: ' || sqlerrm);
+    end if;
+  end;
+
+  -- 13. **Only the platform owner may record an outcome.** Scope 45 refused
+  --     to create an outcome function at all, because the enquiry path is
+  --     anonymous by definition; this one exists only because a retry
+  --     starts from the console.
+  --
+  --     Asserted against a **second, still-failing** enquiry, and the
+  --     reason is a bug this test had first: run against the row above,
+  --     which is delivered, every caller is refused by BR147's guard
+  --     instead — so the scenario passed with the authorisation check
+  --     deleted. A refusal proves nothing unless it is the refusal you
+  --     meant, which is why the message is checked and not merely the fact.
+  perform set_config('role', 'anon', true);
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform record_interest(
+    'Cairns Crocodiles FC', 'sec@crocs.test', null, null, null, null, null, null, null, null,
+    false, 'No email provider is configured, so nothing was sent.');
+
+  --     The two probes below record a *failure*, not a success, so that a
+  --     missing authorisation check leaves the row still undelivered — and
+  --     the owner's call further down then reports the real assertion
+  --     rather than aborting the suite on BR147's guard instead.
+  perform set_config('role', 'authenticated', true);
+  perform set_config('request.jwt.claim.sub', club_admin::text, true);
+  begin
+    perform app_record_alert_outcome('sec@crocs.test', false, 'written by a club admin');
+    failures := array_append(failures, 'a club admin recorded an alert outcome');
+  exception when others then
+    if sqlerrm not like '%platform owner%' then
+      failures := array_append(failures,
+        'a club admin was refused, but not for being one: ' || sqlerrm);
+    end if;
+  end;
+
+  perform set_config('role', 'anon', true);
+  perform set_config('request.jwt.claim.sub', '', true);
+  begin
+    perform app_record_alert_outcome('sec@crocs.test', false, 'written by a stranger');
+    failures := array_append(failures, 'an anonymous caller recorded an alert outcome');
+  exception when others then
+    if sqlerrm not like '%platform owner%' then
+      failures := array_append(failures,
+        'an anonymous caller was refused, but not for being one: ' || sqlerrm);
+    end if;
+  end;
+
+  perform set_config('role', 'authenticated', true);
+  perform set_config('request.jwt.claim.sub', owner::text, true);
+
+  -- And the owner may, on a row that has not been delivered.
+  perform app_record_alert_outcome('sec@crocs.test', true, null);
+  select notified_at into v_when from app_enquiries() where email = 'sec@crocs.test';
+  if v_when is null then
+    failures := array_append(failures, 'the owner''s retry was not recorded as delivered');
+  end if;
+
+  -- 14. **A prospect still has no tenant** (BR92). The whole isolation
   --    argument for this table rests on it, and a future migration could
   --    add a club_id without anybody noticing.
   select count(*) into n
@@ -223,6 +327,6 @@ begin
     raise exception E'Club enquiry FAILED:\n  - %', array_to_string(failures, E'\n  - ');
   end if;
 
-  raise notice 'Club enquiry OK — 10 scenarios; an enquiry grants no club, no membership and no account, the writer cannot read the list back, only the platform owner can, a returning club stays one lead, an unticked box withdraws nothing, and a failed alert is recorded rather than absent';
+  raise notice 'Club enquiry OK — 14 scenarios; an enquiry grants no club, no membership and no account, the writer cannot read the list back, only the platform owner can, a returning club stays one lead, an unticked box withdraws nothing, a failed alert is recorded rather than absent, and a delivered one is never sent again';
 end
 $$;

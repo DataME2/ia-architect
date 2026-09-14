@@ -1,4 +1,5 @@
-import type { Enquiry } from '../../data/enquiries.ts';
+import { alertsPending, type Enquiry } from '../../data/enquiries.ts';
+import { RetryAlertsForm } from './RetryAlertsForm.tsx';
 
 /**
  * The lead list — and the first time anything in the application has read
@@ -24,7 +25,10 @@ export function EnquiryList({ enquiries }: { readonly enquiries: readonly Enquir
   // that failed means somebody enquired and nobody was told — which is the
   // state this whole screen exists to prevent, so it is not something to
   // find by scanning.
-  const unalerted = enquired.filter((e) => e.notifyError !== null);
+  //
+  // The same selection the retry uses, from the same function, so the
+  // number on the button is the number that will actually be attempted.
+  const unalerted = alertsPending(enquiries);
 
   return (
     <section className="card">
@@ -42,6 +46,13 @@ export function EnquiryList({ enquiries }: { readonly enquiries: readonly Enquir
           as long as their date says.
         </p>
       )}
+
+      {/*
+        Outside the notice paragraph, not inside it: a <form> is not
+        phrasing content, so a browser closes the <p> before it and the
+        styling falls apart in a way React's output does not show.
+      */}
+      {unalerted.length > 0 && <RetryAlertsForm pending={unalerted.length} />}
 
       <p className="hint">
         A prospect is not a tenant, holds no <code>club_id</code>, and is a member of nothing
@@ -70,6 +81,7 @@ export function EnquiryList({ enquiries }: { readonly enquiries: readonly Enquir
                 <th scope="col">When</th>
                 <th scope="col">May email</th>
                 <th scope="col">Alerted</th>
+                <th scope="col">Tries</th>
               </tr>
             </thead>
             <tbody>
@@ -151,6 +163,18 @@ export function EnquiryList({ enquiries }: { readonly enquiries: readonly Enquir
                     ) : (
                       <span className="hint">—</span>
                     )}
+                  </td>
+                  <td className="hint">
+                    {/*
+                      One failure is a provider hiccup; four with the same
+                      message means stop pressing the button and go and fix
+                      the provider. Without the count they read identically.
+                    */}
+                    {enquiry.notifyAttempts === 0
+                      ? '—'
+                      : enquiry.notifyAttemptedAt === null
+                        ? enquiry.notifyAttempts
+                        : `${enquiry.notifyAttempts}, last ${enquiry.notifyAttemptedAt.slice(0, 10)}`}
                   </td>
                 </tr>
               ))}

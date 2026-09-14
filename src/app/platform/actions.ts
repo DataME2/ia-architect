@@ -9,6 +9,7 @@ import { createRequestClient } from '../../data/server.ts';
 import { formFailed, formOk, type FormResult } from '../../web/form-result.ts';
 import { parseProvision, type ProvisionDraft } from '../../web/platform-view.ts';
 import { addAssociation, addCompetition, addLevel } from '../../data/competitions.ts';
+import { retryFailedAlerts } from '../../data/enquiries.ts';
 
 /**
  * Invite one contact by email.
@@ -247,4 +248,59 @@ export async function addCompetitionAction(_prev: FormResult, form: FormData): P
         ? `${name} added, with no minimum classification — BR8 will have nothing to compare against.`
         : `${name} added.`)
     : formFailed(error.replace(/^.*?:\s*/, ''));
+}
+
+/**
+ * Retries every enquiry alert that failed (BR147).
+ *
+ * No authorisation check here, and that is not an omission: both functions
+ * this reaches — `app_enquiries` and `app_record_alert_outcome` — check
+ * `app_is_platform()` themselves and raise. A check in this action would be
+ * a second copy of the rule, and the copy is the one that goes stale.
+ *
+ * **Delivery is terminal**, enforced twice: `alertsPending` does not select
+ * a delivered row, and the database refuses to record an outcome against
+ * one anyway. The second is what makes a double-clicked button harmless.
+ */
+export async function retryAlertsAction(
+  _previous: FormResult,
+  _formData: FormData,
+): Promise<FormResult> {
+  const client = await createRequestClient();
+
+  let summary;
+  try {
+    summary = await retryFailedAlerts(client);
+  } catch (error) {
+    return formFailed(
+      error instanceof Error
+        ? error.message.replace(/^.*?:\s*/, '')
+        : 'The retry could not be run.',
+    );
+  }
+
+  revalidatePath('/platform');
+
+  if (summary.attempted === 0) {
+    return formOk('Nothing was waiting — every enquiry has been alerted.');
+  }
+
+  if (summary.stillFailing.length === 0) {
+    return formOk(
+      summary.delivered === 1
+        ? 'Sent. One alert that had failed is now delivered.'
+        : `Sent. ${summary.delivered} alerts that had failed are now delivered.`,
+    );
+  }
+
+  // Names the clubs rather than counting them. "3 still failing" sends the
+  // operator back to the table to work out which; the reason is usually
+  // identical across all of them and is the thing to act on.
+  const reasons = summary.stillFailing.map((f) => `${f.clubName} — ${f.error}`).join('; ');
+
+  return formFailed(
+    summary.delivered > 0
+      ? `${summary.delivered} delivered, ${summary.stillFailing.length} still failing: ${reasons}`
+      : `Still failing: ${reasons}`,
+  );
 }

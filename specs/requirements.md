@@ -1239,9 +1239,21 @@ have to answer first.
     acknowledged. ✅ *(A club that typed its details and got an error because
     an email provider was down has been failed twice. `alertPlatform` never
     throws and gives up after five seconds.)*
-10c. A failed alert SHALL be retried. ⬜ *(Retrying needs somewhere to queue
-    from, and nothing in this product runs on a schedule — the same missing
-    piece that leaves the retention review a button rather than a job.)*
+10c. A failed alert SHALL be retried. ✅ *(By a person, from the console —
+    BR147. Nothing here runs on a schedule, and retrying opportunistically
+    on the next enquiry would fire hardest in the week it was least needed:
+    a quiet week is when a missed lead matters most.)*
+10d. WHEN an alert has been delivered, THEN it SHALL NOT be sent again. ✅
+    *(Enforced twice — the selection skips it and the database refuses to
+    record an outcome against it, which is what makes a double-clicked
+    button harmless. An operator emailed three times about one club stops
+    reading the alerts.)*
+10e. WHEN an alert is retried, THEN the message SHALL be the one that
+    failed. ✅ *(One composer, two callers. A second composer would drift,
+    and only ever in the retried copy — the one nobody is watching.)*
+10f. A retry SHALL back off or stop itself. ⬜ *(Deliberately not: nothing
+    stops somebody who has just fixed the provider and wants to try now.
+    The attempt count is shown so they can see what they are doing.)*
 11. A lead SHALL carry a status and a next action. ⬜ *(Deliberately not
     built: this is a list to read, not a CRM, and it should stay one until
     somebody is actually working leads through stages.)*
