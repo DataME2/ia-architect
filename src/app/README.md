@@ -43,6 +43,7 @@ stack; Vercel serves it.
 | `register/`, `join/[token]/` | Registration capture: by a club officer, and by a family through an account-free invitation link (BR72) |
 | `sign-in/`, `set-password/`, `auth/callback/` | Session, first-arrival password (BR98), and the magic-link landing that turns an emailed link into a claimed membership |
 | `platform/` | The platform owner's console: provisioning a club, and its licence. **Provisions but never reads** a club's data ([decision 9](../../docs/decisions/9_platform_administration_provisions_but_never_reads.md)) |
+| `calendar/[token]/` | The iCalendar feed, served to a calendar client that holds a URL and no session |
 | `events/[eventId]/` | The Public Event View (P6) — **the one page a stranger may read**. No session, and no branch deciding what to hide |
 | `registrar/privacy/` | Erasure requests, retention proposals, authority at eighteen, and the club's own export. Arranged so the irreversible things are hardest to do by accident |
 | `unsubscribe/[token]/` | Stopping the email (BR128). No session, and **nothing read before the person acts** — the page does not say whose address it is, which club sent the message, or whether the link is valid, because confirming an address is on a list is itself a disclosure |

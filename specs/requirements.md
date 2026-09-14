@@ -824,22 +824,44 @@ weekend does not require joining a platform.
 **User story.** As a referee, I want my appointments in my own phone
 calendar, so that I do not check a website to know where I am on Saturday.
 
-**Traces to:** BR30–BR34, decision 4 · C13 · **Status: ⬜ Not implemented**
+**Traces to:** BR30–BR34, BR141, decision 4 · C13 · **Status: 🟡 Partial**
 
 ### Acceptance criteria
 
 1. WHEN a Person subscribes, THEN the feed SHALL contain only that Person's
    own appointments, and never another Person's, a club's, or a
-   competition's schedule. ⬜
-2. The feed URL SHALL be unguessable, and the subscriber SHALL be able to
-   revoke or rotate it at any time with immediate effect on the old URL. ⬜
-3. A calendar event SHALL carry only non-personal match detail —
-   competition, date, time, venue, and the subscriber's own role. ⬜
-4. WHEN the subscriber is a minor, THEN the system SHALL issue the
-   subscription to their parent or guardian rather than to them. ⬜
-5. WHEN a calendar event is changed or deleted in a personal calendar, THEN
+   competition's schedule. ✅
+2. The feed SHALL be a **projection with no parameter the holder can vary**,
+   rather than a filtered query. ✅ *(BR141 — the holder of the URL is
+   unauthenticated by definition.)*
+3. The feed URL SHALL be unguessable, and the subscriber SHALL be able to
+   revoke or rotate it at any time with immediate effect on the old URL. ✅
+   *([Decision 12](../docs/decisions/12_an_unsubscribe_link_is_derived_not_stored.md)'s
+   construction reused — a new salt, and no revocation list to maintain.)*
+4. The URL SHALL be displayed once and SHALL NOT be redisplayed from stored
+   state. ✅ *(It is a bearer credential; the same reason BR73 shows an
+   invitation link once.)*
+5. A calendar event SHALL carry only non-personal match detail —
+   competition, date, time, venue, and the subscriber's own role. ✅
+   *(Asserted against the function's own output columns, not trusted.)*
+6. WHEN an appointment is proposed rather than accepted, THEN the event
+   SHALL say so. ✅ *(A calendar showing a proposal as a commitment sends
+   somebody to a ground they never agreed to attend.)*
+7. WHEN a fixture is cancelled, THEN the event SHALL be marked cancelled
+   rather than disappearing. ✅
+8. WHEN the subscriber is a minor, THEN the system SHALL issue the
+   subscription to their parent or guardian rather than to them. ✅
+   *(A trigger, not a screen — a feed is a record of where a child will be.)*
+9. WHEN a calendar event is changed or deleted in a personal calendar, THEN
    the system SHALL NOT treat that as accepting, declining or cancelling a
-   designation. ⬜
+   designation. ✅ *(BR34, enforced by absence: no function accepts calendar
+   data.)*
+10. The feed SHALL carry a player's fixtures as well as an official's
+    appointments. ⬜ *(Decision 4 says "initially referee appointments";
+    honoured rather than widened.)*
+11. The feed SHALL emit a `VTIMEZONE` component. ⬜ *(Events carry a TZID and
+    rely on the client resolving the IANA name. A strict RFC 5545 reader may
+    refuse it; correct transition rules per zone are a library's job.)*
 
 ---
 
@@ -1119,22 +1141,21 @@ the people who could do it.
 | D — Finance | 16–19 | 3 | 1 | 0 |
 | E — Teams, safeguarding, governance | 20–22 | 1 | 2 | 0 |
 | F — Referee management | 23–26 | 2 | 2 | 0 |
-| G — Competitions and carnivals | 27–29 | 0 | 2 | 1 |
+| G — Competitions and carnivals | 27–29 | 0 | 3 | 0 |
 | H — Person-facing experience | 30–32 | 2 | 0 | 1 |
 | I — Cross-cutting | 33–37 | 4 | 3 | 0 |
 | J — Referee recruitment | 38 | 1 | 0 | 0 |
-| **Total** | **38** | **25** | **12** | **1** |
+| **Total** | **38** | **25** | **13** | **0** |
 
 **Read that last row carefully.** Twenty-four requirements implemented is a
 working product for one club's registration, finance, officiating and
 privacy obligations. The three unimplemented ones are not scattered:
-**calendar distribution is the only requirement left unstarted**, and
-Requirement 32's mobile client is the only other unbuilt thing of size.
-Carnivals joined the built column in September 2026
-([scope 40](../docs/scope/40_carnivals_and_the_one_thing_the_public_may_see.md)),
-which is also the product's only deliberate exception to P5 — made as narrow
-as the schema can make it rather than as narrow as the policies remember to
-be. Competitions joined them in September
+**nothing is left unstarted.** Every requirement in this document is now
+implemented or partial, which is a different claim from *finished*: thirteen
+are partial, and what is missing from each is named on the criterion rather
+than in a summary. Requirement 32's mobile client is the largest single
+absence, and Requirement 35.10's retention schedule is the one waiting on a
+production environment rather than on work. Competitions joined them in September
 2026 ([scope 38](../docs/scope/38_the_catalogue_that_makes_br8_computable.md)),
 which mattered less for the catalogue itself than for the rule it unblocked:
 **BR8 had been a warning that said it could not judge**, so an official

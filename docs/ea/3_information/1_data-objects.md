@@ -243,6 +243,25 @@ membership policies, with the public read *added* beside them — so unlike
 [the competition catalogue](#the-competition-catalogue) they needed no
 `check_rls.py` exemption and took none.
 
+## Calendar distribution
+
+Added September 2026 by [scope 41](../../scope/41_the_feed_a_referee_already_has_a_calendar_for.md),
+implementing [decision 4](../../decisions/4_calendar-distribution-by-feed-not-account-access.md).
+
+| Data Object | Realises | Notes |
+| ----------- | -------- | ----- |
+| **`calendar_subscription`** | Calendar Subscription | Whose appointments the feed carries, **who holds the URL** (BR33 — a minor's belongs to a guardian with authority, enforced by a trigger), and the salt behind it. The token is [decision 12](../../decisions/12_an_unsubscribe_link_is_derived_not_stored.md)'s construction reused: rotating the salt kills the previous URL immediately (BR31), with no revocation list to maintain |
+
+**No calendar event is stored.** The feed is generated on read, so a
+cancelled fixture cannot linger in a table waiting to be forgotten — and
+`app_calendar_feed` is a **projection rather than a table read** (BR141):
+the holder of the URL is by definition unauthenticated, so there is no
+parameter they can vary to widen it.
+
+BR34 is enforced by absence: no function accepts calendar data, so editing
+or deleting the event in a personal calendar accepts, declines and cancels
+nothing. The feed is one-way because there is no other way for it to be.
+
 ## Not yet modeled
 
 Competition **Regulations** as documents (the catalogue above holds names,

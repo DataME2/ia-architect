@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 195 of the 243 tasks below are already `[x]`; the phases are ordered so
+plan. 207 of the 251 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -522,23 +522,39 @@ individual name is — then take it down and confirm the page 404s.
 
 ---
 
-## Phase 12 — Calendar distribution *(not started)*
+## Phase 12 — Calendar distribution *(built — [scope 41](../docs/scope/41_the_feed_a_referee_already_has_a_calendar_for.md))*
 
-**Outcome when complete:** an official's appointments appear in their own
-phone calendar.
+**Outcome:** an official's appointments appear in their own phone calendar.
+
+> **Implements a decision rather than making one.**
+> [Decision 4](../docs/decisions/4_calendar-distribution-by-feed-not-account-access.md)
+> settled the shape in July 2026 and its reasons still hold: a pull feed
+> needs no P2 exception, no per-vendor integration, and no custody of
+> credentials for accounts the platform does not own.
 
 ### 12.1 Backend — *R29, D11.4*
-- [ ] `calendar_subscription` with an unguessable, rotatable token — *R29.2*
-- [ ] Feed endpoint resolving to the subscriber's own appointments only — *R29.1*
-- [ ] Event bodies carrying no other participant's data — *R29.3*
-- [ ] A minor's subscription issued to their guardian — *R29.4*
-- [ ] One-way by construction: editing the calendar event accepts or cancels nothing — *R29.5*
+- [x] `calendar_subscription` with an unguessable, rotatable token — *R29.3*
+- [x] The token is [decision 12](../docs/decisions/12_an_unsubscribe_link_is_derived_not_stored.md)'s construction, **reused rather than reinvented**
+- [x] Feed resolving to the subscriber's own appointments only — *R29.1*
+- [x] A **projection with nothing the holder can vary** — *R29.2* (BR141)
+- [x] Event bodies carrying no other participant's data, asserted against the function's own columns — *R29.5*
+- [x] A proposal marked as not yet accepted; a cancellation marked cancelled — *R29.6, R29.7*
+- [x] A minor's subscription issued to their guardian, by trigger — *R29.8*
+- [x] One-way by absence: no function accepts calendar data — *R29.9*
+- [ ] A player's fixtures as well as an official's appointments — *R29.10*. Decision 4 says "initially referee appointments"
+- [ ] A `VTIMEZONE` component — *R29.11*. Correct transition rules per zone are a library's job
 
-### 12.2 Frontend
-- [ ] Subscribe, revoke and rotate, from the person's own workspace
+### 12.2 Document
+- [x] RFC 5545 escaping, octet-counted folding, CRLF
+- [x] **Stable UIDs**, so a refresh updates rather than duplicating
+
+### 12.3 Frontend
+- [x] Subscribe, rotate and revoke from the person's own workspace
+- [x] The URL shown **once** and never redisplayed — it is a bearer credential — *R29.4*
 
 **Manually testable:** subscribe in a phone calendar, confirm only your own
-appointments appear, rotate the URL and confirm the old one dies.
+appointments appear and no other official's, rotate the URL and confirm the
+old one stops updating.
 
 ---
 
@@ -581,19 +597,19 @@ and reconcile one number by hand.
 | 9 | Privacy rights | 16 | 1 |
 | 10 | Competitions | 13 | 2 |
 | 11 | Carnivals | 11 | 2 |
-| 12 | Calendar distribution | 0 | 6 |
+| 12 | Calendar distribution | 12 | 2 |
 | 13 | Reporting | 0 | 4 |
 | 14 | Engineering quality | 0 | 3 |
 | 10b | Officiating at registration | 12 | 1 |
-| | **Total** | **195** | **48** |
+| | **Total** | **207** | **44** |
 
 **Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy
 obligations — which can now tell a family what is outstanding, be told to
 stop, honour an erasure request, and explain a refusal.
 
-What is left is **capability rather than obligation**: calendar
-distribution, mobile, reporting. None of it is statutory, and none of it is
+What is left is **capability rather than obligation**: mobile and
+reporting. None of it is statutory, and none of it is
 blocked by anything above it.
 
 Phase 10 also spent Phase 8's last IOU — BR64's notification had been built
