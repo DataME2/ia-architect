@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { sendVerdict, suppressedFor, contactability } from './suppression.ts';
 import { addresseesFor, unreachableReason } from './recipients.ts';
-import { guardianReminder, claimApproved } from './templates.ts';
+import { guardianReminder, claimApproved, wwccReminder } from './templates.ts';
 import type { Recipient } from './types.ts';
 import type { Guardianship, Person } from '../types.ts';
 
@@ -136,10 +136,27 @@ describe('templates — BR128, every message carries the way out', () => {
     assert.match(body, /nothing outstanding/);
   });
 
+  it('BR51 — lists every due clearance and says what it does not do', () => {
+    const { subject, body } = wwccReminder.compose({
+      secretaryName: 'Kiri',
+      due: [
+        { personName: 'A Coach', kind: 'WWCC', expiresOn: '2027-01-01' },
+        { personName: 'B Coach', kind: 'WWCC', expiresOn: '2026-06-01' },
+      ],
+    }, ctx);
+
+    assert.match(subject, /2 Working with Children Checks due/);
+    assert.match(body, /A Coach — WWCC, card expires 2027-01-01/);
+    assert.match(body, /B Coach — WWCC, card expires 2026-06-01/);
+    // BR51's limit stated plainly: this is the nudge, not the check.
+    assert.match(body, /does not check the state register itself/);
+  });
+
   it('carries the unsubscribe link in every template', () => {
     for (const composed of [
       guardianReminder.compose({ guardianName: 'H', childName: 'P', outcomes: [] }, ctx),
       claimApproved.compose({ officialName: 'Sam', fixture: 'R3 v Coast', amount: '$45.00' }, ctx),
+      wwccReminder.compose({ secretaryName: 'Kiri', due: [] }, ctx),
     ]) {
       assert.ok(composed.body.includes(ctx.unsubscribeUrl), 'a message with no way out is the failure BR128 prevents');
     }

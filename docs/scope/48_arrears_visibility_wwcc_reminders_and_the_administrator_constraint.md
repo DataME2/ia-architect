@@ -3,8 +3,8 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** branch `open-questions`. **WP1 built**; WP2 and WP3 remain
-plan only.
+**Delivered as:** branch `open-questions`. **WP1 and WP2 built**; WP3
+remains plan only.
 
 [Scope 47](./47_stakeholder-answers-september-2026.md) folded the
 president's September 2026 answers into BR40, BR51, BR79 and BR106/BR124
@@ -27,7 +27,7 @@ qualifier.
 | 2_business | BR40, BR51, BR79 and BR106/BR124 are already restated ([scope 47](./47_stakeholder-answers-september-2026.md)); no further business-rule text changes here — this WP is where those restatements become behaviour. |
 | 3_information | New: a computed **arrears** view spanning seasons (no new table — derived from `registration`); new **`clearance.reminder_sent_at`** column recording the six-monthly WWCC nudge; no new information object for the administrator constraint, which is enforced at invitation time rather than stored. |
 | 4_application | New: `app_outstanding_balances()` definer function and a Registrar/Treasurer "Outstanding across seasons" screen (WP1); a scheduled function that emails the Secretary and writes `clearance.reminder_sent_at` (WP2); an administrator-invitation form change that requires an individual's name, not just an address (WP3). |
-| 5_technology | First use of **Supabase scheduled functions** in this codebase for WP2 — anticipated but not yet built, per the [technology services doc](../ea/5_technology/1_technology-services.md)'s own note that BR50, BR51 and BR67 all need one. Everything else is ordinary migration + RLS + screen work on the existing stack. |
+| 5_technology | First use of a **scheduled job** in this codebase for WP2 — built as a **Vercel Cron job** (`vercel.json`, `CRON_SECRET`), not the Supabase scheduled function originally anticipated; corrected in the [technology services doc](../ea/5_technology/1_technology-services.md). Everything else is ordinary migration + RLS + screen work on the existing stack. |
 
 ## Plateaus
 
@@ -84,40 +84,60 @@ flowchart LR
   leaves a record rather than a memory. `npm run check:full` passes,
   including the new RLS suite (32 suites total) and a production build.
 
-### WP2 — The six-monthly WWCC reminder (BR51; #38, #75)
+### WP2 — The six-monthly WWCC reminder (BR51; #38, #75) — **built**
 
-- **Deliverables:**
-  - Migration `0041_wwcc_reminder.sql`:
-    - `clearance.reminder_sent_at timestamptz` — when the last reminder
-      fired for this clearance, distinct from `verified_at` (the check)
-      exactly as `notify_attempted_at` was kept distinct from `notified_at`
-      in [0039](../../supabase/migrations/0039_alert_retry.sql).
-    - `app_wwcc_due_for_reminder(p_club_id uuid)` — clearances where
-      `reminder_sent_at` is null or more than six months old, restricted
-      to Secretary and Admin.
-    - `app_record_wwcc_reminder_sent(p_clearance_id uuid)` — writes
-      `reminder_sent_at = now()`, callable by the scheduled function's
-      service role only, matching the platform-only shape of
-      `app_record_alert_outcome` in
-      [0039](../../supabase/migrations/0039_alert_retry.sql).
-    - Explicitly **not** blocked by `BR97`'s read-only state: the
-      migration's RLS policy on `clearance` insert/update is scoped so a
-      re-verification write is the one action a read-only club may still
-      perform, closing the exact gap [#75](./open-questions.md) named.
-  - A Supabase scheduled function (the first in this codebase — see the
-    technology-services note this closes) that calls
-    `app_wwcc_due_for_reminder` for every club nightly and, for anything
-    due, sends the Secretary's reminder through the existing
-    Communications service (C7) and calls
-    `app_record_wwcc_reminder_sent`.
-  - `supabase/tests/41_wwcc_reminder.sql`: proves the six-month window,
-    proves a read-only club can still write a re-verification, and proves
-    the scheduled function's write path is not callable by an ordinary
-    authenticated user.
-- **Outcome:** BR51's secondary mechanism — previously described as
-  annual and now as six-monthly — exists as a running job rather than a
-  documented intention, and a lapsed club's licence no longer blocks the
-  one write BR19 depends on.
+Two assumptions in the original plan turned out not to hold, and both are
+corrected here rather than silently built around:
+
+- **There is no `secretary` system-access role.** `club_membership.role`
+  is `registrar`/`treasurer`/`committee`/`coach`/`coordinator`/`admin`/
+  `viewer`; "Secretary" is a `committee_position` office held by a Person.
+  So the reminder is not "restricted to Secretary and Admin" as a grant —
+  it is addressed, by email, to whoever currently holds the `secretary`
+  position on the club's most recent committee term.
+- **BR97's read-only state gates nothing at the RLS layer today.** There
+  is no policy anywhere keyed on `club_licence.state`, so there was no
+  carve-out to build — `clearance_manage` already permits the
+  re-verification write BR97/#75 asked for. Migration `0041`'s own comment
+  records this so whoever eventually builds BR97's enforcement remembers
+  to exempt `clearance`.
+
+- **Deliverables (all built):**
+  - Migration `0041_wwcc_reminder.sql`: `clearance.reminder_sent_at`;
+    `app_wwcc_due_for_reminder(p_club_id)` — a definer report in 0040's
+    refuse-rather-than-under-count shape, restricted to admin/registrar
+    (matching `clearance_select`); `app_record_wwcc_reminder_sent(p_clearance_id)`
+    — a plain `security invoker` update relying on `clearance_manage`'s
+    existing RLS, since (unlike 0040's arrears report) there is no
+    confident-wrong-answer failure mode here to guard against with a
+    definer role check.
+  - `src/domain/messaging/templates.ts`: `wwccReminder` — one email per
+    club, listing every overdue clearance, stating plainly that it is the
+    nudge and not the check itself.
+  - `src/data/wwccReminders.ts`: `sendWwccReminders()` — finds the current
+    Secretary (two plain queries against `committee_term`/`committee_position`/
+    `person`, matching this codebase's convention of avoiding embedded-relation
+    selects rather than one query with a join), composes and sends through
+    the existing `messaging.ts`, and marks `reminder_sent_at` **only for
+    clearances included in a message that actually sent** — a failed or
+    suppressed send leaves them due for the next nightly run rather than
+    waiting another six months.
+  - `src/app/api/cron/wwcc-reminders/route.ts` — a **Vercel Cron job**, not
+    a Supabase scheduled function: this stack is Next.js on Vercel
+    throughout, and the Supabase-specific mechanism the plan and the
+    [technology services doc](../ea/5_technology/1_technology-services.md)
+    originally assumed was never actually needed. Runs nightly, checked
+    against `CRON_SECRET`, using `createAdminClient('scheduled-job')` — the
+    reason already existed in `src/data/client.ts`'s closed set, naming
+    BR50/BR51/BR67, before this job used it for the first time.
+  - `supabase/tests/42_wwcc_reminder.sql`: 5 RLS scenarios — a coach is
+    refused the due-list, the six-month window holds on both edges, a
+    revoked clearance is never due, and recording a reminder sent needs
+    the same role as managing the clearance.
+- **Outcome:** BR51's secondary mechanism — previously annual, now
+  six-monthly — exists as a running job rather than a documented
+  intention. `npm run check:full` passes (33 RLS suites, 717 unit tests)
+  and a production build succeeds with the new route compiled.
 
 ### WP3 — The administrator invitation requires a named individual (BR106, BR124; #76)
 

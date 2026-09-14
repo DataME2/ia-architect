@@ -67,6 +67,7 @@ acceptable.
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No | `.env.local`, Vercel env vars | Designed to be public. **Safe only because RLS is on every table** |
 | `SUPABASE_SERVICE_ROLE_KEY` | **Yes** | `.env.local`, Vercel env vars (server scope only) | **Bypasses RLS entirely.** Full read/write across every club |
 | `SUPABASE_DB_PASSWORD` | **Yes** | Developer's local shell or password manager | Supabase CLI only, for migrations. Not needed at run time |
+| `CRON_SECRET` | **Yes** | `.env.local`, Vercel env vars (server scope only) | Checked against the bearer token Vercel Cron sends automatically. A cron route has no signed-in user, so this is what stops anyone who finds the URL from triggering it |
 
 [`.env.example`](../../../.env.example) carries the names with no values.
 Copy it to `.env.local`, which is gitignored.
@@ -131,6 +132,18 @@ Rules that follow, and the first two are not stylistic:
   Retention *tracking* is built and disposal is not
   ([#30](../../scope/open-questions.md)); a migration that drops data would
   route around that deliberately unbuilt gap.
+
+## Scheduled jobs
+
+**The first one, and it is `vercel.json`'s single `crons` entry, not a
+Supabase Edge Function** — the earlier expectation in this document (see
+below) assumed Supabase's own scheduling; building it found this stack is
+Next.js on Vercel throughout, and a Vercel Cron job calling an ordinary
+route handler needed nothing new. `/api/cron/wwcc-reminders` runs nightly,
+authenticated by `CRON_SECRET`, using `createAdminClient('scheduled-job')`
+— the reason already existed in `src/data/client.ts`'s closed set before
+this job used it for the first time, naming BR50, BR51 and BR67 as the
+cases it was reserved for.
 
 ## CI/CD
 

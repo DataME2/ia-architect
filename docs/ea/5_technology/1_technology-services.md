@@ -44,8 +44,13 @@ with users and real data.
   application layer records this as a build-time check rather than a hope.
 - **Serverless and background work fit awkwardly.** BR50's scheduled
   withdrawal, BR51's re-verification, and BR67's transfer at 18 all need
-  scheduled execution. Supabase's scheduled functions cover it at this
-  scale; if the job count grows this is the first thing to outgrow.
+  scheduled execution. **Built for BR51 (scope 48, WP2) as a Vercel Cron
+  job calling an ordinary route handler**, not a Supabase scheduled
+  function — this stack is Next.js on Vercel throughout, and the
+  Supabase-specific mechanism this bullet originally assumed was never
+  actually needed. `createAdminClient('scheduled-job')` is the seam; if the
+  job count grows, a dedicated queue is the first thing this outgrows, not
+  the scheduling primitive itself.
 
 ## Deliberately not chosen yet
 

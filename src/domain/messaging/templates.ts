@@ -115,9 +115,40 @@ export const claimApproved: MessageTemplate<ClaimApprovedInput> = {
   }),
 };
 
+/** BR51's six-monthly nudge. One email per club, covering every clearance due. */
+export interface WwccDue {
+  readonly personName: string;
+  readonly kind: string;
+  readonly expiresOn: string;
+}
+
+export interface WwccReminderInput {
+  readonly secretaryName: string;
+  readonly due: readonly WwccDue[];
+}
+
+export const wwccReminder: MessageTemplate<WwccReminderInput> = {
+  key: 'secretary.wwcc_reminder',
+  version: 1,
+  purpose: 'operational',
+  compose: ({ secretaryName, due }, ctx) => ({
+    subject: `${due.length} Working with Children Check${due.length === 1 ? '' : 's'} due for re-verification`,
+    body: `Hello ${secretaryName},\n\n`
+      + `BR51 asks for a re-verification check every six months. These have not been checked in that time `
+      + `(or ever, if newly recorded):\n\n`
+      + due.map((d) => `  • ${d.personName} — ${d.kind}, card expires ${d.expiresOn}`).join('\n')
+      // BR51's own limit, said plainly rather than implied: this is the
+      // nudge, not the check. Nobody reading it should think the register
+      // was consulted on their behalf.
+      + `\n\nThis reminder does not check the state register itself — someone still needs to look each one up.`
+      + SIGN_OFF(ctx.clubName, ctx.unsubscribeUrl),
+  }),
+};
+
 export const TEMPLATES = {
   [guardianReminder.key]: guardianReminder,
   [fixtureChange.key]: fixtureChange,
   [officialWithdrew.key]: officialWithdrew,
   [claimApproved.key]: claimApproved,
+  [wwccReminder.key]: wwccReminder,
 } as const;
