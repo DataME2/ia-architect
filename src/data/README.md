@@ -53,6 +53,7 @@ something that happens by accident, and that is the design.
 | `carnivals.ts` | The host club's view and the public one, through **the same function and the same client** — what a visitor may see is decided by the policy on `published_at`, not by an `if` |
 | `competitions.ts` | The shared catalogue and the club's participation in it. Two plain queries joined in TypeScript rather than a PostgREST embed, which reads tersely and types badly |
 | `privacy.ts` | Erasure, retention and the club's export. Thin: each act deletes a Person or refuses to, so the rule lives in the database where it cannot be routed around |
+| `reporting.ts` | Calls the three summary functions and turns a Postgres raise citing BR142 into a `refused` report. The role check is the database's, not this module's — a figure must be refused wherever it is asked for, not wherever somebody remembered to ask |
 | `reminders.ts`, `notifications.ts` | Joining a message to a registration, a withdrawal, or an approval |
 
 Explicit `club_id` filters in these queries are **belt and braces, not the

@@ -48,6 +48,7 @@ Numbered by concern, run in order:
 | `26`–`30` | The referee slice: record, availability, appointments, verification and fees, claims and batches |
 | `31`–`32` | Family access, and what a household may read |
 | `38` | Calendar distribution — a feed carries its subscriber's commitments and nobody else's, rotation and revocation kill the URL at once, and a minor's feed belongs to their guardian |
+| `39` | Reporting — a coach is **refused** each report rather than handed the zeros RLS would have produced, the checks are per report, owing and credit stay apart, and a blocker is counted once per registration rather than once per recheck |
 | `37` | Carnivals — the tables carry no person column (asserted against `information_schema`), publishing opens exactly three of them, and anon reads but never writes |
 | `36` | Officiating interest — a declaration creates nothing, accepting records the level **unsighted**, and only the person or a guardian with authority may declare |
 | `35` | The competition catalogue — every club reads it, **no club writes it**, and a minimum cannot cross associations. These scenarios are what makes `check_rls.py`'s three new exemptions safe rather than argued |

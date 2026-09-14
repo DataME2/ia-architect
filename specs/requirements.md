@@ -1131,6 +1131,55 @@ the people who could do it.
 
 ---
 
+## Requirement 39 — Numbers a committee can act on
+
+**User story.** As a club committee member, I want the registration,
+financial and officiating figures on a screen, so that the questions a
+committee meeting asks are answered from the system rather than from
+somebody's recollection and a spreadsheet.
+
+**Traces to:** BR142, BR143, BR78, BR81 · C8 · **Status: 🟡 Partial**
+
+### Acceptance criteria
+
+1. WHEN a reader whose role may not have a figure requests it, THEN the
+   system SHALL **refuse** the report and SHALL NOT compute a partial one.
+   ✅ *(BR142. Row-Level Security hides rows and does not refuse sums, so a
+   finance report aggregating what the caller can see would hand a coach
+   `$0 outstanding` — correct isolation producing a confident lie.)*
+2. WHEN a reader whose role may have a figure requests it, THEN the system
+   SHALL compute it over **all** of the club's rows for that season,
+   including rows an ordinary query as that reader would not have returned.
+   ✅
+3. WHEN the role check is made, THEN it SHALL be made **per report** rather
+   than once for all three — a treasurer has the finance summary and not the
+   registrar's queue; a coordinator the reverse. ✅
+4. WHEN a figure is shown, THEN it SHALL state what it was computed over and
+   the moment it was computed. ✅ *(BR143 — a screen with no as-at is read
+   as current however old the tab is.)*
+5. WHEN a proportion has a base of zero, THEN the system SHALL show no
+   percentage. ✅ *(0 of 0 is 100% complete is arithmetically defensible and
+   operationally a lie.)*
+6. WHEN money is summarised, THEN amounts owed and amounts in credit SHALL
+   be counted apart and SHALL NOT be netted. ✅ *(A club owed $80 that owes
+   $20 back is not a club owed $60; netting names neither the arrears to
+   chase nor the refunds to pay.)*
+7. WHEN voucher relief is summarised, THEN only a voucher that has been
+   verified or claimed SHALL count. ✅ *(BR81 — an attached voucher has
+   moved no money, and counting it overstates what the club has collected.)*
+8. WHEN registrations blocked by a rule are counted, THEN each registration
+   SHALL count once for that rule however many times it has been
+   re-evaluated. ✅ *(`validation_result` is a history; counting every row
+   makes the number worse the more diligently the registrar works.)*
+9. WHEN a report is requested for a club the reader holds no membership at,
+   THEN it SHALL be refused. ✅
+10. A committee SHALL be able to compare a season against the one before it.
+    ⬜ *(One club, one season, one moment. No trend, no comparison, no
+    export, and nothing scheduled — waiting on imported history, which is
+    blocked on [#57](../docs/scope/open-questions.md).)*
+11. Arrears SHALL be aged. ⬜ *(Overdue is a count and a total, not
+    30/60/90.)*
+
 ## Coverage summary
 
 | Part | Requirements | Implemented | Partial | Not implemented |
@@ -1145,14 +1194,14 @@ the people who could do it.
 | H — Person-facing experience | 30–32 | 2 | 0 | 1 |
 | I — Cross-cutting | 33–37 | 4 | 3 | 0 |
 | J — Referee recruitment | 38 | 1 | 0 | 0 |
-| **Total** | **38** | **25** | **13** | **0** |
+| K — Reporting | 39 | 0 | 1 | 0 |
+| **Total** | **39** | **25** | **14** | **0** |
 
-**Read that last row carefully.** Twenty-four requirements implemented is a
+**Read that last row carefully.** Twenty-five requirements implemented is a
 working product for one club's registration, finance, officiating and
-privacy obligations. The three unimplemented ones are not scattered:
-**nothing is left unstarted.** Every requirement in this document is now
-implemented or partial, which is a different claim from *finished*: thirteen
-are partial, and what is missing from each is named on the criterion rather
+privacy obligations. **Nothing is left unstarted.** Every requirement in
+this document is now implemented or partial, which is a different claim from
+*finished*: fourteen are partial, and what is missing from each is named on the criterion rather
 than in a summary. Requirement 32's mobile client is the largest single
 absence, and Requirement 35.10's retention schedule is the one waiting on a
 production environment rather than on work. Competitions joined them in September

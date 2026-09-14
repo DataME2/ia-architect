@@ -297,6 +297,9 @@ get a row here, with rationale, before they get code (`ea-first-change`).
 
 | BR141 | A calendar feed is a **projection, never a table read**. The subscriber's token resolves to a fixed set of fields — competition, date, time, venue and their own role — assembled by the platform, and there is **no parameter a holder can vary** to widen it | Calendar distribution / privacy | BR30 and BR32 say what a feed may contain; this says the holder cannot ask for anything else. A feed built by filtering a query the caller influences is one query-string away from being a different feed, and the holder of the URL is by definition unauthenticated |
 
+| BR142 | **A figure computed over rows the reader may not see is not shown as a figure.** Where access narrows what somebody may read, a report says *that* rather than presenting a total of whatever happened to be visible | Reporting / access | Row-Level Security hides rows; it does not refuse sums. A coach opening a finance report would be shown **$0 outstanding** — correct isolation producing a confident lie, and one nobody would catch because it looks like good news. A zero meaning "you may not see this" is indistinguishable from a zero meaning "there is none", so a report must never have to rely on the difference |
+| BR143 | Every reported figure **states the base it was computed over and the moment it was computed** | Reporting / data quality | BR102 already says this for a player's totals and BR46 for a reconciliation result. A dashboard is where the temptation to drop it is strongest and the cost is highest: a number on a committee's screen is acted on, and "47 registrations outstanding" means nothing without *of how many, and as at when* |
+
 
 Rule parameters that vary by classification, competition, association,
 season, or event (availability weeks, decline-rate thresholds,

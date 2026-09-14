@@ -14,8 +14,8 @@ it lives in the source tree.
 > becomes a real path as it lands.
 
 **This document lists what exists.** For what the software *offers* and how
-much of each service is real — including the three that are partial and the
-eight capabilities with no code at all — see
+much of each service is real — including the nine that are partial and the
+seven capabilities with no code at all — see
 [1_application-services.md](./1_application-services.md). Reading this page
 alone gives a misleading impression, because a list of delivered components
 says nothing about the ones that were never started.
@@ -121,6 +121,12 @@ says nothing about the ones that were never started.
 | **The token, reused** | `feedUrlFor`, `src/data/calendar.ts` | [Decision 12](../../decisions/12_an_unsubscribe_link_is_derived_not_stored.md)'s construction, not a third one. The unsubscribe link needed *durability* so a year-old email works; a feed URL needs *rotatability* so a lost phone stops reading it. `HMAC(secret, salt)` gives both — a new salt kills the old URL with no revocation list to maintain | **Delivered** |
 | **The document** | `src/domain/calendar/ical.ts` | RFC 5545, pure, and pure for a specific reason: the output is read by Google and Apple rather than by a person, so a mistake does not look wrong — it looks like a calendar that silently duplicates every event. **Stable UIDs** are the load-bearing part; folding counts octets rather than characters, because a fold through a UTF-8 sequence produces a line no client can read | **Delivered** |
 | **A minor's feed belongs to a guardian** | `enforce_feed_holder()` trigger | BR33. Decision 4 named this as the duty-of-care half of the question rather than the technical half: a calendar feed is a record of where a child will be, and when | **Delivered** |
+| **Three summaries that refuse** | `supabase/migrations/0036_reporting.sql` | BR142, and the shape is the point. Everywhere else in this schema access is an *emergent* property of which rows a policy admits; an aggregate cannot work that way, because the aggregate of nothing is a number rather than an absence. Each function is `security definer`, checks the reader's role **explicitly**, and raises — so a coach gets an exception, not the `$0 outstanding` that correct isolation would otherwise have handed them | **Delivered** |
+| **Counted once, not once per recheck** | `app_registration_summary`'s `distinct on (registration_id, rule_id)` | `validation_result` is a *history* — the same rule failing the same registration on Monday and again on Friday is two rows and one blocked family. A blocker count that reads every row inflates with every recheck, which means the number gets worse the more diligently the registrar works | **Delivered** |
+| **Owing and credit stay apart** | `app_finance_summary` | A club owed $80 that owes $20 back is not a club owed $60. Netting them produces a figure no treasurer can act on — it names neither the arrears to chase nor the refunds to pay. Voucher relief counts only `VERIFIED` and `CLAIMED` (BR81): an attached voucher has moved no money and counting it overstates what the club has collected | **Delivered** |
+| **A figure states its base** | `src/domain/reporting/summary.ts` | BR143. `proportion()` returns no percentage at all over a zero base — *0 of 0 is 100% complete* is arithmetically defensible and operationally a lie — and every report carries the moment it was computed, because a screen with no as-at is read as current however old the tab is | **Delivered** |
+| **A refusal is a state, not a crash** | `src/data/reporting.ts`, `/registrar/reports` | The database raise is turned into `{ kind: 'refused' }` and rendered as a sentence saying which role the report belongs to. A reader who may not have a figure is told so — the one thing that must never happen is the number quietly becoming zero | **Delivered** |
+| **Reporting tests** | `supabase/tests/39_reporting.sql` | Eight scenarios on **its own club**, because this is the one suite that asserts about *totals* and a total computed over a fixture four other suites also write to changes when somebody else adds a registration. Sharing the shared club cost two failures before that was true | **Delivered** |
 
 ## Three structural rules for the code
 

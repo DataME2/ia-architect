@@ -46,6 +46,7 @@ stack; Vercel serves it.
 | `calendar/[token]/` | The iCalendar feed, served to a calendar client that holds a URL and no session |
 | `events/[eventId]/` | The Public Event View (P6) — **the one page a stranger may read**. No session, and no branch deciding what to hide |
 | `registrar/privacy/` | Erasure requests, retention proposals, authority at eighteen, and the club's own export. Arranged so the irreversible things are hardest to do by accident |
+| `registrar/reports/` | The three summaries a committee acts on. A report the reader's role may not have says so in a sentence naming the role; it never renders as zero |
 | `unsubscribe/[token]/` | Stopping the email (BR128). No session, and **nothing read before the person acts** — the page does not say whose address it is, which club sent the message, or whether the link is valid, because confirming an address is on a list is itself a disclosure |
 | `demo/` | The demonstration door — an email address, read-only rights, marketing consent asked separately and never as a condition (BR91–BR93) |
 

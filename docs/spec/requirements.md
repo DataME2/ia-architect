@@ -189,11 +189,11 @@ a business rule without an intermediate mapping table.
 | Capability | Rules stranded | Status |
 | ---------- | -------------- | ------ |
 | **C7 — Communications** | BR64 and claim approval remain unwired — see FR-C17.7 | **Partial** — built September 2026 ([scope 36](../scope/36_the_platform_learns_to_send_and_to_stop.md)): a guardian reminder, BR42's coordinator notification, and an account-free unsubscribe with suppression held here rather than at the provider (BR127–BR131). No campaigns, no bounce handling |
-| **C8 — Reporting & dashboards** | — | **Not built** |
+| **C8 — Reporting & dashboards** | — | **Partial** — built September 2026 ([scope 42](../scope/42_numbers_a_committee_can_act_on.md)): three summaries computed authoritatively and **refused** rather than partially computed for a reader whose role may not have them (BR142, BR143). No trend, no comparison, no export, nothing scheduled |
 | **C9 — Historical data consolidation** | BR90 | **Designed**, blocked on open question #57 (lawful basis) |
 | **C11 — Competition & calendar** | Competition Regulations as documents | **Partial** — the catalogue, ranked classification levels and **BR8 as a real blocker** ([scope 38](../scope/38_the_catalogue_that_makes_br8_computable.md)) |
-| **C12 — Carnival & event management** | BR26–BR29 | **Not built** — the one deliberate P5 exception |
-| **C13 — Calendar distribution** | BR30–BR34 | **Not built** |
+| **C12 — Carnival & event management** | BR28 — conflict checks for carnival officials are not wired | **Partial** — built September 2026 ([scope 40](../scope/40_carnivals_and_the_one_thing_the_public_may_see.md)): the one deliberate P5 exception, made narrow by the tables carrying no person column at all (BR139) |
+| **C13 — Calendar distribution** | — | **Partial** — built September 2026 ([scope 41](../scope/41_the_feed_a_referee_already_has_a_calendar_for.md)): a revocable per-Person iCalendar feed (BR30–BR34). Referee appointments only |
 | **C14 — External reconciliation** | BR39, BR44–BR47, BR53 | **Blocked externally** |
 | **C18 — Life member register** | BR69–BR71 | **Designed** |
 

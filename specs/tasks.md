@@ -558,18 +558,26 @@ old one stops updating.
 
 ---
 
-## Phase 13 — Reporting and dashboards *(not started)*
+## Phase 13 — Reporting and dashboards *(built, less the import)*
 
 **Outcome when complete:** the committee gets the numbers it actually asks
 for.
 
-- [ ] Registration dashboard: completion rate, and what the incomplete are blocked on
-- [ ] Financial dashboard: outstanding by age, plan adherence, voucher relief
-- [ ] Referee dashboard: appointments, declines, claims and batch state
+- [x] Registration dashboard: completion rate, and what the incomplete are blocked on — each blocker counted once per registration, not once per recheck
+- [x] Financial dashboard: outstanding and credit counted apart, plan adherence, voucher relief that excludes the merely attached (BR81)
+- [x] Referee dashboard: officials, appointments, declines, withdrawals, claims raised and approved, and the matches still unverified
+- [x] A figure a reader's role may not have is **refused, not computed** (BR142) — the trap this phase was mostly about
+- [x] Every figure states its base and the moment it was computed (BR143)
 - [ ] Historical import (C9) to give the dashboards more than one season — **blocked on open question #57**, the lawful basis for importing it
 
-**Manually testable:** open each dashboard against the demonstration club
-and reconcile one number by hand.
+**Not built, and named rather than implied:** no ageing buckets on arrears
+(overdue is a count and a total, not 30/60/90), no payment-batch state on
+the referee summary, no trend or season-on-season comparison, no export, and
+nothing scheduled — a committee reads the screen, it is not sent to them.
+
+**Manually testable:** open `/registrar/reports` as a registrar and
+reconcile one number by hand; then as a coach, and confirm each report says
+which role it belongs to rather than showing zeros.
 
 ---
 
@@ -598,19 +606,19 @@ and reconcile one number by hand.
 | 10 | Competitions | 13 | 2 |
 | 11 | Carnivals | 11 | 2 |
 | 12 | Calendar distribution | 12 | 2 |
-| 13 | Reporting | 0 | 4 |
+| 13 | Reporting | 5 | 1 |
 | 14 | Engineering quality | 0 | 3 |
 | 10b | Officiating at registration | 12 | 1 |
-| | **Total** | **207** | **44** |
+| | **Total** | **211** | **41** |
 
 **Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy
 obligations — which can now tell a family what is outstanding, be told to
 stop, honour an erasure request, and explain a refusal.
 
-What is left is **capability rather than obligation**: mobile and
-reporting. None of it is statutory, and none of it is
-blocked by anything above it.
+What is left is **capability rather than obligation**: the mobile
+experience, and the reporting residue named in Phase 13. None of it is
+statutory, and none of it is blocked by anything above it.
 
 Phase 10 also spent Phase 8's last IOU — BR64's notification had been built
 with no caller, and a fixture that can be edited gave it one. **One

@@ -61,6 +61,7 @@ The next migration takes the next number.
 | `0028`–`0029` | Family access, and what a household may read |
 | `0030` | Communications: who may be contacted, what was sent, and the withdrawal that stops it |
 | `0035` | Calendar distribution: a revocable per-Person feed, and the projection behind it |
+| `0036` | Reporting: three `security definer` summaries that compute the true total or refuse, because RLS hides rows and does not refuse sums |
 | `0034` | Carnivals: the only deliberate exception to P5, made narrow by the tables having no person column |
 | `0033` | Officiating interest: what a family declared at registration, and the review that turns a claim into a referee |
 | `0032` | The competition catalogue: shared reference data, ranked classification levels, and the reference a fixture carries |
