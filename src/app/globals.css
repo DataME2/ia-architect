@@ -1267,9 +1267,18 @@ td {
   font-weight: 640;
 }
 
-/* A rail beside the content works down to tablet width; below that it goes
-   back to being a horizontal, scrollable strip above the content — a
-   column narrower than the rail itself has nowhere to put one. */
+/* The toggle only exists on a phone. Laptop and up never renders it, so it
+   stays out of the tab order there without a separate media query on the
+   button itself. */
+.registrar-nav-toggle {
+  display: none;
+}
+
+/* Laptop and up: the rail beside the content, exactly as above. Below that
+   there is no room for a rail beside the content *or* a bar above it
+   without one of them losing, so the whole rail collapses to one button
+   that opens the list as a panel — the shape a phone actually expects,
+   rather than a version of the desktop rail squeezed sideways. */
 @media (max-width: 55rem) {
   .registrar-shell {
     grid-template-columns: 1fr;
@@ -1278,25 +1287,66 @@ td {
   .registrar-nav-rail {
     position: static;
     order: -1;
-  }
-
-  .registrar-nav-list {
-    grid-auto-flow: column;
-    grid-auto-columns: max-content;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: thin;
-    scroll-snap-type: x proximity;
-    padding-bottom: 0.2rem;
-  }
-
-  .registrar-nav-link {
-    scroll-snap-align: start;
-    white-space: nowrap;
+    padding: 0;
+    gap: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .registrar-nav-rail > .rail-label {
     display: none;
+  }
+
+  .registrar-nav-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: 100%;
+    padding: 0.65rem var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-weight: 640;
+    font-size: 0.92rem;
+    box-shadow: var(--shadow-xs);
+  }
+
+  /* Qualified by the parent class: the generic `button:hover:not(:disabled)`
+     rule outranks a bare `.registrar-nav-toggle:hover` on specificity (its
+     :not() counts as a pseudo-class too), which was enough to paint this
+     button the primary-action reef on hover instead of staying quiet — a
+     "sign this in" colour on a "show me the menu" control. */
+  .registrar-nav-rail .registrar-nav-toggle:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  .registrar-nav-toggle-icon {
+    display: flex;
+    color: var(--accent);
+    flex: 0 0 auto;
+  }
+
+  /* Closed by default; opened by the button, in sync via aria-expanded. */
+  .registrar-nav-list {
+    display: none;
+    margin-top: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .registrar-nav-rail.is-open .registrar-nav-list {
+    display: grid;
+  }
+
+  .registrar-nav-link {
+    padding: 0.6rem 0.7rem;
   }
 }
 
