@@ -3,8 +3,8 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** not yet started — this document is the plan; branch
-`open-questions` carries only the documentation change that precedes it.
+**Delivered as:** branch `open-questions`. **WP1 built**; WP2 and WP3 remain
+plan only.
 
 [Scope 47](./47_stakeholder-answers-september-2026.md) folded the
 president's September 2026 answers into BR40, BR51, BR79 and BR106/BR124
@@ -47,7 +47,7 @@ flowchart LR
 
 ## Work packages and deliverables
 
-### WP1 — Outstanding-balance visibility across seasons (BR40, BR79; #30, #50)
+### WP1 — Outstanding-balance visibility across seasons (BR40, BR79; #30, #50) — **built**
 
 - **Deliverables:**
   - Migration `0040_outstanding_balance_visibility.sql`:
@@ -65,19 +65,24 @@ flowchart LR
       One row per Treasurer follow-up — an append-only log, not a status
       flag, so a family chased twice has two entries rather than one
       overwritten note. RLS: Treasurer inserts and reads; Registrar reads.
-    - `app_record_arrears_action(...)` definer function enforcing BR79's
-      "payment requested, or a documented reasoned amendment — never a
-      silent write-off": `amendment_recorded` without a non-empty `reason`
-      is refused.
-  - Screen: an "Outstanding across seasons" view for Registrar/Treasurer,
-    reachable from the existing finance screens, listing each Person with
-    an arrear, its age, and its action history.
-  - `supabase/tests/40_outstanding_balance_visibility.sql`: proves a coach
-    gets refused (not a zero), proves the two-year window's edges, and
-    proves `amendment_recorded` without a reason is rejected.
+    - `app_record_arrears_action(...)` — a **security invoker** convenience
+      function, not definer: RLS on `arrears_action` already decides who
+      may write, so this exists only to name BR79 in the error rather than
+      leaving a bare constraint violation. The constraint itself lives on
+      the table, holding even against a caller that inserts directly.
+  - Screen: `/registrar/arrears` — "Arrears" in the Registrar nav,
+    listing every Person with an in-window balance, oldest and
+    never-chased first (`arrearsQueue` in `src/domain/reporting/summary.ts`),
+    with an inline form per row to record a follow-up.
+  - `supabase/tests/41_outstanding_balance_visibility.sql`: 8 scenarios —
+    a coach is refused (not a zero or an empty list), the two-year window
+    is measured from the season's end, an amendment with no reason is
+    refused twice over (the function's check and the table's constraint),
+    the log is append-only, and another club's officer reads nothing.
 - **Outcome:** the debt-visibility clock BR40 and BR79 now describe in
   text is a real, queryable thing, and the Treasurer's response to it
-  leaves a record rather than a memory.
+  leaves a record rather than a memory. `npm run check:full` passes,
+  including the new RLS suite (32 suites total) and a production build.
 
 ### WP2 — The six-monthly WWCC reminder (BR51; #38, #75)
 

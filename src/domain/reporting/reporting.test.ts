@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { financeReport, officiatingReport, proportion, registrationReport } from './summary.ts';
+import {
+  arrearsQueue, financeReport, officiatingReport, proportion, registrationReport,
+} from './summary.ts';
 import type { FinanceFigures, OfficiatingFigures, RegistrationFigures } from './types.ts';
 
 test('proportion — BR143, a figure carries its base', async (t) => {
@@ -110,5 +112,41 @@ test('officiatingReport', async (t) => {
     const r = officiatingReport(figures());
     assert.equal(r.awaitingResponse, 6);
     assert.equal(r.declined.count, 3);
+  });
+});
+
+test('arrearsQueue — BR79, oldest and never-chased first', async (t) => {
+  const row = (over: Partial<import('./types.ts').ArrearsRow>): import('./types.ts').ArrearsRow => ({
+    personId: 'p', personName: 'Person', seasonId: 's', seasonName: '2025',
+    seasonEndedOn: '2025-12-01', outstandingCents: 5000, ageDays: 30,
+    lastAction: null, lastActionAt: null, ...over,
+  });
+
+  await t.test('never-chased comes before anything already actioned', () => {
+    const rows = [
+      row({ personId: 'a', ageDays: 400, lastAction: 'payment_requested' }),
+      row({ personId: 'b', ageDays: 10, lastAction: null }),
+    ];
+    const queue = arrearsQueue(rows);
+    assert.equal(queue[0]?.personId, 'b');
+    assert.equal(queue[0]?.neverChased, true);
+    assert.equal(queue[1]?.neverChased, false);
+  });
+
+  await t.test('within the same chased state, oldest first', () => {
+    const rows = [
+      row({ personId: 'young', ageDays: 10 }),
+      row({ personId: 'old', ageDays: 400 }),
+    ];
+    const queue = arrearsQueue(rows);
+    assert.equal(queue[0]?.personId, 'old');
+    assert.equal(queue[1]?.personId, 'young');
+  });
+
+  await t.test('does not mutate the input array', () => {
+    const rows = [row({ personId: 'a', ageDays: 1 }), row({ personId: 'b', ageDays: 2 })];
+    const original = [...rows];
+    arrearsQueue(rows);
+    assert.deepEqual(rows, original);
   });
 });

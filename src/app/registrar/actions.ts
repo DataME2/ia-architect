@@ -22,6 +22,7 @@ import {
   createPaymentPlan,
   recordPayment,
 } from '../../data/finance.ts';
+import { recordArrearsAction, type ArrearsAction } from '../../data/arrears.ts';
 import { recordGuardianInvitation } from '../../data/family.ts';
 import { sendRegistrationReminder } from '../../data/reminders.ts';
 import {
@@ -524,4 +525,38 @@ export async function sendReminderAction(_previous: FormResult, formData: FormDa
   return sent.length === 0
     ? formFailed(`Nothing was sent. ${detailLine}`)
     : formFailed(`Sent to ${sent.map((r) => r.to).join(' and ')}. Not sent: ${detailLine}`);
+}
+
+/**
+ * BR79: the Treasurer's recorded response to one Person's arrear —
+ * payment requested, or a documented, reasoned amendment. `useActionState`
+ * pattern, matching `setOutstandingAction`: the message comes back to the
+ * form rather than throwing, because "you must give a reason" is a thing a
+ * Treasurer corrects and resubmits, not a broken page.
+ */
+export async function recordArrearsActionAction(
+  _previous: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const personId = String(formData.get('personId') ?? '');
+  const seasonId = String(formData.get('seasonId') ?? '');
+  const action = String(formData.get('action') ?? '') as ArrearsAction;
+  const reason = String(formData.get('reason') ?? '').trim();
+  if (personId === '' || seasonId === '') throw new Error('Missing identifiers.');
+  if (action !== 'payment_requested' && action !== 'amendment_recorded') {
+    throw new Error('Unknown arrears action.');
+  }
+
+  const { client, tenant } = await requireTenant();
+
+  try {
+    await recordArrearsAction(
+      client, tenant.clubId, personId, seasonId, action, reason === '' ? null : reason,
+    );
+  } catch (err) {
+    return err instanceof Error ? err.message : 'Could not record this action.';
+  }
+
+  revalidatePath('/registrar/arrears');
+  return null;
 }
