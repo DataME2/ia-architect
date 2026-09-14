@@ -674,7 +674,8 @@ interest is not discovered at the ground.
 4. WHEN a proposed official's classification is below the competition's
    minimum, THEN the system SHALL refuse it. ✅ *(Genuinely, from scope 38.
    Before the catalogue this was a warning that said it could not judge, so
-   an official **below** a minimum produced nothing at all.)*
+   an official **below** a minimum produced nothing at all.)* **Only a
+   sighted classification is compared** (BR138, Requirement 38.8).
 5. WHEN a proposed official's mandatory accreditation has expired as at the
    fixture date, THEN the system SHALL refuse it. ✅
 6. WHEN the conflict is same-club affiliation, a family relationship with a
@@ -1041,6 +1042,53 @@ actions, so that "who approved this, and when" is answerable years later.
 3. WHEN a rule outcome is recorded, THEN it SHALL carry the business rule
    identifier so that the record stays readable against this document. ✅
 
+## Requirement 38 — Asking whether they also officiate
+
+**User story.** As a club referee coordinator, I want every registration to
+ask whether the player or their family would like to officiate, so that
+recruiting referees is not word of mouth in a club whose players are exactly
+the people who could do it.
+
+**Traces to:** BR136–BR138, BR63, BR84 · C4 · **Status: ✅ Implemented**
+
+### Acceptance criteria
+
+1. WHEN a registration is captured through **either** entry point — the
+   registrar's form or the account-free family link — THEN the system SHALL
+   ask whether they would like to officiate, whether they have officiated
+   before, and for an accreditation number and level. ✅
+2. WHEN neither question is answered affirmatively, THEN the system SHALL
+   record nothing. ✅ *(A row of falses is noise a coordinator must read and
+   dismiss.)*
+3. WHEN a declaration is recorded, THEN the system SHALL create **no**
+   referee role, referee profile or classification. ✅ *(BR136.)*
+4. WHEN a declaration is recorded, THEN the system SHALL record who made it.
+   ✅ *(BR137 — "their mother thought they were Level 4" and "they said they
+   were Level 4" are different conversations to have with the register.)*
+5. WHEN a person under thirteen attempts to declare their own interest, THEN
+   the database SHALL refuse it; a guardian with authority MAY declare for
+   them at any age. ✅ *(BR63's threshold governs who may declare for
+   themselves, not who may be declared — MiniRefs are children.)*
+6. WHEN a person with no authority over the subject attempts to declare,
+   THEN the database SHALL refuse it. ✅
+7. WHEN a coordinator accepts a declaration, THEN the system SHALL create
+   the referee profile and the season role **of the season the registration
+   was for**, and SHALL record any declared level as **unsighted**. ✅
+8. WHEN the declared level is unsighted, THEN it SHALL count towards nothing
+   in Requirement 25.4's comparison, and SHALL be reported as *unchecked*
+   rather than as *none*. ✅ *(BR138.)*
+9. WHEN BR84 refuses the season role because the person is an adult with no
+   verified clearance, THEN the system SHALL still record the decision and
+   SHALL say that a card is what is missing. ✅
+10. WHEN a declaration is declined, THEN the system SHALL keep it as
+    declined rather than removing it. ✅ *(#79.)*
+11. An accreditation number SHALL be readable only by the roles that act on
+    it, and SHALL NOT appear on the player record. ✅ *(BR120.)*
+12. WHEN a declaration is decided, THEN the family SHALL be told. ⬜ *(C7
+    exists; the template and the call do not.)*
+
+---
+
 ---
 
 ## Coverage summary
@@ -1056,7 +1104,8 @@ actions, so that "who approved this, and when" is answerable years later.
 | G — Competitions and carnivals | 27–29 | 0 | 1 | 2 |
 | H — Person-facing experience | 30–32 | 2 | 0 | 1 |
 | I — Cross-cutting | 33–37 | 4 | 3 | 0 |
-| **Total** | **37** | **24** | **11** | **2** |
+| J — Referee recruitment | 38 | 1 | 0 | 0 |
+| **Total** | **38** | **25** | **11** | **2** |
 
 **Read that last row carefully.** Twenty-four requirements implemented is a
 working product for one club's registration, finance, officiating and

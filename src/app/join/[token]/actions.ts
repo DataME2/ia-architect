@@ -76,6 +76,28 @@ export async function submitJoinAction(
     };
   }
 
+  // Scope 39. The account-free path asks too — a family registering through
+  // a link is exactly the family a club most needs to ask, and leaving the
+  // question to the registrar's form would make the answer depend on which
+  // door they came in.
+  //
+  // Never allowed to fail the registration (BR136): it is a claim about a
+  // Person, and a registration saved without its officiating answer is
+  // recoverable where the reverse is not.
+  if (draft.officiating !== null) {
+    await client.rpc('app_declare_interest', {
+      p_registration_id: result.registrationId,
+      p_wants: draft.officiating.wantsToOfficiate,
+      p_before: draft.officiating.hasOfficiatedBefore,
+      p_number: draft.officiating.accreditationNumber,
+      p_level: draft.officiating.level,
+      // The family asserted it themselves through the link. There is no
+      // signed-in Person to attribute it to, and inventing one would be
+      // exactly the inference decision 10 refuses.
+      p_declared_by: null,
+    });
+  }
+
   // What the family still has to do. Evaluated in memory from what was just
   // submitted and *not* persisted: an anonymous caller holds no grant on
   // `validation_result`, and giving one would let anybody write arbitrary

@@ -10,6 +10,8 @@ import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { rosterOrder } from '../../../web/referee-view.ts';
 import { todayIn } from '../../../web/today.ts';
 import { AddRefereeForm, RefereeRoster } from './RefereeForms.tsx';
+import { loadPendingInterests } from '../../../data/officiating.ts';
+import { InterestQueue } from './InterestQueue.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,6 +74,10 @@ export default async function RefereesPage({
   const asOf = todayIn();
   const rostered = new Set(referees.map((r) => r.personId));
 
+
+  // Scope 39 — declarations waiting on a decision (BR136).
+  const interests = await loadPendingInterests(client, tenant.clubId);
+
   return (
     <>
       <h2>Match officials</h2>
@@ -117,6 +123,15 @@ export default async function RefereesPage({
         somebody on a match sheet who never said they could do it. Designations are made on{' '}
         <a href="/registrar/designations">Designations</a>.
       </p>
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>
+          New officials declared at registration (BR136)
+          {interests.length > 0 && <span className="hint"> &mdash; {interests.length} waiting</span>}
+        </h3>
+        <InterestQueue interests={interests} />
+      </section>
+
     </>
   );
 }

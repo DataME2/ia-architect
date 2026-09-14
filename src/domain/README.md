@@ -45,7 +45,7 @@ them being present.
 | `rules/` | The registration rules — BR1, BR2, BR3, BR48, BR55 — each in its own `br<n>-<name>.ts`, plus the registry and evaluator in `index.ts` and the derived status in `registration-status.ts` |
 | `finance/` | Cent-exact payment plans (BR74, BR76), oldest-first allocation, vouchers (BR81), and the no-pay-no-play verdict (BR79) asked fresh every time and never stored |
 | `identity/` | BR5 duplicate candidates — for a human to confirm, never an automatic merge |
-| `officiating/` | Appointment conflicts (BR6–BR11, BR109, BR111) and fee resolution (BR115, BR116) |
+| `officiating/` | Appointment conflicts (BR6–BR11, BR109, BR111) and fee resolution (BR115, BR116). BR8 compares only a **sighted** classification (BR138) — an unchecked level is reported as unchecked, never as the level it states |
 | `teams/` | Whether a Person may hold a team role, given their clearance (BR83, BR84, BR54) |
 | `governance/` | Committee terms, and whether a mandate has lapsed (BR85–BR87) |
 | `performance/` | A player's season record, and what a statistic is honestly worth (BR101–BR104) |

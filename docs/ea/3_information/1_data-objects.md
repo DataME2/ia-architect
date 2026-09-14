@@ -205,6 +205,20 @@ rather than club-keyed, and writes are refused to everyone but a platform
 administrator. `scripts/check_rls.py` carries the same reasoning as the
 justification for its three new exemptions.
 
+## Officiating interest
+
+Added September 2026 by [scope 39](../../scope/39_asking_at_the_door_whether_they_also_officiate.md).
+
+| Data Object | Realises | Notes |
+| ----------- | -------- | ----- |
+| **`officiating_interest`** | Officiating Declaration | What a family said at registration, **who said it** (BR137) and what a coordinator decided. Every column naming a declared value is prefixed `declared_` so nobody reads it as verified. A trigger enforces who may declare: the person themselves at thirteen (BR63's threshold), or a guardian holding authority (BR48). Who may be *declared* is unrestricted — MiniRefs are children ([#80](../../scope/open-questions.md)) |
+
+**It creates nothing** (BR136). Accepting a declaration creates the referee
+profile and the season role, and records the declared level as a
+`referee_classification` with **`sighted_at` null** — which BR138 then
+refuses to count. That is the whole design in one sentence: the club gains a
+referee and gains nothing it has not verified.
+
 ## Not yet modeled
 
 Competition **Regulations** as documents (the catalogue above holds names,

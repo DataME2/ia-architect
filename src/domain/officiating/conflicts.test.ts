@@ -19,6 +19,7 @@ const candidate = (over: Partial<Candidate> = {}): Candidate => ({
   personId: 'p1',
   name: 'Neutral Nina',
   classification: 'Level 4',
+  classificationClaimed: 'Level 4',
   classificationLevel: null,
   accreditations: [{ kind: 'fitness', expiresOn: '2027-01-01', verifiedAt: '2026-01-01' }],
   playedInFixture: false,
@@ -180,6 +181,19 @@ test('assess — the other warnings', async (t) => {
   await t.test('BR8 — cannot judge an official with no classification against a real minimum', () => {
     const a = assess(candidate({ classification: null }), inLeague);
     assert.deepEqual(rules(a.warnings), ['BR8']);
+    assert.equal(a.offerable, true, 'not knowing is not a refusal');
+  });
+
+  await t.test('BR8 — an unsighted level does not count (BR138)', () => {
+    // The gap this closes: before scope 39 an unchecked classification
+    // counted exactly as a checked one did, which was harmless while only a
+    // coordinator could type one and unsafe the moment a guardian could.
+    const a = assess(
+      candidate({ classification: null, classificationClaimed: 'Level 4', classificationLevel: null }),
+      inLeague,
+    );
+    assert.deepEqual(rules(a.warnings), ['BR8']);
+    assert.match(a.warnings[0]?.message ?? '', /nobody has checked/);
     assert.equal(a.offerable, true, 'not knowing is not a refusal');
   });
 

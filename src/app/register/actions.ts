@@ -83,6 +83,24 @@ export async function submitRegistrationAction(
     );
   }
 
+  // Scope 39. A separate call rather than more arguments on the creation
+  // path: a declaration is a claim about a Person (BR136), not part of the
+  // registration it happened to arrive with, and it must not be able to
+  // fail the registration. A family whose child is registered but whose
+  // officiating answer was lost is recoverable; the reverse is not.
+  if (draft.officiating !== null) {
+    await client.rpc('app_declare_interest', {
+      p_registration_id: registrationId,
+      p_wants: draft.officiating.wantsToOfficiate,
+      p_before: draft.officiating.hasOfficiatedBefore,
+      p_number: draft.officiating.accreditationNumber,
+      p_level: draft.officiating.level,
+      // Recorded by a club officer on the family's behalf, so BR137's
+      // authority check has nobody to check and lets it through.
+      p_declared_by: null,
+    });
+  }
+
   // Re-evaluated against what was actually persisted, not against the draft
   // — the browser's opinion is a courtesy, never the authority (P3). This
   // reads back through the same query the registrar's queue uses, so the

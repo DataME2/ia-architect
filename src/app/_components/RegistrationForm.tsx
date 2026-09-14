@@ -261,6 +261,47 @@ export function RegistrationForm({
         </div>
       </fieldset>
 
+      {/* Scope 39. A club's referees are mostly its own players and their
+          parents, and nothing ever asked. What this captures is a *claim*
+          (BR136) — a coordinator checks it before it becomes anything. */}
+      <fieldset>
+        <legend>Match officiating &mdash; optional</legend>
+        <p className="hint">
+          Clubs run short of referees every season, and most referees start as players or parents.
+          Answering these changes nothing about this registration.
+        </p>
+
+        <div className="check">
+          <input type="checkbox" id="wantsToOfficiate" name="wantsToOfficiate" />
+          <label htmlFor="wantsToOfficiate">
+            Interested in officiating for the club. <strong>No experience needed</strong> — the club
+            will be in touch about training.
+          </label>
+        </div>
+
+        <div className="check">
+          <input type="checkbox" id="hasOfficiatedBefore" name="hasOfficiatedBefore" />
+          <label htmlFor="hasOfficiatedBefore">
+            Has officiated matches before.
+          </label>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div className="field" style={{ flex: '1 1 12rem' }}>
+            <label htmlFor="accreditationNumber">Accreditation number</label>
+            <input id="accreditationNumber" name="accreditationNumber" />
+          </div>
+          <div className="field" style={{ flex: '1 1 10rem' }}>
+            <label htmlFor="accreditationLevel">Accreditation level</label>
+            <input id="accreditationLevel" name="accreditationLevel" placeholder="Level 4, MiniRef…" />
+          </div>
+        </div>
+        <p className="hint">
+          Only needed if they have officiated before. The club checks these against the register
+          before they count towards anything &mdash; nothing here appoints anybody.
+        </p>
+      </fieldset>
+
       {seasons !== undefined && (
         <fieldset>
           <legend>Season</legend>

@@ -30,8 +30,16 @@ export interface CandidateAccreditation {
 export interface Candidate {
   readonly personId: string;
   readonly name: string;
-  /** What the club typed, before the catalogue existed (0023). */
+  /**
+   * The **sighted** classification in force on the day (BR138).
+   *
+   * Null where none has been sighted, even if the person claims one —
+   * `classificationClaimed` carries that, so a coordinator is told
+   * "unchecked" rather than "none".
+   */
   readonly classification: string | null;
+  /** What they claim, sighted or not. Never compared; only reported. */
+  readonly classificationClaimed: string | null;
   /**
    * The catalogued level they hold, where one has been recorded (0032).
    *
@@ -181,7 +189,15 @@ export function assess(candidate: Candidate, fixture: FixtureContext): Assessmen
       message: `Classified ${classification.held}; this competition needs ${classification.required}.`,
     });
   } else if (classification.kind === 'unknown') {
-    warnings.push({ rule: 'BR8', message: classification.why });
+    // BR138 — say which kind of nothing this is. "They have not been
+    // checked" sends a coordinator to the register; "they have none" sends
+    // them somewhere else entirely.
+    warnings.push({
+      rule: 'BR8',
+      message: candidate.classification === null && candidate.classificationClaimed !== null
+        ? `Claims ${candidate.classificationClaimed}, which nobody has checked — an unsighted level does not count (BR138).`
+        : classification.why,
+    });
   }
 
   // Not a business rule — a declaration. A coordinator may still ask

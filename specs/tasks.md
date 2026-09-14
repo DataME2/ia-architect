@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 171 of the 223 tasks below are already `[x]`; the phases are ordered so
+plan. 184 of the 237 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -453,6 +453,42 @@ level — and be refused, with the message naming the level required.
 
 ---
 
+## Phase 10b — Asking whether they also officiate *(built — [scope 39](../docs/scope/39_asking_at_the_door_whether_they_also_officiate.md))*
+
+**Outcome:** every registration asks whether they would like to officiate,
+and what they have officiated before — as a claim a coordinator reviews.
+
+> **Numbered 10b rather than appended to a later phase** because it arrived
+> as a requirements change mid-queue, and renumbering the phases behind it
+> would break every reference in this document.
+
+### 10b.1 The safety fix, first — *R38.8*
+- [x] `loadCandidates` reads only a **sighted** classification (BR138)
+- [x] The warning distinguishes *unchecked* from *none* — different next actions
+- [x] Built **before** the form, so the unsafe path never existed
+
+### 10b.2 Backend — *R38*
+- [x] `officiating_interest`, recording what was declared and by whom — *R38.3, R38.4*
+- [x] BR137's authority as a trigger: thirteen to declare your own, a guardian otherwise — *R38.5, R38.6*
+- [x] `app_declare_interest`, reachable from the account-free path — *R38.1*
+- [x] Nothing declared records nothing — *R38.2*
+- [x] Accepting creates the profile and the role **of the registration's season**, and the level **unsighted** — *R38.7*
+- [x] A BR84 refusal does not lose the decision — *R38.9*
+- [x] A decline is kept, not removed — *R38.10*
+- [x] The accreditation number readable only by the roles that act on it — *R38.11*
+
+### 10b.3 Frontend
+- [x] Three fields on the registration form, on both entry points
+- [x] The coordinator's review queue, showing the claim and its author
+- [ ] Telling the family what was decided — *R38.12*. A template and a call; C7 exists
+
+**Manually testable:** register a child through the family link ticking both
+boxes with a level, confirm no referee role exists, accept it on the referee
+screen, and confirm the classification reads *unchecked* and that a
+designation against a competition minimum refuses to count it.
+
+---
+
 ## Phase 11 — Community carnivals and the public view *(not started)*
 
 **Outcome when complete:** a parent follows a regional carnival on their
@@ -536,7 +572,8 @@ and reconcile one number by hand.
 | 12 | Calendar distribution | 0 | 6 |
 | 13 | Reporting | 0 | 4 |
 | 14 | Engineering quality | 0 | 3 |
-| | **Total** | **171** | **52** |
+| 10b | Officiating at registration | 12 | 1 |
+| | **Total** | **184** | **53** |
 
 **Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy

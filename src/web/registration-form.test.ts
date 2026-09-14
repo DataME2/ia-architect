@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test, describe } from 'node:test';
 
-import { parseRegistrationForm, type FormInput, type ParseResult } from './registration-form.ts';
+import { parseRegistrationForm, type FormInput, type ParseResult, parseOfficiating } from './registration-form.ts';
 
 const TODAY = '2026-08-19';
 
@@ -223,5 +223,41 @@ describe('reporting', () => {
     const result = parse(adultInput({ legalGivenNames: '' }));
     assert.ok(!result.ok);
     assert.match(result.errors[0]!.message, /passport or birth certificate/);
+  });
+});
+
+test('parseOfficiating — BR136, a claim and not a classification', async (t) => {
+  const form = (over: Record<string, string> = {}) => ({ ...over });
+
+  await t.test('is null when neither box is ticked', () => {
+    // A row of falses is noise a coordinator has to read and dismiss.
+    assert.equal(parseOfficiating(form()), null);
+    assert.equal(parseOfficiating(form({ accreditationNumber: '12345' })), null);
+  });
+
+  await t.test('records wanting to officiate with no history', () => {
+    const d = parseOfficiating(form({ wantsToOfficiate: 'on' }));
+    assert.equal(d?.wantsToOfficiate, true);
+    assert.equal(d?.hasOfficiatedBefore, false);
+  });
+
+  await t.test('keeps a number and a level alongside having officiated', () => {
+    const d = parseOfficiating(form({
+      hasOfficiatedBefore: 'on', accreditationNumber: ' FQ-9912 ', accreditationLevel: ' Level 4 ',
+    }));
+    assert.equal(d?.accreditationNumber, 'FQ-9912');
+    assert.equal(d?.level, 'Level 4');
+  });
+
+  await t.test('drops a number from somebody who has never officiated', () => {
+    // They have misread the question, and a coordinator chasing a number
+    // that refers to nothing is worse than no number.
+    const d = parseOfficiating(form({ wantsToOfficiate: 'on', accreditationNumber: '12345' }));
+    assert.equal(d?.accreditationNumber, null);
+  });
+
+  await t.test('treats blank text as absent', () => {
+    const d = parseOfficiating(form({ hasOfficiatedBefore: 'on', accreditationLevel: '   ' }));
+    assert.equal(d?.level, null);
   });
 });
