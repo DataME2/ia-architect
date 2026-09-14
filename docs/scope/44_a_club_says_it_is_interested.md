@@ -136,10 +136,10 @@ schema caught it, which is the better outcome.
 - **No marketing content.** *Explain* is still unbuilt: there is no pricing
   page, no feature tour and no case study. `/interest` assumes a visitor who
   already knows roughly what this is.
-- **No notification.** An enquiry lands in the table and nothing tells
-  anybody. The owner has to open the console — which is a large improvement
-  on a `psql` prompt and still not an alert, and C7 could send one now that
-  it can send anything at all.
+- ~~**No notification.**~~ **Closed by
+  [scope 45](./45_telling_somebody_a_club_asked.md)**, which also had to
+  settle why C7's send path is the wrong machinery for it: an operator alert
+  is not a message to a data subject (BR146).
 - **No status on a lead.** No contacted/qualified/lost, no next action, no
   owner. This is a list to read, not a CRM, and it should stay one until
   somebody is actually working leads through stages.

@@ -1,7 +1,7 @@
 'use server';
 
 import { createRequestClient } from '../../data/server.ts';
-import { recordInterest } from '../../data/enquiries.ts';
+import { alertPlatform, recordInterest } from '../../data/enquiries.ts';
 import { formFailed, formOk, type FormResult } from '../../web/form-result.ts';
 import { parseEnquiry } from '../../web/enquiry-form.ts';
 
@@ -42,8 +42,29 @@ export async function recordInterestAction(
 
   const client = await createRequestClient();
 
+  // **Alert first, then record — and the order is the design.**
+  //
+  // The alert's whole content comes from the form that was just submitted,
+  // so it needs nothing from the database. Sending first lets the outcome
+  // be written by the same call that creates the lead, which is what avoids
+  // a second public function whose only job is to mark a row as notified —
+  // and that function would have to be reachable by `anon`, since this path
+  // is anonymous by definition, letting any stranger write a misleading
+  // delivery record into a sales log.
+  //
+  // The failure this ordering risks is the alert arriving for a lead whose
+  // row did not save. That is the harmless direction: the alert carries the
+  // club's details, so nothing is lost. The reverse — recorded and nobody
+  // told — is the gap being closed.
+  //
+  // `alertPlatform` never throws and gives up after five seconds, because
+  // the enquirer is watching a spinner and a club that typed its details
+  // and got an error because an email provider was down has been failed
+  // twice.
+  const notification = await alertPlatform(parsed.enquiry);
+
   try {
-    await recordInterest(client, parsed.enquiry);
+    await recordInterest(client, parsed.enquiry, notification);
   } catch (error) {
     return formFailed(
       error instanceof Error

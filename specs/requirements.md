@@ -1227,9 +1227,21 @@ have to answer first.
 9. A prospect SHALL hold no tenant. ✅ *(BR92, asserted against
    `information_schema` because the table's whole isolation argument rests
    on it.)*
-10. WHEN an enquiry arrives, THEN somebody SHALL be told. ⬜ *(It lands in
-    the table and nothing alerts anyone — the owner has to open the console.
-    A large improvement on a `psql` prompt and still not a notification.)*
+10. WHEN an enquiry arrives, THEN somebody SHALL be told. ✅ *(An email to
+    the configured alert address, carrying what the club said. It is **not**
+    a message to a data subject — no unsubscribe link, no `message_log` row,
+    and nothing from inside any club (BR146).)*
+10a. WHEN the alert cannot be sent, THEN the system SHALL record that nobody
+    was told, and SHALL NOT treat silence as success. ✅ *(Three states, not
+    two: a provider outage must not read as a quiet week. The console counts
+    the failures at the top of the panel.)*
+10b. WHEN the alert fails, THEN the enquiry SHALL still be recorded and
+    acknowledged. ✅ *(A club that typed its details and got an error because
+    an email provider was down has been failed twice. `alertPlatform` never
+    throws and gives up after five seconds.)*
+10c. A failed alert SHALL be retried. ⬜ *(Retrying needs somewhere to queue
+    from, and nothing in this product runs on a schedule — the same missing
+    piece that leaves the retention review a button rather than a job.)*
 11. A lead SHALL carry a status and a next action. ⬜ *(Deliberately not
     built: this is a list to read, not a CRM, and it should stay one until
     somebody is actually working leads through stages.)*

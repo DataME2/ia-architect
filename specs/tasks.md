@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 223 of the 267 tasks below are already `[x]`; the phases are ordered so
+plan. 226 of the 270 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -612,7 +612,10 @@ conversation, and it reaches somebody.
 - [x] The lead list readable in the platform console — **the first time anything in the app has read `prospect` at all**
 - [x] One lead per club however many doors they came through; a blank field never erases an earlier answer, and an unticked consent box is not a withdrawal (*BR93*)
 - [x] The dead-ended "signed in, member of no club" card now leads somewhere
-- [ ] Somebody is **told** when an enquiry arrives — it lands in the table and nothing alerts anyone
+- [x] Somebody is **told** when an enquiry arrives — an email carrying what the club said, through C7's transport and **none** of its consent machinery (*BR146*)
+- [x] A failed alert is a **recorded state, not an absent one**, counted at the top of the console — a provider outage must not read as a quiet week
+- [x] A failed alert never fails the enquiry: `alertPlatform` does not throw and gives up after five seconds, because a club failed by an email provider has been failed twice
+- [ ] A failed alert is **retried** — needs somewhere to queue from, and nothing here runs on a schedule yet
 - [ ] The *explain* third of scope 28 §3: pricing, a feature tour, a case study
 - [ ] A status and next action on a lead — **deliberately not built**; a list to read is not a CRM and should stay one until leads are actually worked through stages
 
@@ -641,9 +644,9 @@ owner and find it at the top of the list.
 | 12 | Calendar distribution | 12 | 2 |
 | 13 | Reporting | 5 | 1 |
 | 14 | Engineering quality | 5 | 3 |
-| 15 | The club that is not here yet | 6 | 3 |
+| 15 | The club that is not here yet | 9 | 3 |
 | 10b | Officiating at registration | 13 | 1 |
-| | **Total** | **223** | **44** |
+| | **Total** | **226** | **44** |
 
 **Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy

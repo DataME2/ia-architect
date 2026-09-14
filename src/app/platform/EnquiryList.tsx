@@ -20,12 +20,29 @@ import type { Enquiry } from '../../data/enquiries.ts';
 export function EnquiryList({ enquiries }: { readonly enquiries: readonly Enquiry[] }) {
   const enquired = enquiries.filter((e) => e.enquiredAt !== null);
   const looked = enquiries.filter((e) => e.enquiredAt === null);
+  // Counted at the top rather than left to be spotted in a column. An alert
+  // that failed means somebody enquired and nobody was told — which is the
+  // state this whole screen exists to prevent, so it is not something to
+  // find by scanning.
+  const unalerted = enquired.filter((e) => e.notifyError !== null);
 
   return (
     <section className="card">
       <h3 style={{ marginTop: 0 }}>
         Enquiries <span className="hint">({enquired.length} asked, {looked.length} looked)</span>
       </h3>
+      {unalerted.length > 0 && (
+        <p className="notice">
+          <strong>
+            {unalerted.length === 1
+              ? 'One enquiry was recorded and no alert went out.'
+              : `${unalerted.length} enquiries were recorded and no alert went out.`}
+          </strong>{' '}
+          They are in the list below and nobody was emailed about them, so they have been waiting
+          as long as their date says.
+        </p>
+      )}
+
       <p className="hint">
         A prospect is not a tenant, holds no <code>club_id</code>, and is a member of nothing
         (BR92) — which is why reading this is not the exception decision 9 forbids. Nothing on
@@ -52,6 +69,7 @@ export function EnquiryList({ enquiries }: { readonly enquiries: readonly Enquir
                 <th scope="col">Said</th>
                 <th scope="col">When</th>
                 <th scope="col">May email</th>
+                <th scope="col">Alerted</th>
               </tr>
             </thead>
             <tbody>
@@ -112,6 +130,26 @@ export function EnquiryList({ enquiries }: { readonly enquiries: readonly Enquir
                       <span className="hint">no — reply only</span>
                     ) : (
                       <>yes, {enquiry.marketingConsentAt.slice(0, 10)}</>
+                    )}
+                  </td>
+                  <td>
+                    {/*
+                      Three states, not two. A failed alert has to look
+                      different from one that was never attempted, or a
+                      provider outage reads as a quiet week — which is the
+                      exact failure this column exists to make visible
+                      (BR127's reasoning, applied one level out).
+                    */}
+                    {enquiry.notifiedAt !== null ? (
+                      <span className="hint">sent {enquiry.notifiedAt.slice(0, 10)}</span>
+                    ) : enquiry.notifyError !== null ? (
+                      <span className="notice">
+                        <strong>not sent</strong>
+                        <br />
+                        {enquiry.notifyError}
+                      </span>
+                    ) : (
+                      <span className="hint">—</span>
                     )}
                   </td>
                 </tr>

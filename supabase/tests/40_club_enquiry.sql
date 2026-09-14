@@ -21,6 +21,12 @@
 --     consent given on the first.
 --   * BR144's two required fields are enforced in the database, because a
 --     public function is reachable without the form.
+--   * **A failed alert is a recorded state, not an absent one** (BR146):
+--     nobody-was-told must look different from never-attempted, or a
+--     provider outage reads as a quiet week.
+--   * A second enquiry's alert outcome **replaces** the first's rather than
+--     inheriting it — unlike every other field, where a blank preserves
+--     what was already there.
 
 \set ON_ERROR_STOP on
 
@@ -62,7 +68,11 @@ begin
   perform record_interest(
     'Brisbane Bayside FC', 'secretary@bayside.test', 'A Secretary', 'Secretary',
     'AU-QLD', 'about 400, mostly MiniRoos', 'Majestri', 'Season starts in March.',
-    '0400 000 000', 'We may send you occasional news about Let''sDataTalk.');
+    '0400 000 000', 'We may send you occasional news about Let''sDataTalk.',
+    -- The alert went out. Sent by the caller before this row was written,
+    -- which is why the outcome arrives as an argument rather than through a
+    -- second function anybody could call (BR146).
+    true, null);
 
   -- 2. **BR145 — and it granted nothing.** This is the scenario the suite
   --    exists for: the natural next request after an interest form is a
@@ -113,7 +123,10 @@ begin
   perform set_config('role', 'authenticated', true);
   perform record_interest(
     'Brisbane Bayside FC', 'SECRETARY@bayside.test', null, null,
-    null, null, null, 'Following up — has anyone replied?');
+    null, null, null, 'Following up — has anyone replied?',
+    null, null,
+    -- And this time it did not.
+    false, 'No email provider is configured, so nothing was sent.');
 
   perform set_config('request.jwt.claim.sub', owner::text, true);
 
@@ -164,7 +177,37 @@ begin
   exception when others then null;
   end;
 
-  -- 8. **A prospect still has no tenant** (BR92). The whole isolation
+  -- 8. **A failed alert is a recorded state, not an absent one.** The
+  --    whole point of this column is that a provider outage must not read
+  --    as a quiet week (BR146).
+  perform set_config('role', 'authenticated', true);
+  perform set_config('request.jwt.claim.sub', owner::text, true);
+  select notify_error into v_text from app_enquiries() where email = 'secretary@bayside.test';
+  if v_text is null then
+    failures := array_append(failures,
+      'a failed alert left no trace — nobody-was-told is indistinguishable from nobody-enquired');
+  end if;
+
+  select notified_at into v_when from app_enquiries() where email = 'secretary@bayside.test';
+  if v_when is not null then
+    failures := array_append(failures,
+      'the first enquiry''s delivered alert still vouches for the second enquiry''s failure — '
+      || 'a stale success here is a lie about the message that matters');
+  end if;
+
+  -- 9. **The two outcomes cannot both be true.** A row claiming it was both
+  --    sent and not sent is not evidence of anything.
+  perform set_config('role', 'postgres', true);
+  begin
+    update prospect set notified_at = now(), notify_error = 'both'
+     where email = 'secretary@bayside.test';
+    failures := array_append(failures, 'a prospect held a sent time and a failure reason at once');
+  exception when check_violation then null;
+  end;
+  perform set_config('request.jwt.claim.sub', owner::text, true);
+  perform set_config('role', 'authenticated', true);
+
+  -- 10. **A prospect still has no tenant** (BR92). The whole isolation
   --    argument for this table rests on it, and a future migration could
   --    add a club_id without anybody noticing.
   select count(*) into n
@@ -180,6 +223,6 @@ begin
     raise exception E'Club enquiry FAILED:\n  - %', array_to_string(failures, E'\n  - ');
   end if;
 
-  raise notice 'Club enquiry OK — 8 scenarios; an enquiry grants no club, no membership and no account, the writer cannot read the list back, only the platform owner can, a returning club stays one lead, and an unticked box withdraws nothing';
+  raise notice 'Club enquiry OK — 10 scenarios; an enquiry grants no club, no membership and no account, the writer cannot read the list back, only the platform owner can, a returning club stays one lead, an unticked box withdraws nothing, and a failed alert is recorded rather than absent';
 end
 $$;

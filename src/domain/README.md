@@ -54,7 +54,7 @@ them being present.
 | `carnival/` | The ladder and each team's next unplayed fixture (BR26). Pure, and literally so: this is the one thing four hundred strangers read on a phone at a ground, with no registrar to notice a mistake first |
 | `competition/` | The catalogue as the domain sees it, and **BR8's verdict** (BR134, BR135). Four outcomes rather than two, because *cannot judge* is a real answer |
 | `privacy/` | Erasure and retention (BR40, BR49, BR52, BR69–BR71). One vocabulary of reasons a record must stay, read from both directions — an erasure asks about one Person, a review asks about all of them |
-| `messaging/` | What a message says, who it goes to, and whether it may be sent (BR127–BR131). The suppression verdict lives here rather than at the email provider, which is BR129 |
+| `messaging/` | What a message says, who it goes to, and whether it may be sent (BR127–BR131). The suppression verdict lives here rather than at the email provider, which is BR129. `platform-alert.ts` sits beside the templates and is deliberately **not** one: an operator alert has no club and no unsubscribe, so it cannot satisfy `TemplateContext` — BR146 expressed as a type rather than as a comment |
 | `reporting/` | The shaping and the arithmetic behind the three summaries (BR142, BR143). A report is `ready` **or** `refused` — a refusal is a value the screen renders, never an absent number — and a proportion over a zero base has no percentage at all, because *0 of 0 is 100% complete* is arithmetically defensible and operationally a lie |
 | `test-fixtures.ts` | Shared builders, so a test states only what it is actually about |
 
