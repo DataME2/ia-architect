@@ -88,7 +88,7 @@ Scope 33's WP4, delivered here because C5 cannot start without it.
 - **Outcome:** BR13 has something to require, and the person being paid
   cannot advance their own claim.
 
-### WP2 — The fee schedule the club authors *(schema and rate resolution delivered; editor not built)*
+### WP2 — The fee schedule the club authors *(schema and rate resolution delivered here; the editor in [scope 53](./53_the_rate_table_a_club_never_had.md))*
 
 - **Deliverables:** `referee_fee_schedule` (a dated version per club) and
   `referee_fee_rate` (the rows: appointing party, role, classification,

@@ -23,6 +23,10 @@ export const REGISTRAR_NAV: readonly NavItem[] = [
   { href: '/registrar/fixtures', label: 'Fixtures', seasonScoped: true },
   { href: '/registrar/referees', label: 'Match officials', seasonScoped: true },
   { href: '/registrar/designations', label: 'Designations', seasonScoped: true },
+  // Not season-scoped: a fee schedule is dated from a day and runs until
+  // the next one supersedes it (BR115), which is not the same shape as a
+  // season and does not reset with one.
+  { href: '/registrar/fees', label: 'Match official fees', seasonScoped: false },
   { href: '/registrar/governance', label: 'Governance', seasonScoped: false },
   { href: '/registrar/duplicates', label: 'Duplicates', seasonScoped: false },
   { href: '/registrar/pack', label: 'Submission pack', seasonScoped: true },

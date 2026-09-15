@@ -118,7 +118,7 @@ a business rule without an intermediate mapping table.
 | # | Requirement | Rules | Status | Realised by |
 | - | ----------- | ----- | ------ | ----------- |
 | FR-C5.1 | A claim requires a verified match, and nobody verifies the match they were paid for | BR13, BR119 | **Verified** | `appointment_verification`, `tests/29_verification_and_fees.sql` |
-| FR-C5.2 | A fee schedule is a dated version; changing a rate publishes a new schedule | BR115 | **Partial** | Schema and rate resolution delivered; **the editor is not built** (scope 34 WP2) |
+| FR-C5.2 | A fee schedule is a dated version; changing a rate publishes a new schedule | BR115 | **Verified** | `/registrar/fees` ([scope 53](../scope/53_the_rate_table_a_club_never_had.md)), migration 0047, suite 48. A superseded schedule refuses an added, changed or removed rate; the one in force stays correctable |
 | FR-C5.3 | A claim stores the amount it was computed at, never recomputed at read time | BR116 | **Verified** | `referee_payment_claim`, `src/domain/officiating/fees.ts` |
 | FR-C5.4 | No claim for a cancelled match; an abandoned match needs the official's explanation | BR17, BR18 | **Verified** | migration 0027 |
 | FR-C5.5 | A referee cannot be paid twice for the same verified match | BR14 | **Verified** | `tests/30_referee_claims_and_batches.sql` |
