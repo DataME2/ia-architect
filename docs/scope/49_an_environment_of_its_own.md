@@ -154,6 +154,22 @@ Two of the steps are also decisions rather than typing, and they are marked.
    development, and the region the whole technology layer assumes. A
    database of Australian children's records in another region is a
    different privacy conversation, not a latency one.
+
+   **The region is the only choice here that cannot be undone.** A project
+   name is editable in Settings → General and the ref never changes with
+   it, so a badly named project is a ten-second fix; a project in the wrong
+   region has to be recreated. That asymmetry is worth knowing *before*
+   anybody reaches for Delete: deleting is irreversible and it happens in a
+   dashboard where the development project — which holds the only copy of
+   the data there is — sits in the same list. **Rename unless the region is
+   wrong.**
+
+   And name it so nobody can mistake it. This repository has already lost a
+   month to a project whose name said one thing and whose contents were
+   another: *"applied to production" in the history before September 2026
+   means applied to the development project.* A production project called
+   anything with `dev` in it rebuilds that trap permanently, because the
+   name is what everyone reads in the dashboard.
 3. **Keep the database password out of this repository and out of any chat.**
    It goes in the password manager and in Vercel, nowhere else. The same
    goes for the new project's service-role key, which bypasses Row-Level
