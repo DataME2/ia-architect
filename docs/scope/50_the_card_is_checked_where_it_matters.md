@@ -128,7 +128,7 @@ so is better than a reader assuming it was missed.
 | **WP3** | `app_withdraw_lapsed_clearances(club)` — idempotent, callable by hand and by cron | **Delivered** |
 | **WP4** | Revocation trigger on `clearance`, calling the same function | **Delivered** |
 | **WP5** | The nightly route, beside scope 48's | **Delivered** |
-| **WP6** | BR50's notifications, reusing BR42's coordinator template | **Not built** — see below |
+| **WP6** | BR50's notifications, reusing BR42's coordinator template | **Delivered in [scope 52](./52_the_vacancy_a_lapse_leaves.md)** — and not by reusing BR42's template, which says the official withdrew themselves |
 | **WP7** | Behavioural suite (9 scenarios), **verified to fail** on all three guarantees | **Delivered** |
 
 ## Four suites were appointing uncleared adults
@@ -146,12 +146,15 @@ suite exists to prove.
 
 ## What this initiative does not do
 
-- **BR50's notifications are not built** (WP6). The rule says a lapse tells
-  both the holder and the coordinator that the vacancy needs re-filling, and
-  BR42's coordinator template already exists for a withdrawal after
-  acceptance. The withdrawal is recorded and visible; nobody is emailed
-  about it yet, which means a coordinator finds out by looking. That is a
-  smaller gap than the one just closed and it is the obvious next piece.
+- **BR50's notifications were not built here** (WP6), and are now:
+  [scope 52](./52_the_vacancy_a_lapse_leaves.md). The guess recorded here —
+  that BR42's coordinator template could be reused — was wrong: that one
+  says the official *withdrew from it after accepting*, which is not what a
+  lapse does, and reusing it would have told a coordinator something untrue
+  about who did what. Two new templates instead. Building it also found that
+  **the team-role half of this scope's sweep had never worked**: the
+  `team_member` guard refused the withdrawal because the holder had no card,
+  which is the very fact the withdrawal was recording.
 
 - **No retrospective sweep of past assignments.** BR50 says past
   assignments are historical record; a card that lapsed in August does not

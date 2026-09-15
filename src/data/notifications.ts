@@ -1,16 +1,17 @@
 /**
  * The notifications the rules have been asking for.
  *
- * Three rules have been unbuildable since the business layer was drafted,
+ * Three rules had been unbuildable since the business layer was drafted,
  * for want of anything that sends: BR42's coordinator notification, BR64's
- * fixture change, and telling an official their claim was approved — today
- * they find out by being paid.
+ * fixture change, and telling an official their claim was approved — until
+ * then they found out by being paid. BR50's pair of vacancy notices is the
+ * fourth rule and the fifth and sixth functions, added with scope 52.
  *
  * Each is one function here. Each resolves its own recipient, composes a
  * template, and goes through `sendMessage`, so suppression is honoured and
  * the outcome is logged (BR127–BR129) exactly as it is for a reminder.
  *
- * **Two of the three have no caller yet, and that is stated rather than
+ * **Two of them have no caller yet, and that is stated rather than
  * hidden.** `notifyFixtureChanged` fires from a fixture being edited and
  * nothing in the application edits one — `fixture` has a create path and no
  * update path. `notifyClaimApproved` fires from a treasurer approving a
@@ -18,10 +19,16 @@
  * delivered in the database and not on a screen. Building those two screens
  * is their own slices' work, not this one's; the notification is ready for
  * the day they land, and until then it is dead code that says so.
+ *
+ * BR50's two are called nightly, from the same route that performs the
+ * withdrawal — the notice is the rest of that rule's sentence, not a
+ * separate errand.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { claimApproved, fixtureChange, officialWithdrew } from '../domain/messaging/templates.ts';
+import {
+  claimApproved, clearanceLapsedCoordinator, clearanceLapsedHolder, fixtureChange, officialWithdrew,
+} from '../domain/messaging/templates.ts';
 import type { MessageTemplate } from '../domain/messaging/types.ts';
 import { addresseesFor } from '../domain/messaging/recipients.ts';
 import type { IsoDate, Person } from '../domain/types.ts';
@@ -332,4 +339,148 @@ export async function notifyFixtureParticipants(
 
   if (withheld.length === 0) return `${sent} ${sent === 1 ? 'person was' : 'people were'} told.`;
   return `${sent} told. Not told: ${withheld.join('; ')}.`;
+}
+
+// --------------------------------------------------------- BR50's vacancies
+
+/**
+ * BR50 — a lapsed Working with Children Check tells **both** the holder and
+ * the responsible coordinator that the vacancies need re-filling.
+ *
+ * The vacancies themselves are recorded by `app_withdraw_lapsed_clearances`
+ * (migration 0046), by both the revocation trigger and the nightly sweep.
+ * This reads what is owed and sends it.
+ *
+ * **Two recipients, marked apart.** A holder who has unsubscribed (BR129)
+ * must not silence the coordinator's notice, and a club with no coordinator
+ * recorded must still tell the official they have been withdrawn. So each
+ * side is marked only when its own send came back `sent`, and a failure
+ * leaves the mark unset — the next night tries again rather than logging a
+ * notice nobody received.
+ *
+ * **One message per holder, not per vacancy.** Somebody withdrawn from four
+ * commitments has lost one thing: their card is not currently on file. Four
+ * emails would say that four times and be read as a system fault.
+ */
+export interface VacancyNotice {
+  readonly clubId: string;
+  readonly holderName: string;
+  readonly holderNotified: number;
+  readonly coordinatorNotified: number;
+}
+
+interface VacancyRow {
+  readonly id: string;
+  readonly person_id: string;
+  readonly describes: string;
+  readonly occurs_on: string | null;
+  readonly holder_notified_at: string | null;
+  readonly coordinator_notified_at: string | null;
+}
+
+export async function notifyLapseVacancies(
+  client: SupabaseClient,
+  clubId: string,
+  clubName: string,
+): Promise<readonly VacancyNotice[]> {
+  const { data } = await client
+    .from('clearance_lapse_vacancy')
+    .select('id, person_id, describes, occurs_on, holder_notified_at, coordinator_notified_at')
+    .eq('club_id', clubId)
+    .or('holder_notified_at.is.null,coordinator_notified_at.is.null')
+    .order('occurs_on', { ascending: true });
+
+  const pending = (data ?? []) as unknown as VacancyRow[];
+  if (pending.length === 0) return [];
+
+  const byHolder = new Map<string, VacancyRow[]>();
+  for (const row of pending) {
+    const rows = byHolder.get(row.person_id) ?? [];
+    rows.push(row);
+    byHolder.set(row.person_id, rows);
+  }
+
+  // Resolved once for the club, not once per holder: the coordinator is the
+  // same person every time, and `loadCoordinator` is three reads.
+  const coordinator = await loadCoordinator(client, clubId);
+  const notices: VacancyNotice[] = [];
+
+  for (const [personId, rows] of byHolder) {
+    const holder = await partyFor(client, clubId, personId);
+    const vacancies = rows.map((r) => ({ describes: r.describes, occursOn: r.occurs_on }));
+
+    let holderNotified = 0;
+    const owedToHolder = rows.filter((r) => r.holder_notified_at === null);
+    if (holder !== null && owedToHolder.length > 0) {
+      const result = await notify(client, clubId, clubName, holder, clearanceLapsedHolder, {
+        holderName: holder.name,
+        vacancies,
+      }, personId);
+      if (result.outcome === 'sent') {
+        await markNotified(client, owedToHolder.map((r) => r.id), 'holder_notified_at');
+        holderNotified = owedToHolder.length;
+      }
+    }
+
+    let coordinatorNotified = 0;
+    const owedToCoordinator = rows.filter((r) => r.coordinator_notified_at === null);
+    // A coordinator who *is* the holder is told once, as the holder. The
+    // same email twice under two headings reads as a fault.
+    const tellCoordinator = coordinator !== null && coordinator.personId !== personId;
+    if (tellCoordinator && owedToCoordinator.length > 0) {
+      const result = await notify(client, clubId, clubName, coordinator, clearanceLapsedCoordinator, {
+        coordinatorName: coordinator.name,
+        holderName: holder?.name ?? 'An official',
+        vacancies,
+      }, personId);
+      if (result.outcome === 'sent') {
+        await markNotified(client, owedToCoordinator.map((r) => r.id), 'coordinator_notified_at');
+        coordinatorNotified = owedToCoordinator.length;
+      }
+    }
+
+    if (holderNotified > 0 || coordinatorNotified > 0) {
+      notices.push({
+        clubId,
+        holderName: holder?.name ?? 'An official',
+        holderNotified,
+        coordinatorNotified,
+      });
+    }
+  }
+
+  return notices;
+}
+
+async function markNotified(
+  client: SupabaseClient,
+  ids: readonly string[],
+  column: 'holder_notified_at' | 'coordinator_notified_at',
+): Promise<void> {
+  if (ids.length === 0) return;
+  await client
+    .from('clearance_lapse_vacancy')
+    .update({ [column]: new Date().toISOString() })
+    .in('id', [...ids]);
+}
+
+/** A Person as somebody who can be emailed, or null if they cannot be. */
+async function partyFor(
+  client: SupabaseClient,
+  clubId: string,
+  personId: string,
+): Promise<Party | null> {
+  const { data } = await client
+    .from('person')
+    .select('id, preferred_name, legal_given_names, legal_family_name, email')
+    .eq('club_id', clubId)
+    .eq('id', personId)
+    .maybeSingle();
+
+  if (data === null || data.email === null) return null;
+  return {
+    personId: data.id as string,
+    email: data.email as string,
+    name: `${data.preferred_name ?? data.legal_given_names} ${data.legal_family_name}`,
+  };
 }

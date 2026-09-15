@@ -152,3 +152,70 @@ export const TEMPLATES = {
   [claimApproved.key]: claimApproved,
   [wwccReminder.key]: wwccReminder,
 } as const;
+
+/**
+ * BR50's two notices, which are two messages and not one sent twice.
+ *
+ * The rule names both recipients — *notifies both the holder and the
+ * responsible coordinator that the resulting vacancies need re-filling* —
+ * and they need different things from it. The coordinator needs a list to
+ * act on. The holder needs to know they have been removed, and why, before
+ * they turn up.
+ *
+ * **Neither says the card is invalid as a fact about the person.** A
+ * clearance lapses for ordinary reasons — a renewal in the post, a card
+ * recorded and not yet re-verified — and a message that reads as an
+ * accusation is one the club has to apologise for. What the platform knows
+ * is that the club's record does not currently cover these dates, and that
+ * is what both say.
+ */
+export interface LapseVacancy {
+  readonly describes: string;
+  readonly occursOn: string | null;
+}
+
+export interface ClearanceLapsedHolderInput {
+  readonly holderName: string;
+  readonly vacancies: readonly LapseVacancy[];
+}
+
+export const clearanceLapsedHolder: MessageTemplate<ClearanceLapsedHolderInput> = {
+  key: 'official.clearance_lapsed',
+  version: 1,
+  purpose: 'operational',
+  compose: ({ holderName, vacancies }, ctx) => ({
+    subject: `You have been withdrawn from ${vacancies.length} ${vacancies.length === 1 ? 'commitment' : 'commitments'}`,
+    body: `Hello ${holderName},\n\n`
+      + `${ctx.clubName}'s record of your Working with Children Check no longer covers the dates below, `
+      + `so you have been withdrawn from ${vacancies.length === 1 ? 'it' : 'them'}:\n\n`
+      + vacancies.map((v) => `  • ${v.describes}${v.occursOn === null ? '' : ` (${v.occursOn})`}`).join('\n')
+      + `\n\nThis is about the club's record, not about you: a renewed card the club has not yet `
+      + `sighted looks exactly the same from here. Send it to ${ctx.clubName} and the withdrawal can be `
+      + `undone.\n\n`
+      + `Please do not attend these in the meantime.`
+      + SIGN_OFF(ctx.clubName, ctx.unsubscribeUrl),
+  }),
+};
+
+export interface ClearanceLapsedCoordinatorInput {
+  readonly coordinatorName: string;
+  readonly holderName: string;
+  readonly vacancies: readonly LapseVacancy[];
+}
+
+export const clearanceLapsedCoordinator: MessageTemplate<ClearanceLapsedCoordinatorInput> = {
+  key: 'coordinator.clearance_lapsed',
+  version: 1,
+  purpose: 'operational',
+  compose: ({ coordinatorName, holderName, vacancies }, ctx) => ({
+    subject: `${vacancies.length} ${vacancies.length === 1 ? 'vacancy' : 'vacancies'} — ${holderName}'s clearance`,
+    body: `Hello ${coordinatorName},\n\n`
+      + `${ctx.clubName}'s record of ${holderName}'s Working with Children Check no longer covers the `
+      + `dates below, so they have been withdrawn and ${vacancies.length === 1 ? 'this needs' : 'these need'} `
+      + `re-filling:\n\n`
+      + vacancies.map((v) => `  • ${v.describes}${v.occursOn === null ? '' : ` (${v.occursOn})`}`).join('\n')
+      + `\n\nThey have been told as well. If the club has since sighted a current card, recording it `
+      + `and re-appointing them is all that is needed.`
+      + SIGN_OFF(ctx.clubName, ctx.unsubscribeUrl),
+  }),
+};

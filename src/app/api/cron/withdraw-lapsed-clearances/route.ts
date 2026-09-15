@@ -1,6 +1,7 @@
 import { createAdminClient } from '../../../../data/client.ts';
 import { readCronSecret } from '../../../../data/env.ts';
 import { withdrawLapsedClearances } from '../../../../data/clearanceWithdrawal.ts';
+import { notifyLapseVacancies } from '../../../../data/notifications.ts';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,22 +34,37 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const results = [];
+  const notices = [];
   for (const club of clubs ?? []) {
     // Sequential for the same reason the reminder route is: a small number
     // of clubs, and nothing to gain from concurrency against one database.
     results.push(
       await withdrawLapsedClearances(client, club.id as string, club.name as string),
     );
+    // After the sweep, not instead of it. A club with no new lapse tonight
+    // can still owe a notice whose send failed last night.
+    notices.push(
+      ...(await notifyLapseVacancies(client, club.id as string, club.name as string)),
+    );
   }
 
   const withdrawn = results.reduce((total, r) => total + r.withdrawn, 0);
+  const told = notices.reduce(
+    (total, n) => total + (n.holderNotified > 0 ? 1 : 0) + (n.coordinatorNotified > 0 ? 1 : 0),
+    0,
+  );
 
   return Response.json({
     ok: true,
     clubsChecked: results.length,
     withdrawn,
+    // Messages actually sent, not vacancies covered: two people are told
+    // about four vacancies in two emails, and a count of four would read
+    // as eight messages nobody received.
+    told,
     // Only the clubs where something actually changed. A nightly job whose
     // output is a list of zeroes is a nightly job nobody reads.
     results: results.filter((r) => r.withdrawn > 0),
+    notices,
   });
 }
