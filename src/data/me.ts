@@ -13,9 +13,14 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { governingTerm, termStatus } from '../domain/governance/term.ts';
+import {
+  governingTerm,
+  serving,
+  termStatus,
+  type CommitteeTerm,
+} from '../domain/governance/term.ts';
 import type { Person } from '../domain/types.ts';
-import { guardianScope, type FixtureLike } from '../web/me-view.ts';
+import { guardianScope, holdsCommitteeRole, type FixtureLike } from '../web/me-view.ts';
 import { displayNameFor, fullLegalName } from '../web/queue-view.ts';
 import { buildContexts, type RoleHolding, type RoleKey } from '../web/role-context.ts';
 import { loadGovernance } from './governance.ts';
@@ -24,6 +29,7 @@ import { QueryError } from './queries.ts';
 import type {
   ClubMembershipRow,
   ClubRow,
+  CommitteePositionRow,
   ConsentRow,
   FixtureRow,
   GuardianshipRow,
@@ -154,9 +160,50 @@ export async function loadMe(client: SupabaseClient, userId: string, today: stri
       );
       for (const r of roles) roleKeys.add(r.role);
     }
-    // Committee is also a membership role, and an admin sits on it by
-    // definition — a club's first administrator is usually its secretary.
-    if (membershipRoles.some((r) => r === 'committee' || r === 'admin')) roleKeys.add('committee');
+    // **The office, not only the access role.** This is the fix for the
+    // reported bug: the committee branch below only ran once something
+    // *else* had already decided this person was committee, so an elected
+    // president whose account held no `committee` membership role was never
+    // asked about — the governance rows were read only to label a workspace
+    // that could not be reached.
+    //
+    // One narrow query rather than `loadGovernance`, which costs three and
+    // would now run for every player and guardian who opens this page. A
+    // person with no position rows at all cannot hold an office, and that
+    // is the overwhelmingly common case; the term is only worth fetching
+    // once there is something for it to be a term *of*.
+    const myPositionRows = unwrap<CommitteePositionRow[]>(
+      'committee_position',
+      await client
+        .from('committee_position')
+        .select('id, club_id, term_id, person_id, position, elected_on, resigned_on, created_at')
+        .eq('club_id', link.club_id)
+        .eq('person_id', link.person_id),
+    );
+
+    let term: CommitteeTerm | null = null;
+    let myPositions: string[] = [];
+
+    if (myPositionRows.length > 0) {
+      const governance = await loadGovernance(client, link.club_id);
+      term = governingTerm(governance.terms, today);
+      if (term !== null) {
+        const governing = term;
+        myPositions = serving(governance.members, today)
+          .filter((m) => m.termId === governing.id && m.personId === link.person_id)
+          .map((m) => m.position);
+      }
+    }
+
+    if (
+      holdsCommitteeRole({
+        membershipRoles,
+        personRoles: [...roleKeys],
+        servingPositions: myPositions,
+      })
+    ) {
+      roleKeys.add('committee');
+    }
 
     // Guardianship is a fact about people, not a season role: a parent is a
     // parent in the off-season too.
@@ -198,14 +245,17 @@ export async function loadMe(client: SupabaseClient, userId: string, today: stri
     let committeeScope: string | null = null;
     let committeePending = 0;
     if (roleKeys.has('committee')) {
-      const governance = await loadGovernance(client, link.club_id);
-      const term = governingTerm(governance.terms, today);
-      if (term !== null) {
-        const mine = governance.members.find(
-          (m) => m.termId === term.id && m.personId === link.person_id && m.resignedOn === null,
-        );
-        committeeScope = mine === undefined ? null : titleCase(mine.position);
-        committeePending = termStatus(term, today) === 'overdue' ? 1 : 0;
+      // The term was only fetched above where this person holds a position.
+      // Somebody admitted by an access role alone still needs it, for the
+      // overdue-AGM count — so fetch it here if it has not been.
+      const governingNow =
+        term ?? governingTerm((await loadGovernance(client, link.club_id)).terms, today);
+      if (governingNow !== null) {
+        // The office names the workspace where there is one. Somebody
+        // admitted by an access role holds no office, and the rail says
+        // "Governance" rather than inventing a position for them.
+        committeeScope = myPositions[0] === undefined ? null : titleCase(myPositions[0]);
+        committeePending = termStatus(governingNow, today) === 'overdue' ? 1 : 0;
       }
     }
 

@@ -1,7 +1,14 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { guardianScope, initialsOf, nextFixture, seasonFigures, shortDate } from './me-view.ts';
+import {
+  guardianScope,
+  holdsCommitteeRole,
+  initialsOf,
+  nextFixture,
+  seasonFigures,
+  shortDate,
+} from './me-view.ts';
 
 const fx = (id: string, playedOn: string, status = 'scheduled') => ({
   id,
@@ -63,4 +70,53 @@ describe('guardianScope', () => {
 describe('shortDate', () => {
   it('renders an Australian short date', () => assert.equal(shortDate('2026-09-12'), 'Sat 12 Sep'));
   it('passes through anything it cannot parse', () => assert.equal(shortDate('soon'), 'soon'));
+});
+
+describe('holdsCommitteeRole — the office is the fact (BR21, R30.1)', () => {
+  const none = { membershipRoles: [], personRoles: [], servingPositions: [] };
+
+  it('admits somebody elected to an office, with no access role at all', () => {
+    // The reported bug: a president saw no governance workspace because the
+    // screen asked whether her account had been granted a role rather than
+    // whether she held an office.
+    assert.equal(holdsCommitteeRole({ ...none, servingPositions: ['president'] }), true);
+  });
+
+  it('admits an elected officer whose account holds an unrelated role', () => {
+    assert.equal(
+      holdsCommitteeRole({ ...none, membershipRoles: ['coach'], servingPositions: ['secretary'] }),
+      true,
+    );
+  });
+
+  it('still admits the committee access role, which already worked', () => {
+    assert.equal(holdsCommitteeRole({ ...none, membershipRoles: ['committee'] }), true);
+  });
+
+  it('still admits an admin — a club’s first administrator is usually its secretary', () => {
+    assert.equal(holdsCommitteeRole({ ...none, membershipRoles: ['admin'] }), true);
+  });
+
+  it('admits the season role on the Person', () => {
+    assert.equal(holdsCommitteeRole({ ...none, personRoles: ['committee'] }), true);
+  });
+
+  it('refuses somebody holding none of the three', () => {
+    assert.equal(
+      holdsCommitteeRole({
+        membershipRoles: ['coach', 'treasurer'],
+        personRoles: ['player', 'referee'],
+        servingPositions: [],
+      }),
+      false,
+    );
+  });
+
+  it('refuses a resigned officer — the caller narrows to who is still serving', () => {
+    // Expressed in the input rather than here on purpose: whether a
+    // resignation has taken effect is a date question the governance domain
+    // already answers (`serving`), and answering it twice is how the two
+    // answers start to differ.
+    assert.equal(holdsCommitteeRole({ ...none, servingPositions: [] }), false);
+  });
 });
