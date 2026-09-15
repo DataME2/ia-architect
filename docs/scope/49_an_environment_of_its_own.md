@@ -257,6 +257,21 @@ inside it. No new Supabase account or organisation either: **one additional
 project** in the same organisation as the development one. And no manual
 Storage setup, per step 6.
 
+## Parked deliberately, not forgotten
+
+**Decided 15 September 2026: the remaining work packages wait for an MVP.**
+Development continues against the development project; `ltd-production`
+exists, is guarded, and is pointed at by nothing.
+
+That is a better state than it sounds. An environment that exists and is
+unused costs nothing and removes the one step that needed a dashboard and
+billing. A **half-migrated** one — some Vercel variables moved, migrations
+applied, nobody certain which database a given screen is reading — is
+exactly the confusion this initiative was written to end, and it is the
+state you get by doing the remaining steps in spare moments.
+
+The trigger to finish is a released version worth putting a real club on.
+
 ## What this initiative does not do
 
 - **It does not create a production environment.** WP6–WP8 are the owner's,

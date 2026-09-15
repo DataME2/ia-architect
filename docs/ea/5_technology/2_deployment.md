@@ -43,6 +43,17 @@ must never appear**.
 > constant rather than an injected one, so blanking it fails the build
 > rather than silently disarming the check.
 >
+> **And it stays that way until there is an MVP.** Decided 15 September
+> 2026: development continues against `sxsloxdtpcjpdobwpwsm`, the
+> production project is parked, and the remaining steps are deliberately
+> **not** next. An environment that exists and is not yet used costs
+> nothing; one that is half-pointed-at — some variables moved, migrations
+> applied, nobody sure which database a screen is reading — is the state
+> this whole initiative exists to avoid.
+>
+> The trigger to finish it is a released version worth putting a real club
+> on, not a free afternoon.
+>
 > **Remaining before the Production row is true:** the Vercel Production
 > variables, a decision on what the Supabase–GitHub integration points at,
 > and the migrations applied with `check_rls.py` run against it. The order

@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 234 of the 277 tasks below are already `[x]`; the phases are ordered so
+plan. 235 of the 277 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -132,7 +132,7 @@ on.
 - [x] `consent` — one row per purpose, independently revocable — *R11.1–11.3*
 - [x] Identification photograph cropped and re-encoded **in the browser**; the chosen file is never stored — *R12.1*
 - [x] Database trigger refusing a photograph without unrevoked consent — *R12.2*
-- [ ] Transfer of consent, erasure, calendar and account rights at 18 — *R11.6*
+- [x] Transfer of consent, erasure, calendar and account rights at 18 — *R11.6*. Delivered by [scope 37](../docs/scope/37_forgetting_and_the_reasons_not_to.md)'s `app_transfer_authority`; this row stayed unchecked after R11.6 was marked implemented
 
 ### 2.4 The rules engine — *R13, D4*
 - [x] `RuleId`, `RuleOutcome`, `RegistrationRule` — pure functions, no I/O — *R13.2*
@@ -295,7 +295,7 @@ override, then find the override in the audit log.
 - [x] Access: who may act at this club — *R7.1*
 - [x] Match officials roster and designations — *R23, R25*
 - [ ] Fee schedule editor — *R26.11*
-- [ ] Registration reminders sent from the queue — *R34.1*
+- [ ] Registration reminders sent **in bulk from the season queue** — *R34.1*. One-at-a-time already works: `ReminderPanel` on the registration detail fires `sendReminderAction`. What is missing is chasing forty families in one act, not chasing one
 
 ### 6.3 Platform console — *R6*
 - [x] Provision a club; record its responsible people; manage its licence
@@ -638,7 +638,7 @@ owner and find it at the top of the list.
 | ----- | ------- | ---- | --------- |
 | 0 | Infrastructure, gates, CI | 18 | 4 |
 | 1 | Tenancy, identity, access | 20 | 2 |
-| 2 | Registration, documents, validation | 21 | 4 |
+| 2 | Registration, documents, validation | 22 | 3 |
 | 3 | Finance | 14 | 3 |
 | 4 | Safeguarding, teams, governance | 13 | 3 |
 | 5 | Referee management | 18 | 3 |
@@ -653,7 +653,7 @@ owner and find it at the top of the list.
 | 14 | Engineering quality | 5 | 3 |
 | 15 | The club that is not here yet | 12 | 3 |
 | 10b | Officiating at registration | 13 | 1 |
-| | **Total** | **234** | **43** |
+| | **Total** | **235** | **42** |
 
 **Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy
