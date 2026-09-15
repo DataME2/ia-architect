@@ -222,17 +222,44 @@ export function readCronSecret(
 /**
  * The project ref a preview deployment must never be pointed at.
  *
- * **Empty until the production project exists**, and inert while it is —
- * written now rather than later on purpose: the moment somebody creates the
- * production project, the dangerous window is the deploy *before* anyone
- * remembers there was a rule about this.
+ * **`ltd-production`, Sydney, set 15 September 2026.** It was empty and
+ * inert for exactly as long as there was no production project — written
+ * ahead of time on purpose, because the dangerous window is the deploy
+ * *after* somebody creates that project and *before* anyone remembers
+ * there was a rule about this. The guard was armed before the database it
+ * guards was reachable, which is the right way round.
+ *
+ * Not a secret: a project ref is in the public URL every browser already
+ * receives. What is secret is that project's service-role key, which lives
+ * in Vercel and a password manager and appears nowhere in this repository.
  *
  * A project ref is not a secret — it is in the public URL every browser
  * already sees — so it lives here rather than in an environment variable
  * a preview build could simply be missing. A guard whose enforcement can
  * be switched off by forgetting a variable is not a guard.
+ *
+ * **Set it to the ref alone**, the `abcdefghijklmnopqrst` out of
+ * `https://abcdefghijklmnopqrst.supabase.co` — not the URL. Pasting the
+ * whole URL, or a truncated ref, would leave the comparison below matching
+ * nothing and the guard silently doing its job never; `validProjectRef`
+ * refuses that rather than letting a typo disable a safety check. Which is
+ * the same objection as the environment variable, one step along.
  */
-export const PRODUCTION_PROJECT_REF = '';
+export const PRODUCTION_PROJECT_REF = 'jqyfbgojgxpymjgecxgx';
+
+/**
+ * Whether a value is a project ref rather than a URL, a fragment of one, or
+ * a placeholder somebody meant to come back to.
+ *
+ * Deliberately lenient about **length** and strict about **shape**: the two
+ * realistic mistakes are pasting the whole URL and pasting half the ref,
+ * and both are caught by the character class and the floor. If Supabase
+ * ever issues a ref this refuses, the failure is immediate and says so —
+ * which is the right way round, because the alternative failure is silent.
+ */
+export function validProjectRef(value: string): boolean {
+  return /^[a-z0-9]{8,}$/.test(value);
+}
 
 /** `https://abc.supabase.co` → `abc`. */
 function projectRefOf(supabaseUrl: string): string {
@@ -270,6 +297,20 @@ export function assertNotPreviewAgainstProduction(
   productionRef: string = PRODUCTION_PROJECT_REF,
 ): void {
   if (productionRef === '') return;
+
+  // **Fails closed on a malformed ref.** An unrecognisable value would
+  // otherwise match no URL, so the guard would return quietly on every
+  // deployment and the first anyone knew of it would be a preview serving
+  // real data. A safety check that a typo turns off is worse than none,
+  // because it also reports that it is on.
+  if (!validProjectRef(productionRef)) {
+    throw new ConfigError(
+      'PRODUCTION_PROJECT_REF',
+      `is set to "${productionRef}", which is not a project ref. Use the ref alone ` +
+        '(the "abcdefghijklmnopqrst" out of https://abcdefghijklmnopqrst.supabase.co), ' +
+        'not the URL — otherwise this guard silently matches nothing.',
+    );
+  }
 
   const supabaseUrl = source['NEXT_PUBLIC_SUPABASE_URL'];
   if (supabaseUrl === undefined || supabaseUrl.trim() === '') return;

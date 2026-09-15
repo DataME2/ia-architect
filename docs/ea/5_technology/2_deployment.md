@@ -14,20 +14,40 @@ must never appear**.
 | ----------- | ------- | -------- | -------------- |
 | **Local** | `next dev` on a developer machine | **The development Supabase project** (`sxsloxdtpcjpdobwpwsm`) | One developer |
 | **Preview** | Vercel preview deployment, one per pull request | The same development project — **never production** | Anyone with the PR link |
-| **Production** | Vercel, Sydney region | Supabase, `ap-southeast-2` | Club users |
+| **Production** | Vercel, Sydney region | **`ltd-production`** (`jqyfbgojgxpymjgecxgx`), Supabase `ap-southeast-2` — created and **guarded**, not yet pointed at | Club users |
 
-> **There is no production environment yet, and the project everything
-> currently points at is development.** Confirmed September 2026. It holds
-> North Star FC and the demonstration club, and its data is realistic rather
-> than real — which is why migrations have been applied to it directly and
-> why local development writes to it on purpose.
+> **A production project now exists — `ltd-production`, Sydney — and
+> nothing points at it yet.** Created 15 September 2026. Until the Vercel
+> *Production* variables are repointed, every environment in the table
+> above still reaches the development project, so the row for Production
+> describes where it is going rather than where it is.
 >
-> Two things follow. **"Applied to production" in this repository's history
-> before September 2026 means applied to this development project** — the
-> commit messages say production and are wrong about which one. And **the
-> first real club's data will need a project of its own**, at which point
-> the row above stops being aspirational and the rule against pointing
-> preview deployments at it starts to matter.
+> The development project holds North Star FC and the demonstration club,
+> and its data is realistic rather than real — which is why migrations have
+> been applied to it directly and why local development writes to it on
+> purpose. That stops being true for `ltd-production` the moment a real
+> club is in it.
+>
+> **"Applied to production" in this repository's history before September
+> 2026 means applied to this development project** — the commit messages
+> say production and are wrong about which one. That confusion is the
+> reason `ltd-production` is named unambiguously: it was created as
+> `ltd-dev` and renamed before anything was attached to it, because a
+> project name is what everyone reads in the dashboard.
+>
+> **`PRODUCTION_PROJECT_REF` is set**, so the guard below is armed before
+> the database it guards is reachable — which is the right order: the
+> dangerous window is the deploy *after* a production project exists and
+> *before* anyone remembers there was a rule about this. It is inert today
+> because nothing points at that project, and a test drives the shipped
+> constant rather than an injected one, so blanking it fails the build
+> rather than silently disarming the check.
+>
+> **Remaining before the Production row is true:** the Vercel Production
+> variables, a decision on what the Supabase–GitHub integration points at,
+> and the migrations applied with `check_rls.py` run against it. The order
+> and the reasoning are in
+> [scope 49's runbook](../../scope/49_an_environment_of_its_own.md).
 
 **Preview deployments must never point at production.** A preview URL is
 effectively public — it is in the pull request, and pull requests here are
@@ -42,7 +62,11 @@ production project, keying on `VERCEL_ENV` — which the platform sets, so a
 deployment cannot claim to be production by editing its own variables. It is
 **inert until `PRODUCTION_PROJECT_REF` is set** in `src/data/env.ts`, which
 is the one line to change when the production project is created; setting it
-is part of creating that project, not a follow-up.
+is part of creating that project, not a follow-up. Set it to the **ref
+alone**, not the URL — a malformed value fails the build with a message
+saying so, because a value that matches nothing would leave the guard
+reporting itself as on while doing nothing. The click-path for creating the
+project is [scope 49's runbook](../../scope/49_an_environment_of_its_own.md).
 
 ### Backup and restore
 

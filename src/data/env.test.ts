@@ -3,9 +3,11 @@ import { describe, it } from 'node:test';
 import {
   assertNotPreviewAgainstProduction,
   ConfigError,
+  PRODUCTION_PROJECT_REF,
   readCronSecret,
   readPublicConfig,
   readServiceConfig,
+  validProjectRef,
 } from './env.ts';
 
 const VALID = {
@@ -117,7 +119,11 @@ describe('a preview must never reach production (D10, task 0.4)', () => {
   // these pass a ref of their own rather than waiting for it: the guard has
   // to be known-good *before* the day it starts mattering, which is the day
   // somebody creates that project.
-  const PROD = 'prodref';
+  // A real ref's shape — twenty lowercase characters — not a short label.
+  // The first version used 'prodref', which the malformed-ref check below
+  // correctly refuses; a fixture that could not be a real value is a test
+  // that does not exercise the real path.
+  const PROD = 'prodrefabcdefghijklm';
   const url = (ref: string) => ({ NEXT_PUBLIC_SUPABASE_URL: `https://${ref}.supabase.co` });
 
   const check = (env: Record<string, string | undefined>, productionRef = PROD) =>
@@ -139,13 +145,90 @@ describe('a preview must never reach production (D10, task 0.4)', () => {
   });
 
   it('allows a preview pointed at development, which is the intended shape', () => {
-    assert.doesNotThrow(() => check({ ...url('devref'), VERCEL_ENV: 'preview' }));
+    assert.doesNotThrow(() => check({ ...url('devrefabcdefghijklmn'), VERCEL_ENV: 'preview' }));
   });
 
-  it('is inert while no production project exists', () => {
-    // Today's state. It must not fail a build for a project nobody has
-    // created — but it is written now, because the dangerous window is the
-    // deploy immediately after somebody creates it.
+  it('refuses a ref that is really a URL — the likeliest paste', () => {
+    // Silently matching nothing is the failure this catches: the guard
+    // would return on every deployment and report itself as on.
+    assert.throws(
+      () => check({ ...url(PROD), VERCEL_ENV: 'preview' }, `https://${PROD}.supabase.co`),
+      ConfigError,
+    );
+  });
+
+  it('refuses a truncated or placeholder ref', () => {
+    for (const bad of ['prod', 'TODO', 'your-project-ref', 'prodref.supabase.co']) {
+      assert.throws(
+        () => check({ ...url(PROD), VERCEL_ENV: 'production' }, bad),
+        ConfigError,
+        bad,
+      );
+    }
+  });
+
+  it('fails closed on a bad ref even where the deployment is production', () => {
+    // The check runs before the environment is considered, so a malformed
+    // ref is loud everywhere rather than only where it would have bitten.
+    assert.throws(() => check({ ...url(PROD), VERCEL_ENV: 'production' }, 'nope!'), ConfigError);
+  });
+
+  it('is inert where no production project exists', () => {
+    // The state this guard shipped in, and the one it must not fail a build
+    // in: an empty ref is a project nobody has created.
     assert.doesNotThrow(() => check({ ...url(PROD), VERCEL_ENV: 'preview' }, ''));
+  });
+
+  // --- and now the real one ------------------------------------------------
+  //
+  // Every test above injects a ref. These drive the **shipped constant**,
+  // which is what actually protects the real database — and they only became
+  // possible when a production project existed. Their job is to catch the
+  // guard being silently disarmed: blanking PRODUCTION_PROJECT_REF, or
+  // editing it to something that matches no URL, turns every assertion above
+  // into a statement about a value nothing uses.
+
+  it('is armed — the shipped ref is a real one, not a placeholder', () => {
+    assert.ok(
+      validProjectRef(PRODUCTION_PROJECT_REF),
+      'PRODUCTION_PROJECT_REF is empty or malformed, so the guard matches no URL and ' +
+        'protects nothing. A production project exists; if it has been decommissioned, ' +
+        'that is a deliberate change and this test is where it gets argued.',
+    );
+  });
+
+  it('refuses a preview pointed at the real production project', () => {
+    assert.throws(
+      () =>
+        assertNotPreviewAgainstProduction({
+          NEXT_PUBLIC_SUPABASE_URL: `https://${PRODUCTION_PROJECT_REF}.supabase.co`,
+          VERCEL_ENV: 'preview',
+        }),
+      ConfigError,
+    );
+  });
+
+  it('lets the real production deployment through', () => {
+    assert.doesNotThrow(() =>
+      assertNotPreviewAgainstProduction({
+        NEXT_PUBLIC_SUPABASE_URL: `https://${PRODUCTION_PROJECT_REF}.supabase.co`,
+        VERCEL_ENV: 'production',
+      }),
+    );
+  });
+
+  it('leaves the development project alone in every environment', () => {
+    // The check must be invisible to everyday work: local development and
+    // every preview point at the development project and must never trip it.
+    for (const env of [undefined, 'development', 'preview', 'production']) {
+      assert.doesNotThrow(
+        () =>
+          assertNotPreviewAgainstProduction({
+            NEXT_PUBLIC_SUPABASE_URL: 'https://sxsloxdtpcjpdobwpwsm.supabase.co',
+            ...(env === undefined ? {} : { VERCEL_ENV: env }),
+          }),
+        String(env),
+      );
+    }
   });
 });
