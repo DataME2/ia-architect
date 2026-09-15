@@ -35,6 +35,34 @@ public — and pointing one at real data would put 800 children's records
 behind a link anyone can open. Environment variables are set per Vercel
 environment for exactly this reason.
 
+**And since [scope 49](../../scope/49_an_environment_of_its_own.md) that is
+enforced rather than remembered.** `assertNotPreviewAgainstProduction`
+refuses to read configuration when a non-production deployment names the
+production project, keying on `VERCEL_ENV` — which the platform sets, so a
+deployment cannot claim to be production by editing its own variables. It is
+**inert until `PRODUCTION_PROJECT_REF` is set** in `src/data/env.ts`, which
+is the one line to change when the production project is created; setting it
+is part of creating that project, not a follow-up.
+
+### Backup and restore
+
+| | Target |
+| - | ------ |
+| **RPO** | 24 hours today, 1 hour once a real club is on the platform |
+| **RTO** | 4 hours — mostly the time to notice and decide, since the schema restores in seconds |
+| **Retention** | 7 days (Supabase's default) |
+
+A restore is **rehearsed on every change** — `scripts/rehearse_restore.sh`
+dumps a built database, restores it into an empty one, and counts what came
+back, **policies first**: P5 lives in the policies, so a restore that keeps
+the tables and loses them restores a database with no tenant isolation and
+reads as a clean restore until one club opens another's records.
+
+What that does *not* prove — Supabase's own backups, the real restore time,
+whether accounts survive, and the Storage bucket the photographs are in — is
+set out in [the annex](../../annexes/backup-and-restore.md) with what each
+would need.
+
 ## Running two of them at once
 
 Comparing "what is deployed" against "what I am building" needs both open

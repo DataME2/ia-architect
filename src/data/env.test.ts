@@ -1,6 +1,12 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import { ConfigError, readCronSecret, readPublicConfig, readServiceConfig } from './env.ts';
+import {
+  assertNotPreviewAgainstProduction,
+  ConfigError,
+  readCronSecret,
+  readPublicConfig,
+  readServiceConfig,
+} from './env.ts';
 
 const VALID = {
   NEXT_PUBLIC_SUPABASE_URL: 'https://your-project-ref.supabase.co',
@@ -103,5 +109,43 @@ describe('cron secret', () => {
 
   it('fails loudly when unset rather than letting every caller through', () => {
     assert.throws(() => readCronSecret({}), ConfigError);
+  });
+});
+
+describe('a preview must never reach production (D10, task 0.4)', () => {
+  // The shipped constant is empty until the production project exists, so
+  // these pass a ref of their own rather than waiting for it: the guard has
+  // to be known-good *before* the day it starts mattering, which is the day
+  // somebody creates that project.
+  const PROD = 'prodref';
+  const url = (ref: string) => ({ NEXT_PUBLIC_SUPABASE_URL: `https://${ref}.supabase.co` });
+
+  const check = (env: Record<string, string | undefined>, productionRef = PROD) =>
+    assertNotPreviewAgainstProduction(env, productionRef);
+
+  it('refuses a preview deployment pointed at production', () => {
+    assert.throws(() => check({ ...url(PROD), VERCEL_ENV: 'preview' }), ConfigError);
+  });
+
+  it('refuses a local or unidentified environment pointed at production', () => {
+    // Pointing a developer's machine at the real club's data is the other
+    // half of the same mistake, so an absent VERCEL_ENV is not a pass.
+    assert.throws(() => check({ ...url(PROD) }), ConfigError);
+    assert.throws(() => check({ ...url(PROD), VERCEL_ENV: 'development' }), ConfigError);
+  });
+
+  it('allows the production deployment itself', () => {
+    assert.doesNotThrow(() => check({ ...url(PROD), VERCEL_ENV: 'production' }));
+  });
+
+  it('allows a preview pointed at development, which is the intended shape', () => {
+    assert.doesNotThrow(() => check({ ...url('devref'), VERCEL_ENV: 'preview' }));
+  });
+
+  it('is inert while no production project exists', () => {
+    // Today's state. It must not fail a build for a project nobody has
+    // created — but it is written now, because the dangerous window is the
+    // deploy immediately after somebody creates it.
+    assert.doesNotThrow(() => check({ ...url(PROD), VERCEL_ENV: 'preview' }, ''));
   });
 });

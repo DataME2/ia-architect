@@ -1,4 +1,4 @@
--- 0040 — A person can see the office they hold (bug fix).
+-- 0043 — A person can see the office they hold (bug fix).
 --
 -- Reported against a real account: somebody elected **president** on the
 -- governance screen opened `/me` and found no governance workspace.
@@ -36,7 +36,7 @@
 -- schema already refuses to ask.
 --
 -- Read only. Changing the committee stays an admin's act (BR21) — the
--- `_manage` policies are untouched, and `supabase/tests/41` asserts that a
+-- `_manage` policies are untouched, and `supabase/tests/44` asserts that a
 -- president can neither promote herself nor appoint anybody.
 
 -- ------------------------------------------------------- app_my_person_ids

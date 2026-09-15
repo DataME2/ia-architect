@@ -91,6 +91,10 @@ export function readPublicConfig(
       `expected https://<project-ref>.supabase.co, got ${supabaseUrl}`,
     );
   }
+  // Every Supabase client in the application is built from this, so this is
+  // the one place the check cannot be routed around by a new caller.
+  assertNotPreviewAgainstProduction(source);
+
   return {
     supabaseUrl: supabaseUrl.replace(/\/$/, ''),
     // `NEXT_PUBLIC_SUPABASE_ANON_KEY` is the name every doc in this repo
@@ -201,6 +205,7 @@ export function readPlatformAlertAddress(
 }
 
 /**
+
  * The shared secret a scheduled job's caller must present.
  *
  * Cron routes have no signed-in user, so the ordinary session check does
@@ -212,4 +217,73 @@ export function readCronSecret(
   source: Record<string, string | undefined> = process.env,
 ): string {
   return required(source, 'CRON_SECRET');
+}
+
+/**
+ * The project ref a preview deployment must never be pointed at.
+ *
+ * **Empty until the production project exists**, and inert while it is —
+ * written now rather than later on purpose: the moment somebody creates the
+ * production project, the dangerous window is the deploy *before* anyone
+ * remembers there was a rule about this.
+ *
+ * A project ref is not a secret — it is in the public URL every browser
+ * already sees — so it lives here rather than in an environment variable
+ * a preview build could simply be missing. A guard whose enforcement can
+ * be switched off by forgetting a variable is not a guard.
+ */
+export const PRODUCTION_PROJECT_REF = '';
+
+/** `https://abc.supabase.co` → `abc`. */
+function projectRefOf(supabaseUrl: string): string {
+  return supabaseUrl.replace(/^https:\/\//, '').split('.')[0] ?? '';
+}
+
+/**
+ * Refuses a non-production deployment pointed at the production database.
+ *
+ * A preview URL is effectively public — it is in the pull request, and pull
+ * requests here are public — so a preview pointed at real data puts eight
+ * hundred children's records behind a link anyone can open. That rule has
+ * been written in
+ * [`docs/ea/5_technology/2_deployment.md`](../../docs/ea/5_technology/2_deployment.md)
+ * since the deployment model was drafted, and until now it was enforced by
+ * somebody setting the variables correctly in a dashboard.
+ *
+ * **It fails closed and it fails loudly**, at configuration-read time
+ * rather than on the first query, because a preview that boots and then
+ * serves one request has already served it.
+ *
+ * `VERCEL_ENV` is `production`, `preview` or `development`, set by the
+ * platform rather than by the project — a deployment cannot claim to be
+ * production by editing its own variables. Absent (a developer's machine,
+ * CI, a container) is treated as *not production*: pointing a local server
+ * at the real club's data is the other half of the same mistake.
+ */
+export function assertNotPreviewAgainstProduction(
+  source: Record<string, string | undefined> = process.env,
+  // Injected so the tests drive *this* function rather than a copy of its
+  // logic. The first version of those tests re-implemented the rule, which
+  // is the divergence trap this repository has already been caught by once:
+  // a copy is only ever wrong in the copy, and the copy is the one nobody
+  // is watching. Nothing in the application passes it.
+  productionRef: string = PRODUCTION_PROJECT_REF,
+): void {
+  if (productionRef === '') return;
+
+  const supabaseUrl = source['NEXT_PUBLIC_SUPABASE_URL'];
+  if (supabaseUrl === undefined || supabaseUrl.trim() === '') return;
+  if (projectRefOf(supabaseUrl.trim()) !== productionRef) return;
+
+  const environment = source['VERCEL_ENV'];
+  if (environment === 'production') return;
+
+  throw new ConfigError(
+    'NEXT_PUBLIC_SUPABASE_URL',
+    `points at the production project (${productionRef}) from a ` +
+      `${environment ?? 'local or unidentified'} environment. A preview URL is public, and ` +
+      'this database holds real children\'s records. Point it at the development project, or ' +
+      'deploy to production properly.',
+  );
+
 }
