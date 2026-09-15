@@ -16,6 +16,7 @@ import {
 } from '../../web/queue-view.ts';
 import { todayIn } from '../../web/today.ts';
 import { RuleList, StatusPill } from '../_components/rules.tsx';
+import { BulkReminders } from './_components/BulkReminders.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -277,6 +278,8 @@ export default async function RegistrarPage({
           </div>
         </section>
       )}
+
+      {grouped.needsAction.length > 0 && <BulkReminders seasonId={season.id} />}
 
       <Section
         title="Needs action"

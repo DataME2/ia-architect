@@ -88,3 +88,46 @@ export async function sendRegistrationReminder(
 
   return results;
 }
+
+/**
+ * When each of these people was last reminded, by the club, about
+ * themselves.
+ *
+ * Read from `message_log` rather than from a column on the registration,
+ * because the log is already the record of what was sent and a second one
+ * would eventually disagree with it. `about_person_id` is the child (BR131
+ * puts the guardian's name on the envelope and the child's in the body), so
+ * this groups by the person the reminder was *about*, which is the person a
+ * registrar is deciding whether to chase again.
+ *
+ * **Only `sent` counts.** A suppressed or failed attempt did not reach
+ * anybody, so treating it as a reminder would leave a family uncontacted
+ * for a week on the strength of a message that never arrived.
+ */
+export async function loadLastReminded(
+  client: SupabaseClient,
+  clubId: string,
+  personIds: readonly string[],
+): Promise<ReadonlyMap<string, string>> {
+  const last = new Map<string, string>();
+  if (personIds.length === 0) return last;
+
+  const { data } = await client
+    .from('message_log')
+    .select('about_person_id, created_at')
+    .eq('club_id', clubId)
+    .eq('template_key', guardianReminder.key)
+    .eq('outcome', 'sent')
+    .in('about_person_id', [...personIds])
+    .order('created_at', { ascending: false });
+
+  for (const row of data ?? []) {
+    const personId = row.about_person_id as string | null;
+    if (personId === null) continue;
+    // Ordered newest first, so the first row seen for a person is the
+    // latest — no comparison, and no risk of one written the wrong way.
+    if (!last.has(personId)) last.set(personId, String(row.created_at).slice(0, 10));
+  }
+
+  return last;
+}
