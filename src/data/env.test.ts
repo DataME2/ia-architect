@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import { ConfigError, readPublicConfig, readServiceConfig } from './env.ts';
+import { ConfigError, readCronSecret, readPublicConfig, readServiceConfig } from './env.ts';
 
 const VALID = {
   NEXT_PUBLIC_SUPABASE_URL: 'https://your-project-ref.supabase.co',
@@ -93,5 +93,15 @@ describe('service config', () => {
       () => readServiceConfig({ ...VALID, SUPABASE_SERVICE_ROLE_KEY: undefined }),
       ConfigError,
     );
+  });
+});
+
+describe('cron secret', () => {
+  it('reads the shared secret a scheduled job checks its caller against', () => {
+    assert.equal(readCronSecret({ CRON_SECRET: 'a-long-random-value' }), 'a-long-random-value');
+  });
+
+  it('fails loudly when unset rather than letting every caller through', () => {
+    assert.throws(() => readCronSecret({}), ConfigError);
   });
 });

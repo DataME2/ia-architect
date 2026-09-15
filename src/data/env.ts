@@ -199,3 +199,17 @@ export function readPlatformAlertAddress(
   if (address === undefined || address.trim() === '') return null;
   return address.trim();
 }
+
+/**
+ * The shared secret a scheduled job's caller must present.
+ *
+ * Cron routes have no signed-in user, so the ordinary session check does
+ * not apply — anyone who can reach the URL can trigger the job unless it
+ * checks something. Vercel Cron sends this as a bearer token
+ * automatically; this is the value it is compared against.
+ */
+export function readCronSecret(
+  source: Record<string, string | undefined> = process.env,
+): string {
+  return required(source, 'CRON_SECRET');
+}

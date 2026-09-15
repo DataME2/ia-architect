@@ -59,6 +59,9 @@ The next migration takes the next number.
 | `0020`–`0022` | The player record, the identification photograph, and the account↔Person link |
 | `0023`–`0027` | The referee slice: record, availability, appointments, verification and fee schedules, claims and batches |
 | `0028`–`0029` | Family access, and what a household may read |
+| `0042` | The administrator invitation requires a named individual (scope 48, WP3): rewrites `grant_club_role` to refuse `admin` to an account not yet linked to a Person (`account_person`) — the schema's own definition of "a named individual", since nothing in an email address distinguishes a shared mailbox from a personal one. Skipped for an account that already holds admin, so this gates the grant, not continued use |
+| `0041` | The six-monthly WWCC reminder (scope 48, WP2): `clearance.reminder_sent_at`, a due-list report and a plain RLS-backed write to record one sent. Finds that BR97's read-only state gates nothing at the RLS layer yet, so there was no exception to carve for it |
+| `0040` | Outstanding-balance visibility across seasons (scope 48, WP1): a cross-season arrears report in the shape 0036 established (refuses rather than under-counting), and an append-only `arrears_action` log where BR79's "never a silent write-off" is a check constraint, not only a function's discipline |
 | `0030` | Communications: who may be contacted, what was sent, and the withdrawal that stops it |
 | `0035` | Calendar distribution: a revocable per-Person feed, and the projection behind it |
 | `0036` | Reporting: three `security definer` summaries that compute the true total or refuse, because RLS hides rows and does not refuse sums |

@@ -7,6 +7,7 @@ import {
   READ_ONLY_ROLES,
   ROLE_SUMMARY,
   accountIdentity,
+  adminNeedsLinkFirst,
   candidateLabel,
   grantableRoles,
   linkableCandidates,
@@ -51,6 +52,11 @@ export function GrantAccessForm() {
               </option>
             ))}
           </select>
+          <p className="hint" style={{ margin: '0.3rem 0 0' }}>
+            <strong>Admin needs the account linked to who it belongs to first</strong> (BR106) —
+            an administrator&rsquo;s account may not be a shared or role-based mailbox. If you are
+            not sure yet, grant a lesser role now and add admin once they are linked, below.
+          </p>
         </div>
       </fieldset>
 
@@ -220,27 +226,49 @@ export function RoleLegend() {
   );
 }
 
-/** Grants beyond those already held, offered per account. */
+/**
+ * Grants beyond those already held, offered per account.
+ *
+ * BR106: `admin` is missing from the options for an unlinked account
+ * rather than offered and refused — `grant_club_role` (0042) checks the
+ * same `account_person` link, so this is `RevokeButton`'s own pattern
+ * applied to adding a role instead of removing one.
+ */
 export function GrantMoreForm({ account }: { readonly account: ClubAccount }) {
   const [state, formAction, pending] = useActionState(grantAccessAction, IDLE_FORM);
   const options = grantableRoles(account);
-  if (options.length === 0) return null;
+  const needsLink = adminNeedsLinkFirst(account);
+
+  if (options.length === 0) {
+    return needsLink ? <AdminNeedsLinkHint /> : null;
+  }
 
   return (
-    <form action={formAction} style={{ display: 'inline-flex', gap: '0.35rem' }}>
-      <input type="hidden" name="email" value={account.email} />
-      <select name="role" defaultValue={options[0]} aria-label={`Add a role for ${account.email}`}>
-        {options.map((role) => (
-          <option key={role} value={role}>
-            {role}
-          </option>
-        ))}
-      </select>
-      <button type="submit" className="secondary" disabled={pending}>
-        {pending ? '…' : 'Add'}
-      </button>
+    <div className="stack" style={{ gap: '0.3rem' }}>
+      <form action={formAction} style={{ display: 'inline-flex', gap: '0.35rem' }}>
+        <input type="hidden" name="email" value={account.email} />
+        <select name="role" defaultValue={options[0]} aria-label={`Add a role for ${account.email}`}>
+          {options.map((role) => (
+            <option key={role} value={role}>
+              {role}
+            </option>
+          ))}
+        </select>
+        <button type="submit" className="secondary" disabled={pending}>
+          {pending ? '…' : 'Add'}
+        </button>
+      </form>
       {state.status === 'error' && <span className="hint">{state.message}</span>}
-    </form>
+      {needsLink && <AdminNeedsLinkHint />}
+    </div>
+  );
+}
+
+function AdminNeedsLinkHint() {
+  return (
+    <span className="hint" title="BR106: an administrator's account must belong to one identified person.">
+      admin isn&rsquo;t offered until this account is linked to who it belongs to, above
+    </span>
   );
 }
 

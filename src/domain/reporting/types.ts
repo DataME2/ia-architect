@@ -45,6 +45,23 @@ export interface FinanceFigures {
   readonly voucherReliefCents: number;
 }
 
+/**
+ * One Person's arrear from one season, still inside BR79's two-year
+ * visibility window. `lastAction` is the Treasurer's most recent recorded
+ * response, if any — `null` means nobody has recorded chasing it yet.
+ */
+export interface ArrearsRow {
+  readonly personId: string;
+  readonly personName: string;
+  readonly seasonId: string;
+  readonly seasonName: string;
+  readonly seasonEndedOn: string;
+  readonly outstandingCents: number;
+  readonly ageDays: number;
+  readonly lastAction: 'payment_requested' | 'amendment_recorded' | null;
+  readonly lastActionAt: string | null;
+}
+
 export interface OfficiatingFigures {
   readonly officials: number;
   readonly appointments: number;

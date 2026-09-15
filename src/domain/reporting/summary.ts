@@ -7,7 +7,7 @@
  * from here, because there is no function that gives it one without the
  * other.
  */
-import type { FinanceFigures, OfficiatingFigures, RegistrationFigures } from './types.ts';
+import type { ArrearsRow, FinanceFigures, OfficiatingFigures, RegistrationFigures } from './types.ts';
 
 export interface Proportion {
   readonly count: number;
@@ -104,4 +104,31 @@ export function officiatingReport(f: OfficiatingFigures): OfficiatingReport {
     claimsAwaitingApproval: f.claimsRaised,
     verificationsOutstanding: f.unverifiedFixtures,
   };
+}
+
+/**
+ * BR79's deterrent, made a sortable fact rather than a note somebody has to
+ * remember: has this arrear ever been chased, and how long has it stood.
+ * Purely a read of what `app_outstanding_balances` already returned — no
+ * new figure, just the two questions a Treasurer's queue is ordered by.
+ */
+export interface ArrearsQueueRow extends ArrearsRow {
+  /** No `arrears_action` row exists yet for this Person and season. */
+  readonly neverChased: boolean;
+}
+
+/**
+ * Oldest and never-chased first — the two facts that make a queue a queue
+ * rather than a list. A debt six weeks old that nobody has asked about yet
+ * is the one a Treasurer's afternoon should start with, not whichever row
+ * the database happened to return first.
+ */
+export function arrearsQueue(rows: readonly ArrearsRow[]): readonly ArrearsQueueRow[] {
+  return rows
+    .map((r) => ({ ...r, neverChased: r.lastAction === null }))
+    .slice()
+    .sort((a, b) => {
+      if (a.neverChased !== b.neverChased) return a.neverChased ? -1 : 1;
+      return b.ageDays - a.ageDays;
+    });
 }

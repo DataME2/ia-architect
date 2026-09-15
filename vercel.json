@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/wwcc-reminders",
+      "schedule": "0 15 * * *"
+    }
+  ]
+}

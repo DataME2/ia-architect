@@ -6,6 +6,7 @@ import {
   READ_ONLY_ROLES,
   ROLE_SUMMARY,
   accountIdentity,
+  adminNeedsLinkFirst,
   candidateLabel,
   grantableRoles,
   isClubRole,
@@ -70,6 +71,25 @@ test('a role already held is not offered again', () => {
   assert.ok(!offered.includes('admin'));
   assert.ok(!offered.includes('coach'));
   assert.ok(offered.includes('treasurer'));
+});
+
+test('BR106 — admin is not offered to an unlinked account', () => {
+  const unlinked = account('a@x.test', ['coach']); // personId: null, per the account() helper
+  const offered = grantableRoles(unlinked);
+  assert.ok(!offered.includes('admin'), 'the database refuses this grant regardless (0042) — offering it is the bug WP3 fixes');
+  assert.ok(offered.includes('treasurer'), 'other roles are unaffected');
+  assert.equal(adminNeedsLinkFirst(unlinked), true);
+});
+
+test('BR106 — admin is offered once the account is linked', () => {
+  const linkedAccount: ClubAccount = { ...account('a@x.test', ['coach']), personId: 'p1', legalName: 'A Name' };
+  assert.ok(grantableRoles(linkedAccount).includes('admin'));
+  assert.equal(adminNeedsLinkFirst(linkedAccount), false);
+});
+
+test('adminNeedsLinkFirst is false once admin is already held, linked or not', () => {
+  const alreadyAdmin = account('a@x.test', ['admin']);
+  assert.equal(adminNeedsLinkFirst(alreadyAdmin), false);
 });
 
 test('viewer is not a club role', () => {

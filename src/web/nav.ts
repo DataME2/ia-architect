@@ -27,6 +27,7 @@ export const REGISTRAR_NAV: readonly NavItem[] = [
   { href: '/registrar/duplicates', label: 'Duplicates', seasonScoped: false },
   { href: '/registrar/pack', label: 'Submission pack', seasonScoped: true },
   { href: '/registrar/reports', label: 'Reports', seasonScoped: true },
+  { href: '/registrar/arrears', label: 'Arrears', seasonScoped: false },
   { href: '/registrar/carnivals', label: 'Carnivals', seasonScoped: false },
   { href: '/registrar/privacy', label: 'Privacy', seasonScoped: false },
   { href: '/registrar/access', label: 'Access', seasonScoped: false },
