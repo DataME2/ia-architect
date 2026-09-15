@@ -42,7 +42,11 @@ production project, keying on `VERCEL_ENV` — which the platform sets, so a
 deployment cannot claim to be production by editing its own variables. It is
 **inert until `PRODUCTION_PROJECT_REF` is set** in `src/data/env.ts`, which
 is the one line to change when the production project is created; setting it
-is part of creating that project, not a follow-up.
+is part of creating that project, not a follow-up. Set it to the **ref
+alone**, not the URL — a malformed value fails the build with a message
+saying so, because a value that matches nothing would leave the guard
+reporting itself as on while doing nothing. The click-path for creating the
+project is [scope 49's runbook](../../scope/49_an_environment_of_its_own.md).
 
 ### Backup and restore
 

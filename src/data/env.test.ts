@@ -117,7 +117,11 @@ describe('a preview must never reach production (D10, task 0.4)', () => {
   // these pass a ref of their own rather than waiting for it: the guard has
   // to be known-good *before* the day it starts mattering, which is the day
   // somebody creates that project.
-  const PROD = 'prodref';
+  // A real ref's shape — twenty lowercase characters — not a short label.
+  // The first version used 'prodref', which the malformed-ref check below
+  // correctly refuses; a fixture that could not be a real value is a test
+  // that does not exercise the real path.
+  const PROD = 'prodrefabcdefghijklm';
   const url = (ref: string) => ({ NEXT_PUBLIC_SUPABASE_URL: `https://${ref}.supabase.co` });
 
   const check = (env: Record<string, string | undefined>, productionRef = PROD) =>
@@ -139,7 +143,32 @@ describe('a preview must never reach production (D10, task 0.4)', () => {
   });
 
   it('allows a preview pointed at development, which is the intended shape', () => {
-    assert.doesNotThrow(() => check({ ...url('devref'), VERCEL_ENV: 'preview' }));
+    assert.doesNotThrow(() => check({ ...url('devrefabcdefghijklmn'), VERCEL_ENV: 'preview' }));
+  });
+
+  it('refuses a ref that is really a URL — the likeliest paste', () => {
+    // Silently matching nothing is the failure this catches: the guard
+    // would return on every deployment and report itself as on.
+    assert.throws(
+      () => check({ ...url(PROD), VERCEL_ENV: 'preview' }, `https://${PROD}.supabase.co`),
+      ConfigError,
+    );
+  });
+
+  it('refuses a truncated or placeholder ref', () => {
+    for (const bad of ['prod', 'TODO', 'your-project-ref', 'prodref.supabase.co']) {
+      assert.throws(
+        () => check({ ...url(PROD), VERCEL_ENV: 'production' }, bad),
+        ConfigError,
+        bad,
+      );
+    }
+  });
+
+  it('fails closed on a bad ref even where the deployment is production', () => {
+    // The check runs before the environment is considered, so a malformed
+    // ref is loud everywhere rather than only where it would have bitten.
+    assert.throws(() => check({ ...url(PROD), VERCEL_ENV: 'production' }, 'nope!'), ConfigError);
   });
 
   it('is inert while no production project exists', () => {

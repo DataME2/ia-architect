@@ -119,8 +119,8 @@ this task that is not ours.
 | **WP3** | [`backup-and-restore.md`](../annexes/backup-and-restore.md) — RPO, RTO, retention, the procedure, and five named gaps | **Delivered** |
 | **WP4** | `scripts/rehearse_restore.sh`, verified to fail on a lost policy | **Delivered** |
 | **WP5** | The rehearsal in `npm run check:full` and `code-check` | **Delivered** |
-| **WP6** | **Create the production Supabase project** | **Needs the owner** |
-| **WP7** | **Per-environment variables in Vercel**, and `PRODUCTION_PROJECT_REF` set | **Needs the owner** |
+| **WP6** | **Create the production Supabase project** | **Needs the owner** — runbook below; no CLI, no token and `api.supabase.com` blocked here |
+| **WP7** | **Per-environment variables in Vercel**, and `PRODUCTION_PROJECT_REF` set | **Needs the owner** — a malformed ref now fails the build rather than disabling the guard |
 | **WP8** | **One restore rehearsed against a real backup**, and the answer to whether accounts survive it | **Needs the owner** |
 
 ## Why the tests drive the real function
@@ -134,6 +134,50 @@ is watching.
 The fix is the same one the enquiry alert got: the production ref is a
 parameter defaulting to the constant, nothing in the application passes it,
 and the tests drive the shipped function.
+
+## Creating the production project — the runbook
+
+WP6–WP8 need a dashboard and billing, so they are written out here rather
+than left as three words in a table. **Nothing in this repository can do
+them**: there is no Supabase CLI in the build environment, no management
+access token, and `api.supabase.com` is refused by the egress policy — three
+independent blocks, so this is not a matter of nobody having tried.
+
+Two of the steps are also decisions rather than typing, and they are marked.
+
+1. **Choose the plan** *(a decision)*. Free is enough to *exist*; **Pro is
+   what Point-in-Time Recovery needs**, and PITR is what takes the RPO from
+   24 hours to one. A club's registration day is the busiest data day of its
+   year, and 24 hours of it is a hundred families registering twice — so the
+   honest trigger is the first real club, not the first deploy.
+2. **Create the project in `ap-southeast-2` (Sydney).** Same region as
+   development, and the region the whole technology layer assumes. A
+   database of Australian children's records in another region is a
+   different privacy conversation, not a latency one.
+3. **Keep the database password out of this repository and out of any chat.**
+   It goes in the password manager and in Vercel, nowhere else. The same
+   goes for the new project's service-role key, which bypasses Row-Level
+   Security for every club at once.
+4. **Set the Vercel variables per environment.** Production gets the new
+   project's URL and keys; **preview and development keep pointing at the
+   development project.** That separation is the thing step 6 enforces.
+5. **Apply the migrations to the new project**, in order, and then run
+   `python3 scripts/check_rls.py` against it. A production database whose
+   policies did not all apply is the failure P5 rests on.
+6. **Fill in `PRODUCTION_PROJECT_REF`** in `src/data/env.ts` — the ref
+   alone, `abcdefghijklmnopqrst` out of
+   `https://abcdefghijklmnopqrst.supabase.co`, not the URL. A malformed
+   value now **fails the build loudly** rather than leaving the guard
+   matching nothing; that is what `validProjectRef` is for.
+7. **Rehearse a restore against the real project** and record the actual
+   times in [the annex](../annexes/backup-and-restore.md), replacing the
+   throwaway-cluster figures. While there, answer the one question worth
+   twenty minutes now and an hour during an incident: **do the accounts come
+   back?** Supabase manages the `auth` schema separately, and whether users
+   must be re-invited after a restore is currently unknown.
+
+Steps 1 and 3 are the ones that cannot be delegated to anybody, including a
+future version of this process.
 
 ## What this initiative does not do
 
