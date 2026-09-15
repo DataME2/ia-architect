@@ -126,13 +126,21 @@ export function isClubRole(value: string): value is ClubRole {
   return (CLUB_ROLES as readonly string[]).includes(value);
 }
 
+/** BR124's floor: a club holds at least two administrators. */
+export const ADMIN_FLOOR = 2;
+
 /**
  * Whether this role may be taken away from this account right now.
  *
- * The refusal that matters is the last administrator: a club whose only
- * admin role is removed cannot restore its own access from the inside, and
- * that is reached by ordinary tidying rather than by intent. Enforced in
- * the database too — this is so the button explains itself rather than
+ * The refusal that matters is administrators, and the floor is **two**
+ * rather than one (BR124, migration 0048). One is not a working state: a
+ * club whose single administrator resigns, loses a password or goes away
+ * cannot restore its own access from the inside, and it is reached by
+ * ordinary tidying rather than by intent. The second administrator is what
+ * makes the first removable at all.
+ *
+ * Enforced in the database too, on the table rather than in
+ * `revoke_club_role` — this is so the button explains itself rather than
  * failing when pressed.
  */
 export function revocation(
@@ -150,6 +158,15 @@ export function revocation(
         account.isSelf
           ? 'You are the club\u2019s only administrator. Grant admin to somebody else before removing your own.'
           : 'This is the club\u2019s only administrator. Grant admin to somebody else first.',
+    };
+  }
+  if (admins.length <= ADMIN_FLOOR) {
+    return {
+      allowed: false,
+      reason:
+        'A club keeps two administrators (BR124). Removing this one would leave one, and a club '
+        + 'with a single administrator is a resignation away from having none. Grant admin to a '
+        + 'third person first.',
     };
   }
   return { allowed: true };

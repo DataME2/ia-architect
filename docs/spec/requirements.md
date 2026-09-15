@@ -155,7 +155,7 @@ a business rule without an intermediate mapping table.
 | FR-C10.1 | A tenant is created only on the platform owner's authorisation, atomically with its first season and administrator | BR89 | **Verified** | `/platform`, migration 0016 |
 | FR-C10.2 | A club names a primary and secondary responsible person, and **each claims their own access** — never created for them | BR94, BR95 | **Verified** | `club_contact.claimed_at`, migration 0017 |
 | FR-C10.3 | An invited person chooses their own password on first arrival; no password is ever emailed | BR98 | **Verified** | migration 0019, `src/app/set-password/` |
-| FR-C10.4 | A club holds at least two administrators | BR124 | **Not built** | No constraint enforces the floor |
+| FR-C10.4 | A club holds at least two administrators | BR124 | **Verified** | migration 0048, suite 49 ([scope 55](../scope/55_a_club_keeps_two_administrators.md)). On `club_membership` rather than in `revoke_club_role`, because 0002's manage policy let an admin delete the row directly |
 | FR-C10.5 | A licence is a dated term with a state and a negotiated fee; renewal is a new term | BR96 | **Verified** | `club_licence`, migration 0018 |
 | FR-C10.6 | A lapsed licence puts the club into read-only | BR97 | **Partial** | **Shown and not enforced** — the state is displayed; nothing restricts writes |
 | FR-C10.7 | A committee position is held for exactly one term, running AGM to AGM, and lapses with it | BR85, BR86 | **Verified** | `src/domain/governance/term.ts` |
