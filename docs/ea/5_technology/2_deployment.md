@@ -14,7 +14,7 @@ must never appear**.
 | ----------- | ------- | -------- | -------------- |
 | **Local** | `next dev` on a developer machine | **The development Supabase project** (`sxsloxdtpcjpdobwpwsm`) | One developer |
 | **Preview** | Vercel preview deployment, one per pull request | The same development project — **never production** | Anyone with the PR link |
-| **Production** | Vercel, Sydney region | **`ltd-production`**, Supabase `ap-southeast-2` — created, **not yet pointed at** | Club users |
+| **Production** | Vercel, Sydney region | **`ltd-production`** (`jqyfbgojgxpymjgecxgx`), Supabase `ap-southeast-2` — created and **guarded**, not yet pointed at | Club users |
 
 > **A production project now exists — `ltd-production`, Sydney — and
 > nothing points at it yet.** Created 15 September 2026. Until the Vercel
@@ -35,10 +35,18 @@ must never appear**.
 > `ltd-dev` and renamed before anything was attached to it, because a
 > project name is what everyone reads in the dashboard.
 >
+> **`PRODUCTION_PROJECT_REF` is set**, so the guard below is armed before
+> the database it guards is reachable — which is the right order: the
+> dangerous window is the deploy *after* a production project exists and
+> *before* anyone remembers there was a rule about this. It is inert today
+> because nothing points at that project, and a test drives the shipped
+> constant rather than an injected one, so blanking it fails the build
+> rather than silently disarming the check.
+>
 > **Remaining before the Production row is true:** the Vercel Production
 > variables, a decision on what the Supabase–GitHub integration points at,
-> the migrations applied and `check_rls.py` run against it, and
-> `PRODUCTION_PROJECT_REF` filled in. The order and the reasoning are in
+> and the migrations applied with `check_rls.py` run against it. The order
+> and the reasoning are in
 > [scope 49's runbook](../../scope/49_an_environment_of_its_own.md).
 
 **Preview deployments must never point at production.** A preview URL is

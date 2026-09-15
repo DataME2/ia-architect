@@ -222,10 +222,16 @@ export function readCronSecret(
 /**
  * The project ref a preview deployment must never be pointed at.
  *
- * **Empty until the production project exists**, and inert while it is —
- * written now rather than later on purpose: the moment somebody creates the
- * production project, the dangerous window is the deploy *before* anyone
- * remembers there was a rule about this.
+ * **`ltd-production`, Sydney, set 15 September 2026.** It was empty and
+ * inert for exactly as long as there was no production project — written
+ * ahead of time on purpose, because the dangerous window is the deploy
+ * *after* somebody creates that project and *before* anyone remembers
+ * there was a rule about this. The guard was armed before the database it
+ * guards was reachable, which is the right way round.
+ *
+ * Not a secret: a project ref is in the public URL every browser already
+ * receives. What is secret is that project's service-role key, which lives
+ * in Vercel and a password manager and appears nowhere in this repository.
  *
  * A project ref is not a secret — it is in the public URL every browser
  * already sees — so it lives here rather than in an environment variable
@@ -239,7 +245,7 @@ export function readCronSecret(
  * refuses that rather than letting a typo disable a safety check. Which is
  * the same objection as the environment variable, one step along.
  */
-export const PRODUCTION_PROJECT_REF = '';
+export const PRODUCTION_PROJECT_REF = 'jqyfbgojgxpymjgecxgx';
 
 /**
  * Whether a value is a project ref rather than a URL, a fragment of one, or

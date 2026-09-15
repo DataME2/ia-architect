@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 233 of the 276 tasks below are already `[x]`; the phases are ordered so
+plan. 234 of the 277 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -57,7 +57,8 @@ tenant isolation on a throwaway Postgres, with no cloud credentials.
 - [x] Documented RPO, RTO and retention, and the procedure for the day a restore is needed
 - [x] A restore **rehearsed on every change** — dump, restore into an empty database, count what came back, **policies first**
 - [ ] One restore rehearsed against a **real** Supabase backup, and the answer to whether accounts survive it — **needs the owner**
-- [ ] Per-environment variables set in Vercel, and `PRODUCTION_PROJECT_REF` filled in — **needs the owner**
+- [x] `PRODUCTION_PROJECT_REF` filled in — armed before production is reachable, and a test drives the shipped constant so blanking it fails the build
+- [ ] Per-environment variables set in Vercel (Production scope only) — **needs the owner**
 
 **Manually testable:** `npm install && npm run check:full` passes on a clean
 clone with no cloud credentials.
@@ -635,7 +636,7 @@ owner and find it at the top of the list.
 
 | Phase | Subject | Done | Remaining |
 | ----- | ------- | ---- | --------- |
-| 0 | Infrastructure, gates, CI | 17 | 4 |
+| 0 | Infrastructure, gates, CI | 18 | 4 |
 | 1 | Tenancy, identity, access | 20 | 2 |
 | 2 | Registration, documents, validation | 21 | 4 |
 | 3 | Finance | 14 | 3 |
@@ -652,7 +653,7 @@ owner and find it at the top of the list.
 | 14 | Engineering quality | 5 | 3 |
 | 15 | The club that is not here yet | 12 | 3 |
 | 10b | Officiating at registration | 13 | 1 |
-| | **Total** | **233** | **43** |
+| | **Total** | **234** | **43** |
 
 **Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy

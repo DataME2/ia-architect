@@ -120,7 +120,8 @@ this task that is not ours.
 | **WP4** | `scripts/rehearse_restore.sh`, verified to fail on a lost policy | **Delivered** |
 | **WP5** | The rehearsal in `npm run check:full` and `code-check` | **Delivered** |
 | **WP6** | **Create the production Supabase project** | **Done by the owner** — `ltd-production`, Sydney, 15 September 2026. Created as `ltd-dev` and renamed before anything was attached, which is why the runbook below now says which mistakes are cheap |
-| **WP7** | **Per-environment variables in Vercel**, and `PRODUCTION_PROJECT_REF` set | **Needs the owner** — a malformed ref now fails the build rather than disabling the guard |
+| **WP7a** | `PRODUCTION_PROJECT_REF` set to `jqyfbgojgxpymjgecxgx` | **Delivered** — armed before the database it guards is reachable, and a test drives the shipped constant so blanking it fails the build |
+| **WP7b** | **Per-environment variables in Vercel** | **Needs the owner** — Production scope only; Preview and Development stay on the development project |
 | **WP8** | **One restore rehearsed against a real backup**, and the answer to whether accounts survive it | **Needs the owner** |
 
 ## Why the tests drive the real function
