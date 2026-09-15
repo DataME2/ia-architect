@@ -1,6 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+import { loadFamilyDesignations } from '../../../data/designations.ts';
 import { loadOfficialSelfView, type ClubLink } from '../../../data/me.ts';
+import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
 import { ComingSoon, Panel, WorkspaceHead } from './shared.tsx';
 import { loadSubscription } from '../../../data/calendar.ts';
 import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
@@ -9,20 +11,34 @@ import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
  * The official's own view.
  *
  * C4 built the coordinator's side — the roster, the designation screen,
- * claims and batches — and every one of its tables is readable only by
- * admin, registrar and coordinator. An official signed in as themselves
- * gets an empty answer from RLS, which is correct under P5 until a policy
- * says otherwise. So this workspace says exactly that, rather than
- * rendering an empty list as if nothing were waiting (BR65).
+ * claims and batches — and every one of its tables was readable only by
+ * admin, registrar and coordinator, so an official signed in as themselves
+ * got an empty answer from RLS. That was correct under P5 until a policy
+ * said otherwise, and the workspace said so rather than rendering an empty
+ * list as if nothing were waiting (BR65).
+ *
+ * **Appointments are the first of those to open.** Migration 0045 admits a
+ * person to their own designations so that BR113's question can reach the
+ * guardian it is addressed to; the adult official reached by the same
+ * policy is the half of BR65 that came with it. The referee record itself —
+ * classification, accreditation, what is owed — is still the coordinator's,
+ * and still says so.
  */
 export async function RefereeWorkspace({
   client,
   link,
+  today,
 }: {
   readonly client: SupabaseClient;
   readonly link: ClubLink;
+  readonly today: string;
 }) {
   const self = await loadOfficialSelfView(client, link.clubId, link.personId);
+
+  // Their own designations, readable since 0045 (scope 51). An adult
+  // official answers for themselves; the panel says so rather than leaving
+  // the sentence out for the half of the pathway that is not a child.
+  const designations = await loadFamilyDesignations(client, link.clubId, [link.personId], today);
 
 
   // The calendar feed, from the official's own side (scope 41).
@@ -36,21 +52,13 @@ export async function RefereeWorkspace({
       </WorkspaceHead>
       <div className="cols">
         <div className="stack">
-          {self.visible ? (
-            <Panel title="Offered" meta={`${self.appointments} OPEN`}>
-              <p className="hint" style={{ margin: 0 }}>
-                {self.appointments === 0
-                  ? 'Nothing waiting for an answer.'
-                  : `${self.appointments} appointment${self.appointments === 1 ? '' : 's'} waiting for your answer.`}
-              </p>
-            </Panel>
-          ) : (
-            <ComingSoon title="Offered" waitsOn="a read policy for the official — BR65 on the referee record">
-              The designation screen exists and coordinators are using it. Your own appointments are not yet
-              visible to <em>you</em> — the record is readable by club officers only until a policy says
-              otherwise.
-            </ComingSoon>
-          )}
+          <Panel title="Offered" meta={`${self.appointments} OPEN`}>
+            <DesignationPanel
+              clubId={link.clubId}
+              offered={designations.offered}
+              answerers={designations.answerers}
+            />
+          </Panel>
           <Panel title="Refused before it reaches you">
             <p className="callout" style={{ marginBottom: 0 }}>
               <b>A match you play in, coach, manage, or have a child in is never offered.</b> The conflict is

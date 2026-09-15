@@ -43,10 +43,35 @@ test('the last administrator cannot be removed', () => {
   assert.match(r.allowed ? '' : r.reason, /only administrator/i);
 });
 
-test('a second administrator makes the first removable', () => {
+test('a second administrator is not enough — the floor is two (BR124)', () => {
+  // The rule is not "never be locked out", it is "keep two". A club reduced
+  // to one administrator is a resignation away from having none, and this
+  // test used to assert the opposite, back when 0015 guarded only the last.
   const a = account('a@x.test', ['admin'], true);
   const b = account('b@x.test', ['admin']);
-  assert.equal(revocation(a, 'admin', [a, b]).allowed, true);
+  const r = revocation(a, 'admin', [a, b]);
+  assert.equal(r.allowed, false);
+  assert.match(r.allowed ? '' : r.reason, /keeps two administrators/i);
+  assert.match(r.allowed ? '' : r.reason, /a third person/i);
+});
+
+test('a third administrator makes the first removable', () => {
+  const a = account('a@x.test', ['admin'], true);
+  const b = account('b@x.test', ['admin']);
+  const c = account('c@x.test', ['admin']);
+  assert.equal(revocation(a, 'admin', [a, b, c]).allowed, true);
+});
+
+test('the floor’s two refusals are told apart', () => {
+  // "You are the only one" and "removing you would leave one" are different
+  // situations with different next steps, and a single message for both
+  // would tell half the clubs to do something they have already done.
+  const a = account('a@x.test', ['admin'], true);
+  const b = account('b@x.test', ['admin']);
+  const alone = revocation(a, 'admin', [a]);
+  const paired = revocation(a, 'admin', [a, b]);
+  assert.match(alone.allowed ? '' : alone.reason, /only administrator/i);
+  assert.doesNotMatch(paired.allowed ? '' : paired.reason, /only administrator/i);
 });
 
 test('the lockout guard is about admin and nothing else', () => {

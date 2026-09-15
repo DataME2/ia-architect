@@ -110,7 +110,7 @@ a business rule without an intermediate mapping table.
 | FR-C4.5 | Accreditation is checked against the **fixture's** date, not today | BR111 | **Verified** | `conflicts.ts` |
 | FR-C4.6 | Every designation records which party made it — club or association | BR114 | **Verified** | `match_official_appointment` |
 | FR-C4.7 | A decline or withdrawal is not recorded at all until a reason is given | BR42, BR112 | **Verified** | migration 0025 |
-| FR-C4.8 | A designation for an under-18 official is proposed to their guardian | BR113 | **Not built** | No source reference; duty-of-care gap |
+| FR-C4.8 | A designation for an under-18 official is proposed to their guardian | BR113 | **Verified** | migration 0045, `app_may_answer_designation`, suite 46. Answered by a Parent/Guardian holding authority and by nobody else; not created at all where no such guardian is recorded. **Nobody is emailed** — the guardian finds it on `/me` |
 | FR-C4.9 | A decline rate over the configured window caps appointments | BR12 | **Not built** | Waiting on a season of history to set the threshold |
 
 ### FR-C5 — Referee finance
@@ -118,7 +118,7 @@ a business rule without an intermediate mapping table.
 | # | Requirement | Rules | Status | Realised by |
 | - | ----------- | ----- | ------ | ----------- |
 | FR-C5.1 | A claim requires a verified match, and nobody verifies the match they were paid for | BR13, BR119 | **Verified** | `appointment_verification`, `tests/29_verification_and_fees.sql` |
-| FR-C5.2 | A fee schedule is a dated version; changing a rate publishes a new schedule | BR115 | **Partial** | Schema and rate resolution delivered; **the editor is not built** (scope 34 WP2) |
+| FR-C5.2 | A fee schedule is a dated version; changing a rate publishes a new schedule | BR115 | **Verified** | `/registrar/fees` ([scope 53](../scope/53_the_rate_table_a_club_never_had.md)), migration 0047, suite 48. A superseded schedule refuses an added, changed or removed rate; the one in force stays correctable |
 | FR-C5.3 | A claim stores the amount it was computed at, never recomputed at read time | BR116 | **Verified** | `referee_payment_claim`, `src/domain/officiating/fees.ts` |
 | FR-C5.4 | No claim for a cancelled match; an abandoned match needs the official's explanation | BR17, BR18 | **Verified** | migration 0027 |
 | FR-C5.5 | A referee cannot be paid twice for the same verified match | BR14 | **Verified** | `tests/30_referee_claims_and_batches.sql` |
@@ -155,7 +155,7 @@ a business rule without an intermediate mapping table.
 | FR-C10.1 | A tenant is created only on the platform owner's authorisation, atomically with its first season and administrator | BR89 | **Verified** | `/platform`, migration 0016 |
 | FR-C10.2 | A club names a primary and secondary responsible person, and **each claims their own access** — never created for them | BR94, BR95 | **Verified** | `club_contact.claimed_at`, migration 0017 |
 | FR-C10.3 | An invited person chooses their own password on first arrival; no password is ever emailed | BR98 | **Verified** | migration 0019, `src/app/set-password/` |
-| FR-C10.4 | A club holds at least two administrators | BR124 | **Not built** | No constraint enforces the floor |
+| FR-C10.4 | A club holds at least two administrators | BR124 | **Verified** | migration 0048, suite 49 ([scope 55](../scope/55_a_club_keeps_two_administrators.md)). On `club_membership` rather than in `revoke_club_role`, because 0002's manage policy let an admin delete the row directly |
 | FR-C10.5 | A licence is a dated term with a state and a negotiated fee; renewal is a new term | BR96 | **Verified** | `club_licence`, migration 0018 |
 | FR-C10.6 | A lapsed licence puts the club into read-only | BR97 | **Partial** | **Shown and not enforced** — the state is displayed; nothing restricts writes |
 | FR-C10.7 | A committee position is held for exactly one term, running AGM to AGM, and lapses with it | BR85, BR86 | **Verified** | `src/domain/governance/term.ts` |
@@ -188,7 +188,7 @@ a business rule without an intermediate mapping table.
 
 | Capability | Rules stranded | Status |
 | ---------- | -------------- | ------ |
-| **C7 — Communications** | BR64 and claim approval remain unwired — see FR-C17.7 | **Partial** — built September 2026 ([scope 36](../scope/36_the_platform_learns_to_send_and_to_stop.md)): a guardian reminder, BR42's coordinator notification, and an account-free unsubscribe with suppression held here rather than at the provider (BR127–BR131). No campaigns, no bounce handling |
+| **C7 — Communications** | BR64 and claim approval remain unwired — see FR-C17.7 | **Partial** — built September 2026 ([scope 36](../scope/36_the_platform_learns_to_send_and_to_stop.md)): a guardian reminder, BR42's coordinator notification, and an account-free unsubscribe with suppression held here rather than at the provider (BR127–BR131). No campaigns, no bounce handling. A reminder can now be sent to every blocked family at once from the season queue ([scope 54](../scope/54_chasing_forty_families_at_once.md)), skipping those with nothing outstanding and those chased in the last week |
 | **C8 — Reporting & dashboards** | — | **Partial** — built September 2026 ([scope 42](../scope/42_numbers_a_committee_can_act_on.md)): three summaries computed authoritatively and **refused** rather than partially computed for a reader whose role may not have them (BR142, BR143). No trend, no comparison, no export, nothing scheduled |
 | **C9 — Historical data consolidation** | BR90 | **Designed**, blocked on open question #57 (lawful basis) |
 | **C11 — Competition & calendar** | Competition Regulations as documents | **Partial** — the catalogue, ranked classification levels and **BR8 as a real blocker** ([scope 38](../scope/38_the_catalogue_that_makes_br8_computable.md)) |

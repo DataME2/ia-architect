@@ -19,7 +19,10 @@ begin;
 insert into auth.users (id, email) values
   ('deeeeeee-0000-0000-0000-00000000000a', 'second.admin@northstar.test'),
   ('deeeeeee-0000-0000-0000-00000000000b', 'newcomer@northstar.test'),
-  ('deeeeeee-0000-0000-0000-00000000000c', 'nobody.here@elsewhere.test');
+  ('deeeeeee-0000-0000-0000-00000000000c', 'nobody.here@elsewhere.test'),
+  -- A third administrator. BR124 puts the floor at two rather than one
+  -- (0048), so the club needs three before any of them is removable.
+  ('deeeeeee-0000-0000-0000-00000000000e', 'third.admin@northstar.test');
 
 commit;
 
@@ -32,6 +35,7 @@ declare
   outsider    uuid := 'd9999999-9999-9999-9999-999999999999';  -- no membership
   second      uuid := 'deeeeeee-0000-0000-0000-00000000000a';
   newcomer    uuid := 'deeeeeee-0000-0000-0000-00000000000b';
+  third       uuid := 'deeeeeee-0000-0000-0000-00000000000e';
   n           integer;
   failures    text[] := '{}';
 begin
@@ -156,11 +160,13 @@ begin
     failures := array_append(failures, 'the only administrator is gone after a refused revoke');
   end if;
 
-  -- 9. With a second admin, the first becomes removable. A lesser role
-  -- first, then linked to a Person, then admin (BR106, 0042) -- an admin
-  -- grant to an unlinked account is refused now, the same as it would be
-  -- through the Access screen, and link_account_to_person itself requires
-  -- some existing membership to link against.
+  -- 9. With a second admin, the first is **still** not removable: BR124
+  -- puts the floor at two, not one (0048), because a club reduced to one
+  -- administrator is a resignation away from being locked out. A lesser
+  -- role first, then linked to a Person, then admin (BR106, 0042) -- an
+  -- admin grant to an unlinked account is refused now, the same as it would
+  -- be through the Access screen, and link_account_to_person itself
+  -- requires some existing membership to link against.
   perform grant_club_role('second.admin@northstar.test', 'registrar');
   insert into person (id, club_id, legal_given_names, legal_family_name, date_of_birth)
   values ('deeeeeee-0000-0000-0000-00000000000d', north_star, 'Second', 'Admin', '1980-01-01');
@@ -168,13 +174,28 @@ begin
   perform grant_club_role('second.admin@northstar.test', 'admin');
   begin
     perform revoke_club_role(ns_admin, 'admin');
+    failures := array_append(failures,
+      'the second-last administrator was removed, leaving the club with one (BR124)');
   exception when others then
-    failures := array_append(failures, 'an admin could not be removed even with a second one');
+    null;
   end;
 
-  select count(*) into n from club_membership
+  -- 9b. With a third, the first becomes removable. The floor is two, not
+  -- "never" -- and this is the act the refusal above tells the club to do.
+  perform grant_club_role('third.admin@northstar.test', 'registrar');
+  insert into person (id, club_id, legal_given_names, legal_family_name, date_of_birth)
+  values ('deeeeeee-0000-0000-0000-00000000000f', north_star, 'Third', 'Admin', '1979-01-01');
+  perform link_account_to_person(third, 'deeeeeee-0000-0000-0000-00000000000f');
+  perform grant_club_role('third.admin@northstar.test', 'admin');
+  begin
+    perform revoke_club_role(ns_admin, 'admin');
+  exception when others then
+    failures := array_append(failures, 'an admin could not be removed even with two others');
+  end;
+
+  select count(distinct user_id) into n from club_membership
    where club_id = north_star and role = 'admin';
-  if n <> 1 then
+  if n <> 2 then
     failures := array_append(failures, 'the wrong number of admins after a permitted revoke');
   end if;
 

@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { formatMoney } from '../../../domain/finance/money.ts';
 import { planState } from '../../../domain/finance/plan.ts';
+import { loadFamilyDesignations } from '../../../data/designations.ts';
 import { loadFinance } from '../../../data/finance.ts';
 import { loadHousehold } from '../../../data/household.ts';
 import { loadConsents, loadMyTeams, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
@@ -9,6 +10,7 @@ import { loadVouchers } from '../../../data/vouchers.ts';
 import { RULE_TITLE, childCard, remainingFigure, selectChild, type Tone } from '../../../web/household-view.ts';
 import { ROLE_HUE, nextFixture, shortDate } from '../../../web/me-view.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
+import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
 import { ComingSoon, FixtureCard, Panel, WorkspaceHead } from './shared.tsx';
 
 const CONSENT_LABEL: Readonly<Record<string, string>> = {
@@ -77,6 +79,14 @@ export async function GuardianWorkspace({
   const team = teams.find((t) => t.role === 'player') ?? null;
   const fixtures = season === null || team === null ? [] : await loadTeamFixtures(client, link.clubId, season.id, team.team.id);
   const next = nextFixture(fixtures, today);
+
+  // BR113. Every child in the household, not only the one on screen: a
+  // designation is answered by the date of its fixture, and a parent who
+  // had to find the right child's tab first would miss Saturday's while
+  // looking at Sunday's.
+  const designations = await loadFamilyDesignations(
+    client, link.clubId, cards.map((c) => c.personId), today,
+  );
 
   const firstBlocker = card.blockers[0];
   const guardianRecorded = child.outcomes.some((o) => o.ruleId === 'BR1' && o.status === 'pass');
@@ -215,6 +225,23 @@ export async function GuardianWorkspace({
                 A {v.program} voucher covered {formatMoney(v.faceValueCents)}.
               </p>
             ))}
+          </Panel>
+          <Panel
+            title="Designations waiting on you"
+            meta={`${designations.offered.filter((o) => o.state === 'proposed').length} OPEN`}
+          >
+            <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
+              An official under 18 does not accept their own designations &mdash; the club proposes
+              them to you.{' '}
+              <span className="mono" style={{ fontSize: '0.7rem' }}>
+                BR113
+              </span>
+            </p>
+            <DesignationPanel
+              clubId={link.clubId}
+              offered={designations.offered}
+              answerers={designations.answerers}
+            />
           </Panel>
           <Panel title={`${card.name}'s next match`}>
             {next !== null && team !== null ? (

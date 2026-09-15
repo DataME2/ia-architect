@@ -105,7 +105,7 @@ async function Workspace({
     case 'coach':
       return <CoachWorkspace client={client} link={link} today={today} />;
     case 'referee':
-      return <RefereeWorkspace client={client} link={link} />;
+      return <RefereeWorkspace client={client} link={link} today={today} />;
     case 'guardian':
       return <GuardianWorkspace client={client} link={link} today={today} childId={childId} />;
     case 'committee':

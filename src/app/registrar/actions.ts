@@ -8,6 +8,7 @@ import { readPublicConfig } from '../../data/env.ts';
 import {
   applyDerivedStatus,
   applySeasonChecklist,
+  loadQueue,
   loadRegistrationDetail,
   loadSeasons,
   loadTenantContext,
@@ -24,7 +25,7 @@ import {
 } from '../../data/finance.ts';
 import { recordArrearsAction, type ArrearsAction } from '../../data/arrears.ts';
 import { recordGuardianInvitation } from '../../data/family.ts';
-import { sendRegistrationReminder } from '../../data/reminders.ts';
+import { loadLastReminded, sendRegistrationReminder } from '../../data/reminders.ts';
 import {
   attachVoucher,
   loadVouchers,
@@ -33,6 +34,7 @@ import {
 } from '../../data/vouchers.ts';
 import { formFailed, formOk, type FormResult } from '../../web/form-result.ts';
 import { parseAmountCents } from '../../web/money.ts';
+import { planReminders, summarise } from '../../web/bulk-reminders.ts';
 import { parseDueDate, parseMethod, parsePlanDraft } from '../../web/plan-view.ts';
 import { todayIn } from '../../web/today.ts';
 
@@ -559,4 +561,83 @@ export async function recordArrearsActionAction(
 
   revalidatePath('/registrar/arrears');
   return null;
+}
+
+/**
+ * R34.1 — chase every family the queue says is blocked, in one act.
+ *
+ * One at a time has worked since the messaging slice landed; a registrar
+ * chasing forty families opened forty pages, which is the flow this whole
+ * initiative was meant to pay for.
+ *
+ * **The queue is re-read here, not posted from the form.** The same reason
+ * the single-registration action re-reads it: what a family is told must be
+ * true when it is sent rather than when the page was rendered, and a bulk
+ * send is where the gap between those two moments is longest — a registrar
+ * leaves the queue open, records three documents, and comes back.
+ *
+ * Everything else is decided in `src/web/bulk-reminders.ts`, and its two
+ * refusals are the two ways this goes wrong: a reminder that lists nothing,
+ * and a family chased twice in a week. Neither can happen when a human is
+ * looking at one child at a time, which is exactly why they need deciding
+ * here.
+ */
+export async function sendBulkRemindersAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const seasonId = String(formData.get('seasonId') ?? '');
+  if (seasonId === '') return formFailed('Which season?');
+
+  const { client, tenant } = await requireTenant();
+  const today = todayIn();
+
+  const entries = await loadQueue(client, tenant.clubId, seasonId, today);
+  const lastReminded = await loadLastReminded(
+    client, tenant.clubId, entries.map((e) => e.personId),
+  );
+
+  const plan = planReminders(
+    entries.map((e) => ({
+      registrationId: e.registrationId,
+      personId: e.personId,
+      displayName: e.displayName,
+      outstanding: e.outcomes.filter((o) => o.status === 'fail').length,
+      lastRemindedOn: lastReminded.get(e.personId) ?? null,
+    })),
+    today,
+  );
+
+  let sent = 0;
+  let withheld = 0;
+  let families = 0;
+  // Sequential, like every other loop over clubs and people in this code.
+  // A burst of parallel sends against one provider is how a club's domain
+  // gets rate-limited, and there is nothing to gain: this is forty
+  // messages, once a week.
+  for (const target of plan.toSend) {
+    const entry = entries.find((e) => e.registrationId === target.registrationId);
+    if (entry === undefined) continue;
+
+    const results = await sendRegistrationReminder(
+      client, tenant.clubId, tenant.clubName, entry.personId, entry.displayName, entry.outcomes,
+    );
+    const delivered = results.filter((r) => r.outcome === 'sent').length;
+    sent += delivered;
+    withheld += results.length - delivered;
+    if (delivered > 0) families += 1;
+  }
+
+  revalidatePath('/registrar');
+
+  const line = summarise({ families, sent, withheld }, plan.skipped.length);
+  const skippedLine = plan.skipped.length === 0
+    ? ''
+    : '\n\n' + plan.skipped.map((s) => `${s.displayName} — ${s.detail}`).join('\n');
+
+  // A send that reached nobody is not a success, even when every reason is
+  // an ordinary one: the registrar's next act depends on knowing it.
+  return sent === 0
+    ? formFailed(line + skippedLine)
+    : formOk(line + skippedLine);
 }
