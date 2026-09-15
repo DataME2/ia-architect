@@ -1,10 +1,13 @@
 import { redirect } from 'next/navigation';
 
+import { answerersFor } from '../../../data/designations.ts';
 import { loadCandidates, loadDesignationFixtures } from '../../../data/officiating.ts';
 import { loadFixtureMinimum } from '../../../data/competitions.ts';
 import { loadSeasons, loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { assess, offerable } from '../../../domain/officiating/conflicts.ts';
+import { proposedTo } from '../../../web/designation-answer.ts';
+import { todayIn } from '../../../web/today.ts';
 import { DesignationBoard } from './DesignationForms.tsx';
 
 export const dynamic = 'force-dynamic';
@@ -130,6 +133,20 @@ async function FixtureBoard({
   const offered = offerable(candidates, context);
   const hidden = candidates.filter((c) => !assess(c, context).offerable).length;
 
+  // BR113, on the coordinator's side: whose answer each designation is
+  // waiting on. Asked per official on the **chosen** fixture only — three
+  // rows at most — rather than for the season, which would be a read per
+  // appointment on a page that lists every fixture the club plays.
+  //
+  // The same function the trigger refuses through, so "proposed to Marta"
+  // and "Marta does not hold authority" cannot both be true at once.
+  const today = todayIn();
+  const proposals: Record<string, string> = {};
+  for (const a of fixture.appointed) {
+    const who = await answerersFor(client, tenant.clubId, a.personId, today);
+    proposals[a.personId] = proposedTo(a.name, who.guardians.map((g) => g.name), !who.self);
+  }
+
   return (
     <>
       <p className="hint">
@@ -141,7 +158,12 @@ async function FixtureBoard({
         {fixture.competition !== null && <> &middot; {fixture.competition}</>}
       </p>
 
-      <DesignationBoard fixture={fixture} offered={offered} hiddenCount={hidden} />
+      <DesignationBoard
+        fixture={fixture}
+        offered={offered}
+        hiddenCount={hidden}
+        proposals={proposals}
+      />
 
       <p className="hint">
         <strong>Warnings do not stop a designation, they inform one</strong> (BR11). A club

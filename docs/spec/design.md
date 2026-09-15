@@ -281,9 +281,14 @@ in the `with check` clause of the write policies, rather than application
 guards that will be forgotten on the next screen.
 
 **R4 — Close BR113 (a minor official's designation goes to their guardian)
-before the referee slice is used with real under-18 officials.** It is a
+before the referee slice is used with real under-18 officials.** It was a
 duty-of-care rule with no code, in a slice otherwise built out, and BR33
-already establishes the routing pattern for a minor referee's calendar feed.
+already established the routing pattern for a minor referee's calendar feed.
+**Acted on** in [scope 51](../scope/51_the_child_does_not_answer_for_themselves.md):
+BR33's shape was reused rather than invented, and building it surfaced a
+second defect — the existing guards on `match_official_appointment` read
+club-officer tables with the *writer's* visibility, so letting a guardian
+answer would have made BR6, BR9 and BR109 pass silently for her.
 
 **R5 — Defer the native mobile client (C17) further, and keep the `/me`
 shell as the answer.** Read-only offline (BR66) is the decisive requirement

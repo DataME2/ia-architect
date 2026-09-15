@@ -61,7 +61,16 @@ insert into person (id, club_id, legal_given_names, legal_family_name, date_of_b
   -- Adult whose card expires next week: valid for a fixture in three days,
   -- not for one in thirty. BR111's line, drawn for a clearance.
   ('b45c0000-0000-0000-0000-000000000005', '45c00000-0000-0000-0000-000000000001',
-   'Expiring', 'Soon', '1983-01-01');
+   'Expiring', 'Soon', '1983-01-01'),
+  -- The MiniRef's mother. BR113 means no under-18 official is designated
+  -- without an adult to put the question to, so this suite's fifteen-year-old
+  -- needs one before BR84's exemption can be tested at all (scope 51).
+  ('b45c0000-0000-0000-0000-000000000006', '45c00000-0000-0000-0000-000000000001',
+   'MiniRef', 'Mother', '1986-01-01');
+
+insert into guardianship (club_id, person_id, guardian_person_id, is_authority, is_contact) values
+  ('45c00000-0000-0000-0000-000000000001', 'b45c0000-0000-0000-0000-000000000003',
+   'b45c0000-0000-0000-0000-000000000006', true, true);
 
 insert into clearance (club_id, person_id, identifier, expires_on, verified_at) values
   ('45c00000-0000-0000-0000-000000000001', 'b45c0000-0000-0000-0000-000000000002',
@@ -96,6 +105,7 @@ declare
   uncleared uuid := 'b45c0000-0000-0000-0000-000000000001';
   cleared   uuid := 'b45c0000-0000-0000-0000-000000000002';
   minor     uuid := 'b45c0000-0000-0000-0000-000000000003';
+  minor_mum uuid := 'b45c0000-0000-0000-0000-000000000006';
   revoked   uuid := 'b45c0000-0000-0000-0000-000000000004';
   expiring  uuid := 'b45c0000-0000-0000-0000-000000000005';
   the_club  uuid := '45c00000-0000-0000-0000-000000000001';
@@ -132,10 +142,13 @@ begin
   end;
 
   -- 3. **BR84 exempts an under-18.** MiniRefs are children, and the rule
-  --    says so explicitly.
+  --    says so explicitly. Her mother answers for her (BR113, scope 51):
+  --    the card rule and the consent rule point opposite ways for the same
+  --    child, and both are true at once.
   begin
-    insert into match_official_appointment (club_id, fixture_id, person_id, role, state)
-    values (the_club, far, minor, 'assistant_referee', 'accepted');
+    insert into match_official_appointment
+      (club_id, fixture_id, person_id, role, state, responded_by_person_id)
+    values (the_club, far, minor, 'assistant_referee', 'accepted', minor_mum);
   exception when others then
     failures := array_append(failures, 'a fifteen-year-old MiniRef was refused: ' || sqlerrm);
   end;

@@ -70,6 +70,7 @@ The next migration takes the next number.
 | `0039` | Retrying a failed alert, as a person's act — and refusing to record an outcome against one already delivered, because *send everything unconfirmed* emails an operator three times about one club (BR147) |
 | `0043` | A person reads the committee office they hold, and the term behind it — an elected officer with no `club_membership` row could not see their own election |
 | `0044` | The card at the appointment: BR84 reaches `match_official_appointment` for the first time, measured against the fixture's date — and BR50's withdrawal on lapse, by trigger for revocation and by sweep for expiry |
+| `0045` | The child does not answer for themselves: BR113 gets code for the first time — `app_may_answer_designation` names the Parent/Guardian holding authority, `responded_by_person_id` records whose answer it is, a minor with no such guardian is not designated at all, and the family reads and answers through additive policies. Also makes 0025's and 0044's guards `security definer`: with a guardian able to write the table, BR6, BR9 and BR109 had begun to pass silently for her |
 | `0034` | Carnivals: the only deliberate exception to P5, made narrow by the tables having no person column |
 | `0033` | Officiating interest: what a family declared at registration, and the review that turns a claim into a referee |
 | `0032` | The competition catalogue: shared reference data, ranked classification levels, and the reference a fixture carries |

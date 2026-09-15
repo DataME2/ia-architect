@@ -64,17 +64,19 @@ and no code performs.
 | ~~T1.3~~ | **Retention by participation status**, with the ten-year floor and the life-member override | BR40, BR70 | L | Scheduled function under `createAdminClient('scheduled-job')`; no life member is ever discarded |
 | T1.4 | **Continuous WWCC verification**: expiry withdraws the holder from every *future* assignment rather than only blocking new ones | BR50, BR51 | M | A lapse removes the holder from future match sheets; a test asserts the withdrawal, not just the block |
 | ~~T1.5~~ | **Transfer of rights at eighteen** — consent, erasure, calendar, account and publicity move from guardian to the young person | BR67 | M | A dated, audited transfer; the guardian's authority ends and their contact role does not |
-| T1.6 | **A minor official's designation is proposed to their guardian**, not to them (recommendation R4) | BR113 | S | Mirrors BR33's routing; no under-18 official is designated directly |
+| ~~T1.6~~ | **A minor official's designation is proposed to their guardian**, not to them (recommendation R4). **Done** — [scope 51](../scope/51_the_child_does_not_answer_for_themselves.md) | BR113 | S | Mirrors BR33's routing; no under-18 official is designated directly |
 | ~~T1.7~~ | **Per-tenant privacy framework**, determined by jurisdiction and recorded rather than assumed | BR52 | S | A column, read by the rules that vary by regime |
 
 > **T1.1, T1.2, T1.3, T1.5 and T1.7 are done** (September 2026) —
 > [scope 36](../scope/36_the_platform_learns_to_send_and_to_stop.md) and
 > [scope 37](../scope/37_forgetting_and_the_reasons_not_to.md). Recommendation
 > R2 was right that erasure and retention are one machinery seen from two
-> directions, and they were built as one. **T1.4 and T1.6 remain**, and both
-> are safeguarding rather than privacy: a lapsed clearance still only blocks
-> new assignments instead of withdrawing existing ones, and an under-18
-> official's designation still goes to them rather than their guardian.
+> directions, and they were built as one. **T1.6 is done too** (September 2026) —
+> [scope 51](../scope/51_the_child_does_not_answer_for_themselves.md).
+> **T1.4 remains**, and only in part: scope 50 made a lapse withdraw the
+> holder from every future assignment, so what is left of it is BR50's
+> notification — the coordinator is not told the vacancy exists, and finds
+> it by looking.
 
 ---
 

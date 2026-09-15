@@ -110,7 +110,7 @@ a business rule without an intermediate mapping table.
 | FR-C4.5 | Accreditation is checked against the **fixture's** date, not today | BR111 | **Verified** | `conflicts.ts` |
 | FR-C4.6 | Every designation records which party made it — club or association | BR114 | **Verified** | `match_official_appointment` |
 | FR-C4.7 | A decline or withdrawal is not recorded at all until a reason is given | BR42, BR112 | **Verified** | migration 0025 |
-| FR-C4.8 | A designation for an under-18 official is proposed to their guardian | BR113 | **Not built** | No source reference; duty-of-care gap |
+| FR-C4.8 | A designation for an under-18 official is proposed to their guardian | BR113 | **Verified** | migration 0045, `app_may_answer_designation`, suite 46. Answered by a Parent/Guardian holding authority and by nobody else; not created at all where no such guardian is recorded. **Nobody is emailed** — the guardian finds it on `/me` |
 | FR-C4.9 | A decline rate over the configured window caps appointments | BR12 | **Not built** | Waiting on a season of history to set the threshold |
 
 ### FR-C5 — Referee finance

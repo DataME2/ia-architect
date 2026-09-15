@@ -141,10 +141,13 @@ export function DesignationBoard({
   fixture,
   offered,
   hiddenCount,
+  proposals,
 }: {
   readonly fixture: DesignationFixture;
   readonly offered: readonly { candidate: Candidate; assessment: Assessment }[];
   readonly hiddenCount: number;
+  /** BR113: whose answer each designation waits on, by the official's id. */
+  readonly proposals: Readonly<Record<string, string>>;
 }) {
   return (
     <>
@@ -172,6 +175,12 @@ export function DesignationBoard({
                   <td>{ROLE_LABEL[a.role] ?? a.role}</td>
                   <td>
                     <span className="pill">{a.state}</span>
+                    {proposals[a.personId] !== undefined && (
+                      <>
+                        <br />
+                        <span className="hint">{proposals[a.personId]}</span>
+                      </>
+                    )}
                   </td>
                   <td>
                     {a.appointedBy === 'association' ? 'the association' : 'the club'}
