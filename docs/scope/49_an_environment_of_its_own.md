@@ -119,7 +119,7 @@ this task that is not ours.
 | **WP3** | [`backup-and-restore.md`](../annexes/backup-and-restore.md) — RPO, RTO, retention, the procedure, and five named gaps | **Delivered** |
 | **WP4** | `scripts/rehearse_restore.sh`, verified to fail on a lost policy | **Delivered** |
 | **WP5** | The rehearsal in `npm run check:full` and `code-check` | **Delivered** |
-| **WP6** | **Create the production Supabase project** | **Needs the owner** — runbook below; no CLI, no token and `api.supabase.com` blocked here |
+| **WP6** | **Create the production Supabase project** | **Done by the owner** — `ltd-production`, Sydney, 15 September 2026. Created as `ltd-dev` and renamed before anything was attached, which is why the runbook below now says which mistakes are cheap |
 | **WP7** | **Per-environment variables in Vercel**, and `PRODUCTION_PROJECT_REF` set | **Needs the owner** — a malformed ref now fails the build rather than disabling the guard |
 | **WP8** | **One restore rehearsed against a real backup**, and the answer to whether accounts survive it | **Needs the owner** |
 
