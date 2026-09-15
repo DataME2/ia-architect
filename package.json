@@ -16,7 +16,8 @@
     "test": "node --experimental-strip-types --test \"src/**/*.test.ts\"",
     "check": "npm run typecheck && npm run test && python3 scripts/check_links.py && python3 scripts/check_rls.py && python3 scripts/check_server_actions.py && python3 scripts/check_a11y.py && python3 scripts/check_assistant.py",
     "test:rls": "bash scripts/test_rls.sh",
-    "check:full": "npm run check && npm run test:rls"
+    "test:restore": "bash scripts/rehearse_restore.sh",
+    "check:full": "npm run check && npm run test:rls && npm run test:restore"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",

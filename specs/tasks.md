@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 229 of the 273 tasks below are already `[x]`; the phases are ordered so
+plan. 232 of the 276 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -52,9 +52,12 @@ tenant isolation on a throwaway Postgres, with no cloud credentials.
 
 ### 0.4 Environments
 - [x] Development Supabase project, Sydney region — *D2, D10*
-- [ ] **Production Supabase project**, separate from development — *D10*
-- [ ] Per-environment variables verified so a preview can never reach production data — *D10*
-- [ ] Documented RPO/RTO and one rehearsed restore
+- [ ] **Production Supabase project**, separate from development — *D10*. **Needs the owner**: a dashboard and billing, not a commit
+- [x] A preview **refused** in code when it names the production project (*D10*) — keyed on `VERCEL_ENV`, which the platform sets, and inert until `PRODUCTION_PROJECT_REF` is filled in
+- [x] Documented RPO, RTO and retention, and the procedure for the day a restore is needed
+- [x] A restore **rehearsed on every change** — dump, restore into an empty database, count what came back, **policies first**
+- [ ] One restore rehearsed against a **real** Supabase backup, and the answer to whether accounts survive it — **needs the owner**
+- [ ] Per-environment variables set in Vercel, and `PRODUCTION_PROJECT_REF` filled in — **needs the owner**
 
 **Manually testable:** `npm install && npm run check:full` passes on a clean
 clone with no cloud credentials.
@@ -632,7 +635,7 @@ owner and find it at the top of the list.
 
 | Phase | Subject | Done | Remaining |
 | ----- | ------- | ---- | --------- |
-| 0 | Infrastructure, gates, CI | 13 | 5 |
+| 0 | Infrastructure, gates, CI | 16 | 5 |
 | 1 | Tenancy, identity, access | 20 | 2 |
 | 2 | Registration, documents, validation | 21 | 4 |
 | 3 | Finance | 14 | 3 |
@@ -649,7 +652,7 @@ owner and find it at the top of the list.
 | 14 | Engineering quality | 5 | 3 |
 | 15 | The club that is not here yet | 12 | 3 |
 | 10b | Officiating at registration | 13 | 1 |
-| | **Total** | **229** | **44** |
+| | **Total** | **232** | **44** |
 
 **Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy

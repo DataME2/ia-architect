@@ -114,3 +114,44 @@ export function shortDate(iso: IsoDate): string {
   const weekday = WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] ?? '';
   return `${weekday} ${d} ${month}`;
 }
+
+/**
+ * Whether a Person holds the committee role at a club — BR21, R30.1.
+ *
+ * **Three separate things can be called "committee" here, and this is the
+ * function that had only been told about two of them.** A president elected
+ * at the AGM opened `/me` and found no governance workspace, because the
+ * screen asked whether her *account* had been granted the `committee`
+ * access role and never whether she held an *office*:
+ *
+ *   * `club_membership.role` is an access grant an admin makes to an
+ *     account. Useful, and not the same fact.
+ *   * `person_role.role` is a season role on the Person.
+ *   * an elected position is the office itself, held for a term (BR85) —
+ *     what the governance screen writes, and what BR21 means when it says
+ *     something rests on committee authority.
+ *
+ * Any of the three admits. The office is listed last and matters most: the
+ * other two can be absent at a club where an elected officer was never also
+ * given a login role, which is the ordinary case at a volunteer club and
+ * was exactly the report.
+ *
+ * An admin is included because a club's first administrator is usually its
+ * secretary — that was already true and is unchanged.
+ */
+export function holdsCommitteeRole(input: {
+  /** Roles on the account's `club_membership` rows at this club. */
+  readonly membershipRoles: readonly string[];
+  /** Roles on the Person for the current season. */
+  readonly personRoles: readonly string[];
+  /**
+   * Positions this Person holds in the governing term, **already narrowed
+   * to the ones still being served** — a resignation is an early exit, and
+   * somebody who resigned in March is not on the committee in September.
+   */
+  readonly servingPositions: readonly string[];
+}): boolean {
+  if (input.membershipRoles.some((r) => r === 'committee' || r === 'admin')) return true;
+  if (input.personRoles.some((r) => r === 'committee')) return true;
+  return input.servingPositions.length > 0;
+}

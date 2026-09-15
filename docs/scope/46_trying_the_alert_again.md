@@ -17,9 +17,18 @@ out of a table.
 > A failed alert is retried by a person, and an alert that was delivered is
 > never sent again.
 
-**Retried by a person**, because nothing in this product runs on a schedule
-— the same missing piece that leaves BR133's retention review a button
-rather than a nightly job ([scope 37](./37_forgetting_and_the_reasons_not_to.md)).
+**Retried by a person.** Written when nothing in this product ran on a
+schedule — the same missing piece that left BR133's retention review a
+button rather than a nightly job ([scope 37](./37_forgetting_and_the_reasons_not_to.md)).
+
+> **Corrected September 2026.** A Vercel Cron job landed in
+> [scope 48](./48_arrears_visibility_wwcc_reminders_and_the_administrator_constraint.md),
+> so the constraint this reason rested on is gone and the button is now a
+> **choice**. It survives as one: a retry sends real mail to a real inbox,
+> and the person who has just fixed the provider is the one who knows it is
+> worth sending now. Scheduling it is a reasonable thing to want, and
+> `retryFailedAlerts` was written so a scheduler calls it unchanged — but
+> that is a decision to take deliberately, not a gap left by accident.
 
 The tempting alternative was an *opportunistic* retry: when the next enquiry
 arrives, also retry the pending ones. It costs nothing and needs no

@@ -27,6 +27,7 @@ suffer once.
 | `check_links.py` | Every relative Markdown and HTML link resolves, and every HTML fragment points at a real `id`. Documentation whose cross-references rot stops being checkable against the code | `docs-check` |
 | `check_a11y.py` | The mechanical half of WCAG 2.2 AA (NFR-15): every form control has an accessible name, every image declares its `alt`, every icon is hidden or named, no positive `tabIndex`. Chosen because each is invisible to a sighted reviewer — the screen still looks right. **It scans tags rather than matching them with a regex**: the first version used one and cried wolf three times on the `>` inside an arrow function, and a checker that cries wolf gets switched off | `code-check` |
 | `check_assistant.py` | [Decision 1](../docs/decisions/1_ai-assistant-autonomy-level.md)'s autonomy level, asserted rather than reviewed (R33.6): exactly one Assistant surface, committing nothing, and **no generative client imported anywhere in `src/`**. Written *before* there is an integration on purpose — the edit that adds one is the edit that would otherwise widen the surface quietly | `code-check` |
+| `rehearse_restore.sh` | **A backup nobody has restored is a belief, not a capability** (NFR-17). Dumps a built database, restores it into an empty one, and counts what came back — **policies first**, because P5 lives in them and a restore that keeps the tables and loses the policies reads as a clean restore until one club opens another's records | `rls-behaviour` |
 
 ## Adding one
 

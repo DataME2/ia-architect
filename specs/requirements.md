@@ -887,6 +887,18 @@ never shown a merged view that belongs to none of them.
    see their own record. ✅
 5. WHEN a Person views their eligibility and compliance status, THEN the
    system SHALL show their own and never another Person's. ✅
+6. WHEN a Person holds an elected committee office, THEN the system SHALL
+   present the committee role context **whatever access role their account
+   holds**, including none. ✅ *(Fixed September 2026 after a president saw
+   no governance workspace. Criterion 1 was marked implemented while this
+   was false for the role its own user story names — three things here can
+   be called committee, and the screen asked about the two that are grants
+   rather than the one that is the office.)*
+7. WHEN a Person holds an elected office, THEN they SHALL be able to read
+   that office and the term behind it, and no other member's. ✅ *(The
+   second half of the same defect: the governance select policies admitted
+   club members only, so an officer with no membership row could not read
+   her own election.)*
 
 ## Requirement 31 — A family reads its own household
 

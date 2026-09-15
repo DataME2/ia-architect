@@ -1,0 +1,149 @@
+# Project Scope — An Environment of Its Own
+
+_[← Scope index](./README.md) · [EA home](../ea/README.md)_
+
+**ArchiMate viewpoint:** Implementation & Migration.
+**Delivered as:** branch `spec-driven-development`.
+
+Task 0.4 has been open since Phase 0, and **no backup has ever been
+restored** against a project holding the only copy of the data there is.
+
+> **One reason for this task has just expired, and saying so matters more
+> than the work below.** It was written while nothing in the product ran on
+> a schedule, so the retention review and the enquiry-alert retry were
+> buttons for want of a scheduler. [Scope 48](./48_arrears_visibility_wwcc_reminders_and_the_administrator_constraint.md)
+> landed a Vercel Cron job, so that constraint is gone: both are now
+> **choices**, and the places that gave the old reason have been corrected
+> rather than left to read as current. What task 0.4 still gates is the
+> environment itself — and the restore nobody has rehearsed.
+
+It is also the one task on the list that **cannot be finished from inside
+the repository**. Creating a Supabase project, setting Vercel environment
+variables and restoring from a real backup are acts in somebody's dashboard,
+with somebody's billing attached. So this initiative does the half that is
+code and documentation, and **names the half that is not** rather than
+leaving a task that looks startable and is not.
+
+## The rule that was written down and never enforced
+
+> *Preview deployments must never point at production.*
+
+That has been in
+[the deployment model](../ea/5_technology/2_deployment.md) since it was
+drafted, with the reasoning spelled out — a preview URL is in the pull
+request, pull requests here are public, and a preview pointed at real data
+puts eight hundred children's records behind a link anyone can open.
+
+Its enforcement was **somebody setting variables correctly in a dashboard**.
+
+`assertNotPreviewAgainstProduction` makes it mechanical. It reads
+`VERCEL_ENV`, which the platform sets rather than the project, so a
+deployment cannot claim to be production by editing its own variables; it
+fails at configuration-read time rather than on the first query, because a
+preview that boots and then serves one request has already served it; and it
+is called from `readPublicConfig`, which every Supabase client in the
+application is built from, so a new caller cannot route around it.
+
+**It is written now and inert until it matters.** `PRODUCTION_PROJECT_REF`
+is an empty string, and the guard returns immediately while it is. The
+alternative — write the guard when the project is created — puts the
+dangerous window exactly where nobody is looking: the first deploy after
+somebody makes that project, when the rule is a sentence in a document
+nobody has re-read.
+
+The ref lives in the source rather than in an environment variable on
+purpose. It is not a secret — it is in the public URL every browser already
+sees — and **a guard whose enforcement can be disabled by forgetting a
+variable is not a guard.**
+
+## A rehearsal that runs, rather than a claim that one happened
+
+NFR-17 has read *no stated RPO/RTO, no restore rehearsal* since it was
+written. The targets are now stated in
+[the annex](../annexes/backup-and-restore.md), and the rehearsal is a script
+that runs on every change: build a database from the real migrations, seed
+it, dump it, restore into an **empty** one, and count what came back on both
+sides.
+
+**Policies are counted first, and that ordering is the point.** P5 lives in
+the Row-Level Security policies. A restore that brings back every table and
+loses the policies restores a database with no tenant isolation at all — and
+it reads as a clean restore, right up until one club opens another club's
+records. Counting tables would have missed it; counting policies is what
+catches it.
+
+It is verified to fail: dropping a single policy after the restore turns the
+run red and names the count that changed.
+
+The target database is deliberately **not** pre-seeded with the local
+Supabase shim. Applying it first made `pg_restore` fail on *schema "auth"
+already exists*, and the fix is the more honest rehearsal anyway: a real
+disaster does not begin with somebody having pre-created half the schema.
+
+## What the rehearsal deliberately does not claim
+
+The annex says this at length; the short version is that it proves **this
+schema round-trips**, and nothing about Supabase. Not that their backups are
+taken or retained, not the real restore time, not whether the `auth` schema
+and its accounts come back — locally that is a shim and on Supabase it is
+theirs — and not the Storage bucket, where the identification photographs
+are and which `pg_dump` does not touch.
+
+Every one of those needs a project to test against, which is the half of
+this task that is not ours.
+
+## EA alignment (assessed top-down before implementing)
+
+| Layer | Impact |
+| ----- | ------ |
+| **1_strategy** | **No change.** No new goal, capability, principle or actor |
+| **2_business** | **No new rules.** Nothing about what a club may do changes; this is about where its data lives and whether it can be got back |
+| **3_information** | **No change** to any data object. The *retention* of records is [its own annex](../annexes/retention-schedule.md) and a different question from how far back a mistake can be undone |
+| **4_application** | `assertNotPreviewAgainstProduction` in `src/data/env.ts`, called from `readPublicConfig`; `scripts/rehearse_restore.sh` in `npm run check:full` and in CI |
+| **5_technology** | The environment table in [2_deployment.md](../ea/5_technology/2_deployment.md) stops being aspirational on one row and gains a stated RPO, RTO and retention. **No production project is created by this initiative** |
+
+## Plateaus
+
+| Plateau | State |
+| ------- | ----- |
+| **Baseline** (before) | One Supabase project, called development and used for everything. The rule against pointing a preview at production enforced by memory. No RPO, no RTO, and no backup ever restored |
+| **Target** (this initiative) | The rule enforced in code and inert until the project exists; an RPO, RTO and retention stated; a restore rehearsed on every change, with the policies checked first |
+| **Target** (needs the owner) | A production Supabase project, per-environment variables set in Vercel, and one restore rehearsed against a real backup |
+
+## Work packages and deliverables
+
+| WP | Deliverable | State |
+| -- | ----------- | ----- |
+| **WP1** | `assertNotPreviewAgainstProduction`, called from `readPublicConfig` | **Delivered** |
+| **WP2** | Five tests driving that function directly — not a copy of its logic | **Delivered** |
+| **WP3** | [`backup-and-restore.md`](../annexes/backup-and-restore.md) — RPO, RTO, retention, the procedure, and five named gaps | **Delivered** |
+| **WP4** | `scripts/rehearse_restore.sh`, verified to fail on a lost policy | **Delivered** |
+| **WP5** | The rehearsal in `npm run check:full` and `code-check` | **Delivered** |
+| **WP6** | **Create the production Supabase project** | **Needs the owner** |
+| **WP7** | **Per-environment variables in Vercel**, and `PRODUCTION_PROJECT_REF` set | **Needs the owner** |
+| **WP8** | **One restore rehearsed against a real backup**, and the answer to whether accounts survive it | **Needs the owner** |
+
+## Why the tests drive the real function
+
+The first version of WP2 re-implemented the guard's logic inside the test
+file, because the shipped function reads a module constant a test cannot
+set. That is the divergence trap this repository has already been caught by
+once — a copy is only ever wrong in the copy, and the copy is the one nobody
+is watching.
+
+The fix is the same one the enquiry alert got: the production ref is a
+parameter defaulting to the constant, nothing in the application passes it,
+and the tests drive the shipped function.
+
+## What this initiative does not do
+
+- **It does not create a production environment.** WP6–WP8 are the owner's,
+  and until they are done the three items task 0.4 gates — the retention
+  schedule, the alert retry, and a real restore — stay gated.
+- **No scheduler.** Still nothing runs on a time trigger; the guard and the
+  rehearsal are both synchronous checks.
+- **No off-Supabase backup, and no Storage backup.** Both are named in the
+  annex with what they would need.
+- **No migration-immutability gate** (the other open Phase 0 item). It is a
+  separate check about editing an applied migration, and conflating it with
+  environment separation would make one initiative out of two.

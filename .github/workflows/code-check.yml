@@ -74,3 +74,10 @@ jobs:
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
         run: bash scripts/test_rls.sh
+      # NFR-17. A backup nobody has restored is a belief, not a capability —
+      # and the restore that loses the policies and keeps the tables reads
+      # as a clean one until a club opens another club's records.
+      - name: Rehearse a restore
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+        run: bash scripts/rehearse_restore.sh
