@@ -156,7 +156,15 @@ begin
     failures := array_append(failures, 'the only administrator is gone after a refused revoke');
   end if;
 
-  -- 9. With a second admin, the first becomes removable.
+  -- 9. With a second admin, the first becomes removable. A lesser role
+  -- first, then linked to a Person, then admin (BR106, 0042) -- an admin
+  -- grant to an unlinked account is refused now, the same as it would be
+  -- through the Access screen, and link_account_to_person itself requires
+  -- some existing membership to link against.
+  perform grant_club_role('second.admin@northstar.test', 'registrar');
+  insert into person (id, club_id, legal_given_names, legal_family_name, date_of_birth)
+  values ('deeeeeee-0000-0000-0000-00000000000d', north_star, 'Second', 'Admin', '1980-01-01');
+  perform link_account_to_person(second, 'deeeeeee-0000-0000-0000-00000000000d');
   perform grant_club_role('second.admin@northstar.test', 'admin');
   begin
     perform revoke_club_role(ns_admin, 'admin');

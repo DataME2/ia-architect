@@ -155,7 +155,28 @@ export function revocation(
   return { allowed: true };
 }
 
-/** Roles this account does not already hold, so the form offers only additions. */
+/**
+ * Roles this account does not already hold, so the form offers only
+ * additions.
+ *
+ * **`admin` is excluded for an unlinked account** (BR106, scope 48 WP3):
+ * the database refuses the grant regardless — `grant_club_role` (0042)
+ * checks the same `account_person` link — so offering it here would be
+ * exactly the defect this file exists to avoid, an option that fails when
+ * pressed. `adminNeedsLinkFirst` tells the caller *why* it is missing, so
+ * the screen can still say so rather than letting the option vanish
+ * unexplained.
+ */
 export function grantableRoles(account: ClubAccount): readonly ClubRole[] {
-  return CLUB_ROLES.filter((r) => !account.roles.includes(r));
+  const held = CLUB_ROLES.filter((r) => !account.roles.includes(r));
+  return account.personId === null ? held.filter((r) => r !== 'admin') : held;
+}
+
+/**
+ * Whether `admin` is missing from `grantableRoles` specifically because the
+ * account is not yet linked to anybody — as opposed to already holding it,
+ * which needs no explanation at all.
+ */
+export function adminNeedsLinkFirst(account: ClubAccount): boolean {
+  return account.personId === null && !account.roles.includes('admin');
 }

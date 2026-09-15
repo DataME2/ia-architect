@@ -3,8 +3,8 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** branch `open-questions`. **WP1 and WP2 built**; WP3
-remains plan only.
+**Delivered as:** branch `open-questions`. **All three work packages
+built.**
 
 [Scope 47](./47_stakeholder-answers-september-2026.md) folded the
 president's September 2026 answers into BR40, BR51, BR79 and BR106/BR124
@@ -25,23 +25,23 @@ qualifier.
 | ----- | ------ |
 | 1_strategy | No change. This closes a gap in an already-adopted goal (G4, duty of care) rather than introducing a new driver. |
 | 2_business | BR40, BR51, BR79 and BR106/BR124 are already restated ([scope 47](./47_stakeholder-answers-september-2026.md)); no further business-rule text changes here — this WP is where those restatements become behaviour. |
-| 3_information | New: a computed **arrears** view spanning seasons (no new table — derived from `registration`); new **`clearance.reminder_sent_at`** column recording the six-monthly WWCC nudge; no new information object for the administrator constraint, which is enforced at invitation time rather than stored. |
-| 4_application | New: `app_outstanding_balances()` definer function and a Registrar/Treasurer "Outstanding across seasons" screen (WP1); a scheduled function that emails the Secretary and writes `clearance.reminder_sent_at` (WP2); an administrator-invitation form change that requires an individual's name, not just an address (WP3). |
+| 3_information | New: `arrears_action`, an append-only log of the Treasurer's follow-up (WP1); new **`clearance.reminder_sent_at`** column recording the six-monthly WWCC nudge (WP2); no new information object for WP3 — the administrator constraint reuses `account_person`, already the schema's record of "a named individual" (BR106/BR108), as a precondition rather than adding anywhere new to store one. |
+| 4_application | New: `app_outstanding_balances()` definer function and a Registrar/Treasurer "Outstanding across seasons" screen (WP1); a scheduled job that emails the current Secretary and writes `clearance.reminder_sent_at` (WP2); `grant_club_role` rewritten to refuse `admin` to an unlinked account, with the Access screen explaining why rather than offering an option the database would refuse (WP3). |
 | 5_technology | First use of a **scheduled job** in this codebase for WP2 — built as a **Vercel Cron job** (`vercel.json`, `CRON_SECRET`), not the Supabase scheduled function originally anticipated; corrected in the [technology services doc](../ea/5_technology/1_technology-services.md). Everything else is ordinary migration + RLS + screen work on the existing stack. |
 
 ## Plateaus
 
 | Plateau | State |
 | ------- | ----- |
-| **Baseline** (before) | `registration.outstanding_amount_cents` exists per season but nothing aggregates it *across* seasons, so a debt from a season now closed has no screen that finds it. `clearance` records an expiry date and a one-time verification but nothing prompts re-verification on any cadence, and BR97's read-only mode blocks writing a new clearance row outright — including the re-verification write [#75](./open-questions.md) resolved should be allowed. An administrator invitation accepts any email address, shared mailbox or not. |
-| **Target** (delivered) | A Registrar or Treasurer can see, per Person, every outstanding balance from the last two years regardless of which season it belongs to, and the Treasurer's follow-up (payment requested, or a reasoned amendment recorded) is itself recorded. Every WWCC gets a reminder to the Secretary at six months, whether or not the club is in BR97 read-only. An administrator invitation requires a named individual and the form says why a shared mailbox is refused. |
+| **Baseline** (before) | `registration.outstanding_amount_cents` exists per season but nothing aggregates it *across* seasons, so a debt from a season now closed has no screen that finds it. `clearance` records an expiry date and a one-time verification but nothing prompts re-verification on any cadence. `grant_club_role` grants `admin` to any account by email, linked to a Person or not. |
+| **Target** (delivered) | A Registrar or Treasurer can see, per Person, every outstanding balance from the last two years regardless of which season it belongs to, and the Treasurer's follow-up (payment requested, or a reasoned amendment recorded) is itself recorded. Every WWCC gets a reminder to the current Secretary at six months. `grant_club_role` refuses `admin` to an account not yet linked to a Person, and the Access screen explains why rather than offering an option that would fail. |
 
 ```mermaid
 flowchart LR
   classDef implementation fill:#dfe7f5,stroke:#345,stroke-width:1px
   B[Baseline: outstanding_amount_cents<br/>is per-season only] -->|WP1| T1[Target: cross-season arrears view,<br/>Registrar/Treasurer follow-up recorded]
-  B2[Baseline: no WWCC<br/>reminder cadence] -->|WP2| T2[Target: 6-monthly reminder<br/>to the Secretary, works in read-only]
-  B3[Baseline: any address<br/>accepted as admin] -->|WP3| T3[Target: admin invitation<br/>requires a named individual]
+  B2[Baseline: no WWCC<br/>reminder cadence] -->|WP2| T2[Target: 6-monthly reminder<br/>to the Secretary, nightly cron]
+  B3[Baseline: admin granted<br/>to any account by email] -->|WP3| T3[Target: admin requires<br/>an existing account_person link]
   class T1,T2,T3 implementation
 ```
 
@@ -139,34 +139,66 @@ corrected here rather than silently built around:
   intention. `npm run check:full` passes (33 RLS suites, 717 unit tests)
   and a production build succeeds with the new route compiled.
 
-### WP3 — The administrator invitation requires a named individual (BR106, BR124; #76)
+### WP3 — The administrator invitation requires a named individual (BR106, BR124; #76) — **built**
 
-- **Deliverables:**
-  - No schema change: the shared-mailbox exclusion is a **process**
-    constraint (nothing in an email address distinguishes
-    `admin@club.org.au` shared by three people from a personal address at
-    the same domain), so it is enforced at the point a human makes the
-    choice, not by a regex the platform cannot actually verify.
-  - Admin-invitation form (`src/app/.../invite-admin` or equivalent):
-    requires a **full name** field alongside the email address before an
-    invitation can be sent, and states plainly, next to the field, that
-    the account may not be a shared or role-based mailbox (BR106) —
-    turning a rule a club could previously violate silently into one it
-    has to consciously override by typing a name that is not one.
-  - `src/web/` decision (pure, tested by `node --test` per the domain
-    guard): the form-validity check that a name was supplied, so the rule
-    is enforced the same way whether it runs in a test or in the browser.
+The plan's premise did not survive contact with the codebase: **there is
+no invitation flow.** `grant_club_role` (0015) gives an existing account a
+role by email — it cannot create one, deliberately (minting accounts
+needs the Auth admin API and the service-role key, a far larger grant than
+deciding who may act at a club). Nothing here sends a first email or
+collects a name at sign-up. So there was no "invitation form" to add a
+full-name field to.
+
+What "a named individual" already means in this schema is `account_person`
+— the link an admin makes on the Access screen saying which Person an
+account belongs to (0022, BR106/BR108). `AccessForms.tsx` already renders
+an unlinked account as exactly that: *"Not linked — the club knows this
+account, not who it belongs to."* A shared mailbox cannot honestly acquire
+that link, because the link asserts one Person. So the enforcement is the
+**existing** link, required before `admin` specifically — not a new field,
+and not a schema change to `account_person` or `club_membership` either.
+
+- **Deliverables (all built):**
+  - Migration `0042_admin_requires_a_named_individual.sql`: rewrites
+    `grant_club_role` (never edited in place — a migration is immutable
+    once applied) to refuse `admin` when the target account has no
+    `account_person` row for the club, citing BR106 — **unless the
+    account already holds admin**, so this gates the grant, not an
+    already-granted role's continued use, matching how BR83 gates a Team
+    Official's appointment and not one already appointed.
+  - `src/web/access-view.ts`: `grantableRoles()` no longer offers `admin`
+    to an unlinked account (the database would refuse it regardless —
+    offering it anyway is exactly the "offered and refused" defect this
+    file's own conventions exist to avoid), and `adminNeedsLinkFirst()`
+    lets the screen say *why*, the same pattern `revocation()` already
+    used for the last-administrator rule.
+  - `AccessForms.tsx`: `GrantMoreForm` shows an explanatory hint instead
+    of a silently missing option when `admin` is withheld for this
+    reason; `GrantAccessForm`'s initial grant (where link status is not
+    yet known client-side) carries the same explanation next to the role
+    field, so a refusal at the database is not the first time anyone
+    hears about BR106.
+  - `supabase/tests/43_admin_requires_a_named_individual.sql`: 4 RLS
+    scenarios — admin refused to an unlinked account citing BR106, a
+    lesser role to the same account unaffected, linking unblocks the
+    grant, and an account that already held admin keeps it.
+  - Corrected `supabase/tests/22_club_access.sql` scenario 9, which
+    granted `admin` to a never-linked fixture account and would otherwise
+    have started failing under the new rule — now links it first, the
+    same sequence the Access screen itself requires.
 - **Outcome:** BR124's second administrator is still free to be anyone —
   the rule stays about redundancy, not gatekeeping who — but the account
-  behind them is now visibly, not just textually, tied to one person.
+  behind them is now database-enforced, not just textually, to be tied to
+  one identified person. `npm run check:full` passes (34 RLS suites, 720
+  unit tests) and a production build succeeds.
 
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |
 | -------- | ------------------------------------------- |
 | Cross-season arrears view and the Treasurer's recorded follow-up (WP1) | A formal hardship-override **approval** workflow for BR79 — [#50](./open-questions.md) is sharpened, not closed; this WP records the follow-up, it does not adjudicate it |
-| Six-monthly WWCC reminder, working in BR97 read-only (WP2) | Programmatic register checking or a confirmed contact route into Blue Card Services — [#38](./open-questions.md) stays open; the reminder tells a human to look, it does not look itself |
-| Admin-invitation name requirement (WP3) | Retroactively auditing or relinking **existing** administrator accounts that may already be shared mailboxes — this WP only changes the invitation path going forward |
+| Six-monthly WWCC reminder to the current Secretary (WP2) | Programmatic register checking or a confirmed contact route into Blue Card Services — [#38](./open-questions.md) stays open; the reminder tells a human to look, it does not look itself |
+| `admin` requires an existing `account_person` link (WP3) | Retroactively auditing or relinking **existing** administrator accounts granted before 0042, which may already be shared mailboxes — this WP only gates the grant going forward |
 | | Disposal itself under BR40/BR49 for a Person whose arrear has cleared — this WP only stops disposal from running *while* an arrear is open; the disposal job is [#30](./open-questions.md)'s and still gated on the legal answer |
 
 ## Gap notes
