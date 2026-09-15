@@ -201,7 +201,32 @@ Two of the steps are also decisions rather than typing, and they are marked.
    migration, never merge a schema change whose RLS test has not run —
    were written for the first option and get sharper under it.
 6. **Apply the migrations to the new project**, in order, and then run
-   `python3 scripts/check_rls.py` against it. A production database whose
+   `python3 scripts/check_rls.py` against it.
+
+   **Pre-flight, run 15 September 2026 and clean.** A first apply to a real
+   Supabase project is where a specific class of bug surfaces, and it was
+   worth checking rather than discovering:
+
+   - **Extension schemas.** pgcrypto lives in `extensions` on Supabase and
+     in `public` on the local harness, so a `security definer` function
+     pinned to `search_path = public` that calls `digest()` passes every
+     local test and fails on the real project. That is not hypothetical —
+     `app_unsubscribe` shipped with exactly that bug. All six call sites
+     across 0005, 0006, 0008, 0009, 0030 and 0035 are inside functions
+     pinned to `public, extensions, pg_temp`; **nothing is left on the
+     wrong path.**
+   - **Data written at apply time.** Four migrations carry top-level DML —
+     0006's two `person_role` backfills, 0019's `user_password_set`, and
+     0031's `club.privacy_framework`. Every one is `select`-driven over
+     existing rows, so on a virgin database they insert and update nothing.
+     No migration seeds a club, a person or a season.
+   - **The whole set against an empty database** is proved on every CI run
+     rather than argued: both `test_rls.sh` and `rehearse_restore.sh` build
+     a database from these migrations on a virgin Postgres, and the second
+     then dumps and restores it.
+
+   What remains genuinely unproved is what only a real project can answer:
+   Supabase's `auth` and `storage` schemas are theirs, not the local shim's. A production database whose
    policies did not all apply is the failure P5 rests on. **The Storage
    buckets come with them** — vouchers (0008), clearance scans (0012) and
    identification photographs (0021) each create their bucket and its
