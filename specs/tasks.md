@@ -11,7 +11,7 @@ decision rather than an obvious step, the **design section** that settled it
 - `[ ]` — not implemented
 
 **Completion state was read from the code in September 2026**, not from a
-plan. 235 of the 277 tasks below are already `[x]`; the phases are ordered so
+plan. 237 of the 278 tasks below are already `[x]`; the phases are ordered so
 that the unchecked work reads as a queue.
 
 **Testing is deliberately out of scope here.** The repository's existing
@@ -204,7 +204,8 @@ memory.
 - [x] BR83 trigger on `team_member`, firing on insert **and update** — *R20.1–20.2*
 - [x] BR84 trigger on `person_role` for referee and coach, with the under-18 exemption — *R20.4–20.5*
 - [x] Checked against the **end of the season**, not today — *R20.3*
-- [ ] **Expiry withdraws the holder from every future assignment**, not merely blocks new ones — *R20.7*
+- [x] **Expiry withdraws the holder from every future assignment**, not merely blocks new ones — *R20.7*, which is BR50. Revocation by trigger, expiry by nightly sweep, **one function for both**
+- [x] **BR84 enforced at the appointment** — *R20.4*, whose tick was false: an adult with no card and no referee role could be appointed to officiate a children's fixture, and four behavioural suites did exactly that and passed
 - [ ] Register-linked re-verification as the primary mechanism — *R20.8*
 
 ### 4.2 Teams — *R20*
@@ -640,7 +641,7 @@ owner and find it at the top of the list.
 | 1 | Tenancy, identity, access | 20 | 2 |
 | 2 | Registration, documents, validation | 22 | 3 |
 | 3 | Finance | 14 | 3 |
-| 4 | Safeguarding, teams, governance | 13 | 3 |
+| 4 | Safeguarding, teams, governance | 15 | 2 |
 | 5 | Referee management | 18 | 3 |
 | 6 | Club-facing frontend | 23 | 2 |
 | 7 | Person-facing frontend | 8 | 3 |
@@ -653,7 +654,7 @@ owner and find it at the top of the list.
 | 14 | Engineering quality | 5 | 3 |
 | 15 | The club that is not here yet | 12 | 3 |
 | 10b | Officiating at registration | 13 | 1 |
-| | **Total** | **235** | **42** |
+| | **Total** | **237** | **41** |
 
 **Phases 0–10 are substantially complete** and constitute a working product
 for one club's registration, finance, safeguarding, officiating and privacy

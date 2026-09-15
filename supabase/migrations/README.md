@@ -69,6 +69,7 @@ The next migration takes the next number.
 | `0038` | The alert that tells somebody a club enquired, and what happened to it — **not** in `message_log`, whose `club_id` is `not null` and whose rows are about a club's contact with a data subject (BR146) |
 | `0039` | Retrying a failed alert, as a person's act — and refusing to record an outcome against one already delivered, because *send everything unconfirmed* emails an operator three times about one club (BR147) |
 | `0043` | A person reads the committee office they hold, and the term behind it — an elected officer with no `club_membership` row could not see their own election |
+| `0044` | The card at the appointment: BR84 reaches `match_official_appointment` for the first time, measured against the fixture's date — and BR50's withdrawal on lapse, by trigger for revocation and by sweep for expiry |
 | `0034` | Carnivals: the only deliberate exception to P5, made narrow by the tables having no person column |
 | `0033` | Officiating interest: what a family declared at registration, and the review that turns a claim into a referee |
 | `0032` | The competition catalogue: shared reference data, ranked classification levels, and the reference a fixture carries |

@@ -545,7 +545,15 @@ compliance is a property of the system rather than of my memory.
 3. WHEN a clearance is checked, THEN the system SHALL check it against the
    **end of the season being registered for**, not against today. ✅
 4. WHEN a match official is appointed, THEN the system SHALL require the same
-   verified clearance a team official requires. ✅
+   verified clearance a team official requires. ✅ *(**This tick was false
+   until September 2026.** BR84 was enforced on `person_role` and the
+   appointment had no clearance check at all — proved by appointing an adult
+   with no card and no referee role to a fixture thirty days out. Reachable
+   through the product's own flow, because [scope 39](../docs/scope/39_asking_at_the_door_whether_they_also_officiate.md)
+   creates a `referee_profile` even when BR84 refuses the season role, and
+   the screens list officials from that table. Fixed in migration 0044,
+   measured against the **fixture's** date rather than the season's end —
+   BR111's line, for BR111's reason.)*
 5. WHEN the person is under 18, THEN the system SHALL exempt them from
    criteria 1 and 4. ✅
 6. The system SHALL record `verified_at` separately from the card number, so
@@ -553,7 +561,15 @@ compliance is a property of the system rather than of my memory.
    one. ✅
 7. WHEN a Working with Children Check expires or is revoked, THEN the system
    SHALL withdraw the holder from every **future** assignment, not merely
-   block new ones. ⬜
+   block new ones. ✅ *(BR50, written since the business layer was drafted
+   and coded in 0044. Revocation is a write and withdraws immediately by
+   trigger; expiry is the passage of time and withdraws on a nightly sweep —
+   **both call the same function**, so the two paths cannot disagree about
+   what a lapse means. Past assignments are untouched, as BR50 says.)*
+7a. WHEN an assignment is withdrawn by a lapse, THEN the record SHALL say
+   why. ✅ *(An appointment already refused a withdrawal without a reason;
+   `team_member` gained the same pair, because BR50 keeps past assignments
+   as historical record and a delete is the opposite of that.)*
 8. WHEN a club is linked as the responsible organisation in the state
    register, THEN the system SHALL treat that register as the primary
    mechanism for maintaining validity. ⬜

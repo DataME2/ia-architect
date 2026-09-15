@@ -55,6 +55,7 @@ something that happens by accident, and that is the design.
 | `privacy.ts` | Erasure, retention and the club's export. Thin: each act deletes a Person or refuses to, so the rule lives in the database where it cannot be routed around |
 | `reporting.ts` | Calls the three summary functions and turns a Postgres raise citing BR142 into a `refused` report. The role check is the database's, not this module's — a figure must be refused wherever it is asked for, not wherever somebody remembered to ask |
 | `enquiries.ts` | A club's expression of interest, and the lead list behind it. Thin in both directions: what an enquiry may be, and who may read the list, are both decided in the database, because `prospect` denies every API request and a definer function is the only door there is. The retry is a person's act (BR147) and never re-sends a delivered alert — enforced both in the selection and in the database, because the second is what makes a double-clicked button harmless |
+| `clearanceWithdrawal.ts` | BR50's nightly half. Thin on purpose: `app_withdraw_lapsed_clearances` decides what a lapse means, and the revocation trigger calls **the same function**, so the immediate path and the nightly one cannot drift apart |
 | `reminders.ts`, `notifications.ts` | Joining a message to a registration, a withdrawal, or an approval |
 
 Explicit `club_id` filters in these queries are **belt and braces, not the

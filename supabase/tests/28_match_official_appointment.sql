@@ -95,8 +95,17 @@ begin
   -- when it was first written — the safeguarding trigger working on the
   -- test that needed a coach to exist. The card comes first, as it does in
   -- the club.
+  -- **Every adult official here holds a card.** Added when 0044 put BR84 on
+  -- the appointment itself: before that this suite appointed officials with
+  -- no clearance at all and passed, which is the hole 0044 closes rather
+  -- than a fixture detail. The cards are real ones — the rule was not
+  -- relaxed to keep these scenarios green.
   insert into clearance (club_id, person_id, kind, identifier, issued_on, expires_on, verified_at)
-  values (north_star, coaching, 'WWCC', 'BC-APPT-1', date '2025-01-01', date '2030-12-31', now());
+  values (north_star, coaching,  'WWCC', 'BC-APPT-1', date '2025-01-01', date '2030-12-31', now()),
+         (north_star, clean,     'WWCC', 'BC-APPT-2', date '2025-01-01', date '2030-12-31', now()),
+         (north_star, parent,    'WWCC', 'BC-APPT-3', date '2025-01-01', date '2030-12-31', now()),
+         (north_star, suspended, 'WWCC', 'BC-APPT-4', date '2025-01-01', date '2030-12-31', now()),
+         (north_star, busy,      'WWCC', 'BC-APPT-5', date '2025-01-01', date '2030-12-31', now());
 
   insert into team_member (club_id, team_id, person_id, role)
   values (north_star, the_team, coaching, 'coach');

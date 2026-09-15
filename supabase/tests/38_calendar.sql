@@ -28,6 +28,17 @@ insert into person (id, club_id, legal_given_names, legal_family_name, date_of_b
   ('b38a0000-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111',
    'Their', 'Guardian', '1985-05-05', null);
 
+-- **A card, because BR84 now reaches the appointment** (migration 0044).
+-- This suite appointed an uncleared adult and passed, which is the hole
+-- 0044 closes. The card is a real one; the rule was not relaxed.
+insert into clearance (club_id, person_id, kind, identifier, issued_on, expires_on, verified_at) values
+  -- The two adults. The fourteen-year-old needs none — BR84 exempts them,
+  -- and this suite is partly about a minor's feed belonging to a guardian.
+  ('11111111-1111-1111-1111-111111111111', 'b38a0000-0000-0000-0000-000000000001',
+   'WWCC', 'BC-CAL-1', date '2025-01-01', date '2031-12-31', now()),
+  ('11111111-1111-1111-1111-111111111111', 'b38a0000-0000-0000-0000-000000000002',
+   'WWCC', 'BC-CAL-2', date '2025-01-01', date '2031-12-31', now());
+
 insert into guardianship (club_id, person_id, guardian_person_id, is_authority, is_contact) values
   ('11111111-1111-1111-1111-111111111111', 'b38a0000-0000-0000-0000-000000000003',
    'b38a0000-0000-0000-0000-000000000004', true, true);
