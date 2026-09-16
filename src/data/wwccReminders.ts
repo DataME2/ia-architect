@@ -17,7 +17,14 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { wwccReminder, type WwccDue } from '../domain/messaging/templates.ts';
 import { todayIn } from '../web/today.ts';
-import { sendMessage, subscriberFor, toRecipient, unsubscribeUrlFor } from './messaging.ts';
+import {
+  messagingUnavailableReason,
+  sendMessage,
+  subscriberFor,
+  toRecipient,
+  unsubscribeUrlFor,
+  type SubscriberRow,
+} from './messaging.ts';
 
 export interface WwccReminderResult {
   readonly clubId: string;
@@ -67,13 +74,22 @@ export async function sendWwccReminders(
     };
   }
 
-  const subscriber = await subscriberFor(client, clubId, secretary.personId, secretary.email);
-  if (subscriber === null) {
-    return { clubId, due: due.length, outcome: 'failed', detail: 'Could not record the Secretary as contactable.' };
+  let subscriber: SubscriberRow;
+  let unsubscribeUrl: string;
+  try {
+    const found = await subscriberFor(client, clubId, secretary.personId, secretary.email);
+    if (found === null) {
+      return { clubId, due: due.length, outcome: 'failed', detail: 'Could not record the Secretary as contactable.' };
+    }
+    subscriber = found;
+    unsubscribeUrl = unsubscribeUrlFor(subscriber.id, subscriber.unsubscribe_salt);
+  } catch (error) {
+    const reason = messagingUnavailableReason(error);
+    if (reason === null) throw error;
+    return { clubId, due: due.length, outcome: 'failed', detail: reason };
   }
 
   const recipient = toRecipient(subscriber, secretary.name);
-  const unsubscribeUrl = unsubscribeUrlFor(subscriber.id, subscriber.unsubscribe_salt);
   const wwccDue: readonly WwccDue[] = due.map((d) => ({
     personName: d.person_name,
     kind: d.kind,

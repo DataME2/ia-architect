@@ -611,6 +611,7 @@ export async function sendBulkRemindersAction(
   let sent = 0;
   let withheld = 0;
   let families = 0;
+  const withheldDetails: string[] = [];
   // Sequential, like every other loop over clubs and people in this code.
   // A burst of parallel sends against one provider is how a club's domain
   // gets rate-limited, and there is nothing to gain: this is forty
@@ -626,11 +627,17 @@ export async function sendBulkRemindersAction(
     sent += delivered;
     withheld += results.length - delivered;
     if (delivered > 0) families += 1;
+    for (const r of results) {
+      if (r.outcome !== 'sent') {
+        withheldDetails.push(`${entry.displayName}: ${r.to} — ${r.detail ?? 'not sent'}`);
+      }
+    }
   }
 
   revalidatePath('/registrar');
 
   const line = summarise({ families, sent, withheld }, plan.skipped.length);
+  const withheldLine = withheldDetails.length === 0 ? '' : '\n\n' + withheldDetails.join('\n');
   const skippedLine = plan.skipped.length === 0
     ? ''
     : '\n\n' + plan.skipped.map((s) => `${s.displayName} — ${s.detail}`).join('\n');
@@ -638,6 +645,6 @@ export async function sendBulkRemindersAction(
   // A send that reached nobody is not a success, even when every reason is
   // an ordinary one: the registrar's next act depends on knowing it.
   return sent === 0
-    ? formFailed(line + skippedLine)
-    : formOk(line + skippedLine);
+    ? formFailed(line + withheldLine + skippedLine)
+    : formOk(line + withheldLine + skippedLine);
 }

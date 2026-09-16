@@ -131,6 +131,17 @@ export interface SendTally {
  */
 export function summarise(tally: SendTally, skipped: number): string {
   if (tally.families === 0) {
+    // Everybody planReminders chose to chase was attempted and none of them
+    // was reached — the opposite of "nobody needed chasing", and the one
+    // case this function most needs to get right, because it is what a
+    // total send failure (an unconfigured mail provider, a site URL that is
+    // not set) looks like from here: a plan with something to send and a
+    // tally with nothing delivered.
+    if (tally.withheld > 0) {
+      return `Nothing sent — ${tally.withheld} recipient${tally.withheld === 1 ? '' : 's'} `
+        + 'could not be written to.'
+        + (skipped === 0 ? '' : ` ${skipped} more skipped, listed below.`);
+    }
     return skipped === 0
       ? 'Nobody needed chasing.'
       : `Nothing sent — all ${skipped} were skipped, for the reasons listed.`;
