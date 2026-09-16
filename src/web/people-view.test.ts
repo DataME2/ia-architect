@@ -5,12 +5,17 @@ import { guardian, person, TODAY } from '../domain/test-fixtures.ts';
 import type { PersonRole } from '../domain/types.ts';
 import {
   buildDirectory,
+  clampPage,
+  ilikePattern,
+  pageCount,
   parseDocumentChecklist,
+  parsePage,
+  parseRoleFilter,
   parseSeasonRole,
-  roleCounts,
-  searchDirectory,
+  rangeFor,
+  summariseRoles,
   UNKNOWN_DATE_OF_BIRTH,
-  withoutRole,
+  UNROSTERED,
 } from './people-view.ts';
 
 const SEASON = 'season-2026';
@@ -95,45 +100,84 @@ test('sorted by legal name, so two same-named children land next to each other',
   );
 });
 
-test('search matches the legal name, which may be the name not on screen', () => {
-  const directory = buildDirectory([child], [], [], TODAY);
-  assert.equal(directory[0]?.displayName, 'Alex Nguyen');
-
-  assert.equal(searchDirectory(directory, 'Alexandra').length, 1);
-  assert.equal(searchDirectory(directory, 'Alex').length, 1);
-  assert.equal(searchDirectory(directory, 'Morgan').length, 0);
+test('ilikePattern wraps a trimmed search in wildcards', () => {
+  assert.equal(ilikePattern('  Alex  '), '%Alex%');
 });
 
-test('search matches email and ignores case and surrounding space', () => {
-  const directory = buildDirectory([parent], [], [], TODAY);
-  assert.equal(searchDirectory(directory, '  MAI@EXAMPLE.TEST ').length, 1);
+test('ilikePattern is null for nothing typed, not an empty pattern that matches everyone', () => {
+  assert.equal(ilikePattern(''), null);
+  assert.equal(ilikePattern('   '), null);
 });
 
-test('an empty search returns everyone rather than nobody', () => {
-  const directory = buildDirectory([child, parent], [], [], TODAY);
-  assert.equal(searchDirectory(directory, '   ').length, 2);
+test('ilikePattern escapes ILIKE wildcards so a literal % or _ is not a wildcard', () => {
+  assert.equal(ilikePattern('50%'), '%50\\%%');
+  assert.equal(ilikePattern('a_b'), '%a\\_b%');
+  assert.equal(ilikePattern('a\\b'), '%a\\\\b%');
 });
 
-test('counts every role, and reports zero for the ones nobody holds', () => {
-  const directory = buildDirectory(
-    [child, parent],
+test('ilikePattern drops characters that would break the .or() filter string rather than fail the search', () => {
+  assert.equal(ilikePattern('Smith, John'), '%Smith John%');
+  assert.equal(ilikePattern('O\'Brien (Jr)'), "%O'Brien Jr%");
+});
+
+test('summariseRoles counts every role and reports zero for the ones nobody holds', () => {
+  const summary = summariseRoles(
+    2,
     [role('p-child', 'player'), role('p-parent', 'guardian'), role('p-parent', 'coach')],
-    [],
-    TODAY,
   );
-  const counts = roleCounts(directory);
-  assert.equal(counts.get('player'), 1);
-  assert.equal(counts.get('coach'), 1);
-  assert.equal(counts.get('guardian'), 1);
-  assert.equal(counts.get('referee'), 0);
+  assert.equal(summary.total, 2);
+  assert.equal(summary.byRole.get('player'), 1);
+  assert.equal(summary.byRole.get('coach'), 1);
+  assert.equal(summary.byRole.get('guardian'), 1);
+  assert.equal(summary.byRole.get('referee'), 0);
 });
 
-test('people with no role this season are findable', () => {
-  const directory = buildDirectory([child, parent], [role('p-child', 'player')], [], TODAY);
-  assert.deepEqual(
-    withoutRole(directory).map((s) => s.personId),
-    ['p-parent'],
+test('summariseRoles counts a Person with two roles once toward unrostered, not twice', () => {
+  const summary = summariseRoles(
+    2,
+    [role('p-parent', 'guardian'), role('p-parent', 'coach')],
   );
+  assert.equal(summary.unrostered, 1, 'p-child holds nothing; p-parent holds two roles and is rostered once');
+});
+
+test('summariseRoles never reports unrostered below zero, however the counts arrive', () => {
+  // Defensive: role rows for a Person not counted in totalPeople should not
+  // produce a negative "unrostered", which would read as a data error.
+  assert.equal(summariseRoles(0, [role('p-parent', 'coach')]).unrostered, 0);
+});
+
+test('parseRoleFilter accepts a season role, the unrostered sentinel, or neither', () => {
+  assert.equal(parseRoleFilter('coach'), 'coach');
+  assert.equal(parseRoleFilter(UNROSTERED), UNROSTERED);
+  assert.equal(parseRoleFilter('admin'), null);
+  assert.equal(parseRoleFilter(undefined), null);
+});
+
+test('parsePage defaults to the first page for anything that is not a positive integer', () => {
+  assert.equal(parsePage('3'), 3);
+  assert.equal(parsePage('0'), 1);
+  assert.equal(parsePage('-4'), 1);
+  assert.equal(parsePage('abc'), 1);
+  assert.equal(parsePage(undefined), 1);
+  assert.equal(parsePage('2.5'), 1);
+});
+
+test('pageCount is at least one even when there is nothing to page through', () => {
+  assert.equal(pageCount(0, 50), 1);
+  assert.equal(pageCount(50, 50), 1);
+  assert.equal(pageCount(51, 50), 2);
+  assert.equal(pageCount(100, 50), 2);
+});
+
+test('clampPage pulls a page back inside range rather than showing nothing', () => {
+  assert.equal(clampPage(1, 100, 50), 1);
+  assert.equal(clampPage(5, 100, 50), 2, 'only 2 pages exist at 100 rows and a page size of 50');
+  assert.equal(clampPage(0, 100, 50), 1);
+});
+
+test('rangeFor is zero-indexed and inclusive on both ends', () => {
+  assert.deepEqual(rangeFor(1, 50), { from: 0, to: 49 });
+  assert.deepEqual(rangeFor(2, 50), { from: 50, to: 99 });
 });
 
 test('legal-name verification carries through to the row', () => {

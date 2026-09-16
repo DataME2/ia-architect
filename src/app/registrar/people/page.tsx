@@ -1,13 +1,20 @@
 import { redirect } from 'next/navigation';
 
 import { SEASON_ROLES } from '../../../domain/types.ts';
-import { loadPeople, loadSeasons, loadTenantContext } from '../../../data/queries.ts';
+import {
+  loadPeople,
+  loadPeopleRoleSummary,
+  loadSeasons,
+  loadTenantContext,
+} from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import {
+  clampPage,
+  pageCount,
+  parsePage,
+  parseRoleFilter,
   ROLE_LABEL,
-  roleCounts,
-  searchDirectory,
-  withoutRole,
+  UNROSTERED,
   type PersonSummary,
 } from '../../../web/people-view.ts';
 import { todayIn } from '../../../web/today.ts';
@@ -96,7 +103,12 @@ function PersonRow({
 export default async function PeoplePage({
   searchParams,
 }: {
-  readonly searchParams: Promise<{ readonly season?: string; readonly q?: string }>;
+  readonly searchParams: Promise<{
+    readonly season?: string;
+    readonly q?: string;
+    readonly role?: string;
+    readonly page?: string;
+  }>;
 }) {
   const client = await createRequestClient();
   const user = await currentUser(client);
@@ -128,11 +140,35 @@ export default async function PeoplePage({
   const params = await searchParams;
   const season = seasons.find((s) => s.id === params.season) ?? seasons[0]!;
   const query = params.q ?? '';
+  const roleFilter = parseRoleFilter(params.role);
+  const requestedPage = parsePage(params.page);
 
-  const everyone = await loadPeople(client, tenant.clubId, season.id, todayIn());
-  const shown = searchDirectory(everyone, query);
-  const counts = roleCounts(everyone);
-  const unroled = withoutRole(everyone);
+  const summary = await loadPeopleRoleSummary(client, tenant.clubId, season.id);
+
+  let page = requestedPage;
+  let { people: shown, totalCount } = await loadPeople(
+    client,
+    tenant.clubId,
+    season.id,
+    todayIn(),
+    { query, role: roleFilter, page },
+  );
+
+  // A stale link or a hand-edited `?page=` can ask for a page a filter no
+  // longer has. Re-fetch the clamped page rather than showing nothing.
+  const clamped = clampPage(page, totalCount);
+  if (clamped !== page) {
+    page = clamped;
+    ({ people: shown, totalCount } = await loadPeople(
+      client,
+      tenant.clubId,
+      season.id,
+      todayIn(),
+      { query, role: roleFilter, page },
+    ));
+  }
+
+  const pages = pageCount(totalCount);
 
   return (
     <>
@@ -149,6 +185,18 @@ export default async function PeoplePage({
         <div style={{ flex: '1 1 12rem' }}>
           <label htmlFor="q">Search</label>
           <input id="q" name="q" defaultValue={query} placeholder="Name or email" />
+        </div>
+        <div style={{ flex: '1 1 10rem' }}>
+          <label htmlFor="role">Role</label>
+          <select id="role" name="role" defaultValue={roleFilter ?? ''}>
+            <option value="">Every role</option>
+            {SEASON_ROLES.map((role) => (
+              <option key={role} value={role}>
+                {ROLE_LABEL[role]}
+              </option>
+            ))}
+            <option value={UNROSTERED}>No role this season</option>
+          </select>
         </div>
         {seasons.length > 1 && (
           <div style={{ flex: '1 1 12rem' }}>
@@ -175,22 +223,22 @@ export default async function PeoplePage({
 
       <div className="summary-grid">
         <div className="stat">
-          <span className="n">{everyone.length}</span>
+          <span className="n">{summary.total}</span>
           <span className="label">people</span>
         </div>
         {SEASON_ROLES.map((role) => (
           <div className="stat" key={role}>
-            <span className="n">{counts.get(role) ?? 0}</span>
+            <span className="n">{summary.byRole.get(role) ?? 0}</span>
             <span className="label">{ROLE_LABEL[role].toLowerCase()}s</span>
           </div>
         ))}
       </div>
 
-      {unroled.length > 0 && (
+      {summary.unrostered > 0 && (
         <p className="notice">
-          {unroled.length === 1
+          {summary.unrostered === 1
             ? '1 person holds no role this season'
-            : `${unroled.length} people hold no role this season`}
+            : `${summary.unrostered} people hold no role this season`}
           . That is either someone who has not come back, or a record created by mistake —
           both worth knowing, and neither visible from a list of registrations.
         </p>
@@ -198,7 +246,9 @@ export default async function PeoplePage({
 
       {shown.length === 0 ? (
         <p className="empty">
-          {query === '' ? 'Nobody yet.' : `Nobody matches “${query}”.`}
+          {query === '' && roleFilter === null
+            ? 'Nobody yet.'
+            : `Nobody matches ${query === '' ? 'that filter' : `“${query}”`}.`}
         </p>
       ) : (
         <div className="table-scroll">
@@ -211,12 +261,41 @@ export default async function PeoplePage({
               </tr>
             </thead>
             <tbody>
-              {shown.map((summary) => (
-                <PersonRow key={summary.personId} summary={summary} seasonId={season.id} />
+              {shown.map((person) => (
+                <PersonRow key={person.personId} summary={person} seasonId={season.id} />
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {pages > 1 && (
+        <nav
+          className="pagination"
+          aria-label="People pages"
+          style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}
+        >
+          {page > 1 && (
+            <a
+              href={pageHref({ season: season.id, q: query, role: roleFilter, page: page - 1 })}
+              className="secondary"
+            >
+              Previous
+            </a>
+          )}
+          <span className="hint">
+            Page {page} of {pages} &middot; {totalCount}{' '}
+            {totalCount === 1 ? 'person' : 'people'} match
+          </span>
+          {page < pages && (
+            <a
+              href={pageHref({ season: season.id, q: query, role: roleFilter, page: page + 1 })}
+              className="secondary"
+            >
+              Next
+            </a>
+          )}
+        </nav>
       )}
 
       <p className="hint">
@@ -226,4 +305,19 @@ export default async function PeoplePage({
       </p>
     </>
   );
+}
+
+function pageHref(params: {
+  readonly season: string;
+  readonly q: string;
+  readonly role: string | null;
+  readonly page: number;
+}): string {
+  const search = new URLSearchParams();
+  search.set('season', params.season);
+  if (params.q !== '') search.set('q', params.q);
+  if (params.role !== null) search.set('role', params.role);
+  if (params.page > 1) search.set('page', String(params.page));
+  const qs = search.toString();
+  return qs === '' ? '/registrar/people' : `/registrar/people?${qs}`;
 }

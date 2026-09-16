@@ -21,8 +21,22 @@ import { statusFromValidation } from '../domain/rules/registration-status.ts';
 import type { RuleOutcome } from '../domain/rules/types.ts';
 import type { PackCandidate } from '../domain/submission/types.ts';
 import type { Payment, PaymentPlan } from '../domain/finance/types.ts';
-import type { IsoDate, Person, RegistrationStatus, SeasonRole } from '../domain/types.ts';
-import { buildDirectory, type PersonSummary } from '../web/people-view.ts';
+import type {
+  IsoDate,
+  Person,
+  PersonRole,
+  RegistrationStatus,
+  SeasonRole,
+} from '../domain/types.ts';
+import {
+  buildDirectory,
+  ilikePattern,
+  rangeFor,
+  summariseRoles,
+  UNROSTERED,
+  type PersonSummary,
+  type RoleSummary,
+} from '../web/people-view.ts';
 import { displayNameFor, fullLegalName, type QueueEntry } from '../web/queue-view.ts';
 import {
   toConsent,
@@ -672,53 +686,198 @@ export async function recordAudit(
 
 // ------------------------------------------------------ identity & roles
 
+/** A page of {@link loadPeople}, next to the total the club actually holds. */
+export interface PeoplePage {
+  readonly people: readonly PersonSummary[];
+  readonly totalCount: number;
+}
+
+export interface LoadPeopleOptions {
+  readonly query?: string | null;
+  readonly role?: SeasonRole | typeof UNROSTERED | null;
+  readonly page?: number;
+  readonly pageSize?: number;
+}
+
+async function personIdsWithRole(
+  client: SupabaseClient,
+  clubId: string,
+  seasonId: string,
+  role: SeasonRole | typeof UNROSTERED,
+): Promise<readonly string[]> {
+  const roleRows = unwrap<{ person_id: string; role: SeasonRole }[]>(
+    'person_role',
+    await client
+      .from('person_role')
+      .select('person_id, role')
+      .eq('club_id', clubId)
+      .eq('season_id', seasonId),
+  );
+
+  if (role !== UNROSTERED) {
+    return roleRows.filter((r) => r.role === role).map((r) => r.person_id);
+  }
+
+  const rostered = new Set(roleRows.map((r) => r.person_id));
+  const everyoneIds = unwrap<{ id: string }[]>(
+    'person',
+    await client
+      .from('person')
+      .select('id')
+      .eq('club_id', clubId)
+      .is('merged_into_person_id', null),
+  );
+  return everyoneIds.map((r) => r.id).filter((id) => !rostered.has(id));
+}
+
 /**
- * Everyone in the club, with the roles they hold in one season.
+ * One page of the club, with the roles its people hold in one season.
  *
  * Deliberately keyed on people rather than registrations. A guardian created
  * by a family's public submission has no registration of their own, so a
  * registration-shaped query cannot see them at all — and neither can it show
  * that the coach and the parent are the same Person, which is what P1
  * actually claims.
+ *
+ * Paginated at the database rather than built and searched in memory: a club
+ * with 800 people is not a hypothetical this platform can wait to meet, and
+ * fetching (and re-fetching, on every keystroke's round trip) every person's
+ * full record just to discard all but fifty of them is the exact shape of
+ * query that stops scaling long before 800.
  */
 export async function loadPeople(
   client: SupabaseClient,
   clubId: string,
   seasonId: string,
   asAt: IsoDate,
-): Promise<readonly PersonSummary[]> {
-  const personRows = unwrap<PersonRow[]>(
-    'person',
-    await client
-      .from('person')
-      .select('*')
-      .eq('club_id', clubId)
-      .is('merged_into_person_id', null),
-  );
+  options: LoadPeopleOptions = {},
+): Promise<PeoplePage> {
+  const page = options.page ?? 1;
+  const pageSize = options.pageSize;
+  const pattern = ilikePattern(options.query ?? '');
 
-  const roleRows = unwrap<PersonRoleRow[]>(
-    'person_role',
-    await client
-      .from('person_role')
-      .select('id, club_id, person_id, season_id, role')
-      .eq('club_id', clubId)
-      .eq('season_id', seasonId),
-  );
+  const personIdFilter =
+    options.role == null ? null : await personIdsWithRole(client, clubId, seasonId, options.role);
 
-  const guardianshipRows = unwrap<GuardianshipRow[]>(
-    'guardianship',
-    await client
-      .from('guardianship')
-      .select('id, club_id, person_id, guardian_person_id, is_authority, is_contact')
-      .eq('club_id', clubId),
-  );
+  if (personIdFilter !== null && personIdFilter.length === 0) {
+    return { people: [], totalCount: 0 };
+  }
 
-  return buildDirectory(
-    personRows.map(toPerson),
+  let personQuery = client
+    .from('person')
+    .select('*', { count: 'exact' })
+    .eq('club_id', clubId)
+    .is('merged_into_person_id', null);
+
+  if (pattern !== null) {
+    personQuery = personQuery.or(
+      `legal_given_names.ilike.${pattern},legal_family_name.ilike.${pattern},preferred_name.ilike.${pattern},email.ilike.${pattern}`,
+    );
+  }
+  if (personIdFilter !== null) {
+    personQuery = personQuery.in('id', personIdFilter as string[]);
+  }
+
+  const { from, to } = rangeFor(page, pageSize);
+  const { data, error, count } = await personQuery
+    .order('legal_family_name', { ascending: true })
+    .order('legal_given_names', { ascending: true })
+    .order('date_of_birth', { ascending: true })
+    .range(from, to);
+  if (error !== null) throw new QueryError('person', error.message);
+
+  const personRows = (data ?? []) as PersonRow[];
+  const pageIds = personRows.map((r) => r.id);
+
+  const roleRows =
+    pageIds.length === 0
+      ? []
+      : unwrap<PersonRoleRow[]>(
+          'person_role',
+          await client
+            .from('person_role')
+            .select('id, club_id, person_id, season_id, role')
+            .eq('club_id', clubId)
+            .eq('season_id', seasonId)
+            .in('person_id', pageIds),
+        );
+
+  // Both directions matter: a guardian's name comes from the child's row and
+  // a dependant's name comes from the guardian's, and either side of that
+  // relationship can fall on a different page than this one.
+  const guardianshipRows =
+    pageIds.length === 0
+      ? []
+      : unwrap<GuardianshipRow[]>(
+          'guardianship',
+          await client
+            .from('guardianship')
+            .select('id, club_id, person_id, guardian_person_id, is_authority, is_contact')
+            .eq('club_id', clubId)
+            .or(`person_id.in.(${pageIds.join(',')}),guardian_person_id.in.(${pageIds.join(',')})`),
+        );
+
+  const pageIdSet = new Set(pageIds);
+  const relatedIds = new Set<string>();
+  for (const g of guardianshipRows) {
+    if (!pageIdSet.has(g.person_id)) relatedIds.add(g.person_id);
+    if (!pageIdSet.has(g.guardian_person_id)) relatedIds.add(g.guardian_person_id);
+  }
+
+  const relatedPersonRows =
+    relatedIds.size === 0
+      ? []
+      : unwrap<PersonRow[]>(
+          'person',
+          await client.from('person').select('*').eq('club_id', clubId).in('id', [...relatedIds]),
+        );
+
+  const directory = buildDirectory(
+    [...personRows, ...relatedPersonRows].map(toPerson),
     roleRows.map(toPersonRole),
     guardianshipRows.map(toGuardianship),
     asAt,
   );
+
+  return {
+    people: directory.filter((summary) => pageIdSet.has(summary.personId)),
+    totalCount: count ?? 0,
+  };
+}
+
+/**
+ * The directory's role counts for a whole club and season, without fetching
+ * a single Person record — the count a registrar wants first does not need
+ * every name, email and guardian link pulled back just to be thrown away.
+ */
+export async function loadPeopleRoleSummary(
+  client: SupabaseClient,
+  clubId: string,
+  seasonId: string,
+): Promise<RoleSummary> {
+  const { count, error } = await client
+    .from('person')
+    .select('id', { count: 'exact', head: true })
+    .eq('club_id', clubId)
+    .is('merged_into_person_id', null);
+  if (error !== null) throw new QueryError('person', error.message);
+
+  const roleRows = unwrap<{ person_id: string; role: SeasonRole }[]>(
+    'person_role',
+    await client
+      .from('person_role')
+      .select('person_id, role')
+      .eq('club_id', clubId)
+      .eq('season_id', seasonId),
+  );
+
+  const roles: PersonRole[] = roleRows.map((r) => ({
+    personId: r.person_id,
+    seasonId,
+    role: r.role,
+  }));
+
+  return summariseRoles(count ?? 0, roles);
 }
 
 /**
