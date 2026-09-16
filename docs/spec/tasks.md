@@ -105,7 +105,7 @@ Work where most of the slice exists and a named piece does not.
 | - | ---- | ----- | ---- | ---- |
 | ~~T3.1~~ | **The fee schedule editor.** Schema and rate resolution were delivered; a club could not author a schedule through a screen (scope 34, WP2), so every club had no rates and **no official could be paid at all**. **Done** — [scope 53](../scope/53_the_rate_table_a_club_never_had.md) | BR115 | M | A new rate publishes a new dated schedule; the old one stays readable — and, since 0047, unchangeable |
 | T3.2 | **The decline-rate threshold**, deliberately deferred until a season of history exists to set it | BR12 | S | Configurable per classification/competition, never hardcoded |
-| T3.3 | **The committee's own dated resolutions.** Approvals resting on committee authority currently point at nothing | BR123 | M | A resolution names what was decided, who moved it, and its term |
+| ~~T3.3~~ | **The committee's own dated resolutions.** Approvals resting on committee authority pointed at nothing — and building it found BR21 unenforced since migration 0008. **Done** — [scope 57](../scope/57_the_committee_records_its_own_decisions.md) | BR123, BR21 | M | A resolution names what was decided, who moved it, and its term; `registration_voucher` now refuses any Voucher Program the club has not enabled by citing one |
 | ~~T3.4~~ | **Life member register** — an indefinite role with no season, surviving death | BR69–BR71, C18 | M | Design exists ([scope 18](../scope/18_life-members.md)); waiting on priority alone |
 | ~~T3.5~~ | **The club's data export.** "Nearly free" under Postgres and not written | BR68 | M | A complete, club-scoped export the club can take elsewhere |
 

@@ -76,6 +76,21 @@ values ('a39a0000-0000-0000-0000-000000000001', '99995555-0000-0000-0000-0000000
         'c39a0000-0000-0000-0000-000000000002', 15000, current_date, 'voucher',
         'd1111111-1111-1111-1111-111111111111');
 
+-- BR21: this is its own club (see the fixture note above), so it needs its
+-- own Committee approval of "Play On!" -- North Star's enablement (15) does
+-- not reach here.
+insert into committee_term (id, club_id, name, starts_on, next_agm_due_on) values
+  ('99995555-0000-0000-0000-0000000000bb', '99995555-0000-0000-0000-000000000001',
+   '2026', '2026-01-01', '2027-01-01');
+
+insert into committee_resolution (id, club_id, term_id, decided_on, summary, category) values
+  ('99995555-0000-0000-0000-0000000000cc', '99995555-0000-0000-0000-000000000001',
+   '99995555-0000-0000-0000-0000000000bb', '2026-01-01',
+   'Approve Play On! as a Voucher Program.', 'voucher_program');
+
+insert into club_voucher_program_enablement (club_id, program, resolution_id) values
+  ('99995555-0000-0000-0000-000000000001', 'Play On!', '99995555-0000-0000-0000-0000000000cc');
+
 insert into registration_voucher
   (club_id, registration_id, program, code, face_value_cents, state, attached_by_user_id) values
   ('99995555-0000-0000-0000-000000000001', 'c39a0000-0000-0000-0000-000000000001',

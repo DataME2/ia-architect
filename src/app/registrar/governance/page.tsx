@@ -14,12 +14,19 @@ import {
 import { displayNameFor, fullLegalName } from '../../../web/queue-view.ts';
 import {
   POSITION_LABEL,
+  RESOLUTION_CATEGORY_LABEL,
   TERM_STATUS_LABEL,
   TERM_STATUS_TONE,
+  enabledProgramNames,
   termNote,
 } from '../../../web/governance-view.ts';
 import { todayIn } from '../../../web/today.ts';
-import { AppointForm, NewTermForm } from './GovernanceForms.tsx';
+import {
+  AppointForm,
+  EnableVoucherProgramForm,
+  NewTermForm,
+  RecordResolutionForm,
+} from './GovernanceForms.tsx';
 import { resignMemberAction } from './actions.ts';
 
 export const dynamic = 'force-dynamic';
@@ -40,8 +47,15 @@ export default async function GovernancePage() {
   }
 
   const today = todayIn();
-  const { terms, members, people } = await loadGovernance(client, tenant.clubId);
+  const { terms, members, people, resolutions, voucherPrograms } = await loadGovernance(
+    client,
+    tenant.clubId,
+  );
   const governing = governingTerm(terms, today);
+  const enabledPrograms = enabledProgramNames(voucherPrograms);
+  const voucherResolutions = resolutions
+    .filter((r) => r.category === 'voucher_program')
+    .map((r) => ({ id: r.id, label: `${r.decidedOn} — ${r.summary}` }));
 
   // BR87: adults only. A MiniRoos player cannot govern the club — their
   // parent can, and so can a life member. The filter excludes by age, never
@@ -205,6 +219,48 @@ export default async function GovernancePage() {
               player cannot.
             </p>
             <AppointForm termId={term.id} people={assignable} />
+
+            <h4>Committee resolutions (BR123)</h4>
+            {(() => {
+              const termResolutions = resolutions.filter((r) => r.termId === term.id);
+              return termResolutions.length === 0 ? (
+                <p className="hint" style={{ marginTop: 0 }}>
+                  Nothing recorded for this term yet.
+                </p>
+              ) : (
+                <div className="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Decided</th>
+                        <th>Category</th>
+                        <th>What was decided</th>
+                        <th>Moved by</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {termResolutions.map((r) => {
+                        const mover =
+                          r.movedByPersonId === null ? undefined : people.get(r.movedByPersonId);
+                        return (
+                          <tr key={r.id}>
+                            <td>{r.decidedOn}</td>
+                            <td>{RESOLUTION_CATEGORY_LABEL[r.category]}</td>
+                            <td>{r.summary}</td>
+                            <td>{mover === undefined ? <span className="hint">Not named</span> : displayNameFor(mover)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })()}
+            <p className="hint" style={{ marginTop: 0 }}>
+              Append-only &mdash; a corrected decision is recorded as a new resolution, the same
+              way a corrected payment is a new receipt rather than an edited one.
+            </p>
+            <RecordResolutionForm termId={term.id} people={assignable} />
           </section>
         );
       })}
@@ -212,6 +268,34 @@ export default async function GovernancePage() {
       <section className="card">
         <h3 style={{ marginTop: 0 }}>Open a governance year</h3>
         <NewTermForm />
+      </section>
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>Voucher Programs (BR21)</h3>
+        <p className="lede" style={{ marginTop: 0 }}>
+          A Voucher Program cannot be applied to a family&rsquo;s invoice until {tenant.clubName}
+          &rsquo;s Committee has approved it — enforced by the database itself, not by a
+          registrar remembering to check. Enabling one here requires a resolution already
+          recorded above with the Voucher Program category.
+        </p>
+        {voucherPrograms.length === 0 ? (
+          <p className="empty">No Voucher Program enabled yet.</p>
+        ) : (
+          <ul>
+            {voucherPrograms.map((v) => (
+              <li key={v.id}>
+                <strong>{v.program}</strong> &mdash; enabled {v.enabledAt.slice(0, 10)}
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="hint" style={{ marginTop: 0 }}>
+          {enabledPrograms.size === 0
+            ? 'A registrar cannot attach a voucher for any program until one is enabled here.'
+            : 'Attaching a voucher for any other program is refused (BR21).'}
+        </p>
+        <h4>Enable a Voucher Program</h4>
+        <EnableVoucherProgramForm voucherResolutions={voucherResolutions} />
       </section>
 
       <p className="hint">

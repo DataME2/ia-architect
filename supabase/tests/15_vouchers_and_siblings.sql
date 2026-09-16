@@ -40,6 +40,37 @@ values
 
 commit;
 
+-- BR21: this suite's whole voucher story is North Star's Committee having
+-- approved "Play On!" as a Voucher Program. Seeded directly, the same way
+-- the season and invitation above are -- this suite is not testing BR123 or
+-- BR21's own gate (that is 50_committee_resolutions_and_voucher_programs.sql),
+-- it is testing BR80/BR81/BR78 against vouchers that are otherwise legitimate.
+
+begin;
+
+insert into committee_term
+  (id, club_id, name, starts_on, next_agm_due_on)
+values
+  ('a1111111-1111-1111-1111-11111111ac01',
+   '11111111-1111-1111-1111-111111111111',
+   '2030 (voucher test)', '2030-01-01', '2031-01-01');
+
+insert into committee_resolution
+  (id, club_id, term_id, decided_on, summary, category)
+values
+  ('a1111111-1111-1111-1111-11111111ac02',
+   '11111111-1111-1111-1111-111111111111',
+   'a1111111-1111-1111-1111-11111111ac01',
+   '2030-01-01', 'Approve Play On! as a Voucher Program.', 'voucher_program');
+
+insert into club_voucher_program_enablement
+  (club_id, program, resolution_id)
+values
+  ('11111111-1111-1111-1111-111111111111', 'Play On!',
+   'a1111111-1111-1111-1111-11111111ac02');
+
+commit;
+
 -- --------------------------------------------- BR80, through the real path
 
 do $$

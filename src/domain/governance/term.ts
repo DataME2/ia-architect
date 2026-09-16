@@ -45,6 +45,32 @@ export interface CommitteeMember {
 }
 
 /**
+ * BR123 — the Committee records its own decisions.
+ *
+ * `category` is how a caller like BR21's voucher gate finds "the resolution
+ * that enables this" without parsing `summary`'s free text. `'general'` is
+ * every decision Q59's answer names that has no caller yet — the database
+ * accepts it because BR123 asks a resolution to be recorded, not because
+ * anything reads it back.
+ */
+export interface CommitteeResolution {
+  readonly id: string;
+  readonly termId: string;
+  readonly decidedOn: IsoDate;
+  readonly summary: string;
+  readonly movedByPersonId: string | null;
+  readonly category: 'general' | 'voucher_program';
+}
+
+/** BR21 — a Voucher Program a club's Committee has approved for its own invoices. */
+export interface VoucherProgramEnablement {
+  readonly id: string;
+  readonly program: string;
+  readonly resolutionId: string;
+  readonly enabledAt: string;
+}
+
+/**
  * `overdue` is the one worth having.
  *
  * It does not mean the committee has stopped governing — in practice they

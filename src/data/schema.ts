@@ -273,6 +273,28 @@ export interface CommitteePositionRow {
   created_at: InstantString;
 }
 
+export type CommitteeResolutionCategory = 'general' | 'voucher_program';
+
+export interface CommitteeResolutionRow {
+  id: string;
+  club_id: string;
+  term_id: string;
+  decided_on: DateString;
+  summary: string;
+  moved_by_person_id: string | null;
+  category: CommitteeResolutionCategory;
+  created_by: string | null;
+  created_at: InstantString;
+}
+
+export interface ClubVoucherProgramEnablementRow {
+  id: string;
+  club_id: string;
+  program: string;
+  resolution_id: string;
+  enabled_at: InstantString;
+}
+
 export interface ValidationResultRow {
   id: string;
   club_id: string;
