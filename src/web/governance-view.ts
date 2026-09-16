@@ -1,7 +1,14 @@
 /**
  * The governance screen's decisions. Pure.
  */
-import type { CommitteePosition, TermStatus } from '../domain/governance/term.ts';
+import type {
+  CommitteeResolution,
+  CommitteePosition,
+  TermStatus,
+  VoucherProgramEnablement,
+} from '../domain/governance/term.ts';
+import type { IsoDate } from '../domain/types.ts';
+import { parseDueDate } from './plan-view.ts';
 
 export const POSITION_LABEL: Readonly<Record<CommitteePosition, string>> = {
   president: 'President',
@@ -46,4 +53,86 @@ export function termNote(status: TermStatus, days: number): string {
     case 'current':
       return `The AGM falls due in ${days} days.`;
   }
+}
+
+export const RESOLUTION_CATEGORY_LABEL: Readonly<Record<CommitteeResolution['category'], string>> = {
+  general: 'General',
+  voucher_program: 'Voucher Program approval',
+};
+
+export type ParsedResolution =
+  | {
+      readonly ok: true;
+      readonly termId: string;
+      readonly decidedOn: IsoDate;
+      readonly summary: string;
+      readonly movedByPersonId: string | null;
+      readonly category: CommitteeResolution['category'];
+    }
+  | { readonly ok: false; readonly error: string };
+
+/**
+ * BR123's form. `summary` is what makes this a resolution rather than a
+ * date with a category attached — a club minuting "the Committee decided
+ * something" has decided nothing worth a record.
+ */
+export function parseResolution(fields: {
+  readonly termId: string;
+  readonly decidedOn: string;
+  readonly summary: string;
+  readonly movedByPersonId: string;
+  readonly category: string;
+}): ParsedResolution {
+  if (fields.termId === '') return { ok: false, error: 'Choose which Committee Term this belongs to.' };
+
+  const decidedOn = parseDueDate(fields.decidedOn);
+  if (decidedOn === null) return { ok: false, error: 'Enter the decision date as a real calendar date.' };
+
+  const summary = fields.summary.trim();
+  if (summary === '') return { ok: false, error: 'Say what the Committee decided.' };
+
+  const category = fields.category === 'voucher_program' ? 'voucher_program' : 'general';
+
+  return {
+    ok: true,
+    termId: fields.termId,
+    decidedOn,
+    summary,
+    movedByPersonId: fields.movedByPersonId === '' ? null : fields.movedByPersonId,
+    category,
+  };
+}
+
+export type ParsedEnablement =
+  | { readonly ok: true; readonly program: string; readonly resolutionId: string }
+  | { readonly ok: false; readonly error: string };
+
+/**
+ * BR21's form: naming the Voucher Program and the resolution that approved
+ * it. Which resolutions are offered is the screen's job (only
+ * `voucher_program`-category ones); this only refuses what typing a program
+ * name wrong or leaving the resolution unchosen would otherwise let through.
+ */
+export function parseEnablement(fields: {
+  readonly program: string;
+  readonly resolutionId: string;
+}): ParsedEnablement {
+  const program = fields.program.trim();
+  if (program === '') return { ok: false, error: 'Name the Voucher Program.' };
+  if (fields.resolutionId === '') {
+    return { ok: false, error: 'Choose the resolution that approved this Voucher Program.' };
+  }
+  return { ok: true, program, resolutionId: fields.resolutionId };
+}
+
+/**
+ * The programs a club has already enabled, trimmed and lower-cased the same
+ * way the database's own gate compares them (`assert_voucher_program_is_enabled`)
+ * — so a screen never claims a program is new when a club only typed its
+ * name differently the second time.
+ */
+export function enabledProgramNames(
+  enablements: readonly VoucherProgramEnablement[],
+): ReadonlySet<string> {
+  return new Set(enablements.map((e) => e.program.trim().toLowerCase()));
 }

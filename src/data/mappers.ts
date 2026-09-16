@@ -9,7 +9,12 @@
 import type { Installment, Payment, PaymentPlan } from '../domain/finance/types.ts';
 import type { Voucher } from '../domain/finance/voucher.ts';
 import type { Clearance, Team } from '../domain/teams/types.ts';
-import type { CommitteeMember, CommitteeTerm } from '../domain/governance/term.ts';
+import type {
+  CommitteeMember,
+  CommitteeResolution,
+  CommitteeTerm,
+  VoucherProgramEnablement,
+} from '../domain/governance/term.ts';
 import type {
   Consent,
   Guardianship,
@@ -24,7 +29,9 @@ import type {
   PaymentRow,
   RegistrationVoucherRow,
   ClearanceRow,
+  ClubVoucherProgramEnablementRow,
   CommitteePositionRow,
+  CommitteeResolutionRow,
   CommitteeTermRow,
   TeamRow,
   GuardianshipRow,
@@ -200,5 +207,27 @@ export function toCommitteeMember(row: CommitteePositionRow): CommitteeMember {
     position: row.position,
     electedOn: row.elected_on,
     resignedOn: row.resigned_on,
+  };
+}
+
+export function toCommitteeResolution(row: CommitteeResolutionRow): CommitteeResolution {
+  return {
+    id: row.id,
+    termId: row.term_id,
+    decidedOn: row.decided_on,
+    summary: row.summary,
+    movedByPersonId: row.moved_by_person_id,
+    category: row.category,
+  };
+}
+
+export function toVoucherProgramEnablement(
+  row: ClubVoucherProgramEnablementRow,
+): VoucherProgramEnablement {
+  return {
+    id: row.id,
+    program: row.program,
+    resolutionId: row.resolution_id,
+    enabledAt: row.enabled_at,
   };
 }

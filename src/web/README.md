@@ -51,7 +51,8 @@ it:
 | `household-view.ts`, `me-view.ts`, `role-context.ts` | The person-facing surface: one record, one active role at a time (BR61, BR63, BR65). `holdsCommitteeRole` is here rather than in `src/data/` because it is a **decision**, and it was wrong: three things can be called committee and the screen asked about the two that are access grants rather than the one that is the elected office |
 | `plan-view.ts`, `money.ts` | Instalment ledgers, arrears, and money formatted one way everywhere |
 | `referee-view.ts`, `availability-view.ts` | The officiating roster and who may officiate what |
-| `player-view.ts`, `team-view.ts`, `people-view.ts`, `governance-view.ts`, `access-view.ts`, `platform-view.ts`, `pack-view.ts`, `invitation-view.ts` | One screen's decisions each |
+| `player-view.ts`, `team-view.ts`, `people-view.ts`, `access-view.ts`, `platform-view.ts`, `pack-view.ts`, `invitation-view.ts` | One screen's decisions each |
+| `governance-view.ts` | The governance screen's decisions, including BR123's resolution form and BR21's enablement form. `enabledProgramNames` compares trimmed and lower-cased — the same comparison `assert_voucher_program_is_enabled` makes in the database — so the screen never calls a program new when a club only typed its name differently the second time |
 | `fixture-change.ts` | What changed about a fixture, in the words a participant reads (BR64) — computed from before and after, so a submit that changed nothing announces nothing |
 | `privacy-view.ts` | Grouping retention proposals so the **irreversible** group is the only one with an action beside it — a life member listed like a lapsed player is how a club deletes its own history |
 | `unsubscribe.ts` | Reading an unsubscribe link out of an inbox — mail clients wrap URLs and append punctuation, so what counts as a readable link is the part worth testing |

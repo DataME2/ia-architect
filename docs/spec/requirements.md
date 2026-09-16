@@ -161,7 +161,7 @@ a business rule without an intermediate mapping table.
 | FR-C10.6 | A lapsed licence puts the club into read-only | BR97 | **Partial** | **Shown and not enforced** — the state is displayed; nothing restricts writes |
 | FR-C10.7 | A committee position is held for exactly one term, running AGM to AGM, and lapses with it | BR85, BR86 | **Verified** | `src/domain/governance/term.ts` |
 | FR-C10.8 | A committee position may only be held by an adult, measured at the term's start | BR87 | **Verified** | trigger, `tests/19_committee_adults.sql` |
-| FR-C10.9 | The committee records its own dated resolutions | BR123 | **Not built** | Approvals resting on committee authority point at nothing |
+| FR-C10.9 | The committee records its own dated resolutions | BR123 | **Verified** | `committee_resolution`, migration 0049, suite 50 ([scope 57](../scope/57_the_committee_records_its_own_decisions.md)). Append-only, written by `committee` or `admin` |
 | FR-C10.10 | A prospect enters the demonstration club on an email address alone, read-only, with marketing consent asked separately and never as a condition | BR91, BR93 | **Verified** | `/demo`, migration 0013, `tests/20`, `tests/21` |
 
 ### FR-C20 — Player performance record

@@ -3,11 +3,18 @@
 import { revalidatePath } from 'next/cache';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
 
-import { appointMember, createTerm, resignMember } from '../../../data/governance.ts';
+import {
+  appointMember,
+  createTerm,
+  enableVoucherProgram,
+  recordResolution,
+  resignMember,
+} from '../../../data/governance.ts';
 import { loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { COMMITTEE_POSITIONS, type CommitteePosition } from '../../../domain/governance/term.ts';
 import { parseDueDate } from '../../../web/plan-view.ts';
+import { parseEnablement, parseResolution } from '../../../web/governance-view.ts';
 
 function parsePosition(value: unknown): CommitteePosition | null {
   return typeof value === 'string' && (COMMITTEE_POSITIONS as readonly string[]).includes(value)
@@ -113,4 +120,61 @@ export async function resignMemberAction(formData: FormData): Promise<void> {
   await resignMember(client, tenant.clubId, positionId, resignedOn, user.id);
 
   revalidatePath('/registrar/governance');
+}
+
+/** BR123: record what the Committee decided. */
+export async function recordResolutionAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const parsed = parseResolution({
+    termId: String(formData.get('termId') ?? ''),
+    decidedOn: String(formData.get('decidedOn') ?? ''),
+    summary: String(formData.get('summary') ?? ''),
+    movedByPersonId: String(formData.get('movedByPersonId') ?? ''),
+    category: String(formData.get('category') ?? ''),
+  });
+  if (!parsed.ok) return formFailed(parsed.error);
+
+  const { client, user, tenant } = await requireTenant();
+  const result = await recordResolution(
+    client,
+    tenant.clubId,
+    {
+      termId: parsed.termId,
+      decidedOn: parsed.decidedOn,
+      summary: parsed.summary,
+      movedByPersonId: parsed.movedByPersonId,
+      category: parsed.category,
+    },
+    user.id,
+  );
+  if (!result.ok) return formFailed(result.error);
+
+  revalidatePath('/registrar/governance');
+  return formOk('Resolution recorded.');
+}
+
+/** BR21: enable a Voucher Program the Committee has just approved. */
+export async function enableVoucherProgramAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const parsed = parseEnablement({
+    program: String(formData.get('program') ?? ''),
+    resolutionId: String(formData.get('resolutionId') ?? ''),
+  });
+  if (!parsed.ok) return formFailed(parsed.error);
+
+  const { client, user, tenant } = await requireTenant();
+  const result = await enableVoucherProgram(
+    client,
+    tenant.clubId,
+    { program: parsed.program, resolutionId: parsed.resolutionId },
+    user.id,
+  );
+  if (!result.ok) return formFailed(result.error);
+
+  revalidatePath('/registrar/governance');
+  return formOk(`${parsed.program} is now an enabled Voucher Program.`);
 }
