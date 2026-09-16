@@ -21,7 +21,7 @@ import type {
   MessagePurpose,
   Recipient,
 } from '../domain/messaging/types.ts';
-import { readMessagingConfig, readTransportConfig } from './env.ts';
+import { ConfigError, readMessagingConfig, readTransportConfig } from './env.ts';
 
 // ---------------------------------------------------------------- the token
 
@@ -57,6 +57,27 @@ export function newSubscriberSecrets(): { salt: string; token: string; tokenHash
 export function unsubscribeUrlFor(id: string, salt: string): string {
   const { siteUrl } = readMessagingConfig();
   return `${siteUrl}/unsubscribe/${id}.${deriveUnsubscribeToken(salt)}`;
+}
+
+/**
+ * Turns a missing or malformed `NEXT_PUBLIC_SITE_URL` /
+ * `MESSAGING_UNSUBSCRIBE_SECRET` into a reason a registrar can act on,
+ * rather than the unhandled `ConfigError` `unsubscribeUrlFor` and
+ * `subscriberFor`'s first-contact path throw. Every caller of this module
+ * needs an unsubscribe link to compose a message at all, so every caller
+ * hits the same deployment fault the same way — and it is a fault, not a
+ * fact about the recipient: chasing one family is no more or less possible
+ * than chasing another when the site's own URL is not configured.
+ *
+ * Returns `null` for anything that is not this specific, known
+ * misconfiguration, so a caller can re-throw rather than silently
+ * swallowing a real bug behind a generic message.
+ */
+export function messagingUnavailableReason(error: unknown): string | null {
+  return error instanceof ConfigError
+    ? `Messages cannot be sent right now: ${error.message}. This is a deployment configuration ` +
+      'problem, not something a resend will fix — nobody was contacted.'
+    : null;
 }
 
 /** Constant-time, because the caller is anonymous and may be guessing. */

@@ -33,8 +33,14 @@ import type { MessageTemplate } from '../domain/messaging/types.ts';
 import { addresseesFor } from '../domain/messaging/recipients.ts';
 import type { IsoDate, Person } from '../domain/types.ts';
 import { todayIn } from '../web/today.ts';
-import { sendMessage, subscriberFor, toRecipient, unsubscribeUrlFor } from './messaging.ts';
-import type { SendResult } from './messaging.ts';
+import {
+  messagingUnavailableReason,
+  sendMessage,
+  subscriberFor,
+  toRecipient,
+  unsubscribeUrlFor,
+} from './messaging.ts';
+import type { SendResult, SubscriberRow } from './messaging.ts';
 
 export interface Party {
   readonly personId: string;
@@ -58,12 +64,21 @@ async function notify<TInput>(
   input: TInput,
   aboutPersonId: string | null,
 ): Promise<SendResult> {
-  const subscriber = await subscriberFor(client, clubId, to.personId, to.email);
-  if (subscriber === null) {
-    return { outcome: 'failed', detail: 'Could not record them as contactable.' };
+  let subscriber: SubscriberRow;
+  let unsubscribeUrl: string;
+  try {
+    const found = await subscriberFor(client, clubId, to.personId, to.email);
+    if (found === null) {
+      return { outcome: 'failed', detail: 'Could not record them as contactable.' };
+    }
+    subscriber = found;
+    unsubscribeUrl = unsubscribeUrlFor(subscriber.id, subscriber.unsubscribe_salt);
+  } catch (error) {
+    const reason = messagingUnavailableReason(error);
+    if (reason === null) throw error;
+    return { outcome: 'failed', detail: reason };
   }
 
-  const unsubscribeUrl = unsubscribeUrlFor(subscriber.id, subscriber.unsubscribe_salt);
   const { subject, body } = template.compose(input, { clubName, unsubscribeUrl, asAt: todayIn() });
 
   return sendMessage(client, clubId, toRecipient(subscriber, to.name), {
