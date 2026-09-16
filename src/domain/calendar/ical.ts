@@ -1,10 +1,12 @@
 /**
  * An iCalendar document (RFC 5545).
  *
- * Pure, and worth being pure: the output is read by Google, Apple and
- * Outlook rather than by a person, so a mistake does not look wrong — it
- * looks like a calendar that quietly duplicates every event, or silently
- * refuses to subscribe at all. None of that is visible on a screen.
+ * Pure, and worth being pure: the output is read by Gmail, Yahoo, Outlook
+ * and Apple Calendar rather than by a person, so a mistake does not look
+ * wrong — it looks like a calendar that quietly duplicates every event,
+ * shows a kick-off an hour or a day out for a viewer on the wrong client,
+ * or silently refuses to subscribe at all. None of that is visible on a
+ * screen.
  *
  * What the format actually demands, and what this gets right:
  *
@@ -16,6 +18,13 @@
  *   * **Stable UIDs.** The single most consequential rule here: a client
  *     keys on UID, so a feed that regenerates them adds a second event on
  *     every refresh instead of updating the one it has.
+ *   * **Times in UTC, not a bare `TZID`.** A `DTSTART;TZID=Australia/
+ *     Brisbane:…` with no `VTIMEZONE` block defining that zone is not a
+ *     complete document per §3.2.19 — one client infers the zone from its
+ *     IANA name and gets it right, another reads it as a floating local
+ *     time, and which one happens is exactly the kind of variation that
+ *     shows up as "it works in Gmail but not in Outlook" rather than as an
+ *     error anyone sees. A `Z`-suffixed UTC instant has no such ambiguity.
  *
  * BR32 constrains what goes in: competition, date, time, venue and the
  * subscriber's own role. No attendee, no organiser, no other participant —
@@ -88,15 +97,63 @@ function stamp(date: Date): string {
 }
 
 /**
- * `20260704T100000` from a date and a `HH:MM` or `HH:MM:SS` time.
+ * `timeZone`'s UTC offset, in minutes, at a specific instant.
  *
- * Postgres hands back either form depending on whether seconds were
- * recorded, so both are accepted rather than assumed.
+ * Read from `Intl` rather than a bundled tz database: correct for every
+ * zone Node's ICU data knows, including one that observes daylight saving,
+ * without this project carrying transition tables of its own to keep
+ * current. (The club this feed is built for is in `Australia/Brisbane`,
+ * which never changes — but the computation does not assume that.)
  */
-function localDateTime(playedOn: string, kickOff: string): string {
+function utcOffsetMinutes(timeZone: string, at: Date): number {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hourCycle: 'h23',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).formatToParts(at).reduce<Record<string, string>>((acc, p) => {
+    if (p.type !== 'literal') acc[p.type] = p.value;
+    return acc;
+  }, {});
+
+  const readAsUtc = Date.UTC(
+    Number(parts.year), Number(parts.month) - 1, Number(parts.day),
+    Number(parts.hour), Number(parts.minute), Number(parts.second),
+  );
+  return Math.round((readAsUtc - at.getTime()) / 60000);
+}
+
+/**
+ * A kick-off given as a wall-clock date and time in `timeZone`, as the UTC
+ * instant it actually refers to.
+ *
+ * **Emitted as UTC rather than `DTSTART;TZID=…`, deliberately.** A bare
+ * TZID with no `VTIMEZONE` block defining it is not a complete calendar
+ * document (RFC 5545 §3.2.19) — some clients infer the zone from its IANA
+ * name and get it right, others read the same line as a *floating* local
+ * time, or reject the property outright, and which one happens is exactly
+ * the kind of variation a family only discovers when Saturday's kick-off
+ * shows up at the wrong hour in Yahoo Mail's calendar but not in Gmail's.
+ * A `Z`-suffixed UTC timestamp has no such ambiguity: every client that
+ * understands RFC 5545 at all converts it to the viewer's own zone
+ * correctly, without needing to already know or be handed the rules for
+ * `Australia/Brisbane`.
+ *
+ * Two readings rather than one: the offset near a daylight-saving boundary
+ * depends on which side of it the instant falls, and the first guess (the
+ * wall-clock reading treated as if it were already UTC) can land on the
+ * wrong side of a transition that happens between the guess and the true
+ * instant. A second reading, taken at the first guess's answer, is enough
+ * to converge — no zone changes its offset twice in one day.
+ */
+function utcInstantFor(playedOn: string, kickOff: string, timeZone: string): Date {
   const [h = '00', m = '00', sec = '00'] = kickOff.split(':');
-  const pad = (v: string) => v.padStart(2, '0').slice(0, 2);
-  return `${playedOn.replace(/-/g, '')}T${pad(h)}${pad(m)}${pad(sec)}`;
+  const [y, mo, d] = playedOn.split('-').map(Number) as [number, number, number];
+  const wallReadAsUtc = Date.UTC(y, mo - 1, d, Number(h), Number(m), Number(sec));
+
+  const firstGuess = utcOffsetMinutes(timeZone, new Date(wallReadAsUtc));
+  const refined = utcOffsetMinutes(timeZone, new Date(wallReadAsUtc - firstGuess * 60000));
+  return new Date(wallReadAsUtc - refined * 60000);
 }
 
 const ROLE_WORDS: Readonly<Record<string, string>> = {
@@ -134,7 +191,6 @@ export function buildFeed(events: readonly FeedEvent[], options: FeedOptions): s
   ];
 
   for (const event of events) {
-    const start = event.kickOff === null ? '' : localDateTime(event.playedOn, event.kickOff);
     lines.push(
       'BEGIN:VEVENT',
       // Stable and unique: the appointment's own id. A regenerated UID is
@@ -146,7 +202,7 @@ export function buildFeed(events: readonly FeedEvent[], options: FeedOptions): s
         // No kick-off set: an all-day entry rather than a guess at midnight,
         // which would send somebody to a ground before dawn.
         ? `DTSTART;VALUE=DATE:${event.playedOn.replace(/-/g, '')}`
-        : `DTSTART;TZID=${options.timeZone}:${start}`,
+        : `DTSTART:${stamp(utcInstantFor(event.playedOn, event.kickOff, options.timeZone))}`,
       `SUMMARY:${escapeText(summaryFor(event))}`,
       // A cancelled fixture is cancelled, not deleted: the subscriber sees
       // it struck through rather than silently vanishing, which is what
