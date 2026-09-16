@@ -110,10 +110,8 @@ same club, same match, different answer.
 
 ## What this initiative does not do
 
-- **No claim screen.** A treasurer still cannot raise or approve a claim
-  through the application; scope 34 delivered that in the database only, and
-  `notifyClaimApproved` is still built and unwired. Authoring the rates was
-  the first blocker, not the last one.
+- **No claim screen** — closed since, in [scope 56](./56_working_from_a_list_rather_than_a_spreadsheet.md).
+  Authoring the rates was the first blocker, not the last one.
 - **Competition is still free text**, matched by string against
   `fixture.competition`. C11's catalogue is the answer and the editor says
   so on the field rather than pretending otherwise.

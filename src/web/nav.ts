@@ -23,6 +23,8 @@ export const REGISTRAR_NAV: readonly NavItem[] = [
   { href: '/registrar/fixtures', label: 'Fixtures', seasonScoped: true },
   { href: '/registrar/referees', label: 'Match officials', seasonScoped: true },
   { href: '/registrar/designations', label: 'Designations', seasonScoped: true },
+  { href: '/registrar/verification', label: 'Verify a match', seasonScoped: true },
+  { href: '/registrar/referee-payments', label: 'Match official payments', seasonScoped: true },
   // Not season-scoped: a fee schedule is dated from a day and runs until
   // the next one supersedes it (BR115), which is not the same shape as a
   // season and does not reset with one.

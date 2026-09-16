@@ -464,8 +464,14 @@ async function markNotified(
     .in('id', [...ids]);
 }
 
-/** A Person as somebody who can be emailed, or null if they cannot be. */
-async function partyFor(
+/**
+ * A Person as somebody who can be emailed, or null if they cannot be.
+ *
+ * Exported: the claim-approval notice (scope 56) needs the same lookup,
+ * and a second copy would be the divergence this file already warns
+ * against for `notify()`'s spine.
+ */
+export async function partyFor(
   client: SupabaseClient,
   clubId: string,
   personId: string,

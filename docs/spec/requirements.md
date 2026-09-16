@@ -125,6 +125,7 @@ a business rule without an intermediate mapping table.
 | FR-C5.6 | A batch is closed before it is paid and admits no further claims | BR117 | **Verified** | `referee_payment_batch` |
 | FR-C5.7 | A remittance records a payment the club made elsewhere; the platform never initiates a transfer | BR118 | **Verified** | migration 0027 |
 | FR-C5.8 | Banking details for officials | — | **Out of scope by decision** | Holding a twelve-year-old's account number buys nothing and carries everything — scope 34 gap note |
+| FR-C5.9 | A coordinator verifies and raises a claim through a screen; a treasurer approves, batches, closes and records payment through one; the official is told when their claim is approved | — | **Verified** | `/registrar/verification`, `/registrar/referee-payments` ([scope 56](../scope/56_working_from_a_list_rather_than_a_spreadsheet.md)). `notifyClaimApproved`, unwired since scope 36, now fires on approval |
 
 ### FR-C16 — External registration submission
 
@@ -188,7 +189,7 @@ a business rule without an intermediate mapping table.
 
 | Capability | Rules stranded | Status |
 | ---------- | -------------- | ------ |
-| **C7 — Communications** | BR64 and claim approval remain unwired — see FR-C17.7 | **Partial** — built September 2026 ([scope 36](../scope/36_the_platform_learns_to_send_and_to_stop.md)): a guardian reminder, BR42's coordinator notification, and an account-free unsubscribe with suppression held here rather than at the provider (BR127–BR131). No campaigns, no bounce handling. A reminder can now be sent to every blocked family at once from the season queue ([scope 54](../scope/54_chasing_forty_families_at_once.md)), skipping those with nothing outstanding and those chased in the last week |
+| **C7 — Communications** | Both BR64 and claim approval are wired now — see FR-C17.7 and FR-C5.9 | **Partial** — built September 2026 ([scope 36](../scope/36_the_platform_learns_to_send_and_to_stop.md)): a guardian reminder, BR42's coordinator notification, and an account-free unsubscribe with suppression held here rather than at the provider (BR127–BR131). No campaigns, no bounce handling. A reminder can now be sent to every blocked family at once from the season queue ([scope 54](../scope/54_chasing_forty_families_at_once.md)), skipping those with nothing outstanding and those chased in the last week |
 | **C8 — Reporting & dashboards** | — | **Partial** — built September 2026 ([scope 42](../scope/42_numbers_a_committee_can_act_on.md)): three summaries computed authoritatively and **refused** rather than partially computed for a reader whose role may not have them (BR142, BR143). No trend, no comparison, no export, nothing scheduled |
 | **C9 — Historical data consolidation** | BR90 | **Designed**, blocked on open question #57 (lawful basis) |
 | **C11 — Competition & calendar** | Competition Regulations as documents | **Partial** — the catalogue, ranked classification levels and **BR8 as a real blocker** ([scope 38](../scope/38_the_catalogue_that_makes_br8_computable.md)) |
