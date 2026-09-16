@@ -61,6 +61,13 @@ rather than one verdict per household.
 A send that reached nobody comes back as a failure even when every reason is
 an ordinary one, because the registrar's next act depends on knowing it.
 
+**Addendum ([scope 60](./60_a_reminder_that_says_why_not_instead_of_crashing.md)):**
+this sentence was aspirational rather than true until a registrar hit both
+of the ways it could fail: a missing `NEXT_PUBLIC_SITE_URL` crashed the
+action outright instead of returning a failure, and — independently — a
+send where every recipient failed reported *"Nobody needed chasing,"* the
+same sentence used for an empty queue. Both are fixed there.
+
 ## EA alignment (assessed top-down before implementing)
 
 | Layer | Impact |
