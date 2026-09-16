@@ -72,7 +72,7 @@ and third, and the fourth is `fixture.competition` — free text, until C11.
 
 ## Work packages and deliverables
 
-### WP1 — Verification, which BR13 requires *(database delivered)*
+### WP1 — Verification, which BR13 requires *(database delivered here; the screen in [scope 56](./56_working_from_a_list_rather_than_a_spreadsheet.md))*
 
 Scope 33's WP4, delivered here because C5 cannot start without it.
 
@@ -97,7 +97,7 @@ Scope 33's WP4, delivered here because C5 cannot start without it.
   answer**, not a zero.
 - **Outcome:** BR41's determinants become a lookup rather than a memory.
 
-### WP3 — Claims *(database delivered)*
+### WP3 — Claims *(database delivered here; the screen in [scope 56](./56_working_from_a_list_rather_than_a_spreadsheet.md))*
 
 - **Deliverables:** `referee_payment_claim` carrying the resolved rate **as
   a stored amount** (BR116), refused for an unverified appointment (BR13),
@@ -105,7 +105,7 @@ Scope 33's WP4, delivered here because C5 cannot start without it.
   (BR17), and refused for an abandoned one without the explanation (BR18).
 - **Outcome:** the club knows what it owes its officials.
 
-### WP4 — Approval, batches, remittances *(database delivered)*
+### WP4 — Approval, batches, remittances *(database delivered here; the screens in [scope 56](./56_working_from_a_list_rather_than_a_spreadsheet.md))*
 
 - **Deliverables:** `referee_payment_batch`, treasurer approval, and the
   remittance recorded as `paid_at`/`paid_reference` on the batch rather
