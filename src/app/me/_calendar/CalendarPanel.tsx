@@ -64,6 +64,28 @@ export function CalendarPanel({
           </button>
         </form>
       )}
+
+      <details>
+        <summary className="hint">Where do I paste this?</summary>
+        <ul className="hint" style={{ margin: 'var(--space-1) 0 0', paddingLeft: '1.2rem' }}>
+          <li>
+            <b>Google Calendar (Gmail):</b> Other calendars <span aria-hidden="true">→</span> + <span aria-hidden="true">→</span>{' '}
+            From URL, then paste the link.
+          </li>
+          <li>
+            <b>Yahoo Calendar:</b> Add calendar <span aria-hidden="true">→</span> paste the link. If it is refused,
+            use the second link shown above instead of the first.
+          </li>
+          <li>
+            <b>Outlook / Outlook.com:</b> Add calendar <span aria-hidden="true">→</span> Subscribe from web, then
+            paste the link.
+          </li>
+          <li>
+            <b>Apple Calendar:</b> File <span aria-hidden="true">→</span> New Calendar Subscription, then paste
+            the link.
+          </li>
+        </ul>
+      </details>
     </div>
   );
 }

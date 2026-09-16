@@ -123,13 +123,29 @@ test('buildFeed — what a calendar client actually reads', async (t) => {
     assert.ok(!feed.includes('T000000'));
   });
 
-  await t.test('places a timed event in the club’s zone', () => {
+  await t.test('places a timed event as an unambiguous UTC instant, not a bare TZID', () => {
+    // Brisbane is UTC+10 year-round: 10:00 local is 00:00 UTC the same day.
+    // No VTIMEZONE, no client-dependent interpretation — Gmail, Yahoo and
+    // Outlook all read the same instant.
     const feed = buildFeed([event()], OPTIONS);
-    assert.match(feed, /DTSTART;TZID=Australia\/Brisbane:20260704T100000/);
+    assert.match(feed, /DTSTART:20260704T000000Z/);
+    assert.ok(!feed.includes('TZID'), 'a bare TZID with no VTIMEZONE is not a complete document');
   });
 
   await t.test('accepts a time with or without seconds', () => {
-    assert.match(buildFeed([event({ kickOff: '09:30' })], OPTIONS), /:20260704T093000/);
+    // 09:30 Brisbane, still UTC+10, is 23:30 UTC the previous day.
+    assert.match(buildFeed([event({ kickOff: '09:30' })], OPTIONS), /DTSTART:20260703T233000Z/);
+  });
+
+  await t.test('converts correctly across a daylight-saving boundary, for a zone that has one', () => {
+    // Brisbane never needs this, but the conversion is general rather than
+    // hardcoded to a zone that happens not to change — Sydney observes AEST
+    // (UTC+10) in July and AEDT (UTC+11) in January, so the same 10:00
+    // kick-off lands on a different UTC minute depending on the date.
+    const july = buildFeed([event({ playedOn: '2026-07-04' })], { ...OPTIONS, timeZone: 'Australia/Sydney' });
+    const january = buildFeed([event({ playedOn: '2026-01-10' })], { ...OPTIONS, timeZone: 'Australia/Sydney' });
+    assert.match(july, /DTSTART:20260704T000000Z/);
+    assert.match(january, /DTSTART:20260109T230000Z/);
   });
 
   await t.test('escapes a venue that contains a comma', () => {

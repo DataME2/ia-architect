@@ -10,6 +10,8 @@ import { loadVouchers } from '../../../data/vouchers.ts';
 import { RULE_TITLE, childCard, remainingFigure, selectChild, type Tone } from '../../../web/household-view.ts';
 import { ROLE_HUE, nextFixture, shortDate } from '../../../web/me-view.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
+import { loadSubscription } from '../../../data/calendar.ts';
+import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
 import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
 import { ComingSoon, FixtureCard, Panel, WorkspaceHead } from './shared.tsx';
 
@@ -87,6 +89,14 @@ export async function GuardianWorkspace({
   const designations = await loadFamilyDesignations(
     client, link.clubId, cards.map((c) => c.personId), today,
   );
+
+  // The calendar feed, from the guardian's side (scope 41, BR33) — one
+  // subscription per child (#83), so this reads whichever child is
+  // selected above rather than the whole household at once. Offered
+  // unconditionally, the same way the panel below is: a child with no
+  // appointments yet gets an honest empty feed rather than the panel
+  // silently disappearing because there is nothing in it today (BR65).
+  const subscription = await loadSubscription(client, link.clubId, card.personId);
 
   const firstBlocker = card.blockers[0];
   const guardianRecorded = child.outcomes.some((o) => o.ruleId === 'BR1' && o.status === 'pass');
@@ -254,6 +264,24 @@ export async function GuardianWorkspace({
           </Panel>
         </div>
       </div>
+
+      <Panel title={`${card.name}'s calendar (BR30–BR34)`}>
+        <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
+          An official under 18 does not hold their own calendar feed &mdash; if {card.name} is ever
+          appointed to officiate, this is where you subscribe to see it in the calendar you already use
+          (Gmail, Yahoo, Outlook, or Apple Calendar all work the same way).{' '}
+          <span className="mono" style={{ fontSize: '0.7rem' }}>
+            BR33
+          </span>
+        </p>
+        <CalendarPanel
+          clubId={link.clubId}
+          personId={card.personId}
+          subscriptionId={subscription?.id ?? null}
+          subscribed={subscription !== null && subscription.revokedAt === null}
+          rotatedAt={subscription?.rotatedAt ?? null}
+        />
+      </Panel>
     </>
   );
 }
