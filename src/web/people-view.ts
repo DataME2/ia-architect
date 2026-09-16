@@ -139,49 +139,57 @@ export function buildDirectory(
 }
 
 /**
- * Substring search over name and email.
+ * A search box's text as a safe `ILIKE` pattern — escaped, wrapped in `%`,
+ * or `null` for nothing typed.
  *
- * Matches the legal name as well as the displayed one: a registrar looking
- * for the child the federation rejected is holding the legal name, which
- * may be the one name not on the screen (BR55).
+ * Two separate concerns, both real. **`%` and `_` are `ILIKE` wildcards**:
+ * without escaping, searching for "50%" would match anything, not the
+ * literal text a registrar typed. **`,`, `(`, `)`, and `"` break the
+ * `.or()` filter string** the data layer builds this into — PostgREST reads
+ * commas as separating one condition from the next, so an unescaped one
+ * would silently turn "Smith, John" into two conditions, or fail the
+ * request outright. Those four are stripped rather than escaped: a name
+ * containing one is vanishingly rare, and dropping the character still
+ * finds the record on everything either side of it — a broken search would
+ * not.
  */
-export function searchDirectory(
-  summaries: readonly PersonSummary[],
-  query: string,
-): readonly PersonSummary[] {
-  const needle = query.trim().toLowerCase();
-  if (needle === '') return summaries;
-  return summaries.filter(
-    (s) =>
-      s.displayName.toLowerCase().includes(needle) ||
-      s.legalName.toLowerCase().includes(needle) ||
-      (s.email !== null && s.email.toLowerCase().includes(needle)),
-  );
+export function ilikePattern(query: string): string | null {
+  const trimmed = query.trim();
+  if (trimmed === '') return null;
+  const escaped = trimmed
+    .replace(/[,()"]/g, '')
+    .replace(/[\\%_]/g, (c) => `\\${c}`);
+  return `%${escaped}%`;
 }
 
-/** How many people hold each role, for the directory's summary line. */
-export function roleCounts(
-  summaries: readonly PersonSummary[],
-): ReadonlyMap<SeasonRole, number> {
-  const counts = new Map<SeasonRole, number>(SEASON_ROLES.map((r) => [r, 0]));
-  for (const summary of summaries) {
-    for (const role of summary.roles) counts.set(role, (counts.get(role) ?? 0) + 1);
-  }
-  return counts;
+export interface RoleSummary {
+  readonly total: number;
+  readonly byRole: ReadonlyMap<SeasonRole, number>;
+  /**
+   * Holding no role this season — either last season's player who has not
+   * come back, or a record created by mistake. Both are things a registrar
+   * should be able to find, and neither is visible from a list of
+   * registrations.
+   */
+  readonly unrostered: number;
 }
 
 /**
- * People holding no role in the selected season.
- *
- * Worth its own question rather than a filter option: a Person with no role
- * is either last season's player who has not come back, or a record created
- * by mistake. Both are things a registrar should be shown, and neither is
- * visible from a list of registrations.
+ * The directory's summary line, computed from role rows alone rather than
+ * from a built directory — the count a registrar wants does not need every
+ * Person's name, email and guardians fetched first just to be discarded.
  */
-export function withoutRole(
-  summaries: readonly PersonSummary[],
-): readonly PersonSummary[] {
-  return summaries.filter((s) => s.roles.length === 0);
+export function summariseRoles(
+  totalPeople: number,
+  roles: readonly PersonRole[],
+): RoleSummary {
+  const byRole = new Map<SeasonRole, number>(SEASON_ROLES.map((r) => [r, 0]));
+  const rostered = new Set<string>();
+  for (const role of roles) {
+    byRole.set(role.role, (byRole.get(role.role) ?? 0) + 1);
+    rostered.add(role.personId);
+  }
+  return { total: totalPeople, byRole, unrostered: Math.max(0, totalPeople - rostered.size) };
 }
 
 /**
@@ -195,6 +203,54 @@ export function parseSeasonRole(value: unknown): SeasonRole | null {
   return typeof value === 'string' && (SEASON_ROLES as readonly string[]).includes(value)
     ? (value as SeasonRole)
     : null;
+}
+
+/** The sentinel the "no role" filter option posts — not a `SeasonRole`. */
+export const UNROSTERED = 'unrostered';
+
+/** A role filter from a form: a real season role, `UNROSTERED`, or `null` for "every role". */
+export function parseRoleFilter(value: unknown): SeasonRole | typeof UNROSTERED | null {
+  if (value === UNROSTERED) return UNROSTERED;
+  return parseSeasonRole(value);
+}
+
+export const PAGE_SIZE = 50;
+
+export interface PageInfo {
+  readonly page: number;
+  readonly pageSize: number;
+  readonly totalCount: number;
+}
+
+/**
+ * A page number from a query string, or `1`.
+ *
+ * A page is a person's own bookmark, not a fact the server can trust: a
+ * stale link, a hand-edited URL, or `?page=-4` all arrive as `unknown`
+ * here, and the honest response to any of them is the first page rather
+ * than an empty query or a crash.
+ */
+export function parsePage(value: unknown): number {
+  // `Number(...)`, not `parseInt`: parseInt truncates "2.5" to 2 instead of
+  // rejecting it, which would make an off-by-a-fraction URL look valid.
+  const n = typeof value === 'string' ? Number(value) : NaN;
+  return Number.isInteger(n) && n > 0 ? n : 1;
+}
+
+/** How many pages a count divides into, at least one even when the count is zero. */
+export function pageCount(totalCount: number, pageSize: number = PAGE_SIZE): number {
+  return Math.max(1, Math.ceil(totalCount / pageSize));
+}
+
+/** A requested page, pulled back inside `[1, pageCount]` rather than showing nothing. */
+export function clampPage(page: number, totalCount: number, pageSize: number = PAGE_SIZE): number {
+  return Math.min(Math.max(1, page), pageCount(totalCount, pageSize));
+}
+
+/** The `from`/`to` pair `.range()` wants, zero-indexed and inclusive on both ends. */
+export function rangeFor(page: number, pageSize: number = PAGE_SIZE): { readonly from: number; readonly to: number } {
+  const from = (page - 1) * pageSize;
+  return { from, to: from + pageSize - 1 };
 }
 
 /**
