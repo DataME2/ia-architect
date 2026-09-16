@@ -55,7 +55,7 @@ trigger rather than by the screen that creates it.
 | Plateau | State |
 | ------- | ----- |
 | **Baseline** (before) | A referee checks a screen to find out where they are on Saturday, or does not, and misses a match. Decision 4 has been accepted and unimplemented for fifteen months |
-| **Target** (delivered) | A referee subscribes once in Google, Outlook or Apple Calendar. Appointments appear and update on the client's own refresh. The URL is rotatable and revocable, a minor's belongs to their guardian, and the events name nobody else |
+| **Target** (delivered) | A referee subscribes once in Gmail, Yahoo, Outlook or Apple Calendar. Appointments appear and update on the client's own refresh. The URL is rotatable and revocable, a minor's belongs to their guardian **and the guardian's own workspace can actually reach it**, and the events name nobody else |
 
 ## Work packages and deliverables
 
@@ -90,13 +90,29 @@ trigger rather than by the screen that creates it.
 
 ## Gap notes
 
-- **No `VTIMEZONE` component is emitted.** Events carry
-  `DTSTART;TZID=Australia/Brisbane` and rely on the client resolving the
-  IANA name, which Google, Apple and modern Outlook all do. A strict RFC
-  5545 reader is entitled to reject that. Emitting a correct `VTIMEZONE`
-  means shipping transition rules per zone, which is a library's job rather
-  than a hand-written one, and the pilot club's zone has no daylight saving
-  to get wrong.
+- **Resolved — no `VTIMEZONE` component is needed after all.** The original
+  concern stands: `DTSTART;TZID=Australia/Brisbane` with no `VTIMEZONE`
+  block is not a complete document per §3.2.19, and which clients tolerate
+  the omission varies. A family reported exactly this as "the calendar
+  isn't working" — not a rejected subscription, but silence, because a
+  guardian's workspace had never offered the subscribe control at all
+  (below). Fixing that surfaced the format question too, and the actual fix
+  sidesteps it rather than shipping a transition-rule library: `DTSTART` is
+  now a `Z`-suffixed **UTC** instant, computed from `Intl`'s own offset for
+  the zone at that exact date rather than a hardcoded one — correct even
+  for a zone that observes daylight saving, though the pilot club's does
+  not. No `VTIMEZONE`, no per-zone transition table, and no
+  client-dependent reading: Gmail, Yahoo, Outlook and Apple Calendar all
+  convert a UTC instant to the viewer's own zone the same way.
+- **Resolved — the guardian's workspace never rendered the subscribe
+  control.** WP3 built it once, generically (`CalendarPanel`), and
+  `RefereeWorkspace` used it; `GuardianWorkspace` never imported it, so a
+  guardian holding a minor official's feed under BR33 had no screen to
+  create, rotate or revoke it from — only the referee's own workspace
+  offered the button the backend had supported since WP1. Now shown for
+  whichever child is currently selected, unconditionally, the same way the
+  designations panel already is (BR65): an honest empty feed rather than
+  the control disappearing because there is nothing in it yet.
 - **The refresh cycle is the client's**, and Google's is famously slow —
   hours, sometimes longer. A cancellation is therefore *eventually* visible,
   which is exactly why BR34 makes the platform's own record authoritative

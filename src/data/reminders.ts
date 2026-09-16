@@ -15,7 +15,14 @@ import { guardianReminder } from '../domain/messaging/templates.ts';
 import type { RuleOutcome } from '../domain/rules/types.ts';
 import { todayIn } from '../web/today.ts';
 import { loadGuardianCandidates } from './family.ts';
-import { sendMessage, subscriberFor, toRecipient, unsubscribeUrlFor } from './messaging.ts';
+import {
+  messagingUnavailableReason,
+  sendMessage,
+  subscriberFor,
+  toRecipient,
+  unsubscribeUrlFor,
+  type SubscriberRow,
+} from './messaging.ts';
 
 export interface ReminderOutcome {
   readonly to: string;
@@ -60,14 +67,24 @@ export async function sendRegistrationReminder(
       continue;
     }
 
-    const subscriber = await subscriberFor(client, clubId, guardian.personId, email);
-    if (subscriber === null) {
-      results.push({ to: email, outcome: 'failed', detail: 'Could not record them as contactable.' });
+    let subscriber: SubscriberRow;
+    let unsubscribeUrl: string;
+    try {
+      const found = await subscriberFor(client, clubId, guardian.personId, email);
+      if (found === null) {
+        results.push({ to: email, outcome: 'failed', detail: 'Could not record them as contactable.' });
+        continue;
+      }
+      subscriber = found;
+      unsubscribeUrl = unsubscribeUrlFor(subscriber.id, subscriber.unsubscribe_salt);
+    } catch (error) {
+      const reason = messagingUnavailableReason(error);
+      if (reason === null) throw error;
+      results.push({ to: email, outcome: 'failed', detail: reason });
       continue;
     }
 
     const recipient = toRecipient(subscriber, guardian.name);
-    const unsubscribeUrl = unsubscribeUrlFor(subscriber.id, subscriber.unsubscribe_salt);
     const { subject, body } = guardianReminder.compose(
       { guardianName: guardian.name, childName, outcomes },
       { clubName, unsubscribeUrl, asAt: todayIn() },

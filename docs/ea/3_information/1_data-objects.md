@@ -53,6 +53,8 @@ de-scoping the table.
 | **`arrears_action`** | Arrears Follow-up | The Treasurer's recorded response to a prior-season debt (BR79): `person_id`, `season_id`, `action` ∈ {`payment_requested`, `amendment_recorded`}, `reason`. **Append-only, like `payment`**, and `reason` is enforced twice — a check constraint requiring it non-empty whenever `action = 'amendment_recorded'`, holding even against a caller that bypasses `app_record_arrears_action` and inserts directly. One row per attempt rather than a status column, so a family chased twice shows two entries, never one edited note |
 | **`committee_term`** | Committee Term | `agm_held_on`, `starts_on`, `next_agm_due_on`. The last is a column rather than arithmetic, deliberately (BR86) |
 | **`committee_position`** | Committee Position | One person, one office, one term. A trigger refuses a holder who was not an adult at the term's start (BR87). `resigned_on` records an early exit, distinct from the term simply ending |
+| **`committee_resolution`** | Committee Resolution | `decided_on`, `summary`, `moved_by_person_id` (nullable), `category` (`general` \| `voucher_program`). **Append-only** — no update or delete policy, the same absence that makes `payment` one (BR123). `term_id` carries no `(club_id, id)` foreign key because `committee_term` has none to offer; a trigger checks the club match instead, the same settlement `committee_position` (0011) already made |
+| **`club_voucher_program_enablement`** | Club Voucher Program Enablement | `program`, `resolution_id`. A trigger refuses a `resolution_id` that is not this club's own or not recorded with category `voucher_program` (BR21). A second trigger on `registration_voucher` itself refuses any `program` this table has no enabled row for, matched trimmed and lower-cased — found completely unenforced since migration 0008 |
 | **`team`** | Team | Club- and season-scoped, unique on name within a season |
 | **`team_member`** | Team Membership | One row per person per team per role, so a parent who also coaches is two rows and one Person |
 | **`clearance`** | Clearance | `kind`, `identifier`, `issued_on`, `expires_on`, and **`verified_at` separately from the card number** — null means someone typed a number and nobody checked it (BR19). **`reminder_sent_at`** (BR51) is kept separate from `verified_at` for the same reason: "we reminded the Secretary" and "somebody re-verified it" are different facts, and folding them into one column would make a reminder read as a check. **`file_path`** holds a scan of the card in a private bucket narrower than the vouchers one: this is a government identity document, so only admin and registrar reach it. Superseded cards are kept rather than overwritten. **Read is narrower than the rest of the slice**: admin and registrar only, because a card number is a safeguarding record rather than ordinary club information, while the roster it gates is readable by any member |
@@ -263,6 +265,25 @@ parameter they can vary to widen it.
 BR34 is enforced by absence: no function accepts calendar data, so editing
 or deleting the event in a personal calendar accepts, declines and cancels
 nothing. The feed is one-way because there is no other way for it to be.
+
+## An in-app inbox, kept apart from Communications
+
+Added by [scope 58](../../scope/58_a_bell_for_the_referee_coordinator.md).
+Deliberately not a third row under **Communications** above:
+`message_subscriber`/`message_log` govern a consent-bound message to a data
+subject outside the platform, and this is a fact about a signed-in
+account's own inbox — the same distinction BR146 already draws for an
+alert to the platform's own operators.
+
+| Data Object | Realises | Notes |
+| ----------- | -------- | ----- |
+| **`notification`** | Notification | A headline, optional detail, and a link, addressed to one `recipient_user_id` — a specific account, not a role, for the same reason `calendar_subscription.holder_person_id` names a person rather than "whoever is coach this week." Created only by a `security definer` function that has already verified the event it announces; no insert or delete policy exists for any client role, and the one update policy lets the recipient mark their own row read and nothing else |
+
+BR148 wires exactly one event — an officiating interest declared — to
+every account holding admin or coordinator at that club. BR42's coordinator
+notification and BR64's fixture-change notification remain the unwired
+email functions `src/data/notifications.ts` has carried since scope 36;
+whether they also gain a row here is the next initiative's question.
 
 ## Not yet modeled
 
