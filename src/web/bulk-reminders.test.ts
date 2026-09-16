@@ -130,6 +130,21 @@ describe('summarise — never one averaged verdict', () => {
     assert.equal(summarise({ families: 0, sent: 0, withheld: 0 }, 0), 'Nobody needed chasing.');
   });
 
+  it('does not say "nobody needed chasing" when everybody was attempted and nobody was reached', () => {
+    // A total send failure — every recipient withheld and nobody delivered
+    // — is the exact shape a missing site URL or mail provider produces.
+    // Reporting it as "nobody needed chasing" would read as a quiet
+    // success when it is the opposite: a plan with people to chase and a
+    // tally that reached none of them.
+    const line = summarise({ families: 0, sent: 0, withheld: 5 }, 0);
+    assert.notEqual(line, 'Nobody needed chasing.');
+    assert.match(line, /5 recipients could not be written to/);
+  });
+
+  it('still names the skipped when a total send failure is combined with a skip', () => {
+    assert.match(summarise({ families: 0, sent: 0, withheld: 2 }, 1), /1 more skipped, listed below/);
+  });
+
   it('reads in the singular for one family and one message', () => {
     assert.equal(
       summarise({ families: 1, sent: 1, withheld: 1 }, 1),
