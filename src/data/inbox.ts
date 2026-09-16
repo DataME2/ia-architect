@@ -10,7 +10,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { InboxNotification } from '../web/inbox-view.ts';
-import { QueryError } from './queries.ts';
 
 interface NotificationRow {
   readonly id: string;
@@ -38,6 +37,16 @@ function toNotification(row: NotificationRow): InboxNotification {
  * The signed-in account's own notifications. RLS already narrows this to
  * `recipient_user_id = auth.uid()` — the explicit filter is here so the
  * call says what it means, the same reason `loadFamilyDesignations` gives.
+ *
+ * **Fails to an empty inbox rather than throwing**, the same choice
+ * `loadFeed` makes for the calendar feed. This is called from the registrar
+ * layout — every page, every request — so a query that cannot be served
+ * (a transient fault, a migration not yet applied) must not take the whole
+ * section down for a bell that is, by its own design, "what was true when
+ * this layout rendered": the honest response to not knowing is to show
+ * nothing, not to crash. `supabase/tests/51_a_bell_for_the_referee_coordinator.sql`
+ * proves the policy itself is correct; this is only about what a caller
+ * that policy has never seen gets back when something else goes wrong.
  */
 export async function loadNotifications(
   client: SupabaseClient,
@@ -50,7 +59,7 @@ export async function loadNotifications(
     .order('created_at', { ascending: false })
     .limit(50);
 
-  if (error !== null) throw new QueryError('notification', error.message);
+  if (error !== null) return [];
   return (data as NotificationRow[]).map(toNotification);
 }
 

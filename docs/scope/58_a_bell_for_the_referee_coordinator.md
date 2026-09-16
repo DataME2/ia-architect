@@ -56,6 +56,26 @@ coordinator and would otherwise have nobody told at all. Registrar is left
 out deliberately — registration is a different concern from officiating,
 and a registrar who wants to see the queue still can.
 
+## A read failure degrades the bell, not the layout
+
+`loadNotifications` is called from `src/app/registrar/layout.tsx`, which
+wraps every registrar page — so unlike an ordinary data-layer read, an
+unhandled error here would not fail one screen, it would fail all of them,
+for every signed-in club officer, at once. Caught while checking this
+initiative against the same crash class a sibling initiative found in the
+messaging paths (a missing `NEXT_PUBLIC_SITE_URL` crashing a reminder send
+instead of failing gracefully): `loadNotifications` threw a `QueryError` on
+any Supabase failure, with nothing above it to catch one.
+
+It now fails to an empty inbox instead, the same choice `loadFeed` already
+makes for the calendar feed. That is the right trade for what the bell is:
+"what was true when this layout rendered," by its own design in
+`NotificationBell.tsx`'s doc comment — the honest answer to *the query
+could not be served* is to show nothing, not to take the section down. The
+policy itself is proved correct by `supabase/tests/51_a_bell_for_the_referee_coordinator.sql`,
+which is a separate question from what a caller sees when something else
+goes wrong.
+
 ## EA alignment (assessed top-down before implementing)
 
 | Layer | Impact |
@@ -78,7 +98,7 @@ and a registrar who wants to see the queue still can.
 | WP | Deliverable | State |
 | -- | ----------- | ----- |
 | **WP1** | Migration 0050 — `notification` table, RLS (`recipient_user_id = auth.uid()` for both read and mark-read, no insert/delete policy for any client role), and `app_declare_interest` reproduced with the fan-out to admin and coordinator | **Delivered** |
-| **WP2** | `src/data/inbox.ts` — `loadNotifications`, `markNotificationRead` | **Delivered** |
+| **WP2** | `src/data/inbox.ts` — `loadNotifications` (fails to an empty inbox rather than throwing, since it runs on every registrar page), `markNotificationRead` | **Delivered** |
 | **WP3** | `src/web/inbox-view.ts` — `unreadCount`, `sortedByRecency`, `stamp`, and their unit tests | **Delivered** |
 | **WP4** | `NotificationBell.tsx` and `inbox-actions.ts` — the bell, its dropdown, and marking one read | **Delivered** |
 | **WP5** | `src/app/registrar/layout.tsx` wired to fetch and render it for every signed-in club officer | **Delivered** |
