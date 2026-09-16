@@ -1,9 +1,11 @@
 import { redirect } from 'next/navigation';
 import { Suspense, type ReactNode } from 'react';
 
+import { loadNotifications } from '../../data/inbox.ts';
 import { loadTenantContext } from '../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
 import { isDemoClub } from '../../web/nav.ts';
+import { NotificationBell } from './_components/NotificationBell.tsx';
 import { RegistrarNav } from './_components/RegistrarNav.tsx';
 import { SessionStrip } from './_components/SessionStrip.tsx';
 
@@ -47,6 +49,13 @@ export default async function RegistrarLayout({
     platform = data === true;
   }
 
+  // 0050. Fetched once with the page — the bell reads what was true when
+  // this layout rendered, not a live feed; the same "the client's own
+  // refresh cycle" acceptance the calendar feed makes.
+  const notifications = user !== null && tenant !== null
+    ? await loadNotifications(client, user.id)
+    : [];
+
   return (
     <>
       {demo && (
@@ -56,7 +65,12 @@ export default async function RegistrarLayout({
           but nothing here is a real child.
         </p>
       )}
-      <SessionStrip user={user} tenant={tenant} demo={demo} platform={platform} />
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+        <div style={{ flex: 1 }}>
+          <SessionStrip user={user} tenant={tenant} demo={demo} platform={platform} />
+        </div>
+        {user !== null && tenant !== null && <NotificationBell notifications={notifications} />}
+      </div>
       {user !== null && tenant !== null ? (
         <div className="registrar-shell">
           <div className="registrar-content">{children}</div>

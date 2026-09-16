@@ -121,3 +121,4 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Data Quality Issue** | A deterministic-rule violation (duplicate, missing field, expired document, …) surfaced for human review |
 | **Audit Event** | A record of a change, exception, or approval, for traceability |
 | **Communication** | A transactional message or reminder, whether human-authored or Assistant-drafted (see [1_business-actors-and-roles.md](./1_business-actors-and-roles.md#ai-actor)) |
+| **Notification** | An entry in a specific account's own in-app inbox — a headline, optional detail, and where to go to act on it — created only by a deterministic event the platform has already verified, read only by the account it names, and never suppressible or emailed. Distinct from a **Communication**: that is a consent-bound message to a data subject outside the platform (C7, BR127–BR131); this is a fact about a signed-in staff member's own queue (BR148) |

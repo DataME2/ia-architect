@@ -266,6 +266,25 @@ BR34 is enforced by absence: no function accepts calendar data, so editing
 or deleting the event in a personal calendar accepts, declines and cancels
 nothing. The feed is one-way because there is no other way for it to be.
 
+## An in-app inbox, kept apart from Communications
+
+Added by [scope 58](../../scope/58_a_bell_for_the_referee_coordinator.md).
+Deliberately not a third row under **Communications** above:
+`message_subscriber`/`message_log` govern a consent-bound message to a data
+subject outside the platform, and this is a fact about a signed-in
+account's own inbox — the same distinction BR146 already draws for an
+alert to the platform's own operators.
+
+| Data Object | Realises | Notes |
+| ----------- | -------- | ----- |
+| **`notification`** | Notification | A headline, optional detail, and a link, addressed to one `recipient_user_id` — a specific account, not a role, for the same reason `calendar_subscription.holder_person_id` names a person rather than "whoever is coach this week." Created only by a `security definer` function that has already verified the event it announces; no insert or delete policy exists for any client role, and the one update policy lets the recipient mark their own row read and nothing else |
+
+BR148 wires exactly one event — an officiating interest declared — to
+every account holding admin or coordinator at that club. BR42's coordinator
+notification and BR64's fixture-change notification remain the unwired
+email functions `src/data/notifications.ts` has carried since scope 36;
+whether they also gain a row here is the next initiative's question.
+
 ## Not yet modeled
 
 Competition **Regulations** as documents (the catalogue above holds names,
