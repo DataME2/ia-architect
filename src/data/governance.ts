@@ -99,6 +99,39 @@ export async function loadGovernance(
   };
 }
 
+const EMPTY_GOVERNANCE: Governance = {
+  terms: [],
+  members: [],
+  people: new Map(),
+  resolutions: [],
+  voucherPrograms: [],
+};
+
+/**
+ * `loadGovernance`, but never throws — for a caller where committee data
+ * only *labels* a screen whose real purpose is something else, rather than
+ * being the reason the screen exists.
+ *
+ * `/me` reads this to decide whether to add a "Committee" workspace, and
+ * `CommitteeWorkspace` reads it to fill that workspace once added — in
+ * both cases a query fault (a migration not yet applied, a transient
+ * error) has nothing to do with the player card or calendar the rest of
+ * the page is showing, and must not take the whole page down for it. The
+ * registrar governance screen calls `loadGovernance` directly instead: an
+ * empty read there must mean "nothing recorded," never "the query failed
+ * and this is what failure happens to look like."
+ */
+export async function loadGovernanceOrEmpty(
+  client: SupabaseClient,
+  clubId: string,
+): Promise<Governance> {
+  try {
+    return await loadGovernance(client, clubId);
+  } catch {
+    return EMPTY_GOVERNANCE;
+  }
+}
+
 export type GovernanceResult =
   | { readonly ok: true }
   | { readonly ok: false; readonly error: string };

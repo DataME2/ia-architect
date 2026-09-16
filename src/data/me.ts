@@ -23,7 +23,7 @@ import type { Person } from '../domain/types.ts';
 import { guardianScope, holdsCommitteeRole, type FixtureLike } from '../web/me-view.ts';
 import { displayNameFor, fullLegalName } from '../web/queue-view.ts';
 import { buildContexts, type RoleHolding, type RoleKey } from '../web/role-context.ts';
-import { loadGovernance } from './governance.ts';
+import { loadGovernanceOrEmpty } from './governance.ts';
 import { toPerson } from './mappers.ts';
 import { QueryError } from './queries.ts';
 import type {
@@ -185,7 +185,7 @@ export async function loadMe(client: SupabaseClient, userId: string, today: stri
     let myPositions: string[] = [];
 
     if (myPositionRows.length > 0) {
-      const governance = await loadGovernance(client, link.club_id);
+      const governance = await loadGovernanceOrEmpty(client, link.club_id);
       term = governingTerm(governance.terms, today);
       if (term !== null) {
         const governing = term;
@@ -249,7 +249,7 @@ export async function loadMe(client: SupabaseClient, userId: string, today: stri
       // Somebody admitted by an access role alone still needs it, for the
       // overdue-AGM count — so fetch it here if it has not been.
       const governingNow =
-        term ?? governingTerm((await loadGovernance(client, link.club_id)).terms, today);
+        term ?? governingTerm((await loadGovernanceOrEmpty(client, link.club_id)).terms, today);
       if (governingNow !== null) {
         // The office names the workspace where there is one. Somebody
         // admitted by an access role holds no office, and the rail says

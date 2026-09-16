@@ -106,3 +106,11 @@ would refuse a voucher a registrar had every reason to think was approved.
   answer names for now; a future caller adds its own category and citing
   check when it exists, rather than this initiative guessing its shape in
   advance.
+
+**Addendum ([scope 61](./61_a_committee_office_that_does_not_take_down_me.md)):**
+a `committee_resolution` read that failed for any reason — including a
+schema cache not yet reflecting this migration — crashed the unrelated
+`/me` personal workspace for any account holding a committee office, since
+`loadGovernance` was called there only to label or fill a workspace tab.
+Fixed there with `loadGovernanceOrEmpty`; this initiative's own tables and
+the registrar governance screen's behaviour are unchanged.

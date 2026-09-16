@@ -7,7 +7,7 @@ import {
   termStatus,
   vacantOffices,
 } from '../../../domain/governance/term.ts';
-import { loadGovernance } from '../../../data/governance.ts';
+import { loadGovernanceOrEmpty } from '../../../data/governance.ts';
 import { countVouchersAwaiting, type ClubLink } from '../../../data/me.ts';
 import { displayNameFor } from '../../../web/queue-view.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
@@ -27,7 +27,7 @@ export async function CommitteeWorkspace({
   readonly link: ClubLink;
   readonly today: string;
 }) {
-  const governance = await loadGovernance(client, link.clubId);
+  const governance = await loadGovernanceOrEmpty(client, link.clubId);
   const term = governingTerm(governance.terms, today);
   const status = term === null ? null : termStatus(term, today);
   const members = term === null ? [] : serving(governance.members, today).filter((m) => m.termId === term.id);
