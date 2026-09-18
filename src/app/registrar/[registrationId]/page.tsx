@@ -9,10 +9,12 @@ import {
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { loadFinance } from '../../../data/finance.ts';
 import { loadGuardianCandidates } from '../../../data/family.ts';
+import { loadPlayerInvitationStatus } from '../../../data/player-invitation.ts';
 import { loadVouchers, voucherFileUrl } from '../../../data/vouchers.ts';
 import { voucherSummary } from '../../../domain/finance/voucher.ts';
 import { playEligibility } from '../../../domain/finance/eligibility.ts';
 import { planState } from '../../../domain/finance/plan.ts';
+import { ageAt } from '../../../domain/types.ts';
 import { formatCents } from '../../../web/money.ts';
 import { METHOD_LABEL } from '../../../web/plan-view.ts';
 import { failing } from '../../../web/queue-view.ts';
@@ -28,6 +30,7 @@ import {
   verifyVoucherAction,
 } from '../actions.ts';
 import { GuardianInvite } from './GuardianInvite.tsx';
+import { PlayerInvite } from './PlayerInvite.tsx';
 import { ReminderPanel } from './ReminderPanel.tsx';
 import { AttachVoucherForm } from './VoucherPanel.tsx';
 import { OutstandingForm } from './OutstandingForm.tsx';
@@ -97,6 +100,11 @@ export default async function RegistrationDetailPage({
   // reminder is needed most when it is not, so the guardians have to be
   // known either way (scope 36, WP4).
   const guardianCandidates = await loadGuardianCandidates(client, tenant.clubId, person.id);
+  // BR150: loaded whatever the age or status, the same reason the guardian
+  // candidates are — the panel below says why invitation is not yet
+  // possible rather than the load itself deciding.
+  const playerInvitationStatus = await loadPlayerInvitationStatus(client, tenant.clubId, person.id);
+  const playerIsOldEnough = ageAt(person.dateOfBirth, todayIn()) >= 13;
 
   const finance = await loadFinance(client, tenant.clubId, registrationId);
   const vouchers = await loadVouchers(client, tenant.clubId, registrationId);
@@ -252,6 +260,24 @@ export default async function RegistrationDetailPage({
           </p>
         ) : (
           <GuardianInvite registrationId={registrationId} guardians={guardianCandidates} />
+        )}
+      </section>
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>Player workspace (BR150)</h3>
+        {entry.status !== 'COMPLETE' || !playerIsOldEnough ? (
+          <p className="hint" style={{ margin: 0 }}>
+            {entry.status !== 'COMPLETE'
+              ? 'The player can be invited to their own workspace once this registration is COMPLETE.'
+              : 'BR63 sets thirteen as the floor for a player holding their own account — too young to invite yet.'}
+          </p>
+        ) : (
+          <PlayerInvite
+            registrationId={registrationId}
+            personId={person.id}
+            email={person.email}
+            status={playerInvitationStatus}
+          />
         )}
       </section>
 

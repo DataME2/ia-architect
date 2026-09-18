@@ -139,6 +139,18 @@ export interface PlayerRecordCorrectionRow {
   review_note: string | null;
 }
 
+/** BR150 (scope 64): a recorded intent to invite a player to their own workspace, before their account exists. */
+export interface PlayerInvitationRow {
+  id: string;
+  club_id: string;
+  person_id: string;
+  email: string;
+  invited_by_user_id: string;
+  invited_at: InstantString;
+  claimed_user_id: string | null;
+  claimed_at: InstantString | null;
+}
+
 export interface RegistrationRow {
   id: string;
   club_id: string;

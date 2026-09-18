@@ -50,6 +50,11 @@ export async function GET(request: NextRequest) {
   // needed to tell an officer's link from a guardian's.
   await client.rpc('claim_family_access');
 
+  // A player invited under scope 64/BR150 has no club_membership either,
+  // for the identical reason. Same shape, same reason it costs nothing to
+  // call unconditionally.
+  await client.rpc('claim_player_access');
+
   // A reset link asks to land on the password page; an invitation names
   // nothing and falls back to the club — or to the console, for the one
   // identity that has no club and never will. `landingFor` keeps this from
