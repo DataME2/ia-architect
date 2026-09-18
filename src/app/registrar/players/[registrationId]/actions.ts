@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 
 import { createRequestClient, currentUser } from '../../../../data/server.ts';
 import { loadTenantContext } from '../../../../data/queries.ts';
+import { reviewCorrection } from '../../../../data/player-record-correction.ts';
 import { formFailed, formOk, type FormResult } from '../../../../web/form-result.ts';
 
 const POSITIONS = ['goalkeeper', 'defender', 'midfielder', 'forward', 'utility'];
@@ -132,4 +133,33 @@ export async function recordAppearanceAction(
 
   revalidatePath(`/registrar/players/${registrationId}`);
   return formOk('Appearance recorded.');
+}
+
+/**
+ * Confirm or decline a player's own proposed correction (BR148).
+ *
+ * The verdict is the database's — `app_review_player_record_correction`
+ * checks the role and re-checks the correction is still pending. Nothing
+ * here writes `person` or `player_profile` directly.
+ */
+export async function reviewPlayerRecordCorrectionAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const registrationId = String(formData.get('registrationId') ?? '');
+  const correctionId = String(formData.get('correctionId') ?? '');
+  if (correctionId === '') return formFailed('No correction.');
+
+  const accept = formData.get('accept') === 'yes';
+  const note = String(formData.get('note') ?? '');
+
+  const client = await createRequestClient();
+  const user = await currentUser(client);
+  if (user === null) return formFailed('Not signed in.');
+
+  const result = await reviewCorrection(client, correctionId, accept, note === '' ? null : note);
+
+  revalidatePath(`/registrar/players/${registrationId}`);
+  if ('error' in result) return formFailed(result.error);
+  return formOk(result.outcome === 'confirmed' ? 'Confirmed and applied.' : 'Declined.');
 }
