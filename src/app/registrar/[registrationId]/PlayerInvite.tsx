@@ -39,9 +39,9 @@ export function PlayerInvite({
             <br />
             <span className="cnote">
               {status?.claimedAt != null
-                ? 'Signed in to their own workspace'
+                ? `Signed in to their own workspace (${email ?? 'no email on record'})`
                 : status?.invitedAt != null
-                  ? 'Invited, not yet signed in'
+                  ? `Invited to ${email} — not yet signed in`
                   : email === null
                     ? 'No email address on record'
                     : email}

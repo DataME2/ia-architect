@@ -81,3 +81,24 @@ gets BR63's original number.
 ## Gap notes
 
 - **A player and their guardian can now both be invited, and nothing coordinates the two.** A club inviting a fifteen-year-old and their parent sends two separate links, from two separate places on the same page. That is correct — they are different people with different accounts — but a registrar doing this for the first time may expect one button.
+
+## Addendum: an eighteen-or-over player is invited automatically (September 2026)
+
+A registrar reviewing this panel asked why an adult player still needed
+someone to notice and click Invite. Nothing about BR150's permission
+changes — an eighteen-year-old always could be invited the moment COMPLETE —
+only *who fires it*. `recordOutcomeAction`
+(`src/app/registrar/pack/actions.ts`) now checks, right after a
+`confirmed_present` outcome, whether the person is eighteen or over, has an
+email on file, and has no existing `player_invitation` row; if so it calls
+the same `recordPlayerInvitation` + magic-link send a registrar's own click
+would trigger. A thirteen-to-seventeen-year-old is unaffected — still a
+deliberate click, per BR150 as already written.
+
+No migration, no new RLS: this is application-layer wiring reusing the
+existing BR150 trigger and `claim_player_access()` path verbatim, so
+`supabase/tests/54_player_invitation.sql` already covers what the database
+does with the row this produces. The send is best-effort — a failed email
+here (rate limit, transient SMTP error) leaves the row written and the
+panel's existing Resend button as the recovery path, the same as a manual
+invite that fails to send.
