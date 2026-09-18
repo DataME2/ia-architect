@@ -43,9 +43,9 @@ export function GuardianInvite({
               <br />
               <span className="cnote">
                 {g.claimedAt !== null
-                  ? `Signed in to their workspace`
+                  ? `Signed in to their workspace (${g.email ?? 'no email on record'})`
                   : g.invitedAt !== null
-                    ? `Invited, not yet signed in`
+                    ? `Invited to ${g.email} — not yet signed in`
                     : g.email === null
                       ? 'No email address on record'
                       : g.email}

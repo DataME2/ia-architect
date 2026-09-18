@@ -56,6 +56,25 @@ async function requireTenant() {
 }
 
 /**
+ * The magic-link send, shared by every "invite to a workspace" action
+ * (guardian, player, and the automatic adult-player invite triggered from
+ * `recordOutcomeAction`) — the anon key never creates a session here
+ * (`persistSession: false`), only sends the email.
+ */
+export async function sendWorkspaceMagicLink(email: string): Promise<string | null> {
+  const requestHeaders = await headers();
+  const host = requestHeaders.get('host') ?? 'localhost:3000';
+  const proto = requestHeaders.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
+  const { supabaseUrl, supabaseAnonKey } = readPublicConfig();
+  const anon = createClient(supabaseUrl, supabaseAnonKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { error } = await anon.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: true, emailRedirectTo: `${proto}://${host}/auth/callback` },
+  });
+  return error?.message ?? null;
+}
+
+/**
  * Record that a club officer checked the legal name against a document.
  *
  * BR55. This is the one field the family cannot complete for themselves —
@@ -445,15 +464,7 @@ export async function inviteGuardianAction(
   const result = await recordGuardianInvitation(client, tenant.clubId, guardianPersonId, email, user.id);
   if ('error' in result) return formFailed(result.error);
 
-  const requestHeaders = await headers();
-  const host = requestHeaders.get('host') ?? 'localhost:3000';
-  const proto = requestHeaders.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
-  const { supabaseUrl, supabaseAnonKey } = readPublicConfig();
-  const anon = createClient(supabaseUrl, supabaseAnonKey, { auth: { persistSession: false, autoRefreshToken: false } });
-  const { error: sendError } = await anon.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: true, emailRedirectTo: `${proto}://${host}/auth/callback` },
-  });
+  const sendError = await sendWorkspaceMagicLink(email);
 
   revalidatePath(`/registrar/${registrationId}`);
 
@@ -465,9 +476,9 @@ export async function inviteGuardianAction(
     // Supabase dashboard, which is outside what a registrar's screen can
     // fix by retrying.
     return formFailed(
-      sendError.message.includes('rate limit')
+      sendError.includes('rate limit')
         ? 'Recorded, but too many invitation emails have gone out recently. Wait a few minutes and try again.'
-        : `Recorded, but the email did not send: ${sendError.message}`,
+        : `Recorded, but the email did not send: ${sendError}`,
     );
   }
   return formOk(
@@ -497,23 +508,15 @@ export async function invitePlayerAction(
   const result = await recordPlayerInvitation(client, tenant.clubId, personId, email, user.id);
   if ('error' in result) return formFailed(result.error);
 
-  const requestHeaders = await headers();
-  const host = requestHeaders.get('host') ?? 'localhost:3000';
-  const proto = requestHeaders.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
-  const { supabaseUrl, supabaseAnonKey } = readPublicConfig();
-  const anon = createClient(supabaseUrl, supabaseAnonKey, { auth: { persistSession: false, autoRefreshToken: false } });
-  const { error: sendError } = await anon.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: true, emailRedirectTo: `${proto}://${host}/auth/callback` },
-  });
+  const sendError = await sendWorkspaceMagicLink(email);
 
   revalidatePath(`/registrar/${registrationId}`);
 
   if (sendError !== null) {
     return formFailed(
-      sendError.message.includes('rate limit')
+      sendError.includes('rate limit')
         ? 'Recorded, but too many invitation emails have gone out recently. Wait a few minutes and try again.'
-        : `Recorded, but the email did not send: ${sendError.message}`,
+        : `Recorded, but the email did not send: ${sendError}`,
     );
   }
   return formOk(

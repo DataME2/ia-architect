@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 
 import { buildSubmissionPack } from '../../../domain/submission/build-pack.ts';
 import type { SubmissionState } from '../../../domain/submission/types.ts';
+import { ageAt } from '../../../domain/types.ts';
 import {
   loadPack,
   nextPackVersion,
@@ -13,7 +14,9 @@ import {
   savePack,
 } from '../../../data/packs.ts';
 import { loadPackCandidates, loadTenantContext } from '../../../data/queries.ts';
+import { loadPlayerInvitationStatus, recordPlayerInvitation } from '../../../data/player-invitation.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
+import { sendWorkspaceMagicLink } from '../actions.ts';
 import { todayIn } from '../../../web/today.ts';
 
 async function requireTenant() {
@@ -136,6 +139,39 @@ export async function recordOutcomeAction(formData: FormData): Promise<void> {
     user.id,
   );
 
+  // The federation's confirmation is the only route to COMPLETE (BR60), and
+  // for an adult player that's also the moment BR150 lets them in — so they
+  // don't need a registrar to notice and click "Invite" separately. A minor
+  // is still only invited by an explicit click; see BR150's own scope note.
+  if (outcome === 'confirmed_present') {
+    await autoInviteAdultPlayer(client, tenant.clubId, personId, user.id);
+  }
+
   revalidatePath(`/registrar/pack/${version}`);
   revalidatePath('/registrar');
+}
+
+async function autoInviteAdultPlayer(
+  client: Awaited<ReturnType<typeof requireTenant>>['client'],
+  clubId: string,
+  personId: string,
+  invitedByUserId: string,
+): Promise<void> {
+  const { data: person } = await client
+    .from('person')
+    .select('email, date_of_birth')
+    .eq('club_id', clubId)
+    .eq('id', personId)
+    .maybeSingle();
+  if (person === null || person.email === null) return;
+  if (ageAt(person.date_of_birth, todayIn()) < 18) return;
+
+  const existing = await loadPlayerInvitationStatus(client, clubId, personId);
+  if (existing !== null) return;
+
+  const result = await recordPlayerInvitation(client, clubId, personId, person.email, invitedByUserId);
+  if ('error' in result) return;
+  // Best-effort: the panel's own "Resend" button is the recovery path if
+  // this particular send fails (rate limit, transient SMTP error, ...).
+  await sendWorkspaceMagicLink(person.email);
 }
