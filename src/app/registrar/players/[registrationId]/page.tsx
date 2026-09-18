@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { loadRegistrationDetail, loadSeasons, loadTenantContext } from '../../../../data/queries.ts';
 import { loadAppearances, loadFixtures, loadPlayerProfile } from '../../../../data/performance.ts';
 import { photographUrl } from '../../../../data/photos.ts';
+import { loadPendingCorrection } from '../../../../data/player-record-correction.ts';
 import { createRequestClient, currentUser } from '../../../../data/server.ts';
 import { mostRecentFirst, seasonRecord } from '../../../../domain/performance/season-record.ts';
 import { displayNameFor, fullLegalName } from '../../../../web/queue-view.ts';
@@ -17,6 +18,7 @@ import {
 } from '../../../../web/player-view.ts';
 import { todayIn } from '../../../../web/today.ts';
 import { StatusPill } from '../../../_components/rules.tsx';
+import { CorrectionReview } from './CorrectionReview.tsx';
 import { PhotoCropper } from './PhotoCropper.tsx';
 import { AppearanceForm, PlayerProfileForm } from './PlayerForms.tsx';
 
@@ -61,11 +63,12 @@ export default async function PlayerPage({
   );
   if (detail === null) notFound();
 
-  const [profile, appearances, fixtures, photoUrl] = await Promise.all([
+  const [profile, appearances, fixtures, photoUrl, pendingCorrection] = await Promise.all([
     loadPlayerProfile(client, registrationId),
     loadAppearances(client, registrationId),
     loadFixtures(client, tenant.clubId, season.id),
     photographUrl(client, detail.person.photoPath),
+    loadPendingCorrection(client, registrationId),
   ]);
 
   const record = seasonRecord(appearances);
@@ -175,6 +178,7 @@ export default async function PlayerPage({
         currentPath={detail.person.photoPath}
         playerName={displayNameFor(detail.person)}
       />
+      <CorrectionReview registrationId={registrationId} correction={pendingCorrection} />
       <PlayerProfileForm registrationId={registrationId} profile={profile} />
       <AppearanceForm
         registrationId={registrationId}

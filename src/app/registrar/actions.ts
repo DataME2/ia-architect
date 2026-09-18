@@ -25,6 +25,7 @@ import {
 } from '../../data/finance.ts';
 import { recordArrearsAction, type ArrearsAction } from '../../data/arrears.ts';
 import { recordGuardianInvitation } from '../../data/family.ts';
+import { recordPlayerInvitation } from '../../data/player-invitation.ts';
 import { loadLastReminded, sendRegistrationReminder } from '../../data/reminders.ts';
 import {
   attachVoucher,
@@ -471,6 +472,52 @@ export async function inviteGuardianAction(
   }
   return formOk(
     result.alreadyInvited ? `A new link was sent to ${email}.` : `${email} was invited to their workspace.`,
+  );
+}
+
+/**
+ * Invite the player themselves to their own workspace (BR150, scope 64).
+ *
+ * `inviteGuardianAction`'s shape, moved: the same anon-key magic-link
+ * sign-up, refused before any email is sent unless BR150's gate (thirteen
+ * or over, registration COMPLETE) already holds.
+ */
+export async function invitePlayerAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const registrationId = String(formData.get('registrationId') ?? '');
+  const personId = String(formData.get('personId') ?? '');
+  const email = String(formData.get('email') ?? '').trim().toLowerCase();
+  if (registrationId === '' || personId === '') return formFailed('Nothing to invite.');
+  if (email === '' || !email.includes('@')) return formFailed('This player has no email address on record.');
+
+  const { client, user, tenant } = await requireTenant();
+
+  const result = await recordPlayerInvitation(client, tenant.clubId, personId, email, user.id);
+  if ('error' in result) return formFailed(result.error);
+
+  const requestHeaders = await headers();
+  const host = requestHeaders.get('host') ?? 'localhost:3000';
+  const proto = requestHeaders.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
+  const { supabaseUrl, supabaseAnonKey } = readPublicConfig();
+  const anon = createClient(supabaseUrl, supabaseAnonKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { error: sendError } = await anon.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: true, emailRedirectTo: `${proto}://${host}/auth/callback` },
+  });
+
+  revalidatePath(`/registrar/${registrationId}`);
+
+  if (sendError !== null) {
+    return formFailed(
+      sendError.message.includes('rate limit')
+        ? 'Recorded, but too many invitation emails have gone out recently. Wait a few minutes and try again.'
+        : `Recorded, but the email did not send: ${sendError.message}`,
+    );
+  }
+  return formOk(
+    result.alreadyInvited ? `A new link was sent to ${email}.` : `${email} was invited to their own workspace.`,
   );
 }
 

@@ -2,7 +2,10 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { loadAppearances } from '../../../data/performance.ts';
 import { loadMyRegistration, loadMyTeams, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
+import { loadMyCorrection } from '../../../data/player-record-correction.ts';
+import { ageAt } from '../../../domain/types.ts';
 import { nextFixture, seasonFigures } from '../../../web/me-view.ts';
+import { CorrectionPanel } from '../_player/CorrectionPanel.tsx';
 import { ComingSoon, Figures, FixtureCard, Panel, RegistrationPill, WorkspaceHead } from './shared.tsx';
 
 /**
@@ -26,6 +29,12 @@ export async function PlayerWorkspace({
   const next = nextFixture(fixtures, today);
   const registration = season === null ? null : await loadMyRegistration(client, link.clubId, season.id, link.personId);
   const appearances = registration === null ? [] : await loadAppearances(client, registration.id);
+
+  // BR148: only once you are eighteen may you propose your own correction —
+  // the trigger enforces it too, this only decides whether to offer the form.
+  const isAdult = ageAt(link.person.dateOfBirth, today) >= 18;
+  const pendingCorrection =
+    isAdult && registration !== null ? await loadMyCorrection(client, registration.id) : null;
 
   return (
     <>
@@ -62,6 +71,15 @@ export async function PlayerWorkspace({
           <Panel title="This season">
             <Figures figures={seasonFigures(appearances)} />
           </Panel>
+          {isAdult && registration !== null && (
+            <Panel title="Your record">
+              <CorrectionPanel
+                clubId={link.clubId}
+                registrationId={registration.id}
+                pending={pendingCorrection}
+              />
+            </Panel>
+          )}
         </div>
       </div>
     </>

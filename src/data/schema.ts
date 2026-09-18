@@ -119,6 +119,38 @@ export interface GuardianInvitationRow {
   claimed_at: InstantString | null;
 }
 
+/** BR148 (scope 63): a player's claim about their own record, before a confirming role acts on it. */
+export interface PlayerRecordCorrectionRow {
+  id: string;
+  club_id: string;
+  registration_id: string;
+  person_id: string;
+  proposed_by_user_id: string;
+  proposed_at: InstantString;
+  preferred_name: string | null;
+  email: string | null;
+  preferred_position: string | null;
+  secondary_position: string | null;
+  preferred_foot: string | null;
+  squad_number: number | null;
+  state: 'pending' | 'confirmed' | 'declined';
+  reviewed_at: InstantString | null;
+  reviewed_by_user_id: string | null;
+  review_note: string | null;
+}
+
+/** BR150 (scope 64): a recorded intent to invite a player to their own workspace, before their account exists. */
+export interface PlayerInvitationRow {
+  id: string;
+  club_id: string;
+  person_id: string;
+  email: string;
+  invited_by_user_id: string;
+  invited_at: InstantString;
+  claimed_user_id: string | null;
+  claimed_at: InstantString | null;
+}
+
 export interface RegistrationRow {
   id: string;
   club_id: string;
