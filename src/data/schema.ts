@@ -139,6 +139,18 @@ export interface PlayerRecordCorrectionRow {
   review_note: string | null;
 }
 
+/** BR62/BR63 (scope 65): a Player's available/not-available answer to a fixture. */
+export interface ParticipationResponseRow {
+  id: string;
+  club_id: string;
+  fixture_id: string;
+  person_id: string;
+  status: 'available' | 'not_available';
+  reason: string | null;
+  responded_by_person_id: string;
+  responded_at: InstantString;
+}
+
 /** BR150 (scope 64): a recorded intent to invite a player to their own workspace, before their account exists. */
 export interface PlayerInvitationRow {
   id: string;

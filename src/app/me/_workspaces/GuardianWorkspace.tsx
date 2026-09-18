@@ -6,9 +6,12 @@ import { loadFamilyDesignations } from '../../../data/designations.ts';
 import { loadFinance } from '../../../data/finance.ts';
 import { loadHousehold } from '../../../data/household.ts';
 import { loadConsents, loadMyTeams, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
+import { loadParticipationResponse } from '../../../data/participation.ts';
 import { loadVouchers } from '../../../data/vouchers.ts';
 import { RULE_TITLE, childCard, remainingFigure, selectChild, type Tone } from '../../../web/household-view.ts';
 import { ROLE_HUE, nextFixture, shortDate } from '../../../web/me-view.ts';
+import { needsAvailabilityAnswer } from '../../../web/participation-answer.ts';
+import { AvailabilityAnswer } from '../_participation/AvailabilityAnswer.tsx';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
 import { loadSubscription } from '../../../data/calendar.ts';
 import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
@@ -98,6 +101,26 @@ export async function GuardianWorkspace({
   // silently disappearing because there is nothing in it today (BR65).
   const subscription = await loadSubscription(client, link.clubId, card.personId);
 
+  // The selected child's own answer, for the panel below.
+  const response =
+    next === null ? null : await loadParticipationResponse(client, link.clubId, next.id, card.personId);
+
+  // Every child's exclamation mark: an upcoming fixture nobody has answered
+  // for yet. A household is a handful of children, so one lookup per child
+  // is the honest cost of the badge rather than a query worth batching.
+  const needsAnswer: Record<string, boolean> = {};
+  for (const c of cards) {
+    if (season === null) continue;
+    const cTeams = await loadMyTeams(client, link.clubId, season.id, c.personId);
+    const cTeam = cTeams.find((t) => t.role === 'player') ?? null;
+    if (cTeam === null) continue;
+    const cFixtures = await loadTeamFixtures(client, link.clubId, season.id, cTeam.team.id);
+    const cNext = nextFixture(cFixtures, today);
+    if (cNext === null) continue;
+    const cResponse = await loadParticipationResponse(client, link.clubId, cNext.id, c.personId);
+    needsAnswer[c.personId] = needsAvailabilityAnswer(true, cResponse !== null);
+  }
+
   const firstBlocker = card.blockers[0];
   const guardianRecorded = child.outcomes.some((o) => o.ruleId === 'BR1' && o.status === 'pass');
   const needsDocument = card.blockers.some((o) => o.ruleId === 'BR2');
@@ -121,7 +144,19 @@ export async function GuardianWorkspace({
               aria-current={c.personId === card.personId ? 'true' : undefined}
               style={{ ['--role-hue' as string]: ROLE_HUE.guardian }}
             >
-              <span className="child-card-name">{c.name}</span>
+              <span className="child-card-name">
+                {c.name}
+                {needsAnswer[c.personId] === true && (
+                  <span
+                    className="pill pill-warn"
+                    style={{ marginLeft: '0.4rem' }}
+                    title="Saturday's fixture is waiting on your answer"
+                    aria-label="Availability answer needed"
+                  >
+                    !
+                  </span>
+                )}
+              </span>
               <span className="child-card-meta">
                 Age {c.age}
                 {season !== null && ` · ${season.name}`}
@@ -255,7 +290,14 @@ export async function GuardianWorkspace({
           </Panel>
           <Panel title={`${card.name}'s next match`}>
             {next !== null && team !== null ? (
-              <FixtureCard fixture={next} teamName={team.team.name} />
+              <div className="stack">
+                <FixtureCard fixture={next} teamName={team.team.name} />
+                <p className="hint" style={{ margin: 0 }}>
+                  Every response you give is <b>{card.name}&rsquo;s</b>, not their own, until they turn
+                  eighteen (BR62, BR63).
+                </p>
+                <AvailabilityAnswer clubId={link.clubId} fixtureId={next.id} personId={card.personId} response={response} />
+              </div>
             ) : (
               <p className="empty" style={{ margin: 0 }}>
                 {team === null ? 'Not on a team sheet yet.' : 'No upcoming fixture entered.'}

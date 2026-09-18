@@ -2,10 +2,12 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { formatMoney } from '../../../domain/finance/money.ts';
 import { loadMyTeams, loadRoster, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
+import { loadFixtureParticipationResponses } from '../../../data/participation.ts';
 import { nextFixture } from '../../../web/me-view.ts';
+import { participationBanner } from '../../../web/participation-answer.ts';
 import { displayNameFor } from '../../../web/queue-view.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
-import { ComingSoon, FixtureCard, Panel, WorkspaceHead } from './shared.tsx';
+import { FixtureCard, Panel, WorkspaceHead } from './shared.tsx';
 
 /** The squad, and who cannot be picked. */
 export async function CoachWorkspace({
@@ -25,6 +27,9 @@ export async function CoachWorkspace({
   const fixtures =
     season === null || mine === null ? [] : await loadTeamFixtures(client, link.clubId, season.id, mine.team.id);
   const next = nextFixture(fixtures, today);
+  const responses = next === null
+    ? new Map<string, { readonly status: 'available' | 'not_available'; readonly reason: string | null }>()
+    : await loadFixtureParticipationResponses(client, link.clubId, next.id);
 
   // BR79: registered with the federation, and still cannot take the field.
   const cannotPlay = players.filter(
@@ -66,9 +71,32 @@ export async function CoachWorkspace({
               </ul>
             )}
           </Panel>
+          {next !== null && (
+            <Panel title="Available for Saturday" meta={next.opponent.toUpperCase()}>
+              {players.length === 0 ? (
+                <p className="empty" style={{ margin: 0 }}>
+                  No players on this sheet yet.
+                </p>
+              ) : (
+                <ul className="roster">
+                  {players.map((p) => {
+                    const banner = participationBanner(responses.get(p.person.id) ?? null);
+                    return (
+                      <li key={p.person.id}>
+                        <span>
+                          <span className="who">{displayNameFor(p.person)}</span>
+                        </span>
+                        <span className={banner.className}>{banner.label}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </Panel>
+          )}
           <AssistantNote kind="explaining">
-            Availability responses aren&rsquo;t collected yet, so there is nobody to chase. When they are,
-            a draft reminder to the guardians who haven&rsquo;t answered will appear here for you to send.
+            A decline&rsquo;s reason is visible to you as the responsible coach and to nobody else in the
+            squad (BR62).
           </AssistantNote>
         </div>
         <div className="stack">
@@ -107,9 +135,6 @@ export async function CoachWorkspace({
               </p>
             )}
           </Panel>
-          <ComingSoon title="Availability" waitsOn="BR62 — participation responses">
-            Who has answered for Saturday, who has not, and why someone is out — visible to you only.
-          </ComingSoon>
         </div>
       </div>
     </>

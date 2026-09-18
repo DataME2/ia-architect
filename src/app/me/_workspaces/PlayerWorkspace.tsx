@@ -2,11 +2,14 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { loadAppearances } from '../../../data/performance.ts';
 import { loadMyRegistration, loadMyTeams, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
+import { loadParticipationResponse } from '../../../data/participation.ts';
 import { loadMyCorrection } from '../../../data/player-record-correction.ts';
 import { ageAt } from '../../../domain/types.ts';
 import { nextFixture, seasonFigures } from '../../../web/me-view.ts';
+import { participationBanner } from '../../../web/participation-answer.ts';
+import { AvailabilityAnswer } from '../_participation/AvailabilityAnswer.tsx';
 import { CorrectionPanel } from '../_player/CorrectionPanel.tsx';
-import { ComingSoon, Figures, FixtureCard, Panel, RegistrationPill, WorkspaceHead } from './shared.tsx';
+import { Figures, FixtureCard, Panel, RegistrationPill, WorkspaceHead } from './shared.tsx';
 
 /**
  * A player's own Saturday. What is here is theirs only (BR65) — no other
@@ -36,6 +39,9 @@ export async function PlayerWorkspace({
   const pendingCorrection =
     isAdult && registration !== null ? await loadMyCorrection(client, registration.id) : null;
 
+  const response =
+    next === null ? null : await loadParticipationResponse(client, link.clubId, next.id, link.personId);
+
   return (
     <>
       <WorkspaceHead title="Your Saturday">
@@ -53,10 +59,21 @@ export async function PlayerWorkspace({
               </p>
             )}
           </Panel>
-          <ComingSoon title="Are you available?" waitsOn="BR62 — a participation response has no table yet">
-            You will answer <b>available</b> or <b>not available</b> here. A decline needs a brief reason,
-            and only your coach sees it — never your teammates.
-          </ComingSoon>
+          {next !== null && (
+            <Panel title="Are you available?">
+              {isAdult ? (
+                <AvailabilityAnswer clubId={link.clubId} fixtureId={next.id} personId={link.personId} response={response} />
+              ) : (
+                <p style={{ margin: 0 }}>
+                  <span className={participationBanner(response).className}>{participationBanner(response).label}</span>
+                  <br />
+                  <span className="hint">
+                    Your guardian answers this for you until you turn eighteen (BR63).
+                  </span>
+                </p>
+              )}
+            </Panel>
+          )}
         </div>
         <div className="stack">
           <Panel title="Your status" meta={season?.name.toUpperCase()}>
