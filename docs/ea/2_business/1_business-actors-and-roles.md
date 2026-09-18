@@ -213,6 +213,45 @@ no volunteer model at all, and no separate interface for team officials — a
 coach here is given the registrar's screens with most of the buttons
 inoperative.
 
+## Roles now recognised by the database
+
+[Scope 62](../../scope/62_named_roles_for_actors_already_documented.md)
+gave thirteen actors from the tables above a `club_membership.role` value
+they lacked entirely: Digital Technology Manager, Director of Football,
+Head of Performance, Head of Community Football, Head of Women's
+Football, Technical Director, Grants Committee Member, Appeals Panel
+Member, Grants Coordinator, Volunteer Coordinator, Player Welfare
+Officer, and Social Media Communication and Club Photographer, one each —
+plus one `program_coordinator` role standing in for all twelve program
+coordinator titles below, since none of the twelve gates anything
+differently from any other and a check constraint enumerating them would
+be the same mistake `supabase/migrations/0032_competition_catalogue.sql`
+refused to make for a competition tier.
+
+A role existing is not a screen existing — `committee` and `viewer` are
+the precedent: both were grantable long before anything in `src/app`
+named them. Nothing yet reads or writes against most of these thirteen;
+the Technical Director is the one exception, added to `player_profile`'s
+write policy alongside `coach`, closing an enforcement gap BR125's own
+text had already claimed was fixed (it was not — see the rule table
+above and scope 62).
+
+## Roles this project deliberately does not model
+
+**Football Australia** is the correct actor for BR35–BR38's International
+Transfer Certificate process, and it stays unmodeled at the role level
+on purpose: it is an external organisation a club never grants membership
+to, and no ITC object, submission or workflow exists yet for a role to
+act against. Adding a name with nothing behind it would read as more
+built than it is.
+
+**The AI Assistant** stays off `club_membership` on purpose too.
+[Decision 1](../../decisions/1_ai-assistant-autonomy-level.md) sets its
+autonomy at advisory with no decision rights, and a `club_membership` row
+is an access grant — the one thing decision 1 exists to withhold from it.
+Giving it a role would not add a capability; it would build the control
+surface the decision already refused.
+
 ## Roles this project does not yet model
 
 Banking-detail custody for minor referees is mentioned in the source
