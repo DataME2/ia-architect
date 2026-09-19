@@ -32,8 +32,13 @@ export interface RefereeSummary {
   readonly officialNumber: string | null;
   readonly startedOn: string | null;
   readonly retiredOn: string | null;
-  readonly classifications: readonly ClassificationRecord[];
-  readonly accreditations: readonly Accreditation[];
+  // `id` is carried here, not on `ClassificationRecord`/`Accreditation`
+  // themselves — those stay the pure shape the eligibility functions below
+  // reason about, and a row id is a persistence detail those functions
+  // never need. The screen that edits or deletes a specific row is the one
+  // caller that does.
+  readonly classifications: readonly (ClassificationRecord & { readonly id: string })[];
+  readonly accreditations: readonly (Accreditation & { readonly id: string })[];
 }
 
 /**

@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 
 import {
   accreditationOn,
@@ -17,6 +17,10 @@ import { FormNotice } from '../_components/FormNotice.tsx';
 import { AvailabilityPanel } from './AvailabilityPanel.tsx';
 import {
   addRefereeAction,
+  deleteAccreditationAction,
+  deleteClassificationAction,
+  editAccreditationAction,
+  editClassificationAction,
   recordAccreditationAction,
   recordClassificationAction,
   retireRefereeAction,
@@ -162,6 +166,165 @@ export function AccreditationForm({ referee }: { readonly referee: RefereeSummar
   );
 }
 
+/**
+ * One classification row, editable in place. A typo in the level or the
+ * date is a data-entry mistake, corrected here; a real promotion is a new
+ * row through `ClassificationForm` above, per BR110 — this form changes an
+ * existing standing's own facts, never adds a second one.
+ */
+function ClassificationRow({
+  classification,
+}: {
+  readonly classification: RefereeSummary['classifications'][number];
+}) {
+  const [editing, setEditing] = useState(false);
+  const [editState, editAction, editPending] = useActionState(editClassificationAction, IDLE_FORM);
+  const [deleteState, deleteAction, deletePending] = useActionState(deleteClassificationAction, IDLE_FORM);
+  const c = classification;
+
+  if (!editing) {
+    return (
+      <li>
+        <strong>{c.level}</strong> from {c.effectiveFrom}
+        {c.sightedAt === null && <span className="hint"> &mdash; unchecked</span>}{' '}
+        <button type="button" className="secondary" onClick={() => setEditing(true)}>
+          Edit
+        </button>
+        <form action={deleteAction} style={{ display: 'inline' }}>
+          <input type="hidden" name="id" value={c.id} />
+          <button type="submit" className="secondary" disabled={deletePending}>
+            {deletePending ? '…' : 'Delete'}
+          </button>
+        </form>
+        {deleteState.status === 'error' && <span className="hint">{deleteState.message}</span>}
+      </li>
+    );
+  }
+
+  return (
+    <li>
+      <form action={editAction} className="stack" style={{ gap: '0.4rem' }}>
+        <FormNotice result={editState} />
+        <input type="hidden" name="id" value={c.id} />
+        <input name="level" defaultValue={c.level} required list="fq-levels" aria-label="Classification" />
+        <input
+          name="effectiveFrom"
+          type="date"
+          defaultValue={c.effectiveFrom}
+          required
+          aria-label="Effective from"
+        />
+        <label style={{ flexDirection: 'row', gap: '0.4rem', display: 'flex' }}>
+          <input type="checkbox" name="sighted" defaultChecked={c.sightedAt !== null} />
+          <span>Checked against the register</span>
+        </label>
+        <div>
+          <button type="submit" disabled={editPending}>
+            {editPending ? '…' : 'Save'}
+          </button>{' '}
+          <button type="button" className="secondary" onClick={() => setEditing(false)}>
+            Cancel
+          </button>
+        </div>
+      </form>
+    </li>
+  );
+}
+
+/** One accreditation row, editable in place — the same shape as `ClassificationRow`. */
+function AccreditationRow({
+  accreditation,
+  asOf,
+}: {
+  readonly accreditation: RefereeSummary['accreditations'][number];
+  readonly asOf: string;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [editState, editAction, editPending] = useActionState(editAccreditationAction, IDLE_FORM);
+  const [deleteState, deleteAction, deletePending] = useActionState(deleteAccreditationAction, IDLE_FORM);
+  const a = accreditation;
+
+  if (editing) {
+    return (
+      <tr>
+        <td colSpan={4}>
+          <form action={editAction} className="stack" style={{ gap: '0.4rem' }}>
+            <FormNotice result={editState} />
+            <input type="hidden" name="id" value={a.id} />
+            <input
+              name="kind"
+              defaultValue={a.kind}
+              required
+              placeholder="e.g. fitness, laws of the game"
+              aria-label="Accreditation"
+            />
+            <input
+              name="identifier"
+              defaultValue={a.identifier ?? ''}
+              placeholder="Reference"
+              aria-label="Reference"
+            />
+            <label>
+              Issued
+              <input name="issuedOn" type="date" defaultValue={a.issuedOn ?? ''} />
+            </label>
+            <label>
+              Expires
+              <input name="expiresOn" type="date" defaultValue={a.expiresOn ?? ''} />
+            </label>
+            <label style={{ flexDirection: 'row', gap: '0.4rem', display: 'flex' }}>
+              <input type="checkbox" name="verified" defaultChecked={a.verifiedAt !== null} />
+              <span>Verified</span>
+            </label>
+            <div>
+              <button type="submit" disabled={editPending}>
+                {editPending ? '…' : 'Save'}
+              </button>{' '}
+              <button type="button" className="secondary" onClick={() => setEditing(false)}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </td>
+      </tr>
+    );
+  }
+
+  const state = accreditationOn(a, asOf);
+  return (
+    <tr>
+      <td>
+        {a.kind}
+        {a.identifier !== null && (
+          <>
+            {' '}
+            <span className="hint mono">{a.identifier}</span>
+          </>
+        )}
+      </td>
+      <td>{a.expiresOn ?? <span className="hint">&mdash;</span>}</td>
+      <td>
+        {state.kind === 'valid' && <span className="pill pill-good">valid</span>}
+        {state.kind === 'expired' && <span className="pill pill-warn">expired</span>}
+        {state.kind === 'not-yet' && <span className="pill">not yet held</span>}
+        {state.kind === 'unverified' && <span className="pill">unverified</span>}
+      </td>
+      <td>
+        <button type="button" className="secondary" onClick={() => setEditing(true)}>
+          Edit
+        </button>
+        <form action={deleteAction} style={{ display: 'inline' }}>
+          <input type="hidden" name="id" value={a.id} />
+          <button type="submit" className="secondary" disabled={deletePending}>
+            {deletePending ? '…' : 'Delete'}
+          </button>
+        </form>
+        {deleteState.status === 'error' && <span className="hint">{deleteState.message}</span>}
+      </td>
+    </tr>
+  );
+}
+
 function RetireButton({ referee }: { readonly referee: RefereeSummary }) {
   const [state, formAction, pending] = useActionState(retireRefereeAction, IDLE_FORM);
   if (referee.retiredOn !== null) return null;
@@ -283,15 +446,14 @@ export function RefereeRoster({
 
             <Flags referee={referee} asOf={asOf} />
 
-            {referee.classifications.length > 1 && (
+            {referee.classifications.length > 0 && (
               <details className="process-detail" style={{ marginTop: '0.6rem' }}>
-                <summary>Classification history</summary>
+                <summary>
+                  {referee.classifications.length > 1 ? 'Classification history' : 'Edit classification'}
+                </summary>
                 <ul>
                   {referee.classifications.map((c) => (
-                    <li key={`${c.effectiveFrom}-${c.level}`}>
-                      <strong>{c.level}</strong> from {c.effectiveFrom}
-                      {c.sightedAt === null && <span className="hint"> &mdash; unchecked</span>}
-                    </li>
+                    <ClassificationRow key={c.id} classification={c} />
                   ))}
                 </ul>
               </details>
@@ -304,32 +466,13 @@ export function RefereeRoster({
                     <th>Accreditation</th>
                     <th>Expires</th>
                     <th>On {asOf}</th>
+                    <th />
                   </tr>
                 </thead>
                 <tbody>
-                  {referee.accreditations.map((a) => {
-                    const state = accreditationOn(a, asOf);
-                    return (
-                      <tr key={`${a.kind}-${a.expiresOn ?? 'none'}`}>
-                        <td>
-                          {a.kind}
-                          {a.identifier !== null && (
-                            <>
-                              {' '}
-                              <span className="hint mono">{a.identifier}</span>
-                            </>
-                          )}
-                        </td>
-                        <td>{a.expiresOn ?? <span className="hint">&mdash;</span>}</td>
-                        <td>
-                          {state.kind === 'valid' && <span className="pill pill-good">valid</span>}
-                          {state.kind === 'expired' && <span className="pill pill-warn">expired</span>}
-                          {state.kind === 'not-yet' && <span className="pill">not yet held</span>}
-                          {state.kind === 'unverified' && <span className="pill">unverified</span>}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {referee.accreditations.map((a) => (
+                    <AccreditationRow key={a.id} accreditation={a} asOf={asOf} />
+                  ))}
                 </tbody>
               </table>
             )}

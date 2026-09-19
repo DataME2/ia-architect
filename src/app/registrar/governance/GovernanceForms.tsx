@@ -1,17 +1,21 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 
 import { IDLE_FORM, type FormResult } from '../../../web/form-result.ts';
 import { FormNotice } from '../_components/FormNotice.tsx';
 
-import { COMMITTEE_POSITIONS } from '../../../domain/governance/term.ts';
+import { COMMITTEE_POSITIONS, type CommitteePosition } from '../../../domain/governance/term.ts';
 import { POSITION_LABEL, RESOLUTION_CATEGORY_LABEL } from '../../../web/governance-view.ts';
+import { displayNameFor, fullLegalName } from '../../../web/queue-view.ts';
+import type { Person } from '../../../domain/types.ts';
 import {
   appointMemberAction,
   createTermAction,
+  editMemberAction,
   enableVoucherProgramAction,
   recordResolutionAction,
+  resignMemberAction,
 } from './actions.ts';
 
 export function NewTermForm() {
@@ -109,6 +113,134 @@ export function AppointForm({
         </button>
       </form>
     </>
+  );
+}
+
+/**
+ * Correct a typo in a recorded position or election date, in place. Not how
+ * a member changes office mid-term — that stays a resignation plus a new
+ * appointment (BR85), so the two facts are two rows rather than one rewritten.
+ */
+export function EditPositionForm({
+  positionId,
+  position,
+  electedOn,
+  onDone,
+}: {
+  readonly positionId: string;
+  readonly position: CommitteePosition;
+  readonly electedOn: string | null;
+  readonly onDone: () => void;
+}) {
+  const [result, formAction, pending] = useActionState<FormResult, FormData>(
+    editMemberAction,
+    IDLE_FORM,
+  );
+
+  return (
+    <form
+      action={formAction}
+      style={{ display: 'flex', gap: '0.5rem', alignItems: 'end', flexWrap: 'wrap' }}
+    >
+      <input type="hidden" name="positionId" value={positionId} />
+      <div style={{ flex: '1 1 9rem' }}>
+        <label htmlFor={`edit-position-${positionId}`}>Position</label>
+        <select id={`edit-position-${positionId}`} name="position" defaultValue={position}>
+          {COMMITTEE_POSITIONS.map((p) => (
+            <option key={p} value={p}>
+              {POSITION_LABEL[p]}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div style={{ flex: '1 1 8rem' }}>
+        <label htmlFor={`edit-elected-${positionId}`}>Elected</label>
+        <input
+          id={`edit-elected-${positionId}`}
+          name="electedOn"
+          type="date"
+          defaultValue={electedOn ?? ''}
+        />
+      </div>
+      <button type="submit" disabled={pending}>
+        {pending ? '…' : 'Save'}
+      </button>
+      <button type="button" className="secondary" onClick={onDone}>
+        Cancel
+      </button>
+      <FormNotice result={result} />
+    </form>
+  );
+}
+
+/** One committee-position row, with the correction form toggled behind "Edit". */
+export function MemberRow({
+  positionId,
+  position,
+  electedOn,
+  person,
+}: {
+  readonly positionId: string;
+  readonly position: CommitteePosition;
+  readonly electedOn: string | null;
+  readonly person: Person | undefined;
+}) {
+  const [editing, setEditing] = useState(false);
+
+  if (editing) {
+    return (
+      <tr>
+        <td colSpan={4}>
+          <EditPositionForm
+            positionId={positionId}
+            position={position}
+            electedOn={electedOn}
+            onDone={() => setEditing(false)}
+          />
+        </td>
+      </tr>
+    );
+  }
+
+  return (
+    <tr>
+      <td>{POSITION_LABEL[position]}</td>
+      <td>
+        {person === undefined ? (
+          <span className="hint">Unknown person</span>
+        ) : (
+          <>
+            <p className="name" style={{ margin: 0 }}>
+              {displayNameFor(person)}
+            </p>
+            <p className="legal-name" style={{ margin: 0 }}>
+              {fullLegalName(person)}
+            </p>
+          </>
+        )}
+      </td>
+      <td>{electedOn ?? <span className="hint">&mdash;</span>}</td>
+      <td style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          className="secondary"
+          style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }}
+          onClick={() => setEditing(true)}
+        >
+          Edit
+        </button>
+        <form action={resignMemberAction}>
+          <input type="hidden" name="positionId" value={positionId} />
+          <button
+            type="submit"
+            className="secondary"
+            style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }}
+          >
+            Resigned
+          </button>
+        </form>
+      </td>
+    </tr>
   );
 }
 

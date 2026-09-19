@@ -17,14 +17,18 @@ const cls = (
   level: string,
   effectiveFrom: string,
   sightedAt: string | null = '2026-01-01T00:00:00Z',
-): ClassificationRecord => ({ level, effectiveFrom, sightedAt });
+): ClassificationRecord & { readonly id: string } => ({
+  id: `${level}-${effectiveFrom}`, level, effectiveFrom, sightedAt,
+});
 
 const acc = (
   kind: string,
   expiresOn: string | null,
   verifiedAt: string | null = '2026-01-01T00:00:00Z',
   issuedOn: string | null = '2026-01-01',
-): Accreditation => ({ kind, identifier: 'X-1', issuedOn, expiresOn, verifiedAt });
+): Accreditation & { readonly id: string } => ({
+  id: `${kind}-${expiresOn ?? 'none'}`, kind, identifier: 'X-1', issuedOn, expiresOn, verifiedAt,
+});
 
 const referee = (over: Partial<RefereeSummary> = {}): RefereeSummary => ({
   personId: 'p1',
