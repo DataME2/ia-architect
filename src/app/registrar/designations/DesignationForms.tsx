@@ -137,6 +137,34 @@ function WithdrawForm({
   );
 }
 
+/**
+ * Clear a row the official already declined — one click, no reason field.
+ * Their decline already carries its own reason (BR42), so this reuses it
+ * rather than asking the coordinator to type a second one just to free the
+ * slot. `WithdrawForm` stays the way to pull somebody out who is still
+ * proposed or accepted, where a new reason is genuinely needed.
+ */
+function RemoveDeclinedForm({
+  fixture,
+  personId,
+}: {
+  readonly fixture: DesignationFixture;
+  readonly personId: string;
+}) {
+  const [state, formAction, pending] = useActionState(withdrawDesignationAction, IDLE_FORM);
+
+  return (
+    <form action={formAction} style={{ display: 'inline-flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+      <input type="hidden" name="fixtureId" value={fixture.fixtureId} />
+      <input type="hidden" name="personId" value={personId} />
+      <button type="submit" className="secondary" disabled={pending}>
+        {pending ? '…' : 'Remove'}
+      </button>
+      {state.status === 'error' && <span className="hint">{state.message}</span>}
+    </form>
+  );
+}
+
 export function DesignationBoard({
   fixture,
   offered,
@@ -149,10 +177,18 @@ export function DesignationBoard({
   /** BR113: whose answer each designation waits on, by the official's id. */
   readonly proposals: Readonly<Record<string, string>>;
 }) {
+  const hasDeclined = fixture.appointed.some((a) => a.state === 'declined');
+
   return (
     <>
       <div className="card">
         <h3 style={{ marginTop: 0 }}>Already designated</h3>
+        {hasDeclined && (
+          <p className="hint" style={{ marginTop: 0 }}>
+            A decline does not hold the role — propose somebody else from &ldquo;Who can take
+            it&rdquo; below whenever you are ready. <b>Remove</b> only clears this row.
+          </p>
+        )}
         {fixture.appointed.length === 0 ? (
           <p className="hint" style={{ marginBottom: 0 }}>
             Nobody yet.
@@ -188,12 +224,16 @@ export function DesignationBoard({
                     <span className="hint">and therefore pays (BR16)</span>
                   </td>
                   <td>
-                    {a.state !== 'withdrawn' && (
-                      <WithdrawForm
-                        fixture={fixture}
-                        personId={a.personId}
-                        name={a.name}
-                      />
+                    {a.state === 'declined' ? (
+                      <RemoveDeclinedForm fixture={fixture} personId={a.personId} />
+                    ) : (
+                      a.state !== 'withdrawn' && (
+                        <WithdrawForm
+                          fixture={fixture}
+                          personId={a.personId}
+                          name={a.name}
+                        />
+                      )
                     )}
                   </td>
                 </tr>

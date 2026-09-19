@@ -209,6 +209,40 @@ export async function appointMember(
 }
 
 /**
+ * Correct a typo — the wrong position chosen, or the wrong election date
+ * typed. Not how a member changes office mid-term: that is a resignation
+ * (BR85) plus a new appointment, so the minutes show two facts rather than
+ * one row quietly rewritten to read as if it always said the second one.
+ */
+export async function editPosition(
+  client: SupabaseClient,
+  clubId: string,
+  positionId: string,
+  position: CommitteePosition,
+  electedOn: IsoDate | null,
+  actorUserId: string,
+): Promise<GovernanceResult> {
+  const { error } = await client
+    .from('committee_position')
+    .update({ position, elected_on: electedOn })
+    .eq('id', positionId)
+    .eq('club_id', clubId);
+  if (error !== null) {
+    return error.message.includes('committee_position_term_id_person_id_position_key')
+      ? { ok: false, error: 'They already hold that position in this term.' }
+      : { ok: false, error: error.message };
+  }
+
+  await recordAudit(client, clubId, actorUserId, {
+    action: 'committee_member_corrected',
+    entity: 'committee_position',
+    entityId: positionId,
+    detail: { position, electedOn, rule: 'BR85' },
+  });
+  return { ok: true };
+}
+
+/**
  * Record a resignation.
  *
  * Stamped rather than deleted, and distinct from the term ending: BR85 says

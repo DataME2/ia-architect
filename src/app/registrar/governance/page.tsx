@@ -24,10 +24,10 @@ import { todayIn } from '../../../web/today.ts';
 import {
   AppointForm,
   EnableVoucherProgramForm,
+  MemberRow,
   NewTermForm,
   RecordResolutionForm,
 } from './GovernanceForms.tsx';
-import { resignMemberAction } from './actions.ts';
 
 export const dynamic = 'force-dynamic';
 
@@ -151,36 +151,13 @@ export default async function GovernancePage() {
                     {termMembers.map((member) => {
                       const person = people.get(member.personId);
                       return (
-                        <tr key={member.id}>
-                          <td>{POSITION_LABEL[member.position]}</td>
-                          <td>
-                            {person === undefined ? (
-                              <span className="hint">Unknown person</span>
-                            ) : (
-                              <>
-                                <p className="name" style={{ margin: 0 }}>
-                                  {displayNameFor(person)}
-                                </p>
-                                <p className="legal-name" style={{ margin: 0 }}>
-                                  {fullLegalName(person)}
-                                </p>
-                              </>
-                            )}
-                          </td>
-                          <td>{member.electedOn ?? <span className="hint">&mdash;</span>}</td>
-                          <td>
-                            <form action={resignMemberAction}>
-                              <input type="hidden" name="positionId" value={member.id} />
-                              <button
-                                type="submit"
-                                className="secondary"
-                                style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }}
-                              >
-                                Resigned
-                              </button>
-                            </form>
-                          </td>
-                        </tr>
+                        <MemberRow
+                          key={member.id}
+                          positionId={member.id}
+                          position={member.position}
+                          electedOn={member.electedOn}
+                          person={person}
+                        />
                       );
                     })}
                   </tbody>
