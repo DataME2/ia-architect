@@ -6,6 +6,7 @@ import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts
 import {
   appointMember,
   createTerm,
+  editPosition,
   enableVoucherProgram,
   recordResolution,
   resignMember,
@@ -106,6 +107,31 @@ export async function appointMemberAction(
 
   revalidatePath('/registrar/governance');
   return formOk('Committee member recorded.');
+}
+
+/** Correct a typo in a recorded position or election date — see `editPosition`. */
+export async function editMemberAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const positionId = String(formData.get('positionId') ?? '');
+  if (positionId === '') return formFailed('Nothing to correct.');
+
+  const position = parsePosition(formData.get('position'));
+  if (position === null) return formFailed('Choose a position.');
+
+  const electedRaw = String(formData.get('electedOn') ?? '').trim();
+  const electedOn = electedRaw === '' ? null : parseDueDate(electedRaw);
+  if (electedRaw !== '' && electedOn === null) {
+    return formFailed('Enter the election date as a real calendar date.');
+  }
+
+  const { client, user, tenant } = await requireTenant();
+  const result = await editPosition(client, tenant.clubId, positionId, position, electedOn, user.id);
+  if (!result.ok) return formFailed(result.error);
+
+  revalidatePath('/registrar/governance');
+  return formOk('Corrected.');
 }
 
 export async function resignMemberAction(formData: FormData): Promise<void> {

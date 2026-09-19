@@ -109,6 +109,67 @@ export async function recordClassificationAction(
   );
 }
 
+/**
+ * Correct a classification row (a typo in the level, the date, or whether
+ * it was sighted) — never a promotion. BR110 says a classification is a
+ * history, not a column, so a new standing is always a new row through
+ * `recordClassificationAction`; this exists only for the data-entry mistake
+ * that row's own duplicate-key message already tells a coordinator to fix
+ * rather than work around with a second row on the same date.
+ */
+export async function editClassificationAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const id = String(formData.get('id') ?? '');
+  const level = String(formData.get('level') ?? '').trim();
+  const effectiveFrom = String(formData.get('effectiveFrom') ?? '').trim();
+  const sighted = formData.get('sighted') !== null;
+
+  if (id === '' || level === '' || effectiveFrom === '') return formFailed('Nothing to correct.');
+
+  const ctx = await clubOf();
+  if (ctx === null) return formFailed('Sign in first.');
+
+  const { error } = await ctx.client
+    .from('referee_classification')
+    .update({
+      level,
+      effective_from: effectiveFrom,
+      sighted_at: sighted ? new Date().toISOString() : null,
+    })
+    .eq('club_id', ctx.clubId)
+    .eq('id', id);
+
+  if (error !== null) return formFailed(readable(error.message));
+
+  revalidatePath('/registrar/referees');
+  return formOk('Corrected.');
+}
+
+/** Remove a classification row entered in error — not a demotion, a fix. */
+export async function deleteClassificationAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const id = String(formData.get('id') ?? '');
+  if (id === '') return formFailed('Nothing to remove.');
+
+  const ctx = await clubOf();
+  if (ctx === null) return formFailed('Sign in first.');
+
+  const { error } = await ctx.client
+    .from('referee_classification')
+    .delete()
+    .eq('club_id', ctx.clubId)
+    .eq('id', id);
+
+  if (error !== null) return formFailed(readable(error.message));
+
+  revalidatePath('/registrar/referees');
+  return formOk('Removed.');
+}
+
 export async function recordAccreditationAction(
   _previous: FormResult,
   formData: FormData,
@@ -141,6 +202,64 @@ export async function recordAccreditationAction(
   return formOk(
     verified ? `Recorded ${kind} as verified.` : `Recorded ${kind}, unverified.`,
   );
+}
+
+/** Correct an accreditation row — a typo in the kind, dates, or reference. */
+export async function editAccreditationAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const id = String(formData.get('id') ?? '');
+  const kind = String(formData.get('kind') ?? '').trim();
+  const identifier = String(formData.get('identifier') ?? '').trim();
+  const issuedOn = String(formData.get('issuedOn') ?? '').trim();
+  const expiresOn = String(formData.get('expiresOn') ?? '').trim();
+  const verified = formData.get('verified') !== null;
+
+  if (id === '' || kind === '') return formFailed('Nothing to correct.');
+
+  const ctx = await clubOf();
+  if (ctx === null) return formFailed('Sign in first.');
+
+  const { error } = await ctx.client
+    .from('referee_accreditation')
+    .update({
+      kind,
+      identifier: identifier === '' ? null : identifier,
+      issued_on: issuedOn === '' ? null : issuedOn,
+      expires_on: expiresOn === '' ? null : expiresOn,
+      verified_at: verified ? new Date().toISOString() : null,
+    })
+    .eq('club_id', ctx.clubId)
+    .eq('id', id);
+
+  if (error !== null) return formFailed(readable(error.message));
+
+  revalidatePath('/registrar/referees');
+  return formOk('Corrected.');
+}
+
+/** Remove an accreditation row entered in error. */
+export async function deleteAccreditationAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const id = String(formData.get('id') ?? '');
+  if (id === '') return formFailed('Nothing to remove.');
+
+  const ctx = await clubOf();
+  if (ctx === null) return formFailed('Sign in first.');
+
+  const { error } = await ctx.client
+    .from('referee_accreditation')
+    .delete()
+    .eq('club_id', ctx.clubId)
+    .eq('id', id);
+
+  if (error !== null) return formFailed(readable(error.message));
+
+  revalidatePath('/registrar/referees');
+  return formOk('Removed.');
 }
 
 /** Retire an official without deleting who officiated what. */

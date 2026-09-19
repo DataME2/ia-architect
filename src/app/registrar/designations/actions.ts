@@ -86,19 +86,22 @@ export async function proposeDesignationAction(
   );
 }
 
-/** BR42: a withdrawal carries its reason, and the database refuses one without. */
+/**
+ * BR42: a withdrawal carries its reason, and the database refuses one
+ * without. **Except clearing a row the official already declined** — their
+ * own decline already gave a reason (BR42 was satisfied when they gave it),
+ * so this reuses it rather than making a coordinator type a second one just
+ * to free the slot for somebody else.
+ */
 export async function withdrawDesignationAction(
   _previous: FormResult,
   formData: FormData,
 ): Promise<FormResult> {
   const fixtureId = String(formData.get('fixtureId') ?? '');
   const personId = String(formData.get('personId') ?? '');
-  const reason = String(formData.get('reason') ?? '').trim();
+  const reasonInput = String(formData.get('reason') ?? '').trim();
 
   if (fixtureId === '' || personId === '') return formFailed('Nothing to withdraw.');
-  if (reason === '') {
-    return formFailed('A withdrawal needs a reason (BR42) — the database will refuse it without.');
-  }
 
   const client = await createRequestClient();
   const tenant = await (async () => {
@@ -106,6 +109,22 @@ export async function withdrawDesignationAction(
     return user === null ? null : loadTenantContext(client, user.id);
   })();
   if (tenant === null) return formFailed('Sign in first.');
+
+  let reason = reasonInput;
+  if (reason === '') {
+    const { data: current } = await client
+      .from('match_official_appointment')
+      .select('state, reason')
+      .eq('club_id', tenant.clubId)
+      .eq('fixture_id', fixtureId)
+      .eq('person_id', personId)
+      .maybeSingle();
+    if (current?.state === 'declined' && current.reason !== null && current.reason.trim() !== '') {
+      reason = current.reason;
+    } else {
+      return formFailed('A withdrawal needs a reason (BR42) — the database will refuse it without.');
+    }
+  }
 
   const { error } = await client
     .from('match_official_appointment')
@@ -121,9 +140,16 @@ export async function withdrawDesignationAction(
   // this afternoon. The notification never fails the withdrawal: the
   // record is the thing that had to happen, and a coordinator who was not
   // emailed is a worse outcome than a withdrawal that did not save.
-  const notice = await notifyCoordinatorOfWithdrawal(client, tenant, fixtureId, personId, reason);
+  //
+  // **Skipped when clearing an already-declined row** (`reasonInput` was
+  // blank): the coordinator clicking "Remove" already knows — they are the
+  // one reading the decline — so this would be telling them their own
+  // action happened, not surfacing new information.
+  const notice =
+    reasonInput === '' ? null : await notifyCoordinatorOfWithdrawal(client, tenant, fixtureId, personId, reason);
 
   revalidatePath('/registrar/designations');
+  if (reasonInput === '') return formOk('Removed — the slot is open for somebody else.');
   return notice === null
     ? formOk('Withdrawn, with the reason recorded.')
     : formOk(`Withdrawn, with the reason recorded. ${notice}`);

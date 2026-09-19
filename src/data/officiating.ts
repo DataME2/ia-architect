@@ -61,12 +61,12 @@ export async function loadReferees(
         .in('id', ids),
       client
         .from('referee_classification')
-        .select('person_id, level, effective_from, sighted_at')
+        .select('id, person_id, level, effective_from, sighted_at')
         .eq('club_id', clubId)
         .order('effective_from', { ascending: false }),
       client
         .from('referee_accreditation')
-        .select('person_id, kind, identifier, issued_on, expires_on, verified_at')
+        .select('id, person_id, kind, identifier, issued_on, expires_on, verified_at')
         .eq('club_id', clubId)
         .order('expires_on', { ascending: true }),
     ]);
@@ -87,6 +87,7 @@ export async function loadReferees(
     classifications: ((classifications ?? []) as Record<string, string | null>[])
       .filter((c) => c.person_id === profile.person_id)
       .map((c) => ({
+        id: String(c.id),
         level: String(c.level),
         effectiveFrom: String(c.effective_from),
         sightedAt: c.sighted_at ?? null,
@@ -94,6 +95,7 @@ export async function loadReferees(
     accreditations: ((accreditations ?? []) as Record<string, string | null>[])
       .filter((a) => a.person_id === profile.person_id)
       .map((a) => ({
+        id: String(a.id),
         kind: String(a.kind),
         identifier: a.identifier ?? null,
         issuedOn: a.issued_on ?? null,
