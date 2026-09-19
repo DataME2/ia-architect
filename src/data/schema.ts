@@ -151,6 +151,18 @@ export interface ParticipationResponseRow {
   responded_at: InstantString;
 }
 
+/** BR151 (scope 66): a Guardian's confirmation that their under-13 match official's fixture happened. */
+export interface RefereeMatchConfirmationRow {
+  id: string;
+  club_id: string;
+  fixture_id: string;
+  person_id: string;
+  confirmed_by_person_id: string;
+  confirmed_at: InstantString;
+  home_score: number | null;
+  away_score: number | null;
+}
+
 /** BR150 (scope 64): a recorded intent to invite a player to their own workspace, before their account exists. */
 export interface PlayerInvitationRow {
   id: string;
