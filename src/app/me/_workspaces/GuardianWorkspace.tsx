@@ -6,6 +6,7 @@ import { loadFamilyDesignations } from '../../../data/designations.ts';
 import { loadFinance } from '../../../data/finance.ts';
 import { loadHousehold } from '../../../data/household.ts';
 import { loadConsents, loadMyTeams, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
+import { loadConfirmableAppointments } from '../../../data/match-confirmation.ts';
 import { loadParticipationResponse } from '../../../data/participation.ts';
 import { loadVouchers } from '../../../data/vouchers.ts';
 import { RULE_TITLE, childCard, remainingFigure, selectChild, type Tone } from '../../../web/household-view.ts';
@@ -16,6 +17,7 @@ import { AssistantNote } from '../../_components/AssistantNote.tsx';
 import { loadSubscription } from '../../../data/calendar.ts';
 import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
 import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
+import { ConfirmMatchForm } from '../_officiating/ConfirmMatchForm.tsx';
 import { ComingSoon, FixtureCard, Panel, WorkspaceHead } from './shared.tsx';
 
 const CONSENT_LABEL: Readonly<Record<string, string>> = {
@@ -120,6 +122,11 @@ export async function GuardianWorkspace({
     const cResponse = await loadParticipationResponse(client, link.clubId, cNext.id, c.personId);
     needsAnswer[c.personId] = needsAvailabilityAnswer(true, cResponse !== null);
   }
+
+  // BR151: past, accepted appointments for every under-13 official in the
+  // household, and whether each has been confirmed — the whole household
+  // at once, the same reason BR113's designation read above does.
+  const confirmable = await loadConfirmableAppointments(client, link.clubId, cards.map((c) => c.personId), today);
 
   const firstBlocker = card.blockers[0];
   const guardianRecorded = child.outcomes.some((o) => o.ruleId === 'BR1' && o.status === 'pass');
@@ -288,6 +295,25 @@ export async function GuardianWorkspace({
               answerers={designations.answerers}
             />
           </Panel>
+          {confirmable.length > 0 && (
+            <Panel
+              title="Confirm the match"
+              meta={`${confirmable.filter((c) => !c.confirmed).length} WAITING`}
+            >
+              <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
+                Was your MiniRef there and did it go ahead? A score is optional and kept for
+                statistics only &mdash; it is not the club&rsquo;s own record of the result.{' '}
+                <span className="mono" style={{ fontSize: '0.7rem' }}>
+                  BR151
+                </span>
+              </p>
+              <ul className="check" style={{ margin: 0 }}>
+                {confirmable.map((a) => (
+                  <ConfirmMatchForm key={`${a.fixtureId}-${a.personId}`} clubId={link.clubId} appointment={a} />
+                ))}
+              </ul>
+            </Panel>
+          )}
           <Panel title={`${card.name}'s next match`}>
             {next !== null && team !== null ? (
               <div className="stack">

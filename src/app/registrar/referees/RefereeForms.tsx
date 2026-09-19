@@ -22,6 +22,28 @@ import {
   retireRefereeAction,
 } from './actions.ts';
 
+/**
+ * Every classification a Football Queensland club referee record can
+ * actually hold, from the Referee Pathway & Promotion Structure (supplied
+ * directly, not guessed — `referee_classification.level` stays free text
+ * regardless, per BR110's own comment, so this is a suggestion list, not a
+ * refusal). MiniRefs first: it is the level a brand-new club referee holds,
+ * and the one a coordinator types most often.
+ */
+const FQ_REFEREE_LEVELS = [
+  'MiniRefs 5.0',
+  'Club Based Match Official 4.5',
+  'Junior Football Match Official 4.0',
+  'Senior Football Match Official 3.6',
+  'Senior Football Match Official 3.4',
+  'SFMO 3.2',
+  'SFMO 3.0',
+  'Emerging Match Official 2.5',
+  'Emerging Match Official 2.0',
+  'Advanced Match Official 1.5',
+  'Advanced Match Official 1.0',
+] as const;
+
 export function AddRefereeForm({
   candidates,
 }: {
@@ -90,14 +112,18 @@ export function ClassificationForm({ referee }: { readonly referee: RefereeSumma
           list="fq-levels"
         />
         {/*
-          A datalist, not a select. Only two levels of the Football Queensland
-          pathway are recorded anywhere in this project, so a closed list
-          would refuse the real ones — the same reason the column is free
-          text.
+          A datalist, not a select — the column stays free text (BR110's own
+          comment), so a typed value outside this list is still accepted.
+          The full Football Queensland Referee Pathway & Promotion
+          Structure, supplied directly rather than guessed at, grassroots
+          to advanced (a club's own roster rarely reaches the panels above
+          Advanced Match Official 1.0, which is why National/FIFA/AFC tiers
+          are not listed here — they are awarded, not recorded by a club).
         */}
         <datalist id="fq-levels">
-          <option value="MiniRef 5.0" />
-          <option value="Club Based Match Official 4.5" />
+          {FQ_REFEREE_LEVELS.map((level) => (
+            <option key={level} value={level} />
+          ))}
         </datalist>
       </div>
       <div className="field">
