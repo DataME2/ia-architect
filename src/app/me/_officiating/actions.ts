@@ -27,8 +27,8 @@ export async function confirmMatchAction(
   const parsed = parseMatchConfirmation({
     fixtureId: String(formData.get('fixtureId') ?? ''),
     personId: String(formData.get('personId') ?? ''),
-    homeScore: String(formData.get('homeScore') ?? ''),
-    awayScore: String(formData.get('awayScore') ?? ''),
+    goalsFor: String(formData.get('goalsFor') ?? ''),
+    goalsAgainst: String(formData.get('goalsAgainst') ?? ''),
   });
   if (!parsed.ok) return formFailed(parsed.message);
 
@@ -41,11 +41,12 @@ export async function confirmMatchAction(
   if (link === undefined) return formFailed('That is not your club.');
 
   const error = await recordMatchConfirmation(
-    client, clubId, parsed.fixtureId, parsed.personId, link.personId, parsed.homeScore, parsed.awayScore,
+    client, clubId, parsed.fixtureId, parsed.personId, link.personId, parsed.goalsFor, parsed.goalsAgainst,
   );
 
   revalidatePath('/me');
+  revalidatePath('/registrar/fixtures');
   if (error !== null) return formFailed(error);
 
-  return formOk('Confirmed — thank you.');
+  return formOk('Confirmed — thank you. The fixture is marked played.');
 }

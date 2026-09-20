@@ -6,6 +6,7 @@ import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { FixtureForm } from './FixtureForm.tsx';
 import { loadClubCompetitions } from '../../../data/competitions.ts';
 import { EditFixtureForm } from './EditFixtureForm.tsx';
+import { RecordResultForm } from './RecordResultForm.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -130,6 +131,28 @@ export default async function FixturesPage({
                   venue={f.venue ?? null}
                   status={f.status}
                 />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {fixtures.length > 0 && (
+        <section className="card">
+          <h3 style={{ marginTop: 0 }}>Record the result</h3>
+          <p className="hint">
+            A score is a correction to a game that already happened, not a change to announce —
+            saving here tells nobody. A MiniRef&rsquo;s guardian confirming the match (BR151)
+            already fills this in when it is empty; use this to enter one that was never reported,
+            or to correct one.
+          </p>
+          <ul className="stack" style={{ listStyle: 'none', padding: 0 }}>
+            {fixtures.map((f) => (
+              <li key={f.id}>
+                <strong>
+                  {f.played_on} {f.home_away === 'home' ? 'v' : 'at'} {f.opponent}
+                </strong>
+                <RecordResultForm fixtureId={f.id} goalsFor={f.goals_for} goalsAgainst={f.goals_against} />
               </li>
             ))}
           </ul>
