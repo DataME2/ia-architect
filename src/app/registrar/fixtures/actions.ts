@@ -126,3 +126,58 @@ export async function updateFixtureAction(
   const told = await notifyFixtureParticipants(client, tenant, fixtureId, before, changes);
   return formOk(`Saved — ${changes}. ${told}`);
 }
+
+/**
+ * Enter or correct a fixture's result, after the fact.
+ *
+ * Deliberately separate from `updateFixtureAction`: that one exists so
+ * BR64 can tell participants what changed about a game they still need to
+ * act on. A score is the opposite — a correction to the record of a game
+ * that already happened, nobody to notify, nothing to act on. Until this
+ * action existed there was no way to enter a result at all once a fixture
+ * had been created: `createFixtureAction` only takes one at the moment of
+ * creation, and a guardian's BR151 confirmation (migration 0056) only
+ * fills a fixture whose score is still empty. This is the path for the
+ * one it left empty, or for a coordinator overriding what a guardian
+ * reported.
+ *
+ * No re-check against `fixture_manage` here — the database already
+ * refuses this update to anyone but admin, registrar or coordinator, the
+ * same as every other write on this table.
+ */
+export async function recordFixtureResultAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const fixtureId = String(formData.get('fixtureId') ?? '');
+  if (fixtureId === '') return formFailed('Which fixture?');
+
+  const score = (name: string): number | null | 'invalid' => {
+    const raw = String(formData.get(name) ?? '').trim();
+    if (raw === '') return null;
+    const n = Number(raw);
+    return Number.isInteger(n) && n >= 0 ? n : 'invalid';
+  };
+  const goalsFor = score('goalsFor');
+  const goalsAgainst = score('goalsAgainst');
+  if (goalsFor === 'invalid' || goalsAgainst === 'invalid') {
+    return formFailed('A score is a whole number, zero or more.');
+  }
+
+  const client = await createRequestClient();
+  const user = await currentUser(client);
+  if (user === null) return formFailed('Not signed in.');
+  const tenant = await loadTenantContext(client, user.id);
+  if (tenant === null) return formFailed('No club.');
+
+  const { error } = await client
+    .from('fixture')
+    .update({ goals_for: goalsFor, goals_against: goalsAgainst, status: 'played' })
+    .eq('club_id', tenant.clubId)
+    .eq('id', fixtureId);
+
+  if (error !== null) return formFailed(error.message.replace(/^.*?:\s*/, ''));
+
+  revalidatePath('/registrar/fixtures');
+  return formOk('Result recorded.');
+}

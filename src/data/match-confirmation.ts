@@ -103,6 +103,12 @@ export async function loadConfirmableAppointments(
  * Record a confirmation. `confirmedByPersonId` is the signed-in person's
  * own Person at this club, never chosen on the screen — the database
  * checks it holds authority for the official and refuses otherwise.
+ *
+ * `goalsFor`/`goalsAgainst` are the club's own goals either way — never
+ * "home"/"away", which name a different side of the ground depending on
+ * `fixture.home_away`. Migration 0056's trigger copies whichever of these
+ * is given into `fixture.goals_for`/`goals_against` when that field is
+ * still empty, and marks the fixture played.
  */
 export async function recordMatchConfirmation(
   client: SupabaseClient,
@@ -110,16 +116,16 @@ export async function recordMatchConfirmation(
   fixtureId: string,
   personId: string,
   confirmedByPersonId: string,
-  homeScore: number | null,
-  awayScore: number | null,
+  goalsFor: number | null,
+  goalsAgainst: number | null,
 ): Promise<string | null> {
   const { error } = await client.from('referee_match_confirmation').insert({
     club_id: clubId,
     fixture_id: fixtureId,
     person_id: personId,
     confirmed_by_person_id: confirmedByPersonId,
-    home_score: homeScore,
-    away_score: awayScore,
+    goals_for: goalsFor,
+    goals_against: goalsAgainst,
   });
   return error === null ? null : error.message.replace(/^.*?:\s*/, '');
 }

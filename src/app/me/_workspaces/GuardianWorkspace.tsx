@@ -301,8 +301,9 @@ export async function GuardianWorkspace({
               meta={`${confirmable.filter((c) => !c.confirmed).length} WAITING`}
             >
               <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
-                Was your MiniRef there and did it go ahead? A score is optional and kept for
-                statistics only &mdash; it is not the club&rsquo;s own record of the result.{' '}
+                Was your MiniRef there and did it go ahead? Confirming marks the fixture played.
+                A score is optional and only fills the record if nobody has entered one already
+                &mdash; it never overwrites the club&rsquo;s own.{' '}
                 <span className="mono" style={{ fontSize: '0.7rem' }}>
                   BR151
                 </span>

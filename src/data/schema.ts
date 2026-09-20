@@ -159,8 +159,8 @@ export interface RefereeMatchConfirmationRow {
   person_id: string;
   confirmed_by_person_id: string;
   confirmed_at: InstantString;
-  home_score: number | null;
-  away_score: number | null;
+  goals_for: number | null;
+  goals_against: number | null;
 }
 
 /** BR150 (scope 64): a recorded intent to invite a player to their own workspace, before their account exists. */
