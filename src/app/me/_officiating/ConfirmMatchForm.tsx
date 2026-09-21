@@ -49,27 +49,32 @@ export function ConfirmMatchForm({
 
         <p className="row" style={{ margin: 0, gap: '0.5rem', alignItems: 'center' }}>
           <label>
-            Score (optional, for stats)
+            Scored (optional)
             <input
-              name="homeScore"
+              name="goalsFor"
               type="number"
               min={0}
               inputMode="numeric"
               style={{ width: '3.5rem' }}
-              aria-label={`${appointment.officialName}'s home score`}
+              aria-label={`Goals scored while ${appointment.officialName} officiated`}
             />
           </label>
           <span>–</span>
           <label>
+            Conceded
             <input
-              name="awayScore"
+              name="goalsAgainst"
               type="number"
               min={0}
               inputMode="numeric"
               style={{ width: '3.5rem' }}
-              aria-label={`${appointment.officialName}'s away score`}
+              aria-label={`Goals conceded while ${appointment.officialName} officiated`}
             />
           </label>
+        </p>
+        <p className="hint" style={{ margin: 0 }}>
+          The club&rsquo;s own goals, not the home team&rsquo;s — used only to fill in the fixture
+          if nobody else has recorded a score.
         </p>
 
         <div>

@@ -11,6 +11,8 @@
 --   * only the responsible admin/registrar/coordinator/coach and the
 --     official's own family ever read a confirmation,
 --   * a score is optional and never negative,
+--   * a confirmed score copies onto the fixture itself and marks it played,
+--   * but never overwrites a score the club already entered,
 --   * officers may correct a confirmation; a family may not update one,
 --   * and an unrelated account at the same club reads and writes nothing.
 
@@ -75,13 +77,21 @@ insert into team (id, club_id, season_id, name) values
   ('56c00000-0000-0000-0000-0000000000c1', '56c00000-0000-0000-0000-000000000001',
    '56c00000-0000-0000-0000-0000000000aa', 'U8s');
 
-insert into fixture (id, club_id, season_id, team_id, opponent, played_on, home_away, status) values
+insert into fixture (id, club_id, season_id, team_id, opponent, played_on, home_away, status, goals_for, goals_against) values
   ('56c00000-0000-0000-0000-0000000000f1', '56c00000-0000-0000-0000-000000000001',
    '56c00000-0000-0000-0000-0000000000aa', '56c00000-0000-0000-0000-0000000000c1',
-   'Rivals', (current_date - interval '100 days')::date, 'home', 'played'),
+   'Rivals', (current_date - interval '100 days')::date, 'home', 'played', null, null),
   ('56c00000-0000-0000-0000-0000000000f2', '56c00000-0000-0000-0000-000000000001',
    '56c00000-0000-0000-0000-0000000000aa', '56c00000-0000-0000-0000-0000000000c1',
-   'Wanderers', (current_date - interval '90 days')::date, 'away', 'played');
+   'Wanderers', (current_date - interval '90 days')::date, 'away', 'played', null, null),
+  -- Still scheduled, and unscored — proves a confirmation marks it played.
+  ('56c00000-0000-0000-0000-0000000000f3', '56c00000-0000-0000-0000-000000000001',
+   '56c00000-0000-0000-0000-0000000000aa', '56c00000-0000-0000-0000-0000000000c1',
+   'Thistle', (current_date - interval '80 days')::date, 'home', 'scheduled', null, null),
+  -- Already scored by the club — proves a confirmation never overwrites it.
+  ('56c00000-0000-0000-0000-0000000000f4', '56c00000-0000-0000-0000-000000000001',
+   '56c00000-0000-0000-0000-0000000000aa', '56c00000-0000-0000-0000-0000000000c1',
+   'Rangers', (current_date - interval '70 days')::date, 'away', 'played', 5, 0);
 
 commit;
 
@@ -98,8 +108,11 @@ declare
   coord_user uuid := 'd56c0000-0000-0000-0000-000000000001';
   f1         uuid := '56c00000-0000-0000-0000-0000000000f1';
   f2         uuid := '56c00000-0000-0000-0000-0000000000f2';
+  f3         uuid := '56c00000-0000-0000-0000-0000000000f3';
+  f4         uuid := '56c00000-0000-0000-0000-0000000000f4';
   n          integer;
-  v_home     integer;
+  v_score    integer;
+  v_status   text;
   failures   text[] := '{}';
 begin
   perform set_config('role', 'postgres', true);
@@ -144,21 +157,50 @@ begin
   -- 4. The authority guardian confirms, with a score.
   begin
     insert into referee_match_confirmation
-      (club_id, fixture_id, person_id, confirmed_by_person_id, home_score, away_score)
+      (club_id, fixture_id, person_id, confirmed_by_person_id, goals_for, goals_against)
     values (the_club, f1, twelve, mum, 3, 1);
   exception when others then
     failures := array_append(failures, 'the authority mother could not confirm her daughter''s match: ' || sqlerrm);
   end;
 
-  select home_score into v_home from referee_match_confirmation where fixture_id = f1 and person_id = twelve;
-  if v_home is distinct from 3 then
-    failures := array_append(failures, 'the score did not land — home_score is ' || coalesce(v_home::text, 'null'));
+  select goals_for into v_score from referee_match_confirmation where fixture_id = f1 and person_id = twelve;
+  if v_score is distinct from 3 then
+    failures := array_append(failures, 'the score did not land — goals_for is ' || coalesce(v_score::text, 'null'));
+  end if;
+
+  -- 4a. That score copies onto the fixture itself — the club's own record,
+  --     which is what a report actually reads.
+  select goals_for into v_score from fixture where id = f1;
+  if v_score is distinct from 3 then
+    failures := array_append(failures, 'the confirmation did not fill the fixture''s own goals_for');
+  end if;
+
+  -- 4b. A still-scheduled fixture is marked played once confirmed.
+  insert into referee_match_confirmation
+    (club_id, fixture_id, person_id, confirmed_by_person_id, goals_for, goals_against)
+  values (the_club, f3, twelve, mum, 2, 0);
+  select status into v_status from fixture where id = f3;
+  if v_status is distinct from 'played' then
+    failures := array_append(failures,
+      'a confirmed fixture stayed ' || coalesce(v_status, 'null') || ' instead of moving to played (BR151)');
+  end if;
+
+  -- 4c. A fixture the club already scored is never overwritten — a
+  --     guardian's recollection fills a gap, it does not correct the club.
+  insert into referee_match_confirmation
+    (club_id, fixture_id, person_id, confirmed_by_person_id, goals_for, goals_against)
+  values (the_club, f4, twelve, mum, 9, 9);
+  select goals_for, goals_against into v_score, n from fixture where id = f4;
+  if v_score is distinct from 5 or n is distinct from 0 then
+    failures := array_append(failures,
+      'a guardian''s confirmation overwrote the club''s own score (was 5-0, now '
+      || coalesce(v_score::text, 'null') || '-' || coalesce(n::text, 'null') || ')');
   end if;
 
   -- 5. A negative score is refused (the ordinary check constraint).
   begin
     insert into referee_match_confirmation
-      (club_id, fixture_id, person_id, confirmed_by_person_id, home_score)
+      (club_id, fixture_id, person_id, confirmed_by_person_id, goals_for)
     values (the_club, f2, twelve, mum, -1);
     failures := array_append(failures, 'a negative score was recorded');
   exception when others then
@@ -181,19 +223,20 @@ begin
   perform set_config('role', 'authenticated', true);
   perform set_config('request.jwt.claim.sub', mum_user::text, true);
 
-  -- 7. She reads her children's confirmations.
+  -- 7. She reads her children's confirmations — twelve at f1, f3 and f4,
+  --    now_teen at f1.
   select count(*) into n from referee_match_confirmation where person_id in (twelve, now_teen);
-  if n <> 2 then
-    failures := array_append(failures, 'the guardian read ' || n || ' confirmations, not 2');
+  if n <> 4 then
+    failures := array_append(failures, 'the guardian read ' || n || ' confirmations, not 4');
   end if;
 
   -- 8. A family may not update a confirmation — no update policy for them.
   begin
-    update referee_match_confirmation set home_score = 9
+    update referee_match_confirmation set goals_for = 9
      where fixture_id = f1 and person_id = twelve;
     perform set_config('role', 'postgres', true);
-    select home_score into v_home from referee_match_confirmation where fixture_id = f1 and person_id = twelve;
-    if v_home = 9 then
+    select goals_for into v_score from referee_match_confirmation where fixture_id = f1 and person_id = twelve;
+    if v_score = 9 then
       failures := array_append(failures, 'a guardian updated a confirmation after submitting it');
     end if;
   exception when others then
@@ -206,17 +249,17 @@ begin
 
   -- 9. The coordinator reads every confirmation at the club.
   select count(*) into n from referee_match_confirmation where club_id = the_club;
-  if n <> 2 then
-    failures := array_append(failures, 'the coordinator read ' || n || ' confirmations, not 2');
+  if n <> 4 then
+    failures := array_append(failures, 'the coordinator read ' || n || ' confirmations, not 4');
   end if;
 
   -- 10. And may correct one (an officer's ordinary latitude).
   begin
-    update referee_match_confirmation set home_score = 4
+    update referee_match_confirmation set goals_for = 4
      where fixture_id = f1 and person_id = twelve;
     perform set_config('role', 'postgres', true);
-    select home_score into v_home from referee_match_confirmation where fixture_id = f1 and person_id = twelve;
-    if v_home is distinct from 4 then
+    select goals_for into v_score from referee_match_confirmation where fixture_id = f1 and person_id = twelve;
+    if v_score is distinct from 4 then
       failures := array_append(failures, 'the coordinator could not correct a confirmed score');
     end if;
   exception when others then
@@ -246,6 +289,6 @@ begin
     raise exception E'A MiniRef''s guardian confirms the match FAILED:\n  - %', array_to_string(failures, E'\n  - ');
   end if;
 
-  raise notice 'A MiniRef''s guardian confirms the match OK — 12 scenarios; a guardian holding authority confirms a match official who was under thirteen on the day of the fixture, measured against the fixture rather than today, nobody confirms their own match, only the responsible officer roles and the official''s own family ever read a confirmation, a family may not revise one after submitting it, and an unrelated account at the same club reads and writes nothing';
+  raise notice 'A MiniRef''s guardian confirms the match OK — 15 scenarios; a guardian holding authority confirms a match official who was under thirteen on the day of the fixture, measured against the fixture rather than today, nobody confirms their own match, a confirmed score copies onto the fixture and marks it played without ever overwriting a score the club already entered, only the responsible officer roles and the official''s own family ever read a confirmation, a family may not revise one after submitting it, and an unrelated account at the same club reads and writes nothing';
 end
 $$;

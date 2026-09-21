@@ -26,20 +26,28 @@ export function wasUnderThirteenOn(dateOfBirth: string | null, playedOn: string)
 }
 
 export interface ParsedScore {
-  readonly homeScore: number | null;
-  readonly awayScore: number | null;
+  /** The club's own goals — never "home"/"away", which flips under an away fixture. */
+  readonly goalsFor: number | null;
+  readonly goalsAgainst: number | null;
 }
 
 export type ParsedConfirmation =
   | ({ readonly ok: true; readonly fixtureId: string; readonly personId: string } & ParsedScore)
   | { readonly ok: false; readonly message: string };
 
-/** BR151: the score is optional and, when given, never negative. */
+/**
+ * BR151: the score is optional and, when given, never negative.
+ *
+ * Asked as "scored" / "conceded" — the club's own goals either way, the
+ * same language `FixtureForm.tsx` already uses for a registrar. "Home
+ * score" would be a different number on an away fixture, and a guardian
+ * has no reason to know which one the platform meant.
+ */
 export function parseMatchConfirmation(fields: {
   readonly fixtureId?: string | null;
   readonly personId?: string | null;
-  readonly homeScore?: string | null;
-  readonly awayScore?: string | null;
+  readonly goalsFor?: string | null;
+  readonly goalsAgainst?: string | null;
 }): ParsedConfirmation {
   const fixtureId = (fields.fixtureId ?? '').trim();
   const personId = (fields.personId ?? '').trim();
@@ -53,11 +61,11 @@ export function parseMatchConfirmation(fields: {
     return n;
   };
 
-  const home = parseOne(fields.homeScore);
-  const away = parseOne(fields.awayScore);
-  if (home === 'invalid' || away === 'invalid') {
+  const scored = parseOne(fields.goalsFor);
+  const conceded = parseOne(fields.goalsAgainst);
+  if (scored === 'invalid' || conceded === 'invalid') {
     return { ok: false, message: 'A score is a whole number, zero or more.' };
   }
 
-  return { ok: true, fixtureId, personId, homeScore: home, awayScore: away };
+  return { ok: true, fixtureId, personId, goalsFor: scored, goalsAgainst: conceded };
 }

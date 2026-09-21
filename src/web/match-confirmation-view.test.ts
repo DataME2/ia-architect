@@ -24,17 +24,17 @@ describe('wasUnderThirteenOn — measured against the fixture, not today', () =>
 describe('parseMatchConfirmation — an optional score, never negative', () => {
   it('accepts a confirmation with no score', () => {
     const parsed = parseMatchConfirmation({ fixtureId: 'f1', personId: 'p1' });
-    assert.deepEqual(parsed, { ok: true, fixtureId: 'f1', personId: 'p1', homeScore: null, awayScore: null });
+    assert.deepEqual(parsed, { ok: true, fixtureId: 'f1', personId: 'p1', goalsFor: null, goalsAgainst: null });
   });
 
   it('accepts a confirmation with both scores', () => {
-    const parsed = parseMatchConfirmation({ fixtureId: 'f1', personId: 'p1', homeScore: '3', awayScore: '1' });
-    assert.deepEqual(parsed, { ok: true, fixtureId: 'f1', personId: 'p1', homeScore: 3, awayScore: 1 });
+    const parsed = parseMatchConfirmation({ fixtureId: 'f1', personId: 'p1', goalsFor: '3', goalsAgainst: '1' });
+    assert.deepEqual(parsed, { ok: true, fixtureId: 'f1', personId: 'p1', goalsFor: 3, goalsAgainst: 1 });
   });
 
   it('refuses a negative or non-integer score', () => {
-    assert.equal(parseMatchConfirmation({ fixtureId: 'f1', personId: 'p1', homeScore: '-1' }).ok, false);
-    assert.equal(parseMatchConfirmation({ fixtureId: 'f1', personId: 'p1', homeScore: '2.5' }).ok, false);
+    assert.equal(parseMatchConfirmation({ fixtureId: 'f1', personId: 'p1', goalsFor: '-1' }).ok, false);
+    assert.equal(parseMatchConfirmation({ fixtureId: 'f1', personId: 'p1', goalsFor: '2.5' }).ok, false);
   });
 
   it('refuses with nothing to confirm when identifiers are missing', () => {
