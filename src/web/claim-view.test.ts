@@ -2,7 +2,8 @@ import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 
 import {
-  batchStanding, canClose, canPay, needsVerification, parseDecision, parseVerification, previewClaim,
+  batchStanding, canClose, canPay, needsVerification, parseDecision, parseSettlement, parseVerification,
+  previewClaim,
   type BatchSummary, type ClaimCandidate, type VerifiableAppointment,
 } from './claim-view.ts';
 import type { FeeRate } from '../domain/officiating/fees.ts';
@@ -186,5 +187,24 @@ describe('batches — open, closed, paid, in that order', () => {
 
   it('refuses to pay an already-paid batch', () => {
     assert.equal(canPay(batch({ closedAt: '2026-09-01', paidAt: '2026-09-02' })).allowed, false);
+  });
+});
+
+describe('parseSettlement — a family\'s choice for an approved claim', () => {
+  it('accepts pay', () => {
+    assert.deepEqual(parseSettlement({ claimId: 'c1', settlement: 'pay' }), { ok: true, claimId: 'c1', settlement: 'pay' });
+  });
+
+  it('accepts credit', () => {
+    assert.deepEqual(parseSettlement({ claimId: 'c1', settlement: 'credit' }), { ok: true, claimId: 'c1', settlement: 'credit' });
+  });
+
+  it('refuses anything else', () => {
+    assert.equal(parseSettlement({ claimId: 'c1', settlement: 'cash' }).ok, false);
+    assert.equal(parseSettlement({ claimId: 'c1' }).ok, false);
+  });
+
+  it('refuses with no claim named', () => {
+    assert.equal(parseSettlement({ settlement: 'pay' }).ok, false);
   });
 });

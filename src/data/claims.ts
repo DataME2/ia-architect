@@ -233,6 +233,8 @@ export interface RaisedClaim {
   readonly state: 'raised' | 'approved' | 'rejected';
   readonly decisionNote: string | null;
   readonly batchId: string | null;
+  /** BR152: how the family chose to settle it, or null until they do. */
+  readonly settlement: 'pay' | 'credit' | null;
 }
 
 /** The treasurer's queue, and what a coordinator already raised. */
@@ -243,7 +245,7 @@ export async function loadClaims(
 ): Promise<readonly RaisedClaim[]> {
   const [{ data: claims }, { data: appointments }, { data: fixtures }, { data: people }] = await Promise.all([
     client.from('referee_payment_claim')
-      .select('id, appointment_id, amount_cents, state, decision_note, batch_id')
+      .select('id, appointment_id, amount_cents, state, decision_note, batch_id, settlement')
       .eq('club_id', clubId),
     client.from('match_official_appointment').select('id, person_id, fixture_id').eq('club_id', clubId),
     client.from('fixture').select('id, opponent, played_on, season_id').eq('club_id', clubId).eq('season_id', seasonId),
@@ -275,6 +277,7 @@ export async function loadClaims(
       state: c.state as RaisedClaim['state'],
       decisionNote: (c.decision_note as string | null) ?? null,
       batchId: (c.batch_id as string | null) ?? null,
+      settlement: (c.settlement as RaisedClaim['settlement']) ?? null,
     });
   }
   return rows;
@@ -295,6 +298,113 @@ export async function decideClaim(
       decision_note: decisionNote,
       decided_by: decidedBy,
       decided_at: new Date().toISOString(),
+    })
+    .eq('club_id', clubId)
+    .eq('id', claimId);
+
+  return error === null ? null : error.message.replace(/^.*?:\s*/, '');
+}
+
+export interface SettleableClaim {
+  readonly id: string;
+  readonly officialName: string;
+  readonly personId: string;
+  readonly opponent: string;
+  readonly playedOn: string;
+  readonly amountCents: number;
+  readonly settlement: 'pay' | 'credit' | null;
+}
+
+/**
+ * An official's own family's approved claims — BR152's question, read from
+ * the family's side. RLS narrows this to the caller's own family on its
+ * own (`referee_payment_claim_select_family`); the `personIds` filter here
+ * is what the caller already knows, the same belt-and-braces `loadFamilyDesignations`
+ * applies for the identical reason.
+ */
+export async function loadSettleableClaims(
+  client: SupabaseClient,
+  clubId: string,
+  personIds: readonly string[],
+): Promise<readonly SettleableClaim[]> {
+  if (personIds.length === 0) return [];
+
+  const { data: appointments } = await client
+    .from('match_official_appointment')
+    .select('id, person_id')
+    .eq('club_id', clubId)
+    .in('person_id', personIds);
+  const apptIds = ((appointments ?? []) as { id: string; person_id: string }[]);
+  if (apptIds.length === 0) return [];
+
+  const { data: claims } = await client
+    .from('referee_payment_claim')
+    .select('id, appointment_id, amount_cents, state, settlement')
+    .eq('club_id', clubId)
+    .eq('state', 'approved')
+    .in('appointment_id', apptIds.map((a) => a.id));
+  const rows = (claims ?? []) as { id: string; appointment_id: string; amount_cents: number; settlement: string | null }[];
+  if (rows.length === 0) return [];
+
+  const personOfAppt = new Map(apptIds.map((a) => [a.id, a.person_id]));
+
+  const [{ data: fixtureLinks }, { data: people }] = await Promise.all([
+    client.from('match_official_appointment').select('id, fixture_id')
+      .eq('club_id', clubId).in('id', rows.map((r) => r.appointment_id)),
+    client.from('person').select('id, legal_given_names, legal_family_name, preferred_name')
+      .eq('club_id', clubId).in('id', personIds),
+  ]);
+  const fixtureIdOfAppt = new Map(
+    ((fixtureLinks ?? []) as { id: string; fixture_id: string }[]).map((a) => [a.id, a.fixture_id]),
+  );
+  const { data: fixtures } = await client
+    .from('fixture')
+    .select('id, opponent, played_on')
+    .eq('club_id', clubId)
+    .in('id', [...new Set([...fixtureIdOfAppt.values()])]);
+  const fixtureById = new Map(
+    ((fixtures ?? []) as { id: string; opponent: string; played_on: string }[]).map((f) => [f.id, f]),
+  );
+  const nameOf = new Map(((people ?? []) as PersonNameRow[]).map((p) => [p.id, displayName(p)]));
+
+  const out: SettleableClaim[] = [];
+  for (const c of rows) {
+    const personId = personOfAppt.get(c.appointment_id);
+    const fixtureId = fixtureIdOfAppt.get(c.appointment_id);
+    const fixture = fixtureId === undefined ? undefined : fixtureById.get(fixtureId);
+    if (personId === undefined || fixture === undefined) continue;
+    out.push({
+      id: c.id,
+      officialName: nameOf.get(personId) ?? 'Unknown person',
+      personId,
+      opponent: fixture.opponent,
+      playedOn: fixture.played_on,
+      amountCents: Number(c.amount_cents),
+      settlement: (c.settlement as SettleableClaim['settlement']) ?? null,
+    });
+  }
+  return out;
+}
+
+/**
+ * Record a family's choice (BR152). `chosenByPersonId` is the signed-in
+ * person's own Person at this club, never chosen on the screen — the
+ * database checks it holds authority for the official and refuses
+ * otherwise.
+ */
+export async function chooseSettlement(
+  client: SupabaseClient,
+  clubId: string,
+  claimId: string,
+  settlement: 'pay' | 'credit',
+  chosenByPersonId: string,
+): Promise<string | null> {
+  const { error } = await client
+    .from('referee_payment_claim')
+    .update({
+      settlement,
+      settlement_chosen_by: chosenByPersonId,
+      settlement_chosen_at: new Date().toISOString(),
     })
     .eq('club_id', clubId)
     .eq('id', claimId);

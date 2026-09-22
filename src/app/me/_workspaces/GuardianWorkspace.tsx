@@ -7,6 +7,7 @@ import { loadFinance } from '../../../data/finance.ts';
 import { loadHousehold } from '../../../data/household.ts';
 import { loadConsents, loadMyTeams, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
 import { loadConfirmableAppointments } from '../../../data/match-confirmation.ts';
+import { loadSettleableClaims } from '../../../data/claims.ts';
 import { loadParticipationResponse } from '../../../data/participation.ts';
 import { loadVouchers } from '../../../data/vouchers.ts';
 import { RULE_TITLE, childCard, remainingFigure, selectChild, type Tone } from '../../../web/household-view.ts';
@@ -18,6 +19,7 @@ import { loadSubscription } from '../../../data/calendar.ts';
 import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
 import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
 import { ConfirmMatchForm } from '../_officiating/ConfirmMatchForm.tsx';
+import { SettleClaimForm } from '../_officiating/SettleClaimForm.tsx';
 import { ComingSoon, FixtureCard, Panel, WorkspaceHead } from './shared.tsx';
 
 const CONSENT_LABEL: Readonly<Record<string, string>> = {
@@ -127,6 +129,10 @@ export async function GuardianWorkspace({
   // household, and whether each has been confirmed — the whole household
   // at once, the same reason BR113's designation read above does.
   const confirmable = await loadConfirmableAppointments(client, link.clubId, cards.map((c) => c.personId), today);
+
+  // BR152: any approved claim for this household's officials, settled or
+  // still waiting on a choice — the whole household, same reason as above.
+  const settleable = await loadSettleableClaims(client, link.clubId, cards.map((c) => c.personId));
 
   const firstBlocker = card.blockers[0];
   const guardianRecorded = child.outcomes.some((o) => o.ruleId === 'BR1' && o.status === 'pass');
@@ -311,6 +317,26 @@ export async function GuardianWorkspace({
               <ul className="check" style={{ margin: 0 }}>
                 {confirmable.map((a) => (
                   <ConfirmMatchForm key={`${a.fixtureId}-${a.personId}`} clubId={link.clubId} appointment={a} />
+                ))}
+              </ul>
+            </Panel>
+          )}
+          {settleable.length > 0 && (
+            <Panel
+              title="Referee payment"
+              meta={`${settleable.filter((c) => c.settlement === null).length} WAITING`}
+            >
+              <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
+                Money is owed for officiating. The club pays outside the platform exactly as it
+                already does for anyone &mdash; no account details are collected here, only which
+                you&rsquo;d prefer.{' '}
+                <span className="mono" style={{ fontSize: '0.7rem' }}>
+                  BR152
+                </span>
+              </p>
+              <ul className="check" style={{ margin: 0 }}>
+                {settleable.map((c) => (
+                  <SettleClaimForm key={c.id} clubId={link.clubId} claim={c} />
                 ))}
               </ul>
             </Panel>
