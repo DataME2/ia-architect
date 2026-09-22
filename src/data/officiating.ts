@@ -236,6 +236,7 @@ export async function loadCandidates(
     { data: memberships },
     { data: personRoles },
     { data: links },
+    { data: allFixtures },
   ] = await Promise.all([
     client.from('appearance').select('person_id').eq('club_id', clubId)
       .eq('fixture_id', fixture.fixtureId),
@@ -247,7 +248,7 @@ export async function loadCandidates(
     client.from('referee_suspension').select('person_id, starts_on, ends_on').eq('club_id', clubId),
     client
       .from('match_official_appointment')
-      .select('person_id, state, fixture_id, fixture!inner(played_on, kick_off)')
+      .select('person_id, state, fixture_id')
       .eq('club_id', clubId)
       .in('state', ['proposed', 'accepted']),
     client.from('club_membership').select('user_id, role').eq('club_id', clubId),
@@ -257,7 +258,18 @@ export async function loadCandidates(
     // *membership* role counts toward BR11. Only asserted links count
     // (decision 10) — an unlinked account is not evidence of anything.
     client.from('account_person').select('user_id, person_id').eq('club_id', clubId),
+    // A separate read, not an embed on the query above — `fixture!inner(...)`
+    // is ambiguous for this table (two foreign keys to `fixture` since it
+    // was built) and PostgREST refuses to guess, the same failure
+    // `loadVerifiable` hit. Silent here would be worse than there: this
+    // feeds BR7's same-day/same-kick-off clash check, so a failed embed
+    // meant a double-booking warning simply never fired.
+    client.from('fixture').select('id, played_on, kick_off').eq('club_id', clubId),
   ]);
+
+  const fixtureById = new Map(
+    ((allFixtures ?? []) as { id: string; played_on: string; kick_off: string | null }[]).map((f) => [f.id, f]),
+  );
 
   const personOfUser = new Map(
     ((links ?? []) as Record<string, string>[]).map((l) => [String(l.user_id), String(l.person_id)]),
@@ -289,8 +301,8 @@ export async function loadCandidates(
   const clashing = new Set<string>();
   for (const a of (otherAppointments ?? []) as Record<string, unknown>[]) {
     if (a.fixture_id === fixture.fixtureId) continue;
-    const f = a.fixture as { played_on?: string; kick_off?: string | null } | null;
-    if (f === null || f.played_on !== fixture.playedOn) continue;
+    const f = fixtureById.get(a.fixture_id as string);
+    if (f === undefined || f.played_on !== fixture.playedOn) continue;
     const person = String(a.person_id);
     sameDay.set(person, (sameDay.get(person) ?? 0) + 1);
     if (fixture.kickOff !== null && f.kick_off === fixture.kickOff) clashing.add(person);

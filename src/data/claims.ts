@@ -47,28 +47,41 @@ export async function loadVerifiable(
   seasonId: string,
   currentUserId: string,
 ): Promise<readonly VerifiableAppointment[]> {
-  const [appointmentsResult, { data: verified }, { data: people }, { data: links }] = await Promise.all([
-    client
-      .from('match_official_appointment')
-      .select('id, person_id, role, fixture_id, fixture!inner(played_on, status, season_id, opponent)')
-      .eq('club_id', clubId)
-      .eq('state', 'accepted'),
-    client.from('appointment_verification').select('appointment_id').eq('club_id', clubId),
-    client.from('person').select('id, legal_given_names, legal_family_name, preferred_name').eq('club_id', clubId),
-    client.from('account_person').select('user_id, person_id').eq('club_id', clubId),
-  ]);
+  const [appointmentsResult, { data: fixtures }, { data: verified }, { data: people }, { data: links }] =
+    await Promise.all([
+      client
+        .from('match_official_appointment')
+        .select('id, person_id, role, fixture_id')
+        .eq('club_id', clubId)
+        .eq('state', 'accepted'),
+      // A separate read, not an embed — `match_official_appointment` has
+      // carried two foreign keys to `fixture` since it was built (the plain
+      // one and the same-club composite one, the belt-and-braces pattern
+      // this codebase uses throughout), and PostgREST refuses to guess
+      // which one an embedded `fixture!inner(...)` means. `loadCandidates`
+      // and `loadClaimCandidates`, one function below, already read fixture
+      // separately for the same structural reason officiating.ts's own
+      // comment gives: a join reports "nothing" when what actually
+      // happened is that one side was refused, and this now says so.
+      client.from('fixture').select('id, played_on, status, season_id, opponent').eq('club_id', clubId),
+      client.from('appointment_verification').select('appointment_id').eq('club_id', clubId),
+      client.from('person').select('id, legal_given_names, legal_family_name, preferred_name').eq('club_id', clubId),
+      client.from('account_person').select('user_id, person_id').eq('club_id', clubId),
+    ]);
 
   // Not swallowed. Scope 61 found the same shape of bug on a different
-  // screen: a query that failed — most often a PostgREST schema cache that
-  // has not caught up with a just-applied migration — read back as
-  // `data: null` and rendered as an honest "nothing here", which on this
-  // screen means an official goes unpaid because nobody was ever told
-  // there was anything to check.
+  // screen: a query that failed read back as `data: null` and rendered as
+  // an honest "nothing here", which on this screen means an official goes
+  // unpaid because nobody was ever told there was anything to check.
   if (appointmentsResult.error !== null) {
     throw new QueryError('match_official_appointment', appointmentsResult.error.message);
   }
   const appointments = appointmentsResult.data;
 
+  const fixtureById = new Map(
+    ((fixtures ?? []) as { id: string; played_on: string; status: string; season_id: string; opponent: string }[])
+      .map((f) => [f.id, f]),
+  );
   const alreadyVerified = new Set(
     ((verified ?? []) as { appointment_id: string }[]).map((v) => v.appointment_id),
   );
@@ -76,20 +89,20 @@ export async function loadVerifiable(
   const myPersonId = ((links ?? []) as { user_id: string; person_id: string }[])
     .find((l) => l.user_id === currentUserId)?.person_id ?? null;
 
-  return ((appointments ?? []) as Record<string, unknown>[])
-    .filter((a) => (a.fixture as { season_id: string }).season_id === seasonId)
-    .filter((a) => !alreadyVerified.has(a.id as string))
-    .map((a) => {
-      const fixture = a.fixture as { played_on: string; status: string; opponent: string };
-      return {
-        appointmentId: a.id as string,
-        officialName: nameOf.get(a.person_id as string) ?? 'Unknown person',
-        role: a.role as string,
+  return ((appointments ?? []) as { id: string; person_id: string; role: string; fixture_id: string }[])
+    .filter((a) => !alreadyVerified.has(a.id))
+    .flatMap((a) => {
+      const fixture = fixtureById.get(a.fixture_id);
+      if (fixture === undefined || fixture.season_id !== seasonId) return [];
+      return [{
+        appointmentId: a.id,
+        officialName: nameOf.get(a.person_id) ?? 'Unknown person',
+        role: a.role,
         opponent: fixture.opponent,
         playedOn: fixture.played_on,
         fixtureStatus: fixture.status as VerifiableAppointment['fixtureStatus'],
-        verifierIsOfficial: myPersonId !== null && myPersonId === (a.person_id as string),
-      };
+        verifierIsOfficial: myPersonId !== null && myPersonId === a.person_id,
+      }];
     });
 }
 
