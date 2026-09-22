@@ -17,6 +17,7 @@ import { claimable } from '../domain/officiating/fees.ts';
 import { loadReferees } from './officiating.ts';
 import { notifyClaimApproved, partyFor } from './notifications.ts';
 import { formatMoney } from '../domain/finance/money.ts';
+import { QueryError } from './queries.ts';
 
 interface PersonNameRow {
   readonly id: string;
@@ -46,7 +47,7 @@ export async function loadVerifiable(
   seasonId: string,
   currentUserId: string,
 ): Promise<readonly VerifiableAppointment[]> {
-  const [{ data: appointments }, { data: verified }, { data: people }, { data: links }] = await Promise.all([
+  const [appointmentsResult, { data: verified }, { data: people }, { data: links }] = await Promise.all([
     client
       .from('match_official_appointment')
       .select('id, person_id, role, fixture_id, fixture!inner(played_on, status, season_id, opponent)')
@@ -56,6 +57,17 @@ export async function loadVerifiable(
     client.from('person').select('id, legal_given_names, legal_family_name, preferred_name').eq('club_id', clubId),
     client.from('account_person').select('user_id, person_id').eq('club_id', clubId),
   ]);
+
+  // Not swallowed. Scope 61 found the same shape of bug on a different
+  // screen: a query that failed — most often a PostgREST schema cache that
+  // has not caught up with a just-applied migration — read back as
+  // `data: null` and rendered as an honest "nothing here", which on this
+  // screen means an official goes unpaid because nobody was ever told
+  // there was anything to check.
+  if (appointmentsResult.error !== null) {
+    throw new QueryError('match_official_appointment', appointmentsResult.error.message);
+  }
+  const appointments = appointmentsResult.data;
 
   const alreadyVerified = new Set(
     ((verified ?? []) as { appointment_id: string }[]).map((v) => v.appointment_id),
@@ -126,7 +138,7 @@ export async function loadClaimCandidates(
   seasonId: string,
 ): Promise<readonly ClaimCandidate[]> {
   const [
-    { data: appointments },
+    appointmentsResult,
     { data: verifications },
     { data: claims },
     { data: fixtures },
@@ -144,6 +156,14 @@ export async function loadClaimCandidates(
       .eq('club_id', clubId).eq('season_id', seasonId),
     client.from('person').select('id, legal_given_names, legal_family_name, preferred_name').eq('club_id', clubId),
   ]);
+
+  // Same reason as `loadVerifiable`: a failed query read back silently as
+  // "no claims" is a worse answer than an error, on a screen that decides
+  // who gets paid.
+  if (appointmentsResult.error !== null) {
+    throw new QueryError('match_official_appointment', appointmentsResult.error.message);
+  }
+  const appointments = appointmentsResult.data;
 
   const fixtureById = new Map(
     ((fixtures ?? []) as Record<string, unknown>[]).map((f) => [f.id as string, f]),
