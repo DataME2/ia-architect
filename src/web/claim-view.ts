@@ -132,6 +132,34 @@ export function previewClaim(
   return { kind: 'ready', amountCents: outcome.amountCents, matched: outcome.matched };
 }
 
+export type ClaimSettlement = 'pay' | 'credit';
+
+export type ParsedSettlement =
+  | { readonly ok: true; readonly claimId: string; readonly settlement: ClaimSettlement }
+  | { readonly ok: false; readonly error: string };
+
+/**
+ * A family's choice for an approved claim (BR152).
+ *
+ * Whether the choice is theirs to make at all is the database's question —
+ * `app_may_answer_designation`, reused rather than re-derived (0045's own
+ * comment on drift applies here too). This only reads the form.
+ */
+export function parseSettlement(fields: {
+  readonly claimId?: string | null;
+  readonly settlement?: string | null;
+}): ParsedSettlement {
+  const claimId = (fields.claimId ?? '').trim();
+  if (claimId === '') return { ok: false, error: 'Which claim?' };
+
+  const settlement = fields.settlement ?? '';
+  if (settlement !== 'pay' && settlement !== 'credit') {
+    return { ok: false, error: 'Paid, or credited toward next season?' };
+  }
+
+  return { ok: true, claimId, settlement };
+}
+
 export type ParsedDecision =
   | { readonly ok: true; readonly claimId: string; readonly approve: boolean; readonly note: string | null }
   | { readonly ok: false; readonly error: string };

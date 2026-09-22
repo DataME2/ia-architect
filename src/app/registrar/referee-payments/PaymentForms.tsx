@@ -143,6 +143,13 @@ export function AddApprovedToBatch({
         <label key={c.id} className="row" style={{ gap: '0.5rem' }}>
           <input type="checkbox" name="claimId" value={c.id} />
           {c.officialName} &mdash; {c.opponent}, {c.playedOn} &mdash; {formatCents(c.amountCents)}
+          {c.settlement === null ? (
+            <span className="hint"> &mdash; awaiting their choice (BR152)</span>
+          ) : (
+            <span className="pill" style={{ marginLeft: '0.3rem' }}>
+              {c.settlement === 'pay' ? 'pay' : 'credit next season'}
+            </span>
+          )}
         </label>
       ))}
       <FormNotice result={result} />
