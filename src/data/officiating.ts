@@ -139,6 +139,8 @@ export interface DesignationFixture {
   readonly competition: string | null;
   readonly homeAway: string;
   readonly teamId: string | null;
+  /** So the fixture picker can say a game is already played, not just list it identically to one still needing designation. */
+  readonly status: string;
   readonly appointed: readonly {
     personId: string;
     name: string;
@@ -191,6 +193,7 @@ export async function loadDesignationFixtures(
     competition: f.competition ?? null,
     homeAway: String(f.home_away),
     teamId: f.team_id ?? null,
+    status: String(f.status),
     appointed: ((appointments ?? []) as Record<string, string>[])
       .filter((a) => a.fixture_id === f.id)
       .map((a) => ({
