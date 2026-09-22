@@ -96,6 +96,7 @@ export default async function DesignationsPage({
                   >
                     {f.playedOn} {f.opponent}
                     {f.appointed.length > 0 && ` · ${f.appointed.length} designated`}
+                    {f.status !== 'scheduled' && ` · ${f.status}`}
                   </a>
                 </li>
               ))}
@@ -156,6 +157,12 @@ async function FixtureBoard({
           {fixture.opponent}
         </strong>
         {fixture.competition !== null && <> &middot; {fixture.competition}</>}
+        {fixture.status !== 'scheduled' && (
+          <>
+            {' '}
+            <span className={`pill ${fixture.status === 'played' ? 'pill-ok' : 'pill-warn'}`}>{fixture.status}</span>
+          </>
+        )}
       </p>
 
       <DesignationBoard
