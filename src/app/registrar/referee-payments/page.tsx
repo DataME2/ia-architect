@@ -139,7 +139,13 @@ export default async function RefereePaymentsPage({
 
       {mayDecide && (
         <div className="card">
-          <h3 style={{ marginTop: 0 }}>Batches</h3>
+          <h3 style={{ marginTop: 0 }}>Payment runs</h3>
+          <p className="hint" style={{ marginTop: 0 }}>
+            A payment run groups approved claims so they can be paid together. Add claims to it, then{' '}
+            <b>close it</b> once the group is final &mdash; a closed run&rsquo;s total is fixed and admits
+            no more claims (BR117). Once you&rsquo;ve actually paid it, outside the platform, come back and{' '}
+            <b>record it as paid</b> (BR118) &mdash; this screen never sends money itself.
+          </p>
           <NewBatch />
           <div className="stack">
             {batches.map((b) => (
@@ -147,9 +153,11 @@ export default async function RefereePaymentsPage({
             ))}
             {batches.length > 0 && (
               <div className="card">
-                <h4 style={{ marginTop: 0 }}>Add approved claims to the open batch</h4>
+                <h4 style={{ marginTop: 0 }}>Add approved claims to the open payment run</h4>
                 {openBatch === undefined ? (
-                  <p className="hint" style={{ marginBottom: 0 }}>No open batch &mdash; start a new one above.</p>
+                  <p className="hint" style={{ marginBottom: 0 }}>
+                    No open payment run &mdash; start one above.
+                  </p>
                 ) : (
                   <AddApprovedToBatch batchId={openBatch.id} approved={approvedUnbatched} />
                 )}

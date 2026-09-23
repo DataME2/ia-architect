@@ -116,10 +116,10 @@ export function NewBatch() {
   return (
     <form action={action} className="row" style={{ gap: '0.5rem', alignItems: 'end' }}>
       <p style={{ margin: 0 }}>
-        <label htmlFor="reference">Batch reference</label>
+        <label htmlFor="reference">Payment run reference</label>
         <input id="reference" name="reference" type="text" placeholder="Optional" />
       </p>
-      <button type="submit" disabled={pending}>{pending ? '…' : 'New batch'}</button>
+      <button type="submit" disabled={pending}>{pending ? '…' : 'New payment run'}</button>
       <FormNotice result={result} />
     </form>
   );
@@ -134,7 +134,7 @@ export function AddApprovedToBatch({
 }) {
   const [result, action, pending] = useActionState(addToBatchAction, IDLE_FORM);
 
-  if (approved.length === 0) return <p className="hint">No approved, unbatched claims to add.</p>;
+  if (approved.length === 0) return <p className="hint">No approved claims waiting to be added yet.</p>;
 
   return (
     <form action={action} className="stack">
@@ -154,7 +154,7 @@ export function AddApprovedToBatch({
       ))}
       <FormNotice result={result} />
       <p>
-        <button type="submit" disabled={pending}>{pending ? 'Adding…' : 'Add selected to this batch'}</button>
+        <button type="submit" disabled={pending}>{pending ? 'Adding…' : 'Add selected to this payment run'}</button>
       </p>
     </form>
   );
@@ -169,7 +169,7 @@ export function BatchCard({ batch }: { readonly batch: BatchRow }) {
   return (
     <div className="card">
       <p style={{ margin: 0 }}>
-        <b>{batch.reference ?? 'Untitled batch'}</b> <span className="pill">{standing}</span>
+        <b>{batch.reference ?? 'Untitled payment run'}</b> <span className="pill">{standing}</span>
         <br />
         <span className="hint">
           {batch.claimCount} claim{batch.claimCount === 1 ? '' : 's'} &mdash; {formatCents(batch.totalCents)}
@@ -181,7 +181,7 @@ export function BatchCard({ batch }: { readonly batch: BatchRow }) {
           <input type="hidden" name="batchId" value={batch.id} />
           <input type="hidden" name="totalCents" value={batch.totalCents} />
           <input type="hidden" name="claimCount" value={batch.claimCount} />
-          <button type="submit" disabled={closing}>{closing ? '…' : 'Close batch'}</button>
+          <button type="submit" disabled={closing}>{closing ? '…' : 'Close this payment run'}</button>
           <FormNotice result={closeResult} />
         </form>
       )}
