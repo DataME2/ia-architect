@@ -3,9 +3,13 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** branch `claude/governance-actors-and-permissions`.
+**Delivered as:** branch `claude/governance-actors-and-permissions`;
+**WP5 specified on** `claude/committee-role-permissions`.
 **Status: WP1 and WP2 delivered, September 2026. WP3 on hold by decision.
-WP4 waits on open questions #58 and #59.**
+WP4 closed by #58/#59 (September 2026) — see §2a. WP5 specified, not yet
+implemented: the pilot club supplied its own read/write matrix for the
+five roles WP4's own initiative ([scope 62](./62_named_roles_for_actors_already_documented.md))
+named but deliberately left ungranted. Advances #78; does not close it.**
 
 Three questions were asked of club governance and administration: **how does
 an actor sign in, what may each actor do, and what may each actor see?**
@@ -145,6 +149,113 @@ as BR56: an answer written down and never enforced, which is exactly the
 failure this document exists to catch. Closing it is a WP4 question, not a
 patch, because it decides what a coach may see (#58) at the same time.
 
+## 2a. WP4 closed, WP5 opened
+
+[Open questions](./open-questions.md) **#58 and #59 were answered in
+September 2026**, after this document's own WP4 named them as the gate:
+
+- **#58 — what a `coach` may see:** the eligibility answer, never the
+  money. A coach sees whether a player is completely registered, whether
+  they are clear to take the field (the BR79 verdict, not the balance),
+  and which consents are granted. Recorded as BR78 restated.
+- **#59 — whether `committee` may write anything:** yes — it records its
+  own decisions. `committee_resolution` (BR123, [scope 57](./57_the_committee_records_its_own_decisions.md))
+  is live: `committee_resolution_record` lets `admin` or `committee`
+  insert one, matching `pg_policies` today.
+
+**What WP4 did not do — and [scope 62](./62_named_roles_for_actors_already_documented.md)
+said so at the time — is give five roles anything to write or narrowly
+read: Secretary / Member Protection Officer, Finance Admin, Referee
+Coordinator Admin, Referee Admin Back-Up, and Blue Card Administration.**
+Scope 62 gave thirteen *other* actors a `club_membership.role` value with
+no policy behind it; these five were named as **explicitly not in that
+initiative's list**. That gap is what the pilot club's own document
+(below) closes the specification for — WP5.
+
+## 2b. WP5 — the pilot club's own matrix (specified, not yet implemented)
+
+The pilot club supplied a role × resource read/write matrix directly
+(`roles_policies_permissions.doc`, September 2026) — the first time an
+answer to [#78](./open-questions.md) has come from the club rather than
+being inferred from Majestri's shape (§2's comparison above). Nine
+columns: **Admin/President, IT Manager, Registrar/Events Coordinator,
+Treasurer, Secretary, Referee Coordinator or Ref Admin, Coach (bundled
+with Head of Performance/Community/Women's, Technical Director and Team
+Manager), Coordinators — Football Programs, Blue Card Administrator** —
+plus a **Players** column, answered once per row as "only its own info in
+its own Workspace" rather than a letter, which is the family-read
+policies (`*_select_family`) already in place and not new.
+
+**A structural gap this table makes concrete**, independent of any single
+cell's value: three of its nine columns name a role the database cannot
+grant today.
+
+| Doc's column | `club_membership.role` today | Gap |
+| ------------- | ----------------------------- | --- |
+| Admin/President | `admin` | None — exists, heavily used |
+| IT Manager | `digital_technology_manager` | Exists ([scope 62](./62_named_roles_for_actors_already_documented.md)), **ungranted** — no policy names it |
+| Registrar/Events Coordinator | `registrar` | None — exists, heavily used. (Events Coordinator is the same `Person` wearing a second hat per [1_business-actors-and-roles.md](../ea/2_business/1_business-actors-and-roles.md), not a second value) |
+| Treasurer | `treasurer` | None — exists, heavily used |
+| **Secretary** | *(none)* | **Missing entirely.** Named in the business document, deferred by scope 62, still absent from `club_membership_role_check` |
+| **Referee Coordinator or Ref Admin** | `coordinator` (unchanged) | **Resolved (September 2026): stays `coordinator`.** No split. The matrix's distinct column is documentation of who typically holds the role, not a request for a narrower grant — implementing it would mean re-auditing every policy that already lists `coordinator` for which meaning it intended, which is deferred until (if ever) the club finds the shared grant a real problem in practice |
+| Coach (+ Head of Performance/Community/Women's, Technical Director, **Team Manager**) | `coach`, `head_of_performance`, `head_of_community_football`, `head_of_womens_football`, `technical_director` exist; **Team Manager does not** | Five of six exist; three of the five (`head_of_*`) are ungranted like IT Manager above |
+| Coordinators — Football Programs | `program_coordinator` | Exists ([scope 62](./62_named_roles_for_actors_already_documented.md)), **ungranted** |
+| **Blue Card Administrator** | *(none)* | **Missing entirely.** The **Blue Card Administration** actor is documented ([1_business-actors-and-roles.md](../ea/2_business/1_business-actors-and-roles.md)) but was the other deferred name in scope 62; `clearance` today grants only `admin`/`registrar` |
+
+**On the cell values themselves: transcribed, not yet verified.** The
+source is a legacy `.doc` with no converter available in this
+environment; the table was recovered by parsing the file's own `Clx`
+piece table rather than rendering it, and two rows (**Payments**, **Teams
+& rosters**) produced one fewer token than the other seventeen — meaning
+at least one cell in each was genuinely empty in the source rather than
+marked `--`, which plain-text extraction cannot always tell apart from a
+column silently shifting. **Where the extraction was ambiguous
+(Clearances/WWCC, Player physique, Prospects), this document keeps
+today's live `pg_policies` values rather than guess at the source's
+symbol**, per the stakeholder's own instruction. The reconstructed table
+is kept in [§2c](#2c-wp5s-transcribed-matrix-verify-before-treating-as-final)
+below, flagged the same way, rather than silently promoted to fact — the
+same discipline this document applies to `pg_policies` itself (§2's own
+opening line: *read the policies, not the documentation*). **Before WP5
+is implemented, the two flagged rows and the ambiguous three should be
+re-confirmed against a clean export (CSV, or the source re-shared as
+plain text/screenshot) rather than this transcription.**
+
+## 2c. WP5's transcribed matrix — verify before treating as final
+
+**W** = read and write · **R** = read only · **—** = no access · *(gap)* =
+column has no role value in the database yet
+
+| Resource | Admin | IT Mgr | Registrar/Events | Treasurer | Secretary | Ref Coord/Admin | Coach group | Coord–Football Programs | Blue Card Admin | Players |
+| -------- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | --- |
+| People, roles, guardianship | W | W | R | R | R | R | — | R | R | own info only |
+| Registrations & documents | W | W | R | R | R | R | — | R | — | *(not stated)* |
+| Seasons & requirements | W | W | R | R | — | R | — | R | — | own info only |
+| Registration links | W | W | R | R | — | R | — | R | — | *(not stated)* |
+| Consents | W | W | R | R | R | R | R | — | R | own info only |
+| Payment plans & instalments | W | R | W | R | — | — | — | — | — | own info only |
+| Payments | W | R | W | R | — | — | — | — | *(token count short — verify)* | own info only |
+| Vouchers — attach | W | W | W | R | — | — | — | — | — | own info only |
+| Vouchers — verify / reject | W | R | W | R | — | — | — | — | — | own info only |
+| Teams & rosters | W | W | R | W | W | R | W | — | *(token count short — verify)* | own info only |
+| Clearances (WWCC) | W | W | *(kept as live)* | *(kept as live)* | *(kept as live)* | *(kept as live)* | — | — | W | *(kept as live)* |
+| Committee terms & positions | W | R | R | R | R | — | — | — | — | *(token run ambiguous — verify)* |
+| Fixtures | W | W | R | W | W | W | R | R | — | own info only |
+| Appearances & statistics | W | W | R | W | R | W | — | W | — | own info only |
+| Player physique (height, weight) | W | W | *(kept as live)* | W | R | W | — | W | *(kept as live)* | own info only |
+| Club membership (who has access) | W | R | R | R | — | — | R | — | — | own info only |
+| Submission packs | W | W | R | R | — | — | R | — | — | *(not stated)* |
+| Audit log | R | *(kept as live)* | *(kept as live)* | *(kept as live)* | *(kept as live)* | *(kept as live)* | — | *(kept as live)* | — | *(not stated)* |
+| Prospects | W | *(kept as live)* | *(kept as live)* | W | *(kept as live)* | *(kept as live)* | — | *(kept as live)* | — | *(not stated)* |
+
+Read against §2's table above, the direction of travel is consistent with
+it wherever both name a value: administrator writes everything, a
+treasurer's write stays on money, a coach's stays off it. What this table
+adds is **narrower reads** than §2 currently grants anywhere — every row
+here reads `R`/`—` per column rather than "any club member," which is the
+[gap note](#gap-notes) §3 already named as the largest one, now with a
+concrete target instead of an open question.
+
 ## 3. What each actor may see — and the gap underneath it
 
 The read column above is the literal answer. The structural answer is worse.
@@ -170,23 +281,24 @@ This is also the one place where **P1 is not honoured**. The principle says
 one `Person`, many roles — but sign-in identity was modelled as a separate
 thing entirely, and a club officer is therefore two unrelated records.
 
-## EA alignment (assessed top-down; WP2 implemented, WP1 aligned September 2026)
+## EA alignment (assessed top-down; WP2/WP4 implemented, WP1 aligned September 2026, WP5 specified)
 
 | Layer | Impact when this is built |
 | ----- | ------------------------- |
-| 1_strategy | No new capability, and **no change to any principle**. P1 was unhonoured for the sign-in identity; WP1 closes that gap and P1 gained a sentence saying an account is a credential rather than an identity. C19 and C10 both gain substance |
-| 2_business | **BR106–BR108 added** for WP1: one link per account per club in both directions, asserted by an administrator and never inferred from an email address, and unlinked shown as unlinked. Glossary gained *Account* and *Account Link*. The `committee` role still needs to mean something or be removed ([#59](./open-questions.md)); `coach` now does, via scope 30 |
-| 3_information | **`account_person` added** as a data object, pending WP1 — its own table rather than a column, and a composite foreign key rather than a trigger, both argued in [1_data-objects.md](../ea/3_information/1_data-objects.md). The four access and platform tables built earlier and never modelled here (`club_membership`, `club_licence`, `platform_admin`, `user_password_set`) were added in the same pass. Read-narrowing would change the classification of finance and contact data per role |
-| 4_application | **Delivered for WP2:** `/registrar/access` (admin only), `src/web/access-view.ts`, `supabase/migrations/0015_club_access_management.sql`. **Specified for WP1:** *Account identification*, listed under *Documented, not built* in [1_application-services.md](../ea/4_application/1_application-services.md). Still to come: role-aware rendering (WP3) and a self-service account route |
-| 5_technology | **No change** — for WP2 or WP1. WP1 is one migration and two `security definer` functions on the stack that already exists; it needs no runtime, build, CI or hosting change, and the RLS test suite it extends is already wired into CI. Fixed ports were added for running dev and a local production build side by side ([2_deployment.md](../ea/5_technology/2_deployment.md)), which surfaced that local development has no database of its own |
+| 1_strategy | No new capability, and **no change to any principle**. P1 was unhonoured for the sign-in identity; WP1 closes that gap and P1 gained a sentence saying an account is a credential rather than an identity. C19 and C10 both gain substance. **WP5 adds no new principle either** — it is P5's tenant isolation applied inward, per role, for the first time with a concrete target |
+| 2_business | **BR106–BR108 added** for WP1: one link per account per club in both directions, asserted by an administrator and never inferred from an email address, and unlinked shown as unlinked. Glossary gained *Account* and *Account Link*. `committee` and `coach` now both mean something (§2a, WP4, #58/#59 closed). **WP5:** no new business rule yet — the matrix is club input, not yet codified as a rule the way BR78/BR123 codified WP4's answers. That codification is part of implementing WP5, not this specification pass |
+| 3_information | **`account_person` added** as a data object, pending WP1 — its own table rather than a column, and a composite foreign key rather than a trigger, both argued in [1_data-objects.md](../ea/3_information/1_data-objects.md). The four access and platform tables built earlier and never modelled here (`club_membership`, `club_licence`, `platform_admin`, `user_password_set`) were added in the same pass. Read-narrowing would change the classification of finance and contact data per role. **WP5:** two new `club_membership.role` check-constraint values (`secretary`, `blue_card_administrator`) are the only schema change identified; no new table |
+| 4_application | **Delivered for WP2:** `/registrar/access` (admin only), `src/web/access-view.ts`, `supabase/migrations/0015_club_access_management.sql`. **Specified for WP1:** *Account identification*, listed under *Documented, not built* in [1_application-services.md](../ea/4_application/1_application-services.md). Still to come: role-aware rendering (WP3) and a self-service account route. **WP5: no application-layer change identified** — every grant in the matrix is an RLS policy, not a new route or component |
+| 5_technology | **No change** — for WP2 or WP1. WP1 is one migration and two `security definer` functions on the stack that already exists; it needs no runtime, build, CI or hosting change, and the RLS test suite it extends is already wired into CI. Fixed ports were added for running dev and a local production build side by side ([2_deployment.md](../ea/5_technology/2_deployment.md)), which surfaced that local development has no database of its own. **WP5: no change to the stack**, but its migration is large enough (§`WP5`'s blast-radius note) that it must run the full `supabase/tests/*.sql` suite plus a break-test before it ever reaches the linked dev project — the same CI gate `CLAUDE.md` already wires in, exercised at a larger scale than any single migration so far |
 
 ## Plateaus
 
 | Plateau | State |
 | ------- | ----- |
 | **Baseline** (September 2026, before WP2) | One account for the whole platform. Access granted by hand-typed SQL. Six role names, four of which have distinct permissions. Reads unrestricted within a club. No link between an account and a Person |
-| **Now** (WP2 delivered) | Clubs are provisioned from `/platform` and their named contacts claim their own access; an admin grants and revokes at `/registrar/access`. Seven role names, five with distinct permissions — `coach` gained writes from scope 30, `committee` and `viewer` still mean nothing. Reads still unrestricted within a club, on twenty-five of thirty-one tables. **Still no link between an account and a Person** |
-| **Target** | An admin grants and revokes access in the application. Every role name means something. Money and contact details are readable by the roles that need them. A signed-in officer is recognised as the Person they are, and the audit log names them |
+| **Now** (WP1, WP2, WP4 delivered) | Clubs are provisioned from `/platform` and their named contacts claim their own access; an admin grants and revokes at `/registrar/access`; a signed-in officer is recognised as the Person they are. Twenty role names exist in the database, seven with distinct permissions (`admin`, `registrar`, `treasurer`, `coordinator`, `committee`, `coach`, `technical_director`) — `coach` and `committee` both mean something now (WP4/§2a); thirteen more are grantable and read-only-by-membership like `viewer` always was. Reads still unrestricted within a club, on twenty-five of thirty-one tables |
+| **Specified, not built** (WP5) | The pilot club's own matrix (§2b–2c) narrows reads per role for the first time and grants five previously-ungranted or missing roles — Secretary, Blue Card Administrator, IT Manager, Coordinators–Football Programs, and the `head_of_*` roles. Referee Coordinator stays on `coordinator`, resolved. Waiting on the club's own review of the transcribed matrix (two short-token rows, three kept-as-live cells) before any migration is written |
+| **Target** | Every role name means something, money and contact details are readable only by the roles that need them, and per-team scoping (#78's other half) exists |
 
 ## Work packages and deliverables
 
@@ -348,11 +460,59 @@ last administrator, is explained in place rather than offered and denied.
   correctly refused, and **the page said nothing at all**. Security held;
   the interface lied.
 
-### WP4 — Make `committee` and `coach` mean something
+### WP4 — Make `committee` and `coach` mean something *(CLOSED — see §2a)*
 
 - **Deliverables:** business rules first, then policies. What a committee
   member may see is a governance question, not a technical one.
-- **Outcome:** six role names with six distinct meanings, or fewer names.
+- **Outcome:** #58 and #59 answered September 2026 — BR78 restated for
+  `coach`, BR123/`committee_resolution` for `committee`. See §2a.
+
+### WP5 — Grant the five roles WP4 left ungranted *(SPECIFIED, not implemented)*
+
+- **Trigger:** the pilot club's own read/write matrix
+  (`roles_policies_permissions.doc`, September 2026), transcribed in
+  [§2b–2c](#2b-wp5--the-pilot-clubs-own-matrix-specified-not-yet-implemented)
+  above.
+- **What it needs, structurally, before a single policy is written:**
+  - **Two new `club_membership.role` values**: `secretary` and
+    `blue_card_administrator` — named by the business document, deferred
+    by [scope 62](./62_named_roles_for_actors_already_documented.md),
+    asked for again here by the club itself.
+  - **Referee Coordinator — resolved, no split.** Decided September
+    2026: stays on the existing `coordinator` value. The matrix's
+    distinct column names who typically holds it, not a request for a
+    narrower grant.
+  - **Granting the three already-named, already-ungranted roles**:
+    `digital_technology_manager` (IT Manager), `program_coordinator`
+    (Coordinators — Football Programs), and the three `head_of_*` values
+    bundled into the matrix's Coach column.
+  - **Narrowing reads.** §3's gap note already named this as "a breaking
+    change to every screen that currently assumes a member sees
+    everything… not incrementally per screen." WP5's matrix is the first
+    concrete per-role read specification to narrow against, rather than
+    an open question — but every screen reading any of these nineteen
+    resource categories needs auditing against the new `R`/`—` cells, and
+    that audit has not been done.
+- **Blast radius:** the matrix touches 19 resource categories across
+  (at minimum) `person`, `registration`, `season`, `registration_invitation`,
+  `consent`, `payment_plan`, `payment`, `registration_voucher`, `team`,
+  `team_member`, `clearance`, `committee_term`, `committee_position`,
+  `fixture`, `appearance`, `player_profile`, `club_membership`,
+  `submission_pack`, `audit_event`, `prospect` — every RLS-governed table
+  in the schema bar the referee-payment chain (out of scope for this
+  matrix; see [scope 34](./34_paying_the_officials.md)). Per
+  [`CLAUDE.md`](../../CLAUDE.md), a change at this scale needs the full
+  `supabase/tests/*.sql` suite run and a deliberate break-test before any
+  migration touches the linked dev project — **not started**. Waiting on
+  the club's review of the transcribed matrix itself (§2c's two
+  short-token rows and the ambiguous cells) before a migration is
+  written against it.
+- **Outcome, once built:** the five roles scope 62 named and left
+  ungranted get real read/write grants: a Secretary can act on member
+  protection and governance records without holding `admin`; a Blue Card
+  Administrator can verify and record a Working with Children Check
+  without holding `registrar`. Advances #78; does not close it —
+  per-team scoping (the other half of #78) is untouched by this matrix.
 
 ## In scope / out of scope
 
@@ -363,6 +523,7 @@ last administrator, is explained in place rather than offered and denied.
 | Hiding controls a role cannot use | Per-team scoping — "this coach sees only their own team" — which is a different and larger model than roles |
 | Narrowing reads per role | Password reset and account recovery |
 | Naming the actor in the audit log | Central super-administration — still a P5 exception needing its own decision record ([scope 28 §2](./28_onboarding-a-club-and-its-history.md)) |
+| **WP5: specifying the pilot club's own matrix** (§2b–2c) | **WP5: implementing it.** Two new role values, the Referee Coordinator/`coordinator` split, the actual RLS migration, and the `supabase/tests/*.sql` suite it needs — none written yet, pending confirmation of the structural decisions §2b names |
 
 ## Gap notes
 
@@ -387,22 +548,16 @@ last administrator, is explained in place rather than offered and denied.
 
 ## Open questions
 
-**#58 — What should a `coach` be able to see?** Today: every family's
-balance, consents and contact details across the entire club. The plausible
-answers range from "their own team's players only" to "the same as any
-member, because a small club is a small room". This is a privacy decision
-about children's data, so it belongs to the club and its jurisdiction (BR52)
-rather than to an engineering preference.
+**#58 and #59 — closed.** See [§2a](#2a-wp4-closed-wp5-opened) and
+[open-questions.md](./open-questions.md).
 
-**#59 — Should `committee` carry any write permission at all?** BR21 says a
-Voucher Program needs Committee approval, and BR85–BR88 model the committee
-as a record. But a committee member holding the `committee` role can write
-nothing, so "the Committee approved it" is recorded *by an admin on their
-behalf*. Either the role gains the ability to record its own decisions, or
-the rules should stop implying it acts in the system.
+**#60 — closed.** Yes, and a club holds at least two administrators
+(BR124) — [open-questions.md](./open-questions.md).
 
-**#60 — May a club admin grant `admin` to someone else?** The policy
-currently allows it, so any admin can create another admin, and an admin can
-revoke their own access and lock the club out. Whether that is correct is a
-governance question the club should answer, not a default that arrived with
-the policy.
+**#78 — advanced, not closed.** WP5 ([§2b–2c](#2b-wp5--the-pilot-clubs-own-matrix-specified-not-yet-implemented))
+answers half of it — what a named committee position may read/write —
+with the pilot club's own matrix. **Per-team scoping, #78's other half,
+is untouched**: nothing in WP5's matrix expresses "this Referee Coordinator
+sees only their own program's referees" or "this Coach sees only their own
+team," because that depends on a row in `team_member`/`program`, not on a
+role. See the [gap note](#gap-notes) below.
