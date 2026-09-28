@@ -12,6 +12,14 @@ export const CLUB_ROLES = [
   'committee',
   'coach',
   'coordinator',
+  'secretary',
+  'blue_card_administrator',
+  'digital_technology_manager',
+  'program_coordinator',
+  'technical_director',
+  'head_of_performance',
+  'head_of_community_football',
+  'head_of_womens_football',
 ] as const;
 
 export type ClubRole = (typeof CLUB_ROLES)[number];
@@ -103,24 +111,43 @@ export function candidateLabel(candidate: LinkCandidate): string {
  * What each role actually permits, in one sentence a committee would
  * recognise. Taken from the policies rather than from intent — see
  * `docs/scope/29_actors-access-and-permissions.md` for the full matrix.
+ *
+ * `committee` and `coach` were both "writes nothing" when this table was
+ * first written; #58/#59 and scope 29's WP5 answered that, so both now
+ * write something distinct. Extend this table when a policy changes, the
+ * way both of those did — it is not automatically derived from
+ * `pg_policies`, so drift here is a screen going stale, not the database.
  */
 export const ROLE_SUMMARY: Record<ClubRole, string> = {
   admin: 'Everything, including who has access and the committee.',
   registrar: 'People, registrations, documents, teams, seasons and submission packs.',
   treasurer: 'Payment plans, payments, and verifying vouchers.',
-  committee: 'Reads the club. Writes nothing — the same as coach today.',
-  coach: 'Reads the club. Writes nothing — the same as committee today.',
-  coordinator: 'Teams and rosters.',
+  committee: 'Records committee resolutions and voucher-program decisions (BR123). Otherwise reads the club.',
+  coach: 'Fixtures, appearances, player physique, and team rosters.',
+  coordinator: 'Teams, rosters, fixtures, appearances, referee designations, and raising payment claims.',
+  secretary: 'Team rosters and fixtures.',
+  blue_card_administrator: 'Working with Children Check records (clearances).',
+  digital_technology_manager:
+    'Broad technical/administrative write access: people, registrations, seasons, consents, '
+    + 'vouchers, teams, clearances, fixtures, appearances and player physique.',
+  program_coordinator: 'Appearances and player physique.',
+  technical_director: 'Player physique, and team rosters.',
+  head_of_performance: 'Team rosters.',
+  head_of_community_football: 'Team rosters.',
+  head_of_womens_football: 'Team rosters.',
 };
 
 /**
  * Roles that currently permit no writing at all.
  *
- * Named rather than hidden, because an admin granting `coach` is entitled
- * to know it does nothing the database can see. Three names share one set
- * of permissions until open questions #58 and #59 are answered.
+ * Named rather than hidden, because an admin granting one is entitled to
+ * know it does nothing the database can see. Empty today — every role this
+ * screen offers writes something as of scope 29's WP5 — kept rather than
+ * removed because a future role (scope 62 named several with no policy at
+ * all: `director_of_football`, `grants_committee_member`, and others) is
+ * exactly the case this existed for the first time.
  */
-export const READ_ONLY_ROLES: readonly ClubRole[] = ['committee', 'coach'];
+export const READ_ONLY_ROLES: readonly ClubRole[] = [];
 
 export function isClubRole(value: string): value is ClubRole {
   return (CLUB_ROLES as readonly string[]).includes(value);
