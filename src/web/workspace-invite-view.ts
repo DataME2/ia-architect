@@ -43,6 +43,78 @@ export interface InvitePlan {
 
 const NOTHING: InvitePlan = { send: [], missingEmail: [], noGuardian: false };
 
+/** Somebody who should have a workspace for this player, and where it stands. */
+export interface WorkspaceHolder {
+  readonly personId: string;
+  readonly name: string;
+  readonly email: string | null;
+  readonly invited: boolean;
+  readonly claimed: boolean;
+}
+
+export type WorkspaceState =
+  | 'active'           // they have signed in
+  | 'link-sent'        // invited, not yet arrived
+  | 'waiting-complete' // registration not COMPLETE yet — nothing is sent before
+  | 'no-email'         // should be invited, nothing to send it to
+  | 'not-sent';        // due, but marked before links went out on their own
+
+export const WORKSPACE_STATE_LABEL: Readonly<Record<WorkspaceState, string>> = {
+  active: 'active',
+  'link-sent': 'link sent, not opened yet',
+  'waiting-complete': 'waiting — registration not COMPLETE',
+  'no-email': 'no email on record',
+  'not-sent': 'not sent — use “Send all missing” on People',
+};
+
+/** The pill class each state wears: what needs a human is not the same colour as what is fine. */
+export const WORKSPACE_STATE_TONE: Readonly<Record<WorkspaceState, string>> = {
+  active: 'pill pill-ok',
+  'link-sent': 'pill',
+  'waiting-complete': 'pill',
+  'no-email': 'pill pill-stop',
+  'not-sent': 'pill pill-warn',
+};
+
+export interface WorkspaceRow {
+  readonly kind: 'player' | 'guardian';
+  readonly personId: string;
+  readonly name: string;
+  readonly state: WorkspaceState;
+}
+
+/**
+ * Every workspace this player's season calls for, and its state — the
+ * Access screen's read-only view of what `planWorkspaceInvites` sends.
+ * The same ages decide who is listed, so the two cannot disagree.
+ */
+export function workspaceRows(input: {
+  readonly age: number;
+  readonly registrationComplete: boolean;
+  readonly player: WorkspaceHolder;
+  readonly authorityGuardians: readonly WorkspaceHolder[];
+}): readonly WorkspaceRow[] {
+  const row = (kind: WorkspaceRow['kind'], h: WorkspaceHolder): WorkspaceRow => ({
+    kind,
+    personId: h.personId,
+    name: h.name,
+    state: h.claimed
+      ? 'active'
+      : h.invited
+        ? 'link-sent'
+        : !input.registrationComplete
+          ? 'waiting-complete'
+          : (h.email ?? '').trim() === ''
+            ? 'no-email'
+            : 'not-sent',
+  });
+
+  return [
+    ...(input.age < 18 ? input.authorityGuardians.map((g) => row('guardian', g)) : []),
+    ...(input.age >= 13 ? [row('player', input.player)] : []),
+  ];
+}
+
 export function planWorkspaceInvites(input: InviteInput): InvitePlan {
   if (!input.isPlayerThisSeason || !input.registrationComplete) return NOTHING;
 

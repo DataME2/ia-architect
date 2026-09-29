@@ -112,6 +112,19 @@ there), and the button. **No migration** — the gates were already right.
 A missing email is reported by the button, never skipped silently; a guardian
 of two players is invited once.
 
+**Seeing it (asked the same day):** the club looked for Player in the Access
+screen's grant dropdown. It is deliberately not there — a workspace shows one
+family's own records and an access level acts on the whole club, so offering
+"Player" beside "Registrar" would invite exactly the grant decision 11
+refuses. Instead the Access screen gains a read-only **Player and family
+workspaces** section for the current season: each player, whose workspace
+(own or family), and its state — *active*, *link sent*, *waiting —
+registration not COMPLETE*, *no email on record*, or *not sent* (marked
+before WP2; the People button sends it). `workspaceRows` lists by the same
+ages `planWorkspaceInvites` sends by, and one loader serves both, so the
+screen shows exactly what would be sent. The club kept COMPLETE as the gate
+when asked again.
+
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |

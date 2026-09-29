@@ -2,7 +2,9 @@ import { redirect } from 'next/navigation';
 
 import { loadAppointmentAccess, loadFunctionAppointments } from '../../../data/appointments.ts';
 import { loadGovernance } from '../../../data/governance.ts';
-import { loadLinkCandidates, loadTenantContext } from '../../../data/queries.ts';
+import { loadLinkCandidates, loadSeasons, loadTenantContext } from '../../../data/queries.ts';
+import { loadWorkspaceStatus } from '../../../data/workspace-invitations.ts';
+import { WORKSPACE_STATE_LABEL, WORKSPACE_STATE_TONE } from '../../../web/workspace-invite-view.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { governingTerm } from '../../../domain/governance/term.ts';
 import type { ClubAccount } from '../../../web/access-view.ts';
@@ -84,16 +86,21 @@ export default async function AccessPage() {
     }),
   );
 
-  const [candidates, accessRows, functions, governance] = await Promise.all([
+  const today = todayIn();
+  const [candidates, accessRows, functions, governance, seasons] = await Promise.all([
     loadLinkCandidates(client, tenant.clubId),
     loadAppointmentAccess(client, tenant.clubId),
     loadFunctionAppointments(client, tenant.clubId),
     loadGovernance(client, tenant.clubId),
+    loadSeasons(client, tenant.clubId),
   ]);
+  // The season People opens on by default, so the two screens agree.
+  const season = seasons[0];
+  const workspaces =
+    season === undefined ? [] : await loadWorkspaceStatus(client, tenant.clubId, season.id, today);
 
   // Why each account holds what it holds: the appointment behind an access,
   // and whether that appointment has since ended (BR154 keeps the access).
-  const today = todayIn();
   const governing = governingTerm(governance.terms, today);
   const termById = new Map(governance.terms.map((t) => [t.id, t]));
   const positionById = new Map(governance.members.map((m) => [m.id, m]));
@@ -145,6 +152,50 @@ export default async function AccessPage() {
       </p>
 
       <AccessForms accounts={accounts} candidates={candidates} sources={sources} />
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>
+          Player and family workspaces{season === undefined ? '' : ` — ${season.name}`}
+        </h3>
+        <p className="hint" style={{ marginTop: 0 }}>
+          Nothing to grant here: once someone is a player this season and their registration is
+          COMPLETE, the links go out on their own &mdash; to the guardian under 13, the guardian and
+          the player from 13 to 17, the player from 18. A workspace shows only its own family&rsquo;s
+          records, never the club&rsquo;s, which is why it is not an access level above.
+        </p>
+        {workspaces.length === 0 ? (
+          <p className="empty">No players this season yet.</p>
+        ) : (
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Workspace</th>
+                  <th>Who signs in</th>
+                  <th>State</th>
+                </tr>
+              </thead>
+              <tbody>
+                {workspaces.flatMap((w) =>
+                  w.rows.map((r) => (
+                    <tr key={`${w.playerName}-${r.kind}-${r.personId}`}>
+                      <td>{w.playerName}</td>
+                      <td>{r.kind === 'player' ? 'Own' : 'Family'}</td>
+                      <td>{r.name}</td>
+                      <td>
+                        <span className={WORKSPACE_STATE_TONE[r.state]}>
+                          {WORKSPACE_STATE_LABEL[r.state]}
+                        </span>
+                      </td>
+                    </tr>
+                  )),
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </>
   );
 }
