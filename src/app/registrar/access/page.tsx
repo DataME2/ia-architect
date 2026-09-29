@@ -1,8 +1,18 @@
 import { redirect } from 'next/navigation';
 
+import { loadAppointmentAccess, loadFunctionAppointments } from '../../../data/appointments.ts';
+import { loadGovernance } from '../../../data/governance.ts';
 import { loadLinkCandidates, loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
+import { governingTerm } from '../../../domain/governance/term.ts';
 import type { ClubAccount } from '../../../web/access-view.ts';
+import {
+  FUNCTION_LABEL,
+  isCurrentFunction,
+  type AccessSource,
+} from '../../../web/appointment-view.ts';
+import { POSITION_LABEL } from '../../../web/governance-view.ts';
+import { todayIn } from '../../../web/today.ts';
 import { AccessForms } from './AccessForms.tsx';
 
 export const dynamic = 'force-dynamic';
@@ -74,14 +84,56 @@ export default async function AccessPage() {
     }),
   );
 
-  const candidates = await loadLinkCandidates(client, tenant.clubId);
+  const [candidates, accessRows, functions, governance] = await Promise.all([
+    loadLinkCandidates(client, tenant.clubId),
+    loadAppointmentAccess(client, tenant.clubId),
+    loadFunctionAppointments(client, tenant.clubId),
+    loadGovernance(client, tenant.clubId),
+  ]);
+
+  // Why each account holds what it holds: the appointment behind an access,
+  // and whether that appointment has since ended (BR154 keeps the access).
+  const today = todayIn();
+  const governing = governingTerm(governance.terms, today);
+  const termById = new Map(governance.terms.map((t) => [t.id, t]));
+  const positionById = new Map(governance.members.map((m) => [m.id, m]));
+  const functionById = new Map(functions.map((f) => [f.id, f]));
+  const sources: AccessSource[] = accessRows.flatMap((row) => {
+    if (row.committeePositionId !== null) {
+      const m = positionById.get(row.committeePositionId);
+      if (m === undefined) return [];
+      return [{
+        accessRole: row.accessRole,
+        claimedUserId: row.claimedUserId,
+        label: `${POSITION_LABEL[m.position]} · ${termById.get(m.termId)?.name ?? ''}`,
+        ended: m.resignedOn !== null || governing?.id !== m.termId,
+      }];
+    }
+    if (row.functionAppointmentId !== null) {
+      const f = functionById.get(row.functionAppointmentId);
+      if (f === undefined) return [];
+      return [{
+        accessRole: row.accessRole,
+        claimedUserId: row.claimedUserId,
+        label: FUNCTION_LABEL[f.kind],
+        ended: !isCurrentFunction(f, today),
+      }];
+    }
+    return [];
+  });
 
   return (
     <>
       <h2>Who has access to {tenant.clubName}</h2>
       <p className="lede">
-        An account here can sign in and act at this club. Roles are additive &mdash; one person
-        is routinely both registrar and treasurer, and holds a row for each.
+        An account here can sign in and act at this club. Access levels add up &mdash; one person
+        is routinely both registrar and treasurer, and holds each.
+      </p>
+      <p className="notice">
+        <strong>Most access should not start here.</strong> Appoint the person to their office or
+        club function on <a href="/registrar/governance">Governance</a> and confirm it there: they
+        receive a link, set a password, and arrive already linked to their record with the right
+        access. Use this screen for exceptions, and to remove access nobody needs any more.
       </p>
       <p className="hint">
         <strong>Saying who an account belongs to is a decision you make, not one the system
@@ -92,7 +144,7 @@ export default async function AccessPage() {
         address.
       </p>
 
-      <AccessForms accounts={accounts} candidates={candidates} />
+      <AccessForms accounts={accounts} candidates={candidates} sources={sources} />
     </>
   );
 }

@@ -1,19 +1,24 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, type ReactNode } from 'react';
 
 import { IDLE_FORM, type FormResult } from '../../../web/form-result.ts';
 import { FormNotice } from '../_components/FormNotice.tsx';
 
 import { COMMITTEE_POSITIONS, type CommitteePosition } from '../../../domain/governance/term.ts';
+import { accessLabel } from '../../../web/access-view.ts';
+import { FUNCTION_KINDS, FUNCTION_LABEL, type AccessState } from '../../../web/appointment-view.ts';
 import { POSITION_LABEL, RESOLUTION_CATEGORY_LABEL } from '../../../web/governance-view.ts';
 import { displayNameFor, fullLegalName } from '../../../web/queue-view.ts';
 import type { Person } from '../../../domain/types.ts';
 import {
+  appointFunctionAction,
   appointMemberAction,
+  confirmAccessAction,
   createTermAction,
   editMemberAction,
   enableVoucherProgramAction,
+  endFunctionAction,
   recordResolutionAction,
   resignMemberAction,
 } from './actions.ts';
@@ -173,24 +178,154 @@ export function EditPositionForm({
   );
 }
 
+/**
+ * What an appointment's access looks like right now, and the one control
+ * that moves it forward (BR153). Only shown as a button to an admin or the
+ * current President; the database refuses anyone else regardless.
+ */
+export function AccessCell({
+  target,
+  state,
+  accessRole,
+  mayConfirm,
+  current,
+}: {
+  readonly target: { readonly positionId: string } | { readonly functionId: string };
+  readonly state: AccessState;
+  readonly accessRole: string | null;
+  readonly mayConfirm: boolean;
+  readonly current: boolean;
+}) {
+  const [result, formAction, pending] = useActionState<FormResult, FormData>(
+    confirmAccessAction,
+    IDLE_FORM,
+  );
+
+  if (accessRole === null) return <span className="hint">Carries no access</span>;
+
+  return (
+    <div className="stack" style={{ gap: '0.3rem' }}>
+      <span>
+        <strong>{accessLabel(accessRole)}</strong>{' '}
+        {state.kind === 'active' && <span className="pill pill-ok">active since {state.since}</span>}
+        {state.kind === 'link-sent' && (
+          <span className="pill pill-warn" title={`Sent to ${state.to}`}>
+            link sent {state.on}
+          </span>
+        )}
+        {state.kind === 'not-confirmed' && <span className="pill">not confirmed</span>}
+      </span>
+      {mayConfirm && current && state.kind !== 'active' && (
+        <form action={formAction}>
+          {'positionId' in target ? (
+            <input type="hidden" name="positionId" value={target.positionId} />
+          ) : (
+            <input type="hidden" name="functionId" value={target.functionId} />
+          )}
+          <button
+            type="submit"
+            className={state.kind === 'link-sent' ? 'secondary' : undefined}
+            style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }}
+            disabled={pending}
+          >
+            {pending ? '…' : state.kind === 'link-sent' ? 'Resend link' : 'Confirm & send access link'}
+          </button>
+        </form>
+      )}
+      <FormNotice result={result} />
+    </div>
+  );
+}
+
+/** Appoint somebody to a club function (scope 68). Appointed, not elected: no term. */
+export function AppointFunctionForm({
+  people,
+}: {
+  readonly people: readonly { readonly id: string; readonly label: string }[];
+}) {
+  const [result, formAction, pending] = useActionState<FormResult, FormData>(
+    appointFunctionAction,
+    IDLE_FORM,
+  );
+
+  return (
+    <>
+      <FormNotice result={result} />
+      <form
+        action={formAction}
+        style={{ display: 'flex', gap: '0.6rem', alignItems: 'end', flexWrap: 'wrap' }}
+      >
+        <div style={{ flex: '2 1 13rem' }}>
+          <label htmlFor="function-person">Person</label>
+          <select id="function-person" name="personId" defaultValue="">
+            <option value="" disabled>
+              Choose…
+            </option>
+            {people.map((person) => (
+              <option key={person.id} value={person.id}>
+                {person.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div style={{ flex: '1 1 11rem' }}>
+          <label htmlFor="function-kind">Function</label>
+          <select id="function-kind" name="kind" defaultValue="it_manager">
+            {FUNCTION_KINDS.map((kind) => (
+              <option key={kind} value={kind}>
+                {FUNCTION_LABEL[kind]}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div style={{ flex: '1 1 8rem' }}>
+          <label htmlFor="function-starts">Starts</label>
+          <input id="function-starts" name="startsOn" type="date" />
+        </div>
+        <button type="submit" className="secondary" disabled={pending}>
+          {pending ? 'Adding…' : 'Appoint'}
+        </button>
+      </form>
+    </>
+  );
+}
+
+/** End a function today. The access it carried stays until an admin removes it (BR154). */
+export function EndFunctionButton({ appointmentId }: { readonly appointmentId: string }) {
+  return (
+    <form action={endFunctionAction}>
+      <input type="hidden" name="appointmentId" value={appointmentId} />
+      <button
+        type="submit"
+        className="secondary"
+        style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }}
+      >
+        Ended
+      </button>
+    </form>
+  );
+}
+
 /** One committee-position row, with the correction form toggled behind "Edit". */
 export function MemberRow({
   positionId,
   position,
   electedOn,
   person,
+  access,
 }: {
   readonly positionId: string;
   readonly position: CommitteePosition;
   readonly electedOn: string | null;
   readonly person: Person | undefined;
+  readonly access: ReactNode;
 }) {
   const [editing, setEditing] = useState(false);
 
   if (editing) {
     return (
       <tr>
-        <td colSpan={4}>
+        <td colSpan={5}>
           <EditPositionForm
             positionId={positionId}
             position={position}
@@ -220,6 +355,7 @@ export function MemberRow({
         )}
       </td>
       <td>{electedOn ?? <span className="hint">&mdash;</span>}</td>
+      <td>{access}</td>
       <td style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
         <button
           type="button"

@@ -55,6 +55,11 @@ export async function GET(request: NextRequest) {
   // call unconditionally.
   await client.rpc('claim_player_access');
 
+  // Somebody appointed to an office or club function (scope 68, BR153):
+  // links the account to the Person the confirmer named and grants the
+  // access that appointment carries. A no-op when nothing is pending.
+  await client.rpc('claim_staff_access');
+
   // A reset link asks to land on the password page; an invitation names
   // nothing and falls back to the club — or to the console, for the one
   // identity that has no club and never will. `landingFor` keeps this from

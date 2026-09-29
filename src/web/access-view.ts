@@ -138,6 +138,33 @@ export const ROLE_SUMMARY: Record<ClubRole, string> = {
 };
 
 /**
+ * The name an admin reads. The stored value (`digital_technology_manager`)
+ * is an identifier, and showing it was part of why "role" read as four
+ * unrelated things on four screens (scope 68).
+ */
+export const ACCESS_LABEL: Record<ClubRole, string> = {
+  admin: 'Administrator',
+  registrar: 'Registrar',
+  treasurer: 'Treasurer',
+  committee: 'Committee',
+  coach: 'Coach',
+  coordinator: 'Coordinator',
+  secretary: 'Secretary',
+  blue_card_administrator: 'Blue Card Administrator',
+  digital_technology_manager: 'IT Manager',
+  program_coordinator: 'Program Coordinator',
+  technical_director: 'Technical Director',
+  head_of_performance: 'Head of Performance',
+  head_of_community_football: 'Head of Community Football',
+  head_of_womens_football: "Head of Women's Football",
+};
+
+/** A label for any stored access value, including ones this screen does not offer. */
+export function accessLabel(role: string): string {
+  return isClubRole(role) ? ACCESS_LABEL[role] : role;
+}
+
+/**
  * Roles that currently permit no writing at all.
  *
  * Named rather than hidden, because an admin granting one is entitled to

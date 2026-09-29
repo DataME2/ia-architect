@@ -1,6 +1,11 @@
 import { redirect } from 'next/navigation';
 
+import { loadFunctionAppointments, loadLinkedPersonIds } from '../../../data/appointments.ts';
+import { loadGovernance } from '../../../data/governance.ts';
+import { governingTerm } from '../../../domain/governance/term.ts';
 import { SEASON_ROLES } from '../../../domain/types.ts';
+import { appointmentsByPerson } from '../../../web/appointment-view.ts';
+import { POSITION_LABEL } from '../../../web/governance-view.ts';
 import {
   loadPeople,
   loadPeopleRoleSummary,
@@ -55,15 +60,27 @@ function RoleToggle({
 function PersonRow({
   summary,
   seasonId,
+  appointments,
+  canSignIn,
 }: {
   readonly summary: PersonSummary;
   readonly seasonId: string;
+  readonly appointments: readonly string[];
+  readonly canSignIn: boolean;
 }) {
   return (
     <tr>
       <td>
         <p className="name" style={{ margin: 0 }}>
           {summary.displayName}
+          {canSignIn && (
+            <>
+              {' '}
+              <span className="pill pill-ok" title="An account is linked to this person">
+                can sign in
+              </span>
+            </>
+          )}
           {!summary.legalNameVerified && (
             <>
               {' '}
@@ -85,6 +102,11 @@ function PersonRow({
         {summary.dependantNames.length > 0 && (
           <p className="hint" style={{ margin: 0 }}>
             Responsible for: {summary.dependantNames.join(', ')}
+          </p>
+        )}
+        {appointments.length > 0 && (
+          <p className="hint" style={{ margin: 0 }}>
+            At the club: <strong>{appointments.join(', ')}</strong>
           </p>
         )}
       </td>
@@ -170,6 +192,27 @@ export default async function PeoplePage({
 
   const pages = pageCount(totalCount);
 
+  // Scope 68: what each person does at the club (office or function) and
+  // whether they can sign in — the People screen is where somebody is
+  // looked up, so it is where that should be visible.
+  const today = todayIn();
+  const [governance, functions, linked] = await Promise.all([
+    loadGovernance(client, tenant.clubId),
+    loadFunctionAppointments(client, tenant.clubId),
+    loadLinkedPersonIds(client, tenant.clubId),
+  ]);
+  const appointments = appointmentsByPerson(
+    governance.members.map((m) => ({
+      personId: m.personId,
+      termId: m.termId,
+      label: POSITION_LABEL[m.position],
+      resignedOn: m.resignedOn,
+    })),
+    governingTerm(governance.terms, today)?.id ?? null,
+    functions,
+    today,
+  );
+
   return (
     <>
 
@@ -179,6 +222,14 @@ export default async function PeoplePage({
         a parent who also coaches is one record with two roles, never two records — which is
         Principle P1, and the reason a player&rsquo;s history follows them when they change
         role rather than starting again.
+      </p>
+      <p className="hint">
+        <strong>Three different things, three screens.</strong> Here: how someone <em>takes part</em>{' '}
+        this season (player, coach, referee, guardian). On{' '}
+        <a href="/registrar/governance">Governance</a>: the <em>office or function</em> they hold
+        (President, Treasurer, IT Manager, Blue Card Administrator…) &mdash; confirming it there sends
+        their sign-in link. On <a href="/registrar/access">Access</a>: what they may{' '}
+        <em>do in the system</em>, and why.
       </p>
 
       <form method="get" className="card" style={{ display: 'flex', gap: '0.75rem', alignItems: 'end', flexWrap: 'wrap' }}>
@@ -257,12 +308,18 @@ export default async function PeoplePage({
               <tr>
                 <th>Person</th>
                 <th>Age</th>
-                <th>Roles this season</th>
+                <th>Takes part this season as</th>
               </tr>
             </thead>
             <tbody>
               {shown.map((person) => (
-                <PersonRow key={person.personId} summary={person} seasonId={season.id} />
+                <PersonRow
+                  key={person.personId}
+                  summary={person}
+                  seasonId={season.id}
+                  appointments={appointments.get(person.personId) ?? []}
+                  canSignIn={linked.has(person.personId)}
+                />
               ))}
             </tbody>
           </table>

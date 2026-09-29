@@ -2,10 +2,13 @@
 
 import { useActionState } from 'react';
 
+import { explainRole, type AccessSource } from '../../../web/appointment-view.ts';
 import {
+  ACCESS_LABEL,
   CLUB_ROLES,
   READ_ONLY_ROLES,
   ROLE_SUMMARY,
+  accessLabel,
   accountIdentity,
   adminNeedsLinkFirst,
   candidateLabel,
@@ -44,11 +47,11 @@ export function GrantAccessForm() {
         </div>
 
         <div className="field">
-          <label htmlFor="role">Role</label>
+          <label htmlFor="role">Access level</label>
           <select id="role" name="role" defaultValue="registrar">
             {CLUB_ROLES.map((role) => (
               <option key={role} value={role}>
-                {role} &mdash; {ROLE_SUMMARY[role]}
+                {ACCESS_LABEL[role]} &mdash; {ROLE_SUMMARY[role]}
               </option>
             ))}
           </select>
@@ -149,7 +152,9 @@ function AccountIdentity({
       ) : (
         <>
           <span className="hint">
-            <em>Not linked</em> — the club knows this account, not who it belongs to.
+            <em>Not linked</em> — the club knows this account, not who it belongs to. Accounts that
+            arrive through a Governance appointment are linked automatically; pick the person only
+            for one that did not.
           </span>
           <span>{account.email}</span>
           {options.length === 0 ? (
@@ -190,11 +195,11 @@ function AccountIdentity({
 export function RoleLegend() {
   return (
     <div className="card">
-      <h3 style={{ marginTop: 0 }}>What each role permits</h3>
+      <h3 style={{ marginTop: 0 }}>What each access level permits</h3>
       <table>
         <thead>
           <tr>
-            <th>Role</th>
+            <th>Access level</th>
             <th>Permits</th>
           </tr>
         </thead>
@@ -202,7 +207,7 @@ export function RoleLegend() {
           {CLUB_ROLES.map((role) => (
             <tr key={role}>
               <td>
-                <strong>{role}</strong>
+                <strong>{ACCESS_LABEL[role]}</strong>
               </td>
               <td>
                 {ROLE_SUMMARY[role]}
@@ -214,10 +219,30 @@ export function RoleLegend() {
               </td>
             </tr>
           ))}
+          <tr>
+            <td>
+              <strong>Player</strong>
+            </td>
+            <td>
+              Their own record in their own workspace &mdash; nothing about anybody else. Not granted
+              here: a player of 13 or over is invited from their registration once it is complete, and
+              one of 18 or over is invited automatically (BR150).{' '}
+              <span className="pill">own workspace</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Parent / Guardian</strong>
+            </td>
+            <td>
+              Their own children&rsquo;s records, in a family workspace. Not granted here: invited from
+              a child&rsquo;s registration once it is complete (BR126). <span className="pill">own workspace</span>
+            </td>
+          </tr>
         </tbody>
       </table>
       <p className="hint" style={{ marginBottom: 0 }}>
-        <strong>Every role reads almost everything.</strong> A role decides what somebody may
+        <strong>Every access level reads almost everything.</strong> A role decides what somebody may
         change, and barely restricts what they may see &mdash; a coach can read every
         family&rsquo;s balance and consents across the whole club. Whether that is right is an
         open question, recorded rather than quietly changed.
@@ -247,10 +272,10 @@ export function GrantMoreForm({ account }: { readonly account: ClubAccount }) {
     <div className="stack" style={{ gap: '0.3rem' }}>
       <form action={formAction} style={{ display: 'inline-flex', gap: '0.35rem' }}>
         <input type="hidden" name="email" value={account.email} />
-        <select name="role" defaultValue={options[0]} aria-label={`Add a role for ${account.email}`}>
+        <select name="role" defaultValue={options[0]} aria-label={`Add access for ${account.email}`}>
           {options.map((role) => (
             <option key={role} value={role}>
-              {role}
+              {ACCESS_LABEL[role]}
             </option>
           ))}
         </select>
@@ -282,9 +307,11 @@ function AdminNeedsLinkHint() {
 export function AccessForms({
   accounts,
   candidates,
+  sources,
 }: {
   readonly accounts: readonly ClubAccount[];
   readonly candidates: readonly LinkCandidate[];
+  readonly sources: readonly AccessSource[];
 }) {
   return (
     <>
@@ -299,8 +326,8 @@ export function AccessForms({
             <thead>
               <tr>
                 <th>Who</th>
-                <th>Roles</th>
-                <th>Add a role</th>
+                <th>Access, and where it came from</th>
+                <th>Add access</th>
               </tr>
             </thead>
             <tbody>
@@ -319,16 +346,30 @@ export function AccessForms({
                     />
                   </td>
                   <td>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      {account.roles.map((role) => (
-                        <span
-                          key={role}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
-                        >
-                          <span className="pill">{role}</span>
-                          <RevokeButton account={account} role={role} accounts={accounts} />
-                        </span>
-                      ))}
+                    <div className="stack" style={{ gap: '0.45rem' }}>
+                      {account.roles.map((role) => {
+                        const why = explainRole(account.userId, role, sources);
+                        return (
+                          <div key={role}>
+                            <span
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                            >
+                              <span className="pill">{accessLabel(role)}</span>
+                              <RevokeButton account={account} role={role} accounts={accounts} />
+                            </span>
+                            <br />
+                            {why.kind === 'granted-by-hand' ? (
+                              <span className="hint">granted on this screen</span>
+                            ) : why.allEnded ? (
+                              <span className="pill pill-warn" title="BR154: access is kept until an administrator removes it">
+                                {why.labels.join(', ')} has ended &mdash; remove if no longer needed
+                              </span>
+                            ) : (
+                              <span className="hint">from {why.labels.join(', ')}</span>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </td>
                   <td>

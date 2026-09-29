@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import {
+  ACCESS_LABEL,
+  accessLabel,
   CLUB_ROLES,
   READ_ONLY_ROLES,
   ROLE_SUMMARY,
@@ -132,6 +134,14 @@ test('every role has a summary, and the read-only ones say so', () => {
   for (const role of READ_ONLY_ROLES) {
     assert.match(ROLE_SUMMARY[role], /Writes nothing/);
   }
+});
+
+test('every access level has a readable name, and unknown values pass through', () => {
+  for (const role of CLUB_ROLES) {
+    assert.notEqual(ACCESS_LABEL[role], role.replaceAll('_', ' '), `${role} needs a real name`);
+  }
+  assert.equal(accessLabel('digital_technology_manager'), 'IT Manager');
+  assert.equal(accessLabel('grants_coordinator'), 'grants_coordinator');
 });
 
 test('accountIdentity', async (t) => {
