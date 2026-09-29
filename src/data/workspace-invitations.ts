@@ -57,8 +57,8 @@ interface WorkspaceData {
   readonly players: readonly PlayerSeason[];
   readonly guardianInvites: Map<string, Invitation>;
   readonly playerInvites: Map<string, Invitation>;
-  /** login → the Person it is linked to at this club. */
-  readonly linkedTo: ReadonlyMap<string, string>;
+  /** People at this club with a login linked to them. */
+  readonly linkedPersons: ReadonlySet<string>;
 }
 
 async function loadWorkspaceData(
@@ -75,7 +75,7 @@ async function loadWorkspaceData(
     return q.range(from, to);
   });
   if (playerRoles.length === 0) {
-    return { players: [], guardianInvites: new Map(), playerInvites: new Map(), linkedTo: new Map() };
+    return { players: [], guardianInvites: new Map(), playerInvites: new Map(), linkedPersons: new Set() };
   }
 
   const [completeRows, people, guardianships, guardianInvites, playerInvites, links] = await Promise.all([
@@ -121,7 +121,7 @@ async function loadWorkspaceData(
     players,
     guardianInvites: new Map(guardianInvites.map((g) => [g.guardian_person_id, { claimedBy: g.claimed_user_id }])),
     playerInvites: new Map(playerInvites.map((p) => [p.person_id, { claimedBy: p.claimed_user_id }])),
-    linkedTo: new Map(links.map((l) => [l.user_id, l.person_id])),
+    linkedPersons: new Set(links.map((l) => l.person_id)),
   };
 }
 
@@ -133,17 +133,21 @@ async function loadWorkspaceData(
 function holder(
   p: PersonRow,
   invite: Invitation | undefined,
-  linkedTo: ReadonlyMap<string, string>,
+  linkedPersons: ReadonlySet<string>,
 ): WorkspaceHolder {
   const claimedBy = invite?.claimedBy ?? null;
-  const stillLinked = claimedBy !== null && linkedTo.get(claimedBy) === p.id;
+  // The workspace works through the link, not the invitation: a Person whose
+  // login is linked is in, however that link was made (a password sign-in
+  // never marked the invitation opened, so it read "link sent" for someone
+  // using the workspace every day).
+  const anyLoginLinked = linkedPersons.has(p.id);
   return {
     personId: p.id,
     name: displayNameFor(toPerson(p)),
     email: p.email,
     invited: invite !== undefined,
-    claimed: stillLinked,
-    linkLost: claimedBy !== null && !stillLinked,
+    claimed: anyLoginLinked,
+    linkLost: claimedBy !== null && !anyLoginLinked,
   };
 }
 
@@ -166,8 +170,8 @@ export async function loadWorkspaceStatus(
       rows: workspaceRows({
         age: p.age,
         registrationComplete: p.complete,
-        player: holder(p.player, data.playerInvites.get(p.player.id), data.linkedTo),
-        authorityGuardians: p.guardians.map((g) => holder(g, data.guardianInvites.get(g.id), data.linkedTo)),
+        player: holder(p.player, data.playerInvites.get(p.player.id), data.linkedPersons),
+        authorityGuardians: p.guardians.map((g) => holder(g, data.guardianInvites.get(g.id), data.linkedPersons)),
       }),
     }))
     .filter((p) => p.rows.length > 0)
@@ -205,8 +209,8 @@ export async function inviteWorkspaces(
       age: p.age,
       isPlayerThisSeason: true,
       registrationComplete: p.complete,
-      player: toCandidate(holder(p.player, data.playerInvites.get(p.player.id), data.linkedTo)),
-      authorityGuardians: p.guardians.map((g) => toCandidate(holder(g, data.guardianInvites.get(g.id), data.linkedTo))),
+      player: toCandidate(holder(p.player, data.playerInvites.get(p.player.id), data.linkedPersons)),
+      authorityGuardians: p.guardians.map((g) => toCandidate(holder(g, data.guardianInvites.get(g.id), data.linkedPersons))),
     });
 
     if (plan.noGuardian) noGuardian.push(p.name);

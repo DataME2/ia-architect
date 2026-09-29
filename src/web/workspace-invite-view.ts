@@ -72,6 +72,16 @@ export const WORKSPACE_STATE_LABEL: Readonly<Record<WorkspaceState, string>> = {
   'not-sent': 'not sent — use “Send all missing” on People',
 };
 
+/** A word or two for a chip, where the full label does not fit. */
+export const WORKSPACE_STATE_SHORT: Readonly<Record<WorkspaceState, string>> = {
+  unlinked: 'link removed',
+  active: 'active',
+  'link-sent': 'link sent',
+  'waiting-complete': 'waiting',
+  'no-email': 'no email',
+  'not-sent': 'not sent',
+};
+
 /** The pill class each state wears: what needs a human is not the same colour as what is fine. */
 export const WORKSPACE_STATE_TONE: Readonly<Record<WorkspaceState, string>> = {
   unlinked: 'pill pill-stop',

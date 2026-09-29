@@ -11,6 +11,7 @@ import {
 } from '../../../web/access-directory.ts';
 import {
   WORKSPACE_STATE_LABEL,
+  WORKSPACE_STATE_SHORT,
   WORKSPACE_STATE_TONE,
   type WorkspaceState,
 } from '../../../web/workspace-invite-view.ts';
@@ -352,12 +353,12 @@ function DirectoryRow({
             ))}
             {entry.workspaces.some((w) => w.kind === 'guardian') && (
               <span className={WORKSPACE_STATE_TONE[worstState(entry.workspaces, 'guardian')]}>
-                Family workspace
+                Family workspace · {WORKSPACE_STATE_SHORT[worstState(entry.workspaces, 'guardian')]}
               </span>
             )}
             {entry.workspaces.some((w) => w.kind === 'player') && (
               <span className={WORKSPACE_STATE_TONE[worstState(entry.workspaces, 'player')]}>
-                Own workspace
+                Own workspace · {WORKSPACE_STATE_SHORT[worstState(entry.workspaces, 'player')]}
               </span>
             )}
             {entry.attention.length > 0 && (
