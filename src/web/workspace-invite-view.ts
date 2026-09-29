@@ -49,10 +49,14 @@ export interface WorkspaceHolder {
   readonly name: string;
   readonly email: string | null;
   readonly invited: boolean;
+  /** Claimed, and the login that claimed it is still linked to this Person. */
   readonly claimed: boolean;
+  /** Claimed once, but that login is no longer linked here — locked out until reissued. */
+  readonly linkLost: boolean;
 }
 
 export type WorkspaceState =
+  | 'unlinked'         // claimed once, link since removed — needs a new link
   | 'active'           // they have signed in
   | 'link-sent'        // invited, not yet arrived
   | 'waiting-complete' // registration not COMPLETE yet — nothing is sent before
@@ -60,6 +64,7 @@ export type WorkspaceState =
   | 'not-sent';        // due, but marked before links went out on their own
 
 export const WORKSPACE_STATE_LABEL: Readonly<Record<WorkspaceState, string>> = {
+  unlinked: 'link removed — send a new one',
   active: 'active',
   'link-sent': 'link sent, not opened yet',
   'waiting-complete': 'waiting — registration not COMPLETE',
@@ -69,6 +74,7 @@ export const WORKSPACE_STATE_LABEL: Readonly<Record<WorkspaceState, string>> = {
 
 /** The pill class each state wears: what needs a human is not the same colour as what is fine. */
 export const WORKSPACE_STATE_TONE: Readonly<Record<WorkspaceState, string>> = {
+  unlinked: 'pill pill-stop',
   active: 'pill pill-ok',
   'link-sent': 'pill',
   'waiting-complete': 'pill',
@@ -100,7 +106,9 @@ export function workspaceRows(input: {
     personId: h.personId,
     name: h.name,
     email: h.email,
-    state: h.claimed
+    state: h.linkLost
+      ? 'unlinked'
+      : h.claimed
       ? 'active'
       : h.invited
         ? 'link-sent'

@@ -166,6 +166,31 @@ The existing wrong link itself was left for the club's admin to correct on the
 Access screen — a data change to a real person's identity, made by the person
 entitled to make it (decision 10).
 
+**Then she could not get back in (same day).** Correcting it with *Not this
+person* removed the wrong link — and left her linked to nobody, because an
+earlier unlink had already removed the right one. Three defects made that a
+dead end: `link_account_to_person` accepts only logins holding staff access,
+so a guardian's login can never be linked from this screen; her guardian
+invitation was marked claimed, so `claim_family_access` would never link her
+again; and the Access screen said *Family workspace — active* because it
+checked only that the invitation had once been claimed. Now:
+
+- **`supabase/migrations/0061_reissue_a_workspace_invitation.sql`** —
+  `reissue_workspace_invitation(person)` clears the claim on a Person's
+  guardian and player invitations **only where the login that claimed them is
+  no longer linked**, so it can repair a removed link and can never detach a
+  working one; with nothing to repair, it resends an invitation still waiting
+  to be opened. Admin or registrar only. Test
+  `supabase/tests/61_reissue_a_workspace_invitation.sql`: 4 scenarios, plus a
+  rolled-back break test (guard removed: a working link was reissued).
+- **A new workspace state, *link removed — send a new one***: claimed by a
+  login no longer linked to that Person. Never shown as *active* again; flagged
+  *needs attention*.
+- **Send a new link / Resend link** on the person's row sends the link; on
+  arrival the existing family or player claim links the login to the Person
+  the invitation names (decision 10 — the registrar's original assertion,
+  re-sent, not a new inference).
+
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |

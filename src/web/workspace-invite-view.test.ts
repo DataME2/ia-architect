@@ -53,7 +53,7 @@ test('a guardian without authority is not invited', () => {
 
 test('workspaceRows — who is listed follows the same ages as who is sent', () => {
   const h = (personId: string, over: Partial<WorkspaceHolder> = {}): WorkspaceHolder => ({
-    personId, name: personId, email: `${personId}@x.test`, invited: false, claimed: false, ...over,
+    personId, name: personId, email: `${personId}@x.test`, invited: false, claimed: false, linkLost: false, ...over,
   });
   const rows = (age: number, complete: boolean, player = h('kid'), guardians = [h('mum')]) =>
     workspaceRows({ age, registrationComplete: complete, player, authorityGuardians: guardians })
@@ -65,6 +65,12 @@ test('workspaceRows — who is listed follows the same ages as who is sent', () 
   assert.deepEqual(
     rows(15, true, h('kid', { email: null }), [h('mum', { invited: true }), h('dad', { invited: true, claimed: true })]),
     ['guardian:mum:link-sent', 'guardian:dad:active', 'player:kid:no-email'],
+  );
+  // The case that locked a guardian out: claimed once, login since unlinked.
+  // It must never read as active.
+  assert.deepEqual(
+    rows(11, true, h('kid'), [h('mum', { invited: true, linkLost: true })]),
+    ['guardian:mum:unlinked'],
   );
 });
 

@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { createRequestClient } from '../../../data/server.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
 import { isClubRole } from '../../../web/access-view.ts';
+import { sendWorkspaceMagicLink } from '../actions.ts';
 
 /**
  * Grant somebody a role at this club.
@@ -119,4 +120,30 @@ export async function unlinkAccountAction(
   return formOk(
     `${email || 'That account'} is no longer recorded as anybody. They keep their access.`,
   );
+}
+
+/**
+ * Restore a workspace whose login link was removed (0061): clear the claim
+ * on this Person's invitation and send a new link. On arrival the family or
+ * player claim links the login to this Person again. The database refuses
+ * when the link is still in place, so this cannot detach a working one.
+ */
+export async function reissueWorkspaceAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const personId = String(formData.get('personId') ?? '');
+  if (personId === '') return formFailed('Nothing to resend.');
+
+  const client = await createRequestClient();
+  const { data, error } = await client.rpc('reissue_workspace_invitation', { p_person_id: personId });
+  if (error !== null) return formFailed(error.message.replace(/^.*?:\s*/, ''));
+
+  const email = String(data ?? '');
+  const sendError = await sendWorkspaceMagicLink(email);
+  revalidatePath('/registrar/access');
+  if (sendError !== null) {
+    return formFailed(`The invitation is reset, but the email did not send: ${sendError}. Press again to retry.`);
+  }
+  return formOk(`New link sent to ${email}. When they open it, their workspace is back.`);
 }

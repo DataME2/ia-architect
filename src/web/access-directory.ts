@@ -103,6 +103,9 @@ function attentionReasons(
   for (const s of staff) {
     if (s.why.kind === 'appointment' && s.why.allEnded) out.push(`${s.label}: appointment has ended`);
   }
+  if (workspaces.some((w) => w.state === 'unlinked')) {
+    out.push('Their workspace link was removed, so they see nothing — send a new link');
+  }
   if (workspaces.some((w) => w.state === 'no-email')) out.push('No email on record');
   if (workspaces.some((w) => w.state === 'not-sent')) out.push('Workspace link not sent');
   return out;

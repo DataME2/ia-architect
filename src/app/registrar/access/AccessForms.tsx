@@ -35,6 +35,7 @@ import {
   grantAccessAction,
   linkAccountAction,
   revokeAccessAction,
+  reissueWorkspaceAction,
   unlinkAccountAction,
 } from './actions.ts';
 
@@ -421,6 +422,14 @@ function DirectoryRow({
                   </li>
                 ))}
               </ul>
+              {entry.workspaces.some((w) => w.state === 'unlinked' || w.state === 'link-sent') && (
+                <div style={{ marginTop: '0.5rem' }}>
+                  <ReissueButton
+                    personId={entry.key}
+                    lost={entry.workspaces.some((w) => w.state === 'unlinked')}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -429,8 +438,30 @@ function DirectoryRow({
   );
 }
 
+/**
+ * Send a workspace link again: after a login was unlinked (0061 restores
+ * it) or when the first one was never opened. The database refuses to
+ * touch a link that is still working.
+ */
+function ReissueButton({ personId, lost }: { readonly personId: string; readonly lost: boolean }) {
+  const [state, formAction, pending] = useActionState(reissueWorkspaceAction, IDLE_FORM);
+  return (
+    <form action={formAction} className="stack" style={{ gap: '0.3rem' }}>
+      <input type="hidden" name="personId" value={personId} />
+      <div>
+        <button type="submit" className={lost ? undefined : 'secondary'} disabled={pending}>
+          {pending ? 'Sending…' : lost ? 'Send a new link' : 'Resend link'}
+        </button>
+      </div>
+      <FormNotice result={state} />
+    </form>
+  );
+}
+
 /** A chip shows the state most in need of a human, so a problem never hides behind an OK one. */
-const STATE_URGENCY: readonly WorkspaceState[] = ['no-email', 'not-sent', 'waiting-complete', 'link-sent', 'active'];
+const STATE_URGENCY: readonly WorkspaceState[] = [
+  'unlinked', 'no-email', 'not-sent', 'waiting-complete', 'link-sent', 'active',
+];
 
 function worstState(workspaces: DirectoryEntry['workspaces'], kind: 'player' | 'guardian'): WorkspaceState {
   const states = workspaces.filter((w) => w.kind === kind).map((w) => w.state);
