@@ -172,43 +172,67 @@ test('accountIdentity', async (t) => {
   });
 });
 
+const TODAY = '2026-09-29';
+const adult = (personId: string, legalName: string, preferredName: string | null = null): LinkCandidate => ({
+  personId, legalName, preferredName, dateOfBirth: '1987-05-01', email: null,
+});
+
 test('linkableCandidates', async (t) => {
   const people: LinkCandidate[] = [
-    { personId: 'p1', legalName: 'Grace Tupou', preferredName: 'Gracie' },
-    { personId: 'p2', legalName: 'Henry Bell', preferredName: null },
-    { personId: 'p3', legalName: 'Ana Silva', preferredName: null },
+    adult('p1', 'Grace Tupou', 'Gracie'),
+    adult('p2', 'Henry Bell'),
+    adult('p3', 'Ana Silva'),
   ];
 
   await t.test('hides a person another account has already claimed', () => {
     const accounts = [linked('g@t.test', 'p1', 'Grace Tupou'), account('x@x.test', ['coach'])];
-    const offered = linkableCandidates(accounts[1]!, people, accounts);
+    const offered = linkableCandidates(accounts[1]!, people, accounts, TODAY);
     assert.deepEqual(offered.map((c) => c.personId), ['p2', 'p3']);
   });
 
   await t.test('keeps the account’s own person, so the control does not look amnesiac', () => {
     const self = linked('g@t.test', 'p1', 'Grace Tupou');
-    const offered = linkableCandidates(self, people, [self]);
+    const offered = linkableCandidates(self, people, [self], TODAY);
     assert.deepEqual(offered.map((c) => c.personId), ['p1', 'p2', 'p3']);
   });
 
   await t.test('offers everybody when nothing is linked yet', () => {
     const a = account('x@x.test', ['coach']);
-    assert.equal(linkableCandidates(a, people, [a]).length, 3);
+    assert.equal(linkableCandidates(a, people, [a], TODAY).length, 3);
+  });
+
+  await t.test('BR63 — never offers a child under thirteen (a guardian’s login once landed on her son)', () => {
+    const a = account('karen@x.test', ['admin']);
+    const family: LinkCandidate[] = [
+      { ...adult('mum', 'Karen Alfonso'), dateOfBirth: '1987-05-01' },
+      { ...adult('son', 'Sebastian Alfonso'), dateOfBirth: '2014-01-25' },
+      { ...adult('teen', 'Pedro Alfonso'), dateOfBirth: '2009-06-01' },
+      { ...adult('unknown', 'Imported Parent'), dateOfBirth: '1900-01-01' },
+    ];
+    assert.deepEqual(
+      linkableCandidates(a, family, [a], TODAY).map((c) => c.personId),
+      ['mum', 'teen', 'unknown'],
+      'an unrecorded birth date is not treated as a child',
+    );
   });
 });
 
 test('candidateLabel', async (t) => {
-  await t.test('shows both names when they differ', () => {
+  await t.test('shows both names when they differ, with age and email', () => {
     assert.equal(
-      candidateLabel({ personId: 'p', legalName: 'Grace Tupou', preferredName: 'Gracie' }),
-      'Grace Tupou (Gracie)',
+      candidateLabel({ ...adult('p', 'Grace Tupou', 'Gracie'), email: 'g@club.test' }, TODAY),
+      'Grace Tupou (Gracie) — 39 · g@club.test',
     );
   });
 
   await t.test('does not repeat a preferred name identical to the legal one', () => {
+    assert.equal(candidateLabel(adult('p', 'Ana Silva', 'Ana Silva'), TODAY), 'Ana Silva — 39');
+  });
+
+  await t.test('an import’s 1900-01-01 placeholder reads as not recorded, not as 126', () => {
     assert.equal(
-      candidateLabel({ personId: 'p', legalName: 'Ana Silva', preferredName: 'Ana Silva' }),
-      'Ana Silva',
+      candidateLabel({ ...adult('p', 'Karen Alfonso'), dateOfBirth: '1900-01-01' }, TODAY),
+      'Karen Alfonso — age not recorded',
     );
   });
 });

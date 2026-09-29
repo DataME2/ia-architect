@@ -140,6 +140,32 @@ shows as a second row flagged *needs attention* — linking it once merges the
 two, which is the one case the picker is still for. Grant-by-email and the
 access legend fold into collapsible panels below the list.
 
+**A guardian's login linked to her son (found the same day).** The club
+reported a guardian of three whose workspace showed none of her children.
+Her login had been linked, through the picker, to her twelve-year-old son —
+they share a surname and the picker listed people by name alone — so she was
+shown his player view. BR63 already said a child under thirteen holds no
+account; nothing enforced it on `account_person`. Now:
+
+- **`supabase/migrations/0060_no_account_for_a_child_under_thirteen.sql`** — a
+  trigger on `account_person`, so every path that links a login (the picker,
+  and the family, player and staff claims) refuses a child under 13. The
+  1900-01-01 import placeholder counts as old, not young. Test
+  `supabase/tests/60_no_account_for_a_child_under_thirteen.sql`: 4 scenarios,
+  plus a rolled-back break test (trigger dropped: the link to the child
+  succeeded, so scenario 1 would fail). Existing links are not touched — the
+  trigger fires on insert and on re-pointing only.
+- **The picker** no longer offers anyone under 13, and labels each person with
+  age and email (`Karen Alfonso — 39 · karen@…`), so a parent and a child who
+  share a surname can be told apart.
+- **Every staff account** now shows *Whose account is this?* with **Not this
+  person** when linked, so a wrong link is correctable here; a login already
+  linked to a child is flagged *needs attention* with what to do.
+
+The existing wrong link itself was left for the club's admin to correct on the
+Access screen — a data change to a real person's identity, made by the person
+entitled to make it (decision 10).
+
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |

@@ -48,6 +48,8 @@ export function buildDirectory(
   accounts: readonly ClubAccount[],
   workspaces: readonly { readonly playerName: string; readonly rows: readonly WorkspaceRow[] }[],
   sources: readonly AccessSource[],
+  /** People under 13 (BR63): a login linked to one of them is a mistake to surface. */
+  children: ReadonlySet<string> = new Set(),
 ): DirectoryEntry[] {
   const byKey = new Map<string, {
     name: string; email: string | null; account: ClubAccount | null;
@@ -78,7 +80,16 @@ export function buildDirectory(
   }
 
   return [...byKey.entries()]
-    .map(([key, e]) => ({ key, ...e, attention: attentionReasons(e.account, e.staff, e.workspaces) }))
+    .map(([key, e]) => ({
+      key,
+      ...e,
+      attention: [
+        ...(e.account?.personId != null && children.has(e.account.personId)
+          ? ['This login is linked to a child under 13 — use “Not this person” and link it to the right adult']
+          : []),
+        ...attentionReasons(e.account, e.staff, e.workspaces),
+      ],
+    }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 

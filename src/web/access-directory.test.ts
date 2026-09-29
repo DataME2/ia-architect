@@ -49,6 +49,11 @@ test('attention: an ended appointment and a missing email are both surfaced', ()
   assert.deepEqual(d.find((e) => e.key === 'p-ana')!.attention, ['No email on record']);
 });
 
+test('a login linked to a child under 13 is flagged (BR63)', () => {
+  const d = buildDirectory(accounts, workspaces, sources, new Set(['p-karen']));
+  assert.match(d.find((e) => e.key === 'p-karen')!.attention[0]!, /child under 13/);
+});
+
 test('filterDirectory — chips and search combine', () => {
   const d = buildDirectory(accounts, workspaces, sources);
   assert.deepEqual(filterDirectory(d, '', 'workspace').map((e) => e.key).sort(), ['p-ana', 'p-karen']);

@@ -136,15 +136,17 @@ function AccountIdentity({
   account,
   accounts,
   candidates,
+  today,
 }: {
   readonly account: ClubAccount;
   readonly accounts: readonly ClubAccount[];
   readonly candidates: readonly LinkCandidate[];
+  readonly today: string;
 }) {
   const [state, formAction, pending] = useActionState(linkAccountAction, IDLE_FORM);
   const [unlinkState, unlinkAction, unlinking] = useActionState(unlinkAccountAction, IDLE_FORM);
   const who = accountIdentity(account);
-  const options = linkableCandidates(account, candidates, accounts);
+  const options = linkableCandidates(account, candidates, accounts, today);
 
   return (
     <div className="stack" style={{ gap: '0.35rem' }}>
@@ -186,7 +188,7 @@ function AccountIdentity({
                 </option>
                 {options.map((candidate) => (
                   <option key={candidate.personId} value={candidate.personId}>
-                    {candidateLabel(candidate)}
+                    {candidateLabel(candidate, today)}
                   </option>
                 ))}
               </select>
@@ -313,10 +315,12 @@ function DirectoryRow({
   entry,
   accounts,
   candidates,
+  today,
 }: {
   readonly entry: DirectoryEntry;
   readonly accounts: readonly ClubAccount[];
   readonly candidates: readonly LinkCandidate[];
+  readonly today: string;
 }) {
   const account = entry.account;
   const meta = [entry.email, workspaceSummary(entry.workspaces)]
@@ -370,10 +374,10 @@ function DirectoryRow({
             </p>
           )}
 
-          {account !== null && account.personId === null && (
+          {account !== null && (
             <div>
               <h4>Whose account is this?</h4>
-              <AccountIdentity account={account} accounts={accounts} candidates={candidates} />
+              <AccountIdentity account={account} accounts={accounts} candidates={candidates} today={today} />
             </div>
           )}
 
@@ -446,10 +450,12 @@ export function AccessForms({
   entries,
   accounts,
   candidates,
+  today,
 }: {
   readonly entries: readonly DirectoryEntry[];
   readonly accounts: readonly ClubAccount[];
   readonly candidates: readonly LinkCandidate[];
+  readonly today: string;
 }) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<DirectoryFilter>('all');
@@ -488,7 +494,13 @@ export function AccessForms({
       ) : (
         <ul className="card people-list">
           {shown.map((entry) => (
-            <DirectoryRow key={entry.key} entry={entry} accounts={accounts} candidates={candidates} />
+            <DirectoryRow
+              key={entry.key}
+              entry={entry}
+              accounts={accounts}
+              candidates={candidates}
+              today={today}
+            />
           ))}
         </ul>
       )}

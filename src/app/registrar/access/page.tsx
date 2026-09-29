@@ -7,7 +7,7 @@ import { loadWorkspaceStatus } from '../../../data/workspace-invitations.ts';
 import { buildDirectory } from '../../../web/access-directory.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { governingTerm } from '../../../domain/governance/term.ts';
-import type { ClubAccount } from '../../../web/access-view.ts';
+import { MIN_ACCOUNT_AGE, candidateAge, type ClubAccount } from '../../../web/access-view.ts';
 import {
   FUNCTION_LABEL,
   isCurrentFunction,
@@ -129,7 +129,15 @@ export default async function AccessPage() {
     return [];
   });
 
-  const entries = buildDirectory(accounts, workspaces, sources);
+  const children = new Set(
+    candidates
+      .filter((c) => {
+        const age = candidateAge(c.dateOfBirth, today);
+        return age !== null && age < MIN_ACCOUNT_AGE;
+      })
+      .map((c) => c.personId),
+  );
+  const entries = buildDirectory(accounts, workspaces, sources, children);
 
   return (
     <>
@@ -152,7 +160,7 @@ export default async function AccessPage() {
         picked by hand unless an account arrived some other way.
       </p>
 
-      <AccessForms entries={entries} accounts={accounts} candidates={candidates} />
+      <AccessForms entries={entries} accounts={accounts} candidates={candidates} today={today} />
     </>
   );
 }
