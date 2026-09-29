@@ -48,6 +48,25 @@ export interface LinkCandidate {
   readonly personId: string;
   readonly legalName: string;
   readonly preferredName: string | null;
+  readonly dateOfBirth: string;
+  readonly email: string | null;
+}
+
+/** BR63: nobody under thirteen holds an account of their own. */
+export const MIN_ACCOUNT_AGE = 13;
+
+/**
+ * Whole years at `today`, or null for a date nobody recorded — imports use
+ * 1900-01-01 as a stand-in, and "126" is not an age an admin should see.
+ */
+export function candidateAge(dateOfBirth: string, today: string): number | null {
+  const [by, bm, bd] = dateOfBirth.split('-').map(Number);
+  const [ty, tm, td] = today.split('-').map(Number);
+  if (by === undefined || bm === undefined || bd === undefined || ty === undefined || tm === undefined || td === undefined) {
+    return null;
+  }
+  const age = ty - by - (tm < bm || (tm === bm && td < bd) ? 1 : 0);
+  return age > 110 ? null : age;
 }
 
 export type AccountIdentity =
@@ -90,21 +109,38 @@ export function linkableCandidates(
   account: ClubAccount,
   candidates: readonly LinkCandidate[],
   accounts: readonly ClubAccount[],
+  today: string,
 ): readonly LinkCandidate[] {
   const claimedElsewhere = new Set(
     accounts
       .filter((a) => a.userId !== account.userId && a.personId !== null)
       .map((a) => a.personId as string),
   );
-  return candidates.filter((c) => !claimedElsewhere.has(c.personId));
+  // A child under thirteen can hold no account (BR63), and the database
+  // refuses the link (0060) — so a guardian's login can never again be
+  // attached to one of their children by a mis-click in this list.
+  return candidates.filter((c) => {
+    if (claimedElsewhere.has(c.personId)) return false;
+    const age = candidateAge(c.dateOfBirth, today);
+    return age === null || age >= MIN_ACCOUNT_AGE;
+  });
 }
 
-/** `Bell, Henry (Harry)` — sorted the way a club reads a list of names. */
-export function candidateLabel(candidate: LinkCandidate): string {
+/**
+ * `Karen Alfonso (Karen) — 39 · karen@…`. Age and email are what tell a
+ * parent from the child who shares their surname, which a name alone did
+ * not — that is how a guardian's login once ended up attached to her son.
+ */
+export function candidateLabel(candidate: LinkCandidate, today: string): string {
   const preferred = (candidate.preferredName ?? '').trim();
-  return preferred === '' || preferred === candidate.legalName
+  const name = preferred === '' || preferred === candidate.legalName
     ? candidate.legalName
     : `${candidate.legalName} (${preferred})`;
+  const age = candidateAge(candidate.dateOfBirth, today);
+  const details = [age === null ? 'age not recorded' : `${age}`, candidate.email].filter(
+    (d): d is string => d !== null && d !== '',
+  );
+  return `${name} — ${details.join(' · ')}`;
 }
 
 /**
@@ -136,6 +172,33 @@ export const ROLE_SUMMARY: Record<ClubRole, string> = {
   head_of_community_football: 'Team rosters.',
   head_of_womens_football: 'Team rosters.',
 };
+
+/**
+ * The name an admin reads. The stored value (`digital_technology_manager`)
+ * is an identifier, and showing it was part of why "role" read as four
+ * unrelated things on four screens (scope 68).
+ */
+export const ACCESS_LABEL: Record<ClubRole, string> = {
+  admin: 'Administrator',
+  registrar: 'Registrar',
+  treasurer: 'Treasurer',
+  committee: 'Committee',
+  coach: 'Coach',
+  coordinator: 'Coordinator',
+  secretary: 'Secretary',
+  blue_card_administrator: 'Blue Card Administrator',
+  digital_technology_manager: 'IT Manager',
+  program_coordinator: 'Program Coordinator',
+  technical_director: 'Technical Director',
+  head_of_performance: 'Head of Performance',
+  head_of_community_football: 'Head of Community Football',
+  head_of_womens_football: "Head of Women's Football",
+};
+
+/** A label for any stored access value, including ones this screen does not offer. */
+export function accessLabel(role: string): string {
+  return isClubRole(role) ? ACCESS_LABEL[role] : role;
+}
 
 /**
  * Roles that currently permit no writing at all.

@@ -49,6 +49,14 @@ export async function signInAction(
   // password, a different device — and their access should not depend on
   // which door they used.
   await client.rpc('claim_club_access');
+  // An appointment confirmed while this person already had a password
+  // (scope 68) is claimed here too, not only through the emailed link.
+  await client.rpc('claim_staff_access');
+  // A family or player invitation is claimed here too, not only through the
+  // emailed link — someone who signs in with a password would otherwise
+  // leave it "link sent, not opened" forever.
+  await client.rpc('claim_family_access');
+  await client.rpc('claim_player_access');
 
   // The platform identity holds no membership by design, so the club queue
   // would greet the operator with "this account belongs to no club" — true,

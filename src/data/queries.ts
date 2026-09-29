@@ -212,7 +212,15 @@ export async function loadTenantContext(
 export async function loadLinkCandidates(
   client: SupabaseClient,
   clubId: string,
-): Promise<readonly { personId: string; legalName: string; preferredName: string | null }[]> {
+): Promise<
+  readonly {
+    personId: string;
+    legalName: string;
+    preferredName: string | null;
+    dateOfBirth: string;
+    email: string | null;
+  }[]
+> {
   const rows = unwrap<PersonRow[]>(
     'person',
     await client
@@ -227,6 +235,8 @@ export async function loadLinkCandidates(
     personId: row.id,
     legalName: `${row.legal_given_names} ${row.legal_family_name}`.trim(),
     preferredName: row.preferred_name ?? null,
+    dateOfBirth: row.date_of_birth,
+    email: row.email ?? null,
   }));
 }
 

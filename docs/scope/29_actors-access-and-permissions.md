@@ -554,7 +554,9 @@ last administrator, is explained in place rather than offered and denied.
 **#60 — closed.** Yes, and a club holds at least two administrators
 (BR124) — [open-questions.md](./open-questions.md).
 
-**#78 — advanced, not closed.** WP5 ([§2b–2c](#2b-wp5--the-pilot-clubs-own-matrix-specified-not-yet-implemented))
+**#78 — advanced, not closed.** Its first half — does an office grant
+access? — is answered in [scope 68](./68_an_appointment_grants_access.md)
+(BR153/BR154). WP5 ([§2b–2c](#2b-wp5--the-pilot-clubs-own-matrix-specified-not-yet-implemented))
 answers half of it — what a named committee position may read/write —
 with the pilot club's own matrix. **Per-team scoping, #78's other half,
 is untouched**: nothing in WP5's matrix expresses "this Referee Coordinator

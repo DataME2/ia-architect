@@ -11,11 +11,16 @@ import {
   recordResolution,
   resignMember,
 } from '../../../data/governance.ts';
+import { appointFunction, confirmAppointmentAccess, endFunction } from '../../../data/appointments.ts';
 import { loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { COMMITTEE_POSITIONS, type CommitteePosition } from '../../../domain/governance/term.ts';
+import { accessLabel } from '../../../web/access-view.ts';
+import { FUNCTION_LABEL, isFunctionKind } from '../../../web/appointment-view.ts';
 import { parseDueDate } from '../../../web/plan-view.ts';
 import { parseEnablement, parseResolution } from '../../../web/governance-view.ts';
+import { todayIn } from '../../../web/today.ts';
+import { sendWorkspaceMagicLink } from '../actions.ts';
 
 function parsePosition(value: unknown): CommitteePosition | null {
   return typeof value === 'string' && (COMMITTEE_POSITIONS as readonly string[]).includes(value)
@@ -203,4 +208,91 @@ export async function enableVoucherProgramAction(
 
   revalidatePath('/registrar/governance');
   return formOk(`${parsed.program} is now an enabled Voucher Program.`);
+}
+
+/** A QueryError reads "table: what the database said"; an admin needs the second half. */
+function databaseSaid(error: unknown): string {
+  return error instanceof Error ? error.message.replace(/^.*?:\s*/, '') : 'Something went wrong.';
+}
+
+/** Appoint somebody to a club function — IT Manager, Blue Card Administrator, … (scope 68). */
+export async function appointFunctionAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const personId = String(formData.get('personId') ?? '');
+  const kind = String(formData.get('kind') ?? '');
+  if (personId === '') return formFailed('Choose who is being appointed.');
+  if (!isFunctionKind(kind)) return formFailed('Choose a function.');
+
+  const startsRaw = String(formData.get('startsOn') ?? '').trim();
+  const startsOn = startsRaw === '' ? todayIn() : parseDueDate(startsRaw);
+  if (startsOn === null) return formFailed('Enter the start as a real calendar date.');
+
+  const { client, tenant } = await requireTenant();
+  try {
+    await appointFunction(client, tenant.clubId, personId, kind, startsOn);
+  } catch (error) {
+    return formFailed(databaseSaid(error));
+  }
+
+  revalidatePath('/registrar/governance');
+  return formOk(`Appointed as ${FUNCTION_LABEL[kind]}. Confirm their access when you are ready.`);
+}
+
+/**
+ * End a club function today. BR154: the access it carried is kept — an
+ * admin removes it on the Access screen, which flags it from now on.
+ */
+export async function endFunctionAction(formData: FormData): Promise<void> {
+  const appointmentId = String(formData.get('appointmentId') ?? '');
+  if (appointmentId === '') throw new Error('Nothing to end.');
+
+  const { client, tenant } = await requireTenant();
+  await endFunction(client, tenant.clubId, appointmentId, todayIn());
+  revalidatePath('/registrar/governance');
+  revalidatePath('/registrar/access');
+}
+
+/**
+ * BR153: confirm the access an office or function carries. A linked
+ * account gets it at once; anybody else is sent a sign-in link and gets
+ * it on arrival, already linked to the Person named here.
+ */
+export async function confirmAccessAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const positionId = String(formData.get('positionId') ?? '');
+  const functionId = String(formData.get('functionId') ?? '');
+  if ((positionId === '') === (functionId === '')) return formFailed('Nothing to confirm.');
+
+  const { client } = await requireTenant();
+  let outcome;
+  try {
+    outcome = await confirmAppointmentAccess(
+      client,
+      positionId !== '' ? { positionId } : { functionId },
+    );
+  } catch (error) {
+    return formFailed(databaseSaid(error));
+  }
+
+  revalidatePath('/registrar/governance');
+  revalidatePath('/registrar/access');
+
+  if (outcome.kind === 'granted') {
+    return formOk(`Access granted now: ${accessLabel(outcome.accessRole)}. Their account was already linked.`);
+  }
+
+  const sendError = await sendWorkspaceMagicLink(outcome.email);
+  if (sendError !== null) {
+    return formFailed(
+      `Recorded, but the email did not send: ${sendError}. Press the button again to resend.`,
+    );
+  }
+  return formOk(
+    `Link sent to ${outcome.email}. When they open it and set a password they arrive with `
+      + `${accessLabel(outcome.accessRole)} access, already linked to their record.`,
+  );
 }

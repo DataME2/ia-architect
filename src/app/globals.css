@@ -2589,3 +2589,99 @@ td {
     grid-template-columns: 1fr;
   }
 }
+
+/* ------------------------------------------------------------ people directory
+   The Access screen as one list of people (scope 68): search, filter chips,
+   and a row per person that opens to show what they can do and why. */
+
+.filter-bar {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.filter-bar .search-field {
+  flex: 1 1 16rem;
+  margin: 0;
+}
+.filter-bar .search-field input {
+  width: 100%;
+}
+.chips {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.chip {
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  padding: 0.3rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 560;
+  cursor: pointer;
+}
+.chip[aria-pressed='true'] {
+  background: var(--reef-800);
+  border-color: var(--reef-800);
+  color: #ffffff;
+}
+.chip .chip-count {
+  margin-left: 0.35em;
+  opacity: 0.7;
+}
+
+.people-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-4);
+  overflow: hidden;
+}
+.people-list.card {
+  padding: 0;
+}
+.person-row + .person-row {
+  border-top: 1px solid var(--border);
+}
+.person-row > details > summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  cursor: pointer;
+  list-style: none;
+}
+.person-row > details > summary::-webkit-details-marker {
+  display: none;
+}
+.person-row > details[open] > summary {
+  background: var(--surface-2);
+}
+.person-row-name {
+  font-weight: 620;
+  margin: 0;
+}
+.person-row-meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+}
+.person-row-chips {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.person-row-body {
+  padding: var(--space-3) var(--space-5) var(--space-4);
+  border-top: 1px dashed var(--border);
+}
+.person-row-body h4 {
+  margin: 0 0 var(--space-2);
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

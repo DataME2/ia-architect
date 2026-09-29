@@ -1,5 +1,11 @@
 import { redirect } from 'next/navigation';
 
+import {
+  loadAccessMap,
+  loadAppointmentAccess,
+  loadFunctionAppointments,
+  mayConfirmAppointments,
+} from '../../../data/appointments.ts';
 import { loadGovernance } from '../../../data/governance.ts';
 import { loadTenantContext } from '../../../data/queries.ts';
 import { loadAssignablePeople, loadClearanceCoverage } from '../../../data/teams.ts';
@@ -20,10 +26,19 @@ import {
   enabledProgramNames,
   termNote,
 } from '../../../web/governance-view.ts';
+import {
+  FUNCTION_LABEL,
+  accessFor,
+  accessState,
+  isCurrentFunction,
+} from '../../../web/appointment-view.ts';
 import { todayIn } from '../../../web/today.ts';
 import {
+  AccessCell,
   AppointForm,
+  AppointFunctionForm,
   EnableVoucherProgramForm,
+  EndFunctionButton,
   MemberRow,
   NewTermForm,
   RecordResolutionForm,
@@ -72,6 +87,24 @@ export default async function GovernancePage() {
   // committee first and chase paperwork after. So it is surfaced, not
   // enforced.
   const clearanceByPerson = await loadClearanceCoverage(client, tenant.clubId);
+
+  // Scope 68 / BR153: the access each appointment carries, and whether this
+  // viewer (an admin, or the current President) may confirm it.
+  const [accessMap, accessRows, functions, mayConfirm, everyone] = await Promise.all([
+    loadAccessMap(client),
+    loadAppointmentAccess(client, tenant.clubId),
+    loadFunctionAppointments(client, tenant.clubId),
+    mayConfirmAppointments(client, tenant.clubId),
+    loadAssignablePeople(client, tenant.clubId),
+  ]);
+  const accessByPosition = new Map(
+    accessRows.filter((r) => r.committeePositionId !== null).map((r) => [r.committeePositionId, r]),
+  );
+  const accessByFunction = new Map(
+    accessRows.filter((r) => r.functionAppointmentId !== null).map((r) => [r.functionAppointmentId, r]),
+  );
+  const nameOf = new Map(everyone.map((p) => [p.id, displayNameFor(p)]));
+  const currentFunctions = functions.filter((f) => isCurrentFunction(f, today));
 
   return (
     <>
@@ -144,6 +177,7 @@ export default async function GovernancePage() {
                       <th>Position</th>
                       <th>Person</th>
                       <th>Elected</th>
+                      <th>Access it carries</th>
                       <th />
                     </tr>
                   </thead>
@@ -157,6 +191,15 @@ export default async function GovernancePage() {
                           position={member.position}
                           electedOn={member.electedOn}
                           person={person}
+                          access={
+                            <AccessCell
+                              target={{ positionId: member.id }}
+                              state={accessState(accessByPosition.get(member.id))}
+                              accessRole={accessFor(accessMap, 'office', member.position)}
+                              mayConfirm={mayConfirm}
+                              current={isGoverning}
+                            />
+                          }
                         />
                       );
                     })}
@@ -241,6 +284,65 @@ export default async function GovernancePage() {
           </section>
         );
       })}
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>Club functions</h3>
+        <p className="lede" style={{ marginTop: 0 }}>
+          Jobs the club appoints rather than elects &mdash; IT Manager, Blue Card Administrator,
+          Program Coordinator, Referee Coordinator, Coach and the football leads. Each carries the
+          access shown beside it. Confirming it sends the person a sign-in link: they set a
+          password and arrive already linked to their own record, with that access (BR153).
+        </p>
+        {currentFunctions.length === 0 ? (
+          <p className="empty">Nobody appointed to a club function yet.</p>
+        ) : (
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Function</th>
+                  <th>Person</th>
+                  <th>Since</th>
+                  <th>Access it carries</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {currentFunctions.map((f) => (
+                  <tr key={f.id}>
+                    <td>{FUNCTION_LABEL[f.kind]}</td>
+                    <td>{nameOf.get(f.personId) ?? <span className="hint">Unknown person</span>}</td>
+                    <td>{f.startsOn}</td>
+                    <td>
+                      <AccessCell
+                        target={{ functionId: f.id }}
+                        state={accessState(accessByFunction.get(f.id))}
+                        accessRole={accessFor(accessMap, 'function', f.kind)}
+                        mayConfirm={mayConfirm}
+                        current
+                      />
+                    </td>
+                    <td>{mayConfirm && <EndFunctionButton appointmentId={f.id} />}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {mayConfirm ? (
+          <>
+            <h4>Appoint to a club function</h4>
+            <AppointFunctionForm people={assignable} />
+          </>
+        ) : (
+          <p className="hint">Only an administrator or the current President appoints to a function.</p>
+        )}
+        <p className="hint">
+          Ending a function, a resignation, or a term closing does <strong>not</strong> remove the
+          access it carried &mdash; an administrator removes it on the Access screen, which flags
+          it once its appointment has ended (BR154).
+        </p>
+      </section>
 
       <section className="card">
         <h3 style={{ marginTop: 0 }}>Open a governance year</h3>

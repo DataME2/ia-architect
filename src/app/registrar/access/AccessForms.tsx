@@ -1,11 +1,26 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 
 import {
+  FILTER_LABEL,
+  filterDirectory,
+  workspaceSummary,
+  type DirectoryEntry,
+  type DirectoryFilter,
+} from '../../../web/access-directory.ts';
+import {
+  WORKSPACE_STATE_LABEL,
+  WORKSPACE_STATE_SHORT,
+  WORKSPACE_STATE_TONE,
+  type WorkspaceState,
+} from '../../../web/workspace-invite-view.ts';
+import {
+  ACCESS_LABEL,
   CLUB_ROLES,
   READ_ONLY_ROLES,
   ROLE_SUMMARY,
+  accessLabel,
   accountIdentity,
   adminNeedsLinkFirst,
   candidateLabel,
@@ -21,6 +36,7 @@ import {
   grantAccessAction,
   linkAccountAction,
   revokeAccessAction,
+  reissueWorkspaceAction,
   unlinkAccountAction,
 } from './actions.ts';
 
@@ -44,11 +60,11 @@ export function GrantAccessForm() {
         </div>
 
         <div className="field">
-          <label htmlFor="role">Role</label>
+          <label htmlFor="role">Access level</label>
           <select id="role" name="role" defaultValue="registrar">
             {CLUB_ROLES.map((role) => (
               <option key={role} value={role}>
-                {role} &mdash; {ROLE_SUMMARY[role]}
+                {ACCESS_LABEL[role]} &mdash; {ROLE_SUMMARY[role]}
               </option>
             ))}
           </select>
@@ -122,15 +138,17 @@ function AccountIdentity({
   account,
   accounts,
   candidates,
+  today,
 }: {
   readonly account: ClubAccount;
   readonly accounts: readonly ClubAccount[];
   readonly candidates: readonly LinkCandidate[];
+  readonly today: string;
 }) {
   const [state, formAction, pending] = useActionState(linkAccountAction, IDLE_FORM);
   const [unlinkState, unlinkAction, unlinking] = useActionState(unlinkAccountAction, IDLE_FORM);
   const who = accountIdentity(account);
-  const options = linkableCandidates(account, candidates, accounts);
+  const options = linkableCandidates(account, candidates, accounts, today);
 
   return (
     <div className="stack" style={{ gap: '0.35rem' }}>
@@ -149,7 +167,9 @@ function AccountIdentity({
       ) : (
         <>
           <span className="hint">
-            <em>Not linked</em> — the club knows this account, not who it belongs to.
+            <em>Not linked</em> — the club knows this account, not who it belongs to. Accounts that
+            arrive through a Governance appointment are linked automatically; pick the person only
+            for one that did not.
           </span>
           <span>{account.email}</span>
           {options.length === 0 ? (
@@ -170,7 +190,7 @@ function AccountIdentity({
                 </option>
                 {options.map((candidate) => (
                   <option key={candidate.personId} value={candidate.personId}>
-                    {candidateLabel(candidate)}
+                    {candidateLabel(candidate, today)}
                   </option>
                 ))}
               </select>
@@ -189,12 +209,11 @@ function AccountIdentity({
 
 export function RoleLegend() {
   return (
-    <div className="card">
-      <h3 style={{ marginTop: 0 }}>What each role permits</h3>
+    <div>
       <table>
         <thead>
           <tr>
-            <th>Role</th>
+            <th>Access level</th>
             <th>Permits</th>
           </tr>
         </thead>
@@ -202,7 +221,7 @@ export function RoleLegend() {
           {CLUB_ROLES.map((role) => (
             <tr key={role}>
               <td>
-                <strong>{role}</strong>
+                <strong>{ACCESS_LABEL[role]}</strong>
               </td>
               <td>
                 {ROLE_SUMMARY[role]}
@@ -214,10 +233,31 @@ export function RoleLegend() {
               </td>
             </tr>
           ))}
+          <tr>
+            <td>
+              <strong>Player</strong>
+            </td>
+            <td>
+              Their own record in their own workspace &mdash; nothing about anybody else. Not granted
+              here: sent automatically to a player of 13 or over once they are a player this season and
+              their registration is COMPLETE (BR150).{' '}
+              <span className="pill">own workspace</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Parent / Guardian</strong>
+            </td>
+            <td>
+              Their own children&rsquo;s records, in a family workspace. Not granted here: sent
+              automatically to a guardian with authority once their child under 18 is a player this
+              season and COMPLETE (BR126). <span className="pill">own workspace</span>
+            </td>
+          </tr>
         </tbody>
       </table>
       <p className="hint" style={{ marginBottom: 0 }}>
-        <strong>Every role reads almost everything.</strong> A role decides what somebody may
+        <strong>Every access level reads almost everything.</strong> A role decides what somebody may
         change, and barely restricts what they may see &mdash; a coach can read every
         family&rsquo;s balance and consents across the whole club. Whether that is right is an
         open question, recorded rather than quietly changed.
@@ -247,10 +287,10 @@ export function GrantMoreForm({ account }: { readonly account: ClubAccount }) {
     <div className="stack" style={{ gap: '0.3rem' }}>
       <form action={formAction} style={{ display: 'inline-flex', gap: '0.35rem' }}>
         <input type="hidden" name="email" value={account.email} />
-        <select name="role" defaultValue={options[0]} aria-label={`Add a role for ${account.email}`}>
+        <select name="role" defaultValue={options[0]} aria-label={`Add access for ${account.email}`}>
           {options.map((role) => (
             <option key={role} value={role}>
-              {role}
+              {ACCESS_LABEL[role]}
             </option>
           ))}
         </select>
@@ -272,77 +312,249 @@ function AdminNeedsLinkHint() {
   );
 }
 
-/**
- * The whole screen's interactive half.
- *
- * One component rather than four scattered through the page, because each
- * row's Remove button needs its own action state and the last-administrator
- * rule needs the whole list to decide.
- */
-export function AccessForms({
+/** One person's row: who, what they can do at a glance, and — opened — why, and what to change. */
+function DirectoryRow({
+  entry,
   accounts,
   candidates,
+  today,
 }: {
+  readonly entry: DirectoryEntry;
   readonly accounts: readonly ClubAccount[];
   readonly candidates: readonly LinkCandidate[];
+  readonly today: string;
 }) {
+  const account = entry.account;
+  const meta = [entry.email, workspaceSummary(entry.workspaces)]
+    .filter((x): x is string => x !== null && x !== '')
+    .join(' · ');
+
+  return (
+    <li className="person-row">
+      <details>
+        <summary>
+          <div>
+            <p className="person-row-name">
+              {entry.name}
+              {account?.isSelf === true && (
+                <>
+                  {' '}
+                  <span className="pill">you</span>
+                </>
+              )}
+            </p>
+            <p className="person-row-meta">{meta === '' ? 'No email on record' : meta}</p>
+          </div>
+          <div className="person-row-chips">
+            {entry.staff.map((s) => (
+              <span key={s.role} className="pill pill-ok">
+                {s.label}
+              </span>
+            ))}
+            {entry.workspaces.some((w) => w.kind === 'guardian') && (
+              <span className={WORKSPACE_STATE_TONE[worstState(entry.workspaces, 'guardian')]}>
+                Family workspace · {WORKSPACE_STATE_SHORT[worstState(entry.workspaces, 'guardian')]}
+              </span>
+            )}
+            {entry.workspaces.some((w) => w.kind === 'player') && (
+              <span className={WORKSPACE_STATE_TONE[worstState(entry.workspaces, 'player')]}>
+                Own workspace · {WORKSPACE_STATE_SHORT[worstState(entry.workspaces, 'player')]}
+              </span>
+            )}
+            {entry.attention.length > 0 && (
+              <span className="pill pill-warn" title={entry.attention.join('; ')}>
+                needs attention
+              </span>
+            )}
+          </div>
+        </summary>
+
+        <div className="person-row-body stack">
+          {entry.attention.length > 0 && (
+            <p className="notice" style={{ margin: 0 }}>
+              {entry.attention.join(' · ')}
+            </p>
+          )}
+
+          {account !== null && (
+            <div>
+              <h4>Whose account is this?</h4>
+              <AccountIdentity account={account} accounts={accounts} candidates={candidates} today={today} />
+            </div>
+          )}
+
+          {account !== null && (
+            <div>
+              <h4>Staff access</h4>
+              {entry.staff.length === 0 ? (
+                <p className="hint">None.</p>
+              ) : (
+                <ul className="stack" style={{ listStyle: 'none', padding: 0, margin: 0, gap: '0.4rem' }}>
+                  {entry.staff.map((s) => (
+                    <li
+                      key={s.role}
+                      style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}
+                    >
+                      <strong>{s.label}</strong>
+                      <span className="hint">
+                        {s.why.kind === 'granted-by-hand'
+                          ? 'granted on this screen'
+                          : `from ${s.why.labels.join(', ')}${s.why.allEnded ? ' — ended; kept until removed (BR154)' : ''}`}
+                      </span>
+                      <RevokeButton account={account} role={s.role} accounts={accounts} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div style={{ marginTop: '0.5rem' }}>
+                <GrantMoreForm account={account} />
+              </div>
+            </div>
+          )}
+
+          {entry.workspaces.length > 0 && (
+            <div>
+              <h4>Workspaces</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {entry.workspaces.map((w) => (
+                  <li key={`${w.kind}-${w.forPlayer}`}>
+                    {w.kind === 'player' ? 'Own workspace' : `Family workspace for ${w.forPlayer}`}{' '}
+                    <span className={WORKSPACE_STATE_TONE[w.state]}>{WORKSPACE_STATE_LABEL[w.state]}</span>
+                  </li>
+                ))}
+              </ul>
+              {entry.workspaces.some((w) => w.state === 'unlinked' || w.state === 'link-sent') && (
+                <div style={{ marginTop: '0.5rem' }}>
+                  <ReissueButton
+                    personId={entry.key}
+                    lost={entry.workspaces.some((w) => w.state === 'unlinked')}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </details>
+    </li>
+  );
+}
+
+/**
+ * Send a workspace link again: after a login was unlinked (0061 restores
+ * it) or when the first one was never opened. The database refuses to
+ * touch a link that is still working.
+ */
+function ReissueButton({ personId, lost }: { readonly personId: string; readonly lost: boolean }) {
+  const [state, formAction, pending] = useActionState(reissueWorkspaceAction, IDLE_FORM);
+  return (
+    <form action={formAction} className="stack" style={{ gap: '0.3rem' }}>
+      <input type="hidden" name="personId" value={personId} />
+      <div>
+        <button type="submit" className={lost ? undefined : 'secondary'} disabled={pending}>
+          {pending ? 'Sending…' : lost ? 'Send a new link' : 'Resend link'}
+        </button>
+      </div>
+      <FormNotice result={state} />
+    </form>
+  );
+}
+
+/** A chip shows the state most in need of a human, so a problem never hides behind an OK one. */
+const STATE_URGENCY: readonly WorkspaceState[] = [
+  'unlinked', 'no-email', 'not-sent', 'waiting-complete', 'link-sent', 'active',
+];
+
+function worstState(workspaces: DirectoryEntry['workspaces'], kind: 'player' | 'guardian'): WorkspaceState {
+  const states = workspaces.filter((w) => w.kind === kind).map((w) => w.state);
+  return STATE_URGENCY.find((s) => states.includes(s)) ?? 'active';
+}
+
+const FILTERS: readonly DirectoryFilter[] = ['all', 'staff', 'workspace', 'attention'];
+
+/**
+ * The whole screen's interactive half: one searchable list of people.
+ *
+ * Each row's Remove button needs its own action state and the
+ * last-administrator rule needs every account to decide, so the list and
+ * its controls live in one component.
+ */
+export function AccessForms({
+  entries,
+  accounts,
+  candidates,
+  today,
+}: {
+  readonly entries: readonly DirectoryEntry[];
+  readonly accounts: readonly ClubAccount[];
+  readonly candidates: readonly LinkCandidate[];
+  readonly today: string;
+}) {
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<DirectoryFilter>('all');
+  const shown = filterDirectory(entries, query, filter);
+
   return (
     <>
-      <div className="card">
-        <h3 style={{ marginTop: 0 }}>Accounts</h3>
-        {accounts.length === 0 ? (
-          <p className="hint" style={{ marginBottom: 0 }}>
-            Nobody. That should be impossible while you are reading this, so something is wrong.
-          </p>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Who</th>
-                <th>Roles</th>
-                <th>Add a role</th>
-              </tr>
-            </thead>
-            <tbody>
-              {accounts.map((account) => (
-                <tr key={account.userId}>
-                  <td>
-                    {account.isSelf && (
-                      <span className="pill" style={{ float: 'right' }}>
-                        you
-                      </span>
-                    )}
-                    <AccountIdentity
-                      account={account}
-                      accounts={accounts}
-                      candidates={candidates}
-                    />
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      {account.roles.map((role) => (
-                        <span
-                          key={role}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
-                        >
-                          <span className="pill">{role}</span>
-                          <RevokeButton account={account} role={role} accounts={accounts} />
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td>
-                    <GrantMoreForm account={account} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <div className="card filter-bar">
+        <div className="search-field">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name or email"
+            aria-label="Search people by name or email"
+          />
+        </div>
+        <div className="chips" role="group" aria-label="Show">
+          {FILTERS.map((f) => (
+            <button
+              key={f}
+              type="button"
+              className="chip"
+              aria-pressed={filter === f}
+              onClick={() => setFilter(f)}
+            >
+              {FILTER_LABEL[f]}
+              <span className="chip-count">{filterDirectory(entries, '', f).length}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      <GrantAccessForm />
-      <RoleLegend />
+      {shown.length === 0 ? (
+        <p className="empty">Nobody matches.</p>
+      ) : (
+        <ul className="card people-list">
+          {shown.map((entry) => (
+            <DirectoryRow
+              key={entry.key}
+              entry={entry}
+              accounts={accounts}
+              candidates={candidates}
+              today={today}
+            />
+          ))}
+        </ul>
+      )}
+
+      <details className="card" id="grant">
+        <summary>
+          <strong>Grant staff access by email</strong>{' '}
+          <span className="hint">&mdash; for exceptions; an appointment on Governance does this for you</span>
+        </summary>
+        <div style={{ marginTop: '0.75rem' }}>
+          <GrantAccessForm />
+        </div>
+      </details>
+
+      <details className="card">
+        <summary>
+          <strong>What each access level permits</strong>
+        </summary>
+        <div style={{ marginTop: '0.75rem' }}>
+          <RoleLegend />
+        </div>
+      </details>
     </>
   );
 }

@@ -1,8 +1,20 @@
 import { redirect } from 'next/navigation';
 
-import { loadLinkCandidates, loadTenantContext } from '../../../data/queries.ts';
+import { loadAppointmentAccess, loadFunctionAppointments } from '../../../data/appointments.ts';
+import { loadGovernance } from '../../../data/governance.ts';
+import { loadLinkCandidates, loadSeasons, loadTenantContext } from '../../../data/queries.ts';
+import { loadWorkspaceStatus } from '../../../data/workspace-invitations.ts';
+import { buildDirectory } from '../../../web/access-directory.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
-import type { ClubAccount } from '../../../web/access-view.ts';
+import { governingTerm } from '../../../domain/governance/term.ts';
+import { MIN_ACCOUNT_AGE, candidateAge, type ClubAccount } from '../../../web/access-view.ts';
+import {
+  FUNCTION_LABEL,
+  isCurrentFunction,
+  type AccessSource,
+} from '../../../web/appointment-view.ts';
+import { POSITION_LABEL } from '../../../web/governance-view.ts';
+import { todayIn } from '../../../web/today.ts';
 import { AccessForms } from './AccessForms.tsx';
 
 export const dynamic = 'force-dynamic';
@@ -74,25 +86,81 @@ export default async function AccessPage() {
     }),
   );
 
-  const candidates = await loadLinkCandidates(client, tenant.clubId);
+  const today = todayIn();
+  const [candidates, accessRows, functions, governance, seasons] = await Promise.all([
+    loadLinkCandidates(client, tenant.clubId),
+    loadAppointmentAccess(client, tenant.clubId),
+    loadFunctionAppointments(client, tenant.clubId),
+    loadGovernance(client, tenant.clubId),
+    loadSeasons(client, tenant.clubId),
+  ]);
+  // The season People opens on by default, so the two screens agree.
+  const season = seasons[0];
+  const workspaces =
+    season === undefined ? [] : await loadWorkspaceStatus(client, tenant.clubId, season.id, today);
+
+  // Why each account holds what it holds: the appointment behind an access,
+  // and whether that appointment has since ended (BR154 keeps the access).
+  const governing = governingTerm(governance.terms, today);
+  const termById = new Map(governance.terms.map((t) => [t.id, t]));
+  const positionById = new Map(governance.members.map((m) => [m.id, m]));
+  const functionById = new Map(functions.map((f) => [f.id, f]));
+  const sources: AccessSource[] = accessRows.flatMap((row) => {
+    if (row.committeePositionId !== null) {
+      const m = positionById.get(row.committeePositionId);
+      if (m === undefined) return [];
+      return [{
+        accessRole: row.accessRole,
+        claimedUserId: row.claimedUserId,
+        label: `${POSITION_LABEL[m.position]} · ${termById.get(m.termId)?.name ?? ''}`,
+        ended: m.resignedOn !== null || governing?.id !== m.termId,
+      }];
+    }
+    if (row.functionAppointmentId !== null) {
+      const f = functionById.get(row.functionAppointmentId);
+      if (f === undefined) return [];
+      return [{
+        accessRole: row.accessRole,
+        claimedUserId: row.claimedUserId,
+        label: FUNCTION_LABEL[f.kind],
+        ended: !isCurrentFunction(f, today),
+      }];
+    }
+    return [];
+  });
+
+  const children = new Set(
+    candidates
+      .filter((c) => {
+        const age = candidateAge(c.dateOfBirth, today);
+        return age !== null && age < MIN_ACCOUNT_AGE;
+      })
+      .map((c) => c.personId),
+  );
+  const entries = buildDirectory(accounts, workspaces, sources, children);
 
   return (
     <>
-      <h2>Who has access to {tenant.clubName}</h2>
-      <p className="lede">
-        An account here can sign in and act at this club. Roles are additive &mdash; one person
-        is routinely both registrar and treasurer, and holds a row for each.
-      </p>
-      <p className="hint">
-        <strong>Saying who an account belongs to is a decision you make, not one the system
-        guesses.</strong> Two families share an inbox and a club address outlives three
-        secretaries, so matching email addresses would quietly get this wrong &mdash; an account
-        stays <em>not linked</em> until somebody here says otherwise. It changes no
-        permissions: it is what lets the audit log and this screen name a person instead of an
-        address.
+      <div className="card-row" style={{ alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+        <div style={{ flex: '1 1 20rem' }}>
+          <h2 style={{ marginBottom: '0.25rem' }}>Access</h2>
+          <p className="lede" style={{ marginTop: 0 }}>
+            Everyone who can sign in at {tenant.clubName}
+            {season === undefined ? '' : ` (${season.name})`}, and what they can do. Open a person
+            to see why, or to change it.
+          </p>
+        </div>
+        <a className="button" href="/registrar/governance">
+          Appoint someone
+        </a>
+      </div>
+      <p className="hint" style={{ marginTop: 0 }}>
+        Staff access comes from an office or club function confirmed on Governance; player and
+        family workspaces go out on their own once a player is COMPLETE. Nothing here needs to be
+        picked by hand unless an account arrived some other way.
       </p>
 
-      <AccessForms accounts={accounts} candidates={candidates} />
+      <AccessForms entries={entries} accounts={accounts} candidates={candidates} today={today} />
     </>
   );
 }
