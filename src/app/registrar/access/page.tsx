@@ -4,7 +4,7 @@ import { loadAppointmentAccess, loadFunctionAppointments } from '../../../data/a
 import { loadGovernance } from '../../../data/governance.ts';
 import { loadLinkCandidates, loadSeasons, loadTenantContext } from '../../../data/queries.ts';
 import { loadWorkspaceStatus } from '../../../data/workspace-invitations.ts';
-import { WORKSPACE_STATE_LABEL, WORKSPACE_STATE_TONE } from '../../../web/workspace-invite-view.ts';
+import { buildDirectory } from '../../../web/access-directory.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { governingTerm } from '../../../domain/governance/term.ts';
 import type { ClubAccount } from '../../../web/access-view.ts';
@@ -129,73 +129,30 @@ export default async function AccessPage() {
     return [];
   });
 
+  const entries = buildDirectory(accounts, workspaces, sources);
+
   return (
     <>
-      <h2>Who has access to {tenant.clubName}</h2>
-      <p className="lede">
-        An account here can sign in and act at this club. Access levels add up &mdash; one person
-        is routinely both registrar and treasurer, and holds each.
-      </p>
-      <p className="notice">
-        <strong>Most access should not start here.</strong> Appoint the person to their office or
-        club function on <a href="/registrar/governance">Governance</a> and confirm it there: they
-        receive a link, set a password, and arrive already linked to their record with the right
-        access. Use this screen for exceptions, and to remove access nobody needs any more.
-      </p>
-      <p className="hint">
-        <strong>Saying who an account belongs to is a decision you make, not one the system
-        guesses.</strong> Two families share an inbox and a club address outlives three
-        secretaries, so matching email addresses would quietly get this wrong &mdash; an account
-        stays <em>not linked</em> until somebody here says otherwise. It changes no
-        permissions: it is what lets the audit log and this screen name a person instead of an
-        address.
+      <div className="card-row" style={{ alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+        <div style={{ flex: '1 1 20rem' }}>
+          <h2 style={{ marginBottom: '0.25rem' }}>Access</h2>
+          <p className="lede" style={{ marginTop: 0 }}>
+            Everyone who can sign in at {tenant.clubName}
+            {season === undefined ? '' : ` (${season.name})`}, and what they can do. Open a person
+            to see why, or to change it.
+          </p>
+        </div>
+        <a className="button" href="/registrar/governance">
+          Appoint someone
+        </a>
+      </div>
+      <p className="hint" style={{ marginTop: 0 }}>
+        Staff access comes from an office or club function confirmed on Governance; player and
+        family workspaces go out on their own once a player is COMPLETE. Nothing here needs to be
+        picked by hand unless an account arrived some other way.
       </p>
 
-      <AccessForms accounts={accounts} candidates={candidates} sources={sources} />
-
-      <section className="card">
-        <h3 style={{ marginTop: 0 }}>
-          Player and family workspaces{season === undefined ? '' : ` — ${season.name}`}
-        </h3>
-        <p className="hint" style={{ marginTop: 0 }}>
-          Nothing to grant here: once someone is a player this season and their registration is
-          COMPLETE, the links go out on their own &mdash; to the guardian under 13, the guardian and
-          the player from 13 to 17, the player from 18. A workspace shows only its own family&rsquo;s
-          records, never the club&rsquo;s, which is why it is not an access level above.
-        </p>
-        {workspaces.length === 0 ? (
-          <p className="empty">No players this season yet.</p>
-        ) : (
-          <div className="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Player</th>
-                  <th>Workspace</th>
-                  <th>Who signs in</th>
-                  <th>State</th>
-                </tr>
-              </thead>
-              <tbody>
-                {workspaces.flatMap((w) =>
-                  w.rows.map((r) => (
-                    <tr key={`${w.playerName}-${r.kind}-${r.personId}`}>
-                      <td>{w.playerName}</td>
-                      <td>{r.kind === 'player' ? 'Own' : 'Family'}</td>
-                      <td>{r.name}</td>
-                      <td>
-                        <span className={WORKSPACE_STATE_TONE[r.state]}>
-                          {WORKSPACE_STATE_LABEL[r.state]}
-                        </span>
-                      </td>
-                    </tr>
-                  )),
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      <AccessForms entries={entries} accounts={accounts} candidates={candidates} />
     </>
   );
 }

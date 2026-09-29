@@ -125,6 +125,21 @@ ages `planWorkspaceInvites` sends by, and one loader serves both, so the
 screen shows exactly what would be sent. The club kept COMPLETE as the gate
 when asked again.
 
+**The Access screen as a list of people (same day).** The club asked for the
+People screen's shape — search, filter chips, one row per person with chips on
+the right — instead of an accounts table with a *"Who is this?"* picker on
+every row. `src/web/access-directory.ts` (`buildDirectory`, tested) merges
+staff accounts and workspace holders into one entry per Person (P1): a
+treasurer who is also a guardian is one row with two chips. Filters: *All*,
+*Staff access*, *Workspaces*, *Needs attention* (an unlinked account, access
+whose appointment has ended, a missing email, a link not sent). Opening a row
+shows why each access is held, Remove/Add, and each workspace's state. The
+picker now appears **only** inside an unlinked account's row. Checked in the
+running app: an admin login that was never linked to its own Person record
+shows as a second row flagged *needs attention* — linking it once merges the
+two, which is the one case the picker is still for. Grant-by-email and the
+access legend fold into collapsible panels below the list.
+
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |

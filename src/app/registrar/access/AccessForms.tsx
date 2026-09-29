@@ -1,8 +1,19 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 
-import { explainRole, type AccessSource } from '../../../web/appointment-view.ts';
+import {
+  FILTER_LABEL,
+  filterDirectory,
+  workspaceSummary,
+  type DirectoryEntry,
+  type DirectoryFilter,
+} from '../../../web/access-directory.ts';
+import {
+  WORKSPACE_STATE_LABEL,
+  WORKSPACE_STATE_TONE,
+  type WorkspaceState,
+} from '../../../web/workspace-invite-view.ts';
 import {
   ACCESS_LABEL,
   CLUB_ROLES,
@@ -194,8 +205,7 @@ function AccountIdentity({
 
 export function RoleLegend() {
   return (
-    <div className="card">
-      <h3 style={{ marginTop: 0 }}>What each access level permits</h3>
+    <div>
       <table>
         <thead>
           <tr>
@@ -298,93 +308,209 @@ function AdminNeedsLinkHint() {
   );
 }
 
-/**
- * The whole screen's interactive half.
- *
- * One component rather than four scattered through the page, because each
- * row's Remove button needs its own action state and the last-administrator
- * rule needs the whole list to decide.
- */
-export function AccessForms({
+/** One person's row: who, what they can do at a glance, and — opened — why, and what to change. */
+function DirectoryRow({
+  entry,
   accounts,
   candidates,
-  sources,
 }: {
+  readonly entry: DirectoryEntry;
   readonly accounts: readonly ClubAccount[];
   readonly candidates: readonly LinkCandidate[];
-  readonly sources: readonly AccessSource[];
 }) {
+  const account = entry.account;
+  const meta = [entry.email, workspaceSummary(entry.workspaces)]
+    .filter((x): x is string => x !== null && x !== '')
+    .join(' · ');
+
+  return (
+    <li className="person-row">
+      <details>
+        <summary>
+          <div>
+            <p className="person-row-name">
+              {entry.name}
+              {account?.isSelf === true && (
+                <>
+                  {' '}
+                  <span className="pill">you</span>
+                </>
+              )}
+            </p>
+            <p className="person-row-meta">{meta === '' ? 'No email on record' : meta}</p>
+          </div>
+          <div className="person-row-chips">
+            {entry.staff.map((s) => (
+              <span key={s.role} className="pill pill-ok">
+                {s.label}
+              </span>
+            ))}
+            {entry.workspaces.some((w) => w.kind === 'guardian') && (
+              <span className={WORKSPACE_STATE_TONE[worstState(entry.workspaces, 'guardian')]}>
+                Family workspace
+              </span>
+            )}
+            {entry.workspaces.some((w) => w.kind === 'player') && (
+              <span className={WORKSPACE_STATE_TONE[worstState(entry.workspaces, 'player')]}>
+                Own workspace
+              </span>
+            )}
+            {entry.attention.length > 0 && (
+              <span className="pill pill-warn" title={entry.attention.join('; ')}>
+                needs attention
+              </span>
+            )}
+          </div>
+        </summary>
+
+        <div className="person-row-body stack">
+          {entry.attention.length > 0 && (
+            <p className="notice" style={{ margin: 0 }}>
+              {entry.attention.join(' · ')}
+            </p>
+          )}
+
+          {account !== null && account.personId === null && (
+            <div>
+              <h4>Whose account is this?</h4>
+              <AccountIdentity account={account} accounts={accounts} candidates={candidates} />
+            </div>
+          )}
+
+          {account !== null && (
+            <div>
+              <h4>Staff access</h4>
+              {entry.staff.length === 0 ? (
+                <p className="hint">None.</p>
+              ) : (
+                <ul className="stack" style={{ listStyle: 'none', padding: 0, margin: 0, gap: '0.4rem' }}>
+                  {entry.staff.map((s) => (
+                    <li
+                      key={s.role}
+                      style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}
+                    >
+                      <strong>{s.label}</strong>
+                      <span className="hint">
+                        {s.why.kind === 'granted-by-hand'
+                          ? 'granted on this screen'
+                          : `from ${s.why.labels.join(', ')}${s.why.allEnded ? ' — ended; kept until removed (BR154)' : ''}`}
+                      </span>
+                      <RevokeButton account={account} role={s.role} accounts={accounts} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div style={{ marginTop: '0.5rem' }}>
+                <GrantMoreForm account={account} />
+              </div>
+            </div>
+          )}
+
+          {entry.workspaces.length > 0 && (
+            <div>
+              <h4>Workspaces</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {entry.workspaces.map((w) => (
+                  <li key={`${w.kind}-${w.forPlayer}`}>
+                    {w.kind === 'player' ? 'Own workspace' : `Family workspace for ${w.forPlayer}`}{' '}
+                    <span className={WORKSPACE_STATE_TONE[w.state]}>{WORKSPACE_STATE_LABEL[w.state]}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </details>
+    </li>
+  );
+}
+
+/** A chip shows the state most in need of a human, so a problem never hides behind an OK one. */
+const STATE_URGENCY: readonly WorkspaceState[] = ['no-email', 'not-sent', 'waiting-complete', 'link-sent', 'active'];
+
+function worstState(workspaces: DirectoryEntry['workspaces'], kind: 'player' | 'guardian'): WorkspaceState {
+  const states = workspaces.filter((w) => w.kind === kind).map((w) => w.state);
+  return STATE_URGENCY.find((s) => states.includes(s)) ?? 'active';
+}
+
+const FILTERS: readonly DirectoryFilter[] = ['all', 'staff', 'workspace', 'attention'];
+
+/**
+ * The whole screen's interactive half: one searchable list of people.
+ *
+ * Each row's Remove button needs its own action state and the
+ * last-administrator rule needs every account to decide, so the list and
+ * its controls live in one component.
+ */
+export function AccessForms({
+  entries,
+  accounts,
+  candidates,
+}: {
+  readonly entries: readonly DirectoryEntry[];
+  readonly accounts: readonly ClubAccount[];
+  readonly candidates: readonly LinkCandidate[];
+}) {
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<DirectoryFilter>('all');
+  const shown = filterDirectory(entries, query, filter);
+
   return (
     <>
-      <div className="card">
-        <h3 style={{ marginTop: 0 }}>Accounts</h3>
-        {accounts.length === 0 ? (
-          <p className="hint" style={{ marginBottom: 0 }}>
-            Nobody. That should be impossible while you are reading this, so something is wrong.
-          </p>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Who</th>
-                <th>Access, and where it came from</th>
-                <th>Add access</th>
-              </tr>
-            </thead>
-            <tbody>
-              {accounts.map((account) => (
-                <tr key={account.userId}>
-                  <td>
-                    {account.isSelf && (
-                      <span className="pill" style={{ float: 'right' }}>
-                        you
-                      </span>
-                    )}
-                    <AccountIdentity
-                      account={account}
-                      accounts={accounts}
-                      candidates={candidates}
-                    />
-                  </td>
-                  <td>
-                    <div className="stack" style={{ gap: '0.45rem' }}>
-                      {account.roles.map((role) => {
-                        const why = explainRole(account.userId, role, sources);
-                        return (
-                          <div key={role}>
-                            <span
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
-                            >
-                              <span className="pill">{accessLabel(role)}</span>
-                              <RevokeButton account={account} role={role} accounts={accounts} />
-                            </span>
-                            <br />
-                            {why.kind === 'granted-by-hand' ? (
-                              <span className="hint">granted on this screen</span>
-                            ) : why.allEnded ? (
-                              <span className="pill pill-warn" title="BR154: access is kept until an administrator removes it">
-                                {why.labels.join(', ')} has ended &mdash; remove if no longer needed
-                              </span>
-                            ) : (
-                              <span className="hint">from {why.labels.join(', ')}</span>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </td>
-                  <td>
-                    <GrantMoreForm account={account} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <div className="card filter-bar">
+        <div className="search-field">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name or email"
+            aria-label="Search people by name or email"
+          />
+        </div>
+        <div className="chips" role="group" aria-label="Show">
+          {FILTERS.map((f) => (
+            <button
+              key={f}
+              type="button"
+              className="chip"
+              aria-pressed={filter === f}
+              onClick={() => setFilter(f)}
+            >
+              {FILTER_LABEL[f]}
+              <span className="chip-count">{filterDirectory(entries, '', f).length}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      <GrantAccessForm />
-      <RoleLegend />
+      {shown.length === 0 ? (
+        <p className="empty">Nobody matches.</p>
+      ) : (
+        <ul className="card people-list">
+          {shown.map((entry) => (
+            <DirectoryRow key={entry.key} entry={entry} accounts={accounts} candidates={candidates} />
+          ))}
+        </ul>
+      )}
+
+      <details className="card" id="grant">
+        <summary>
+          <strong>Grant staff access by email</strong>{' '}
+          <span className="hint">&mdash; for exceptions; an appointment on Governance does this for you</span>
+        </summary>
+        <div style={{ marginTop: '0.75rem' }}>
+          <GrantAccessForm />
+        </div>
+      </details>
+
+      <details className="card">
+        <summary>
+          <strong>What each access level permits</strong>
+        </summary>
+        <div style={{ marginTop: '0.75rem' }}>
+          <RoleLegend />
+        </div>
+      </details>
     </>
   );
 }

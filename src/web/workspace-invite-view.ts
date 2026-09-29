@@ -80,6 +80,7 @@ export interface WorkspaceRow {
   readonly kind: 'player' | 'guardian';
   readonly personId: string;
   readonly name: string;
+  readonly email: string | null;
   readonly state: WorkspaceState;
 }
 
@@ -98,6 +99,7 @@ export function workspaceRows(input: {
     kind,
     personId: h.personId,
     name: h.name,
+    email: h.email,
     state: h.claimed
       ? 'active'
       : h.invited
