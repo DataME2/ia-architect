@@ -24,6 +24,7 @@ import {
 } from '../../../web/people-view.ts';
 import { todayIn } from '../../../web/today.ts';
 import { setRoleAction } from './actions.ts';
+import { EditPersonDetails } from './EditPersonDetails.tsx';
 import { InviteAllMissing } from './InviteAllMissing.tsx';
 
 export const dynamic = 'force-dynamic';
@@ -63,11 +64,13 @@ function PersonRow({
   seasonId,
   appointments,
   canSignIn,
+  mayEdit,
 }: {
   readonly summary: PersonSummary;
   readonly seasonId: string;
   readonly appointments: readonly string[];
   readonly canSignIn: boolean;
+  readonly mayEdit: boolean;
 }) {
   return (
     <tr>
@@ -110,6 +113,7 @@ function PersonRow({
             At the club: <strong>{appointments.join(', ')}</strong>
           </p>
         )}
+        {mayEdit && <EditPersonDetails summary={summary} />}
       </td>
       <td>{summary.age === null ? <span className="hint">Not recorded</span> : summary.age}</td>
       <td>
@@ -192,6 +196,10 @@ export default async function PeoplePage({
   }
 
   const pages = pageCount(totalCount);
+  // Mirrors person_manage; the policy is the control, this only hides a
+  // form that would be refused.
+  const mayEdit = (tenant.roles as readonly string[]).some((r) =>
+    r === 'admin' || r === 'registrar' || r === 'digital_technology_manager');
 
   // Scope 68: what each person does at the club (office or function) and
   // whether they can sign in — the People screen is where somebody is
@@ -324,6 +332,7 @@ export default async function PeoplePage({
                   seasonId={season.id}
                   appointments={appointments.get(person.personId) ?? []}
                   canSignIn={linked.has(person.personId)}
+                  mayEdit={mayEdit}
                 />
               ))}
             </tbody>

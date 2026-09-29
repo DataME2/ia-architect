@@ -191,6 +191,21 @@ checked only that the invitation had once been claimed. Now:
   the invitation names (decision 10 — the registrar's original assertion,
   re-sent, not a new inference).
 
+## Correcting a person's details (same day)
+
+Asked while fixing a record whose email was the club's own admin mailbox:
+*"should exist the possibility to edit peoples names in case of any mistake."*
+Nothing did — a player could propose corrections to their own record
+(BR149), but no club officer could fix a typo in a name, email or birth date.
+Each People row now has **Edit details** (admin, registrar and IT Manager —
+the roles `person_manage` already allows; no migration). `src/web/person-edit.ts`
+validates (both legal names required, a real email, a real past date; a blank
+birth date keeps the 1900-01-01 import placeholder rather than inventing one)
+and `src/data/person-edit.ts` saves with an audit entry naming the fields
+changed. **BR55 shapes it:** changing the legal name withdraws its document
+check, so the person reads *Name unverified* again until someone looks — a
+typo fix must not carry a verification the new name never had.
+
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |

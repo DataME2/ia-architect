@@ -35,6 +35,10 @@ export interface PersonSummary {
   readonly personId: string;
   readonly displayName: string;
   readonly legalName: string;
+  /** The parts, for the edit form — `legalName` is them joined for reading. */
+  readonly legalGivenNames: string;
+  readonly legalFamilyName: string;
+  readonly preferredName: string | null;
   readonly dateOfBirth: IsoDate;
   readonly email: string | null;
   /** In the order of `SEASON_ROLES`, so the same person always reads the same. */
@@ -120,6 +124,9 @@ export function buildDirectory(
       personId: person.id,
       displayName: displayNameFor(person),
       legalName: fullLegalName(person),
+      legalGivenNames: person.legalName.givenNames,
+      legalFamilyName: person.legalName.familyName,
+      preferredName: person.preferredName,
       dateOfBirth: person.dateOfBirth,
       email: person.email,
       roles: orderRoles(rolesByPerson.get(person.id) ?? []),

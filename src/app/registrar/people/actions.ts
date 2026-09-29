@@ -4,7 +4,9 @@ import { revalidatePath } from 'next/cache';
 
 import { loadTenantContext, setSeasonRole } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
+import { savePersonEdit } from '../../../data/person-edit.ts';
 import { inviteWorkspaces } from '../../../data/workspace-invitations.ts';
+import { parsePersonEdit } from '../../../web/person-edit.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
 import { parseSeasonRole } from '../../../web/people-view.ts';
 import { todayIn } from '../../../web/today.ts';
@@ -99,4 +101,45 @@ export async function inviteAllMissingAction(
 
   const message = parts.join(' ');
   return failedSends.length > 0 || outcome.errors.length > 0 ? formFailed(message) : formOk(message);
+}
+
+/**
+ * Correct a Person's names, email or date of birth (scope 68). A changed
+ * legal name loses its verification (BR55) and the screen says so, because
+ * the next person to look needs to check the document again.
+ */
+export async function editPersonAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const personId = String(formData.get('personId') ?? '');
+  if (personId === '') return formFailed('Nothing to edit.');
+
+  const parsed = parsePersonEdit(
+    {
+      legalGivenNames: String(formData.get('legalGivenNames') ?? ''),
+      legalFamilyName: String(formData.get('legalFamilyName') ?? ''),
+      preferredName: String(formData.get('preferredName') ?? ''),
+      email: String(formData.get('email') ?? ''),
+      dateOfBirth: String(formData.get('dateOfBirth') ?? ''),
+    },
+    todayIn(),
+  );
+  if (!parsed.ok) return formFailed(parsed.message);
+
+  const { client, user, tenant } = await requireTenant();
+  let saved;
+  try {
+    saved = await savePersonEdit(client, tenant.clubId, personId, parsed.value, user.id);
+  } catch (error) {
+    return formFailed(error instanceof Error ? error.message.replace(/^.*?:\s*/, '') : 'Could not save.');
+  }
+
+  revalidatePath('/registrar/people');
+  if (saved.changed.length === 0) return formOk('Nothing had changed.');
+  return formOk(
+    `Saved.${saved.verificationWithdrawn
+      ? ' The legal name changed, so it now needs checking against their document again (BR55).'
+      : ''}`,
+  );
 }
