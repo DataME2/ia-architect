@@ -49,7 +49,7 @@ account to the person. That is the first half of [open question
 | Layer | Impact |
 | ----- | ------ |
 | 1_strategy | No new goal or principle. P1 is served further: the account reaches its Person through the appointment rather than a second manual step. Decision 10 (identity asserted, never inferred) holds — the confirmer names the Person; the email only delivers the link |
-| 2_business | **BR153** (an appointment, confirmed by an admin or the current President, carries its mapped access and delivers it as a link) and **BR154** (that access outlives the appointment until an admin removes it; the Access screen flags it). Glossary gains **Club Function** and **Access Level**. #78's first half resolved; per-team scoping (its second half) stays open |
+| 2_business | **BR153** (an appointment, confirmed by an admin or the current President, carries its mapped access and delivers it as a link) and **BR154** (that access outlives the appointment until an admin removes it; the Access screen flags it). Glossary gains **Club Function** and **Access Level**. #78's first half resolved; per-team scoping (its second half) stays open. **WP2 restates BR126 and BR150**: their COMPLETE gate stands, their invitation becomes automatic, and BR150's deliberate 13–17 click is withdrawn |
 | 3_information | Two data objects: **Club Function Appointment** (`club_function_appointment`) and **Appointment Access** (`appointment_access` — who confirmed which appointment's access, to what address, and whether it was claimed). No change to `club_membership`, `committee_position` or `account_person` |
 | 4_application | Governance gains an *Access it carries* column on each office and a **Club functions** section; Access shows each access level's source and flags ended ones, names levels in words, and explains Player/Guardian; People shows each person's current office/function and whether they can sign in. `claim_staff_access` runs at sign-in beside the existing claims |
 | 5_technology | No change. One migration (`0059`), run behaviourally against the linked dev project because no local Docker was available, then its fixtures removed |
@@ -83,14 +83,44 @@ it should).
 **Screens** — `src/web/appointment-view.ts` (pure, tested), `src/data/appointments.ts`,
 Governance, Access, People, the sign-in action and the auth callback.
 
+## WP2 — A player's workspace links go out on their own
+
+Asked the next day (September 2026): *"if a person takes part the season as
+PLAYER [they] should be granted … their own workspace or parent/guardian
+workspace without any other waiting assignation from admin."* The club then
+decided:
+
+- **When:** the moment a Person is **a player this season *and* their
+  registration is COMPLETE** — whichever of the two happens second. COMPLETE
+  stays the gate BR126 and BR150 already enforce in the database; what goes
+  is the wait for someone to press Invite.
+- **Who, by age:** under 13, every guardian holding authority (BR63 — no own
+  account); 13 to 17, those guardians **and** the player; 18 and over, the
+  player only. BR150's deliberate click for 13–17 is withdrawn.
+- **Players already marked:** no surprise emails on deployment — one
+  **Send all missing workspace links** button on People.
+
+**Delivered:** `src/web/workspace-invite-view.ts` (`planWorkspaceInvites`,
+7 tests) decides; `src/data/workspace-invitations.ts` records the
+invitations through the existing `recordGuardianInvitation` /
+`recordPlayerInvitation`, so the database triggers still stand behind every
+row, and pages past Supabase's 1,000-row limit for the club-wide button. It
+runs from three places: granting PLAYER on People, the federation outcome
+that makes a registration COMPLETE (replacing the adults-only auto-invite
+there), and the button. **No migration** — the gates were already right.
+
+A missing email is reported by the button, never skipped silently; a guardian
+of two players is invited once.
+
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |
 | -------- | ------------------------------------------ |
 | Offices and club functions carrying access, confirmed by admin or President | **Per-team scoping** — #78's second half; a coach still reads club-wide |
 | One sign-in link that also links the account to the Person | Automatically **removing** access when an appointment ends — declined by the club; flagged instead |
-| Access screen saying where each access came from | Sending player and guardian invitations from the People row — they stay on the registration page (BR150, BR126), explained in the Access legend |
-| Readable access names; "role" disambiguated on People and Access | Minors appointed to a club function — the form offers adults only, as the committee form does (BR87); a 16-year-old assistant coach is a real case |
+| Access screen saying where each access came from | |
+| Readable access names; "role" disambiguated on People and Access | Inviting before COMPLETE — declined by the club (WP2) |
+| WP2: automatic player and guardian workspace links, and one button for those already marked | Minors appointed to a club function — the form offers adults only, as the committee form does (BR87); a 16-year-old assistant coach is a real case |
 | | Copying the look of the reference prototype (`ltd-dev.lovable.app`) — it is behind a sign-in; screenshots needed |
 
 ## Gap notes

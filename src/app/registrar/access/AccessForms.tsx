@@ -225,8 +225,8 @@ export function RoleLegend() {
             </td>
             <td>
               Their own record in their own workspace &mdash; nothing about anybody else. Not granted
-              here: a player of 13 or over is invited from their registration once it is complete, and
-              one of 18 or over is invited automatically (BR150).{' '}
+              here: sent automatically to a player of 13 or over once they are a player this season and
+              their registration is COMPLETE (BR150).{' '}
               <span className="pill">own workspace</span>
             </td>
           </tr>
@@ -235,8 +235,9 @@ export function RoleLegend() {
               <strong>Parent / Guardian</strong>
             </td>
             <td>
-              Their own children&rsquo;s records, in a family workspace. Not granted here: invited from
-              a child&rsquo;s registration once it is complete (BR126). <span className="pill">own workspace</span>
+              Their own children&rsquo;s records, in a family workspace. Not granted here: sent
+              automatically to a guardian with authority once their child under 18 is a player this
+              season and COMPLETE (BR126). <span className="pill">own workspace</span>
             </td>
           </tr>
         </tbody>

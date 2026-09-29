@@ -24,6 +24,7 @@ import {
 } from '../../../web/people-view.ts';
 import { todayIn } from '../../../web/today.ts';
 import { setRoleAction } from './actions.ts';
+import { InviteAllMissing } from './InviteAllMissing.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -284,6 +285,10 @@ export default async function PeoplePage({
           </div>
         ))}
       </div>
+
+      {tenant.roles.some((r) => r === 'admin' || r === 'registrar') && (
+        <InviteAllMissing seasonId={season.id} />
+      )}
 
       {summary.unrostered > 0 && (
         <p className="notice">
