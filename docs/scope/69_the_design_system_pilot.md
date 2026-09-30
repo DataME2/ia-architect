@@ -52,6 +52,37 @@ Verified by compiling it through `@tailwindcss/postcss`: every token class the
 components use is generated, including the half steps `ds-1.5`/`ds-2.5` and
 opacity modifiers, with no preflight in the output.
 
+## Phase 1 — every screen's frame (October 2026)
+
+Asked for next: *"I want that screens change according with the new design."*
+Screens move in order of reach. Phase 1 is what every screen sits inside, so
+it changes all 33 pages at once without editing any of them: each shared
+component in `src/app` keeps its interface and now renders its design-system
+counterpart.
+
+| Shared component | Now renders | Fixed in the design component on the way |
+| ---------------- | ----------- | ---------------------------------------- |
+| Registrar layout | `RegistrarShell` | Rendered a second `<main>` inside the root layout's (invalid), wrapped the nav in a landmark within a landmark, and added page padding and width the app's `.shell` already sets, and a flex column that would have changed every page's spacing |
+| `RegistrarNav` | `RegistrarNav` | The app's tested destination list (`src/web/nav.ts`) is passed in — the component's own hard-coded copy would drift; full width on a phone; hidden when printing, as before |
+| `SessionStrip` | `SessionStrip` | `useMemo` after an early return (breaks React's rules of hooks); sign-out was a click callback — now a form posting the app's server action; 44px target; access levels named in words (`accessLabel`) |
+| `NotificationBell` | `NotificationBell` | 40px button and a tiny Mark-read under the 44px target; dead `animate-in` classes from a plugin not installed; sorted by recency and stamped as before; Mark-read calls the same server action |
+| `FormNotice` | `FormNotice` (**written** — the generated file was a byte-for-byte copy of `FormFieldset`) | Success now reads as success: it used the warning style, which DESIGN.md keeps for things still waiting |
+| `IdentityRail` (workspaces) | `IdentityRail` + `RoleSwitcher` | Pending-task badges were Desert Orange — the Assistant's colour only (Principle 2) — now Ochre; `role="list"` over plain links (invalid); sign-out as a form; full width and not sticky on a phone, hidden when printing, the commissioned-artwork slot kept |
+
+Also: 13 of the 28 components used hooks or event handlers without
+`'use client'`, which crashes a server-rendered screen at request time — marked.
+
+**Verified:** `npm run check` green (925 tests, accessibility, assistant
+autonomy); every class the new frame depends on — `print:hidden`, the `md:`/`lg:`
+breakpoints, the 44px targets — confirmed in the compiled CSS. **Not verified
+in a browser:** the browser tools were unavailable, so the club reviews each
+phase in its running dev server before the next.
+
+**Next phases:** the building blocks inside pages (status pills, buttons,
+cards, tables, form fields), then screen by screen. The old CSS for the
+frame (`.registrar-shell`, `.registrar-nav-*`, `.session-strip`,
+`.identity-rail`, `.role-item`) stays until phase 1 is confirmed, then goes.
+
 ## EA alignment
 
 | Layer | Impact |

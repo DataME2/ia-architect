@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
@@ -68,7 +70,7 @@ export const RoleSwitcher = React.forwardRef<HTMLElement, RoleSwitcherProps>(
             {title}
           </p>
         )}
-        <div className="flex flex-col gap-1.5" role="list">
+        <div className="flex flex-col gap-1.5">
           {roles.map((holding) => {
             const isCurrent =
               activeRoleKey === holding.key &&
@@ -94,10 +96,13 @@ export const RoleSwitcher = React.forwardRef<HTMLElement, RoleSwitcherProps>(
                 onClick={handleClick}
                 aria-current={isCurrent ? 'true' : undefined}
                 className={cn(
-                  'group flex items-center justify-between min-h-[44px] px-3 py-2 rounded-sm text-xs transition-colors duration-180 cursor-pointer border-l-4 select-none',
+                  // no-underline and an explicit hover colour on both branches:
+                  // globals.css styles every <a> (underline, and a:hover in
+                  // reef blue, which would vanish on the dark rail).
+                  'group flex items-center justify-between min-h-[44px] px-3 py-2 rounded-sm text-xs no-underline transition-colors duration-180 cursor-pointer border-l-4 select-none',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
                   isCurrent
-                    ? 'bg-rail-line text-rail-foreground font-semibold border-primary shadow-xs'
+                    ? 'bg-rail-line text-rail-foreground hover:text-rail-foreground font-semibold border-primary shadow-xs'
                     : 'bg-transparent text-rail-foreground/80 hover:bg-rail-line/60 hover:text-rail-foreground border-transparent'
                 )}
               >
@@ -111,8 +116,9 @@ export const RoleSwitcher = React.forwardRef<HTMLElement, RoleSwitcherProps>(
                   </span>
                 </div>
 
+                {/* Ochre: pending work (DESIGN.md). Desert orange is the Assistant's alone. */}
                 {typeof holding.count === 'number' && holding.count > 0 && (
-                  <span className="shrink-0 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-mono font-bold bg-accent text-accent-foreground shadow-xs">
+                  <span className="shrink-0 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-mono font-bold bg-warning text-warning-foreground shadow-xs">
                     {holding.count}
                     <span className="sr-only"> waiting tasks</span>
                   </span>

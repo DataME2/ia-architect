@@ -20,8 +20,10 @@ export interface RegistrarShellProps extends React.HTMLAttributes<HTMLDivElement
    */
   topBar?: React.ReactNode;
   /**
-   * Maximum layout container width styling.
-   * @default 'max-w-[78rem]'
+   * Maximum layout container width styling. None by default: in this app the
+   * root layout's `.shell` already sets the page width and gutters, and a
+   * second set would double them.
+   * @default ''
    */
   maxWidth?: string;
 }
@@ -33,7 +35,7 @@ export const RegistrarShell = React.forwardRef<HTMLDivElement, RegistrarShellPro
       children,
       railPosition = 'right',
       topBar,
-      maxWidth = 'max-w-[78rem]',
+      maxWidth = '',
       className,
       ...props
     },
@@ -44,7 +46,7 @@ export const RegistrarShell = React.forwardRef<HTMLDivElement, RegistrarShellPro
     return (
       <div
         ref={ref}
-        className={cn('w-full mx-auto px-ds-4 py-ds-4 sm:py-ds-6 font-sans', maxWidth, className)}
+        className={cn('w-full mx-auto font-sans', maxWidth, className)}
         {...props}
       >
         {topBar && <div className="mb-ds-5">{topBar}</div>}
@@ -55,31 +57,33 @@ export const RegistrarShell = React.forwardRef<HTMLDivElement, RegistrarShellPro
             !isNavRight && 'md:grid-cols-[260px_minmax(0,1fr)]'
           )}
         >
-          {/* Left Column in 'right' mode = Main content */}
+          {/* Content. A <div>, not <main>: the page's single <main> landmark is
+              the root layout's, and a second one is invalid. Normal flow, not a
+              flex column, so every screen keeps its own vertical rhythm. */}
           {isNavRight && (
-            <main className="min-w-0 w-full flex-1 flex flex-col gap-ds-5 order-2 md:order-1">
+            <div className="min-w-0 w-full order-2 md:order-1">
               {children}
-            </main>
+            </div>
           )}
 
-          {/* Nav Rail Column */}
+          {/* Nav column. A plain wrapper: the <nav> inside is already the
+              labelled landmark, and a labelled aside around it would announce
+              a landmark within a landmark. */}
           {nav && (
-            <aside
-              aria-label="Registrar Administration Menu"
+            <div
               className={cn(
                 'w-full md:sticky md:top-ds-4 shrink-0',
                 isNavRight ? 'order-1 md:order-2' : 'order-1'
               )}
             >
               {nav}
-            </aside>
+            </div>
           )}
 
-          {/* Right Column in 'left' mode = Main content */}
           {!isNavRight && (
-            <main className="min-w-0 w-full flex-1 flex flex-col gap-ds-5 order-2">
+            <div className="min-w-0 w-full order-2">
               {children}
-            </main>
+            </div>
           )}
         </div>
       </div>
