@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
@@ -26,8 +28,12 @@ export interface SessionStripProps extends React.HTMLAttributes<HTMLDivElement> 
   demo?: boolean;
   /** Platform owner user flag (no club membership required) */
   platform?: boolean;
-  /** Callback action when clicking Sign out */
-  onSignOut?: () => void;
+  /**
+   * The sign-out form's action — a server action in this app. A form rather
+   * than a click handler, so it works from a server-rendered screen and
+   * without JavaScript.
+   */
+  signOutAction?: (formData: FormData) => void | Promise<void>;
 }
 
 const ROLE_LABEL: Record<string, string> = {
@@ -47,7 +53,7 @@ export const SessionStrip = React.forwardRef<HTMLDivElement, SessionStripProps>(
       tenant,
       demo = false,
       platform = false,
-      onSignOut,
+      signOutAction,
       className,
       ...props
     },
@@ -60,20 +66,18 @@ export const SessionStrip = React.forwardRef<HTMLDivElement, SessionStripProps>(
         ? tenant.person.preferredName?.trim() || tenant.person.legalName
         : user.email ?? 'Signed in';
 
-    const formattedSignInTime = React.useMemo(() => {
-      if (!user.lastSignInAt) return null;
-      try {
-        const dateObj = new Date(user.lastSignInAt);
-        return dateObj.toLocaleString('en-AU', {
-          day: 'numeric',
-          month: 'short',
-          hour: '2-digit',
-          minute: '2-digit',
-        });
-      } catch {
-        return String(user.lastSignInAt);
-      }
-    }, [user.lastSignInAt]);
+    // Plain computation, not useMemo: a hook after the early return above
+    // would break React's rules of hooks, and this costs nothing to redo.
+    const signedIn = user.lastSignInAt ? new Date(user.lastSignInAt) : null;
+    const formattedSignInTime =
+      signedIn === null || Number.isNaN(signedIn.getTime())
+        ? null
+        : signedIn.toLocaleString('en-AU', {
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+          });
 
     return (
       <div
@@ -158,14 +162,15 @@ export const SessionStrip = React.forwardRef<HTMLDivElement, SessionStripProps>(
             </span>
           )}
 
-          {onSignOut && (
-            <button
-              type="button"
-              onClick={onSignOut}
-              className="inline-flex items-center justify-center min-h-[36px] px-3 py-1 rounded-sm text-xs font-semibold bg-secondary text-secondary-foreground border border-border hover:bg-surfaceSubtle hover:border-primary transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              Sign out
-            </button>
+          {signOutAction && (
+            <form action={signOutAction}>
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center min-h-[44px] px-3 py-1 rounded-sm text-xs font-semibold bg-secondary text-secondary-foreground border border-border hover:bg-surfaceSubtle hover:border-primary transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                Sign out
+              </button>
+            </form>
           )}
         </div>
       </div>

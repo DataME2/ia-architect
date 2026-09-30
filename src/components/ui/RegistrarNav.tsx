@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
@@ -85,7 +87,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
         ref={ref}
         aria-label={title}
         className={cn(
-          'w-full max-w-[260px] flex flex-col font-sans text-foreground bg-surface border border-border rounded-md shadow-xs p-3',
+          'print:hidden w-full md:max-w-[260px] flex flex-col font-sans text-foreground bg-surface border border-border rounded-md shadow-xs p-3',
           className
         )}
         {...props}

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { Suspense, type ReactNode } from 'react';
 
+import { RegistrarShell } from '../../components/ui/RegistrarShell.tsx';
 import { loadNotifications } from '../../data/inbox.ts';
 import { loadTenantContext } from '../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
@@ -65,19 +66,22 @@ export default async function RegistrarLayout({
           but nothing here is a real child.
         </p>
       )}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem', marginBottom: 'var(--space-5)' }}>
         <div style={{ flex: 1 }}>
           <SessionStrip user={user} tenant={tenant} demo={demo} platform={platform} />
         </div>
         {user !== null && tenant !== null && <NotificationBell notifications={notifications} />}
       </div>
       {user !== null && tenant !== null ? (
-        <div className="registrar-shell">
-          <div className="registrar-content">{children}</div>
-          <Suspense fallback={null}>
-            <RegistrarNav />
-          </Suspense>
-        </div>
+        <RegistrarShell
+          nav={
+            <Suspense fallback={null}>
+              <RegistrarNav />
+            </Suspense>
+          }
+        >
+          {children}
+        </RegistrarShell>
       ) : (
         children
       )}

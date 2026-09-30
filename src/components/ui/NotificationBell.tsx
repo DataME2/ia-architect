@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { StatusPill } from './StatusPill';
@@ -102,7 +104,7 @@ export const NotificationBell = React.forwardRef<HTMLDivElement, NotificationBel
           aria-label={defaultLabel}
           onClick={toggleOpen}
           className={cn(
-            'relative inline-flex items-center justify-center w-10 h-10 rounded-sm border border-border bg-surface text-foreground shadow-xs cursor-pointer transition-colors duration-180',
+            'relative inline-flex items-center justify-center w-11 h-11 rounded-sm border border-border bg-surface text-foreground shadow-xs cursor-pointer transition-colors duration-180',
             'hover:bg-surfaceSubtle hover:border-border-strong',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
             isOpen && 'bg-surfaceSubtle border-primary'
@@ -124,7 +126,7 @@ export const NotificationBell = React.forwardRef<HTMLDivElement, NotificationBel
 
           {computedUnreadCount > 0 && (
             <span
-              className="absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1 inline-flex items-center justify-center font-mono text-[10px] font-bold rounded-full bg-warning text-warning-foreground border border-warning-indicator/40 shadow-xs animate-in fade-in"
+              className="absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1 inline-flex items-center justify-center font-mono text-[10px] font-bold rounded-full bg-warning text-warning-foreground border border-warning-indicator/40 shadow-xs"
               aria-hidden="true"
             >
               {computedUnreadCount > 99 ? '99+' : computedUnreadCount}
@@ -213,7 +215,7 @@ export const NotificationBell = React.forwardRef<HTMLDivElement, NotificationBel
                         <button
                           type="button"
                           onClick={() => onMarkRead(item.id)}
-                          className="shrink-0 text-[11px] font-medium px-ds-2 py-0.5 rounded border border-border bg-surface hover:bg-surfaceSubtle text-foreground transition-colors cursor-pointer"
+                          className="shrink-0 min-h-[44px] text-[11px] font-medium px-ds-2 py-0.5 rounded border border-border bg-surface hover:bg-surfaceSubtle text-foreground transition-colors cursor-pointer"
                         >
                           Mark read
                         </button>

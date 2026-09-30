@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
@@ -68,7 +70,7 @@ export const RoleSwitcher = React.forwardRef<HTMLElement, RoleSwitcherProps>(
             {title}
           </p>
         )}
-        <div className="flex flex-col gap-1.5" role="list">
+        <div className="flex flex-col gap-1.5">
           {roles.map((holding) => {
             const isCurrent =
               activeRoleKey === holding.key &&
@@ -111,8 +113,9 @@ export const RoleSwitcher = React.forwardRef<HTMLElement, RoleSwitcherProps>(
                   </span>
                 </div>
 
+                {/* Ochre: pending work (DESIGN.md). Desert orange is the Assistant's alone. */}
                 {typeof holding.count === 'number' && holding.count > 0 && (
-                  <span className="shrink-0 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-mono font-bold bg-accent text-accent-foreground shadow-xs">
+                  <span className="shrink-0 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-mono font-bold bg-warning text-warning-foreground shadow-xs">
                     {holding.count}
                     <span className="sr-only"> waiting tasks</span>
                   </span>

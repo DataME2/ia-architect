@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { RoleSwitcher, type RoleHolding } from './RoleSwitcher';
@@ -10,9 +12,9 @@ export interface IdentityRailProps extends React.HTMLAttributes<HTMLElement> {
   /** List of role contexts held by this person */
   contexts: RoleHolding[];
   /** Key identifier of the currently active operational role */
-  activeRoleKey?: string;
+  activeRoleKey?: string | undefined;
   /** Club ID of the currently active role context */
-  activeClubId?: string;
+  activeClubId?: string | undefined;
   /** Total number of unique clubs associated with the user. Defaults to unique context club count */
   clubCount?: number;
   /** Total number of duplicate accounts detected (defaults to 0) */
@@ -23,8 +25,8 @@ export interface IdentityRailProps extends React.HTMLAttributes<HTMLElement> {
   officerHref?: string | null;
   /** Label text for the officer administration link */
   officerLabel?: string;
-  /** Callback action when the sign-out button is pressed */
-  onSignOut?: () => void;
+  /** The sign-out form's action — a server action in this app, so it works without JavaScript. */
+  signOutAction?: (formData: FormData) => void | Promise<void>;
   /** Callback triggered when a role context is selected */
   onRoleSelect?: (role: RoleHolding) => void;
   /** Optional club crest badge image URL */
@@ -57,7 +59,7 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
       signInCount = 1,
       officerHref,
       officerLabel = 'Club administration →',
-      onSignOut,
+      signOutAction,
       onRoleSelect,
       crestUrl,
       crestLabel = 'CREST',
@@ -78,7 +80,7 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
         ref={ref}
         aria-label="You, and the roles you hold"
         className={cn(
-          'sticky top-4 flex flex-col gap-4 p-4 w-full max-w-[280px] rounded-lg bg-rail text-rail-foreground shadow-md select-none border border-rail-line font-sans',
+          'lg:sticky lg:top-4 print:hidden flex flex-col gap-4 p-4 w-full lg:max-w-[280px] rounded-lg bg-rail text-rail-foreground shadow-md select-none border border-rail-line font-sans',
           className
         )}
         {...props}
@@ -198,14 +200,15 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
               <span>{officerLabel}</span>
             </a>
           )}
-          {onSignOut && (
-            <button
-              type="button"
-              onClick={onSignOut}
-              className="w-full min-h-[44px] px-3 py-2 rounded-sm bg-rail-line text-rail-foreground hover:bg-rail-line/80 font-medium text-xs transition-colors cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              Sign out
-            </button>
+          {signOutAction && (
+            <form action={signOutAction}>
+              <button
+                type="submit"
+                className="w-full min-h-[44px] px-3 py-2 rounded-sm bg-rail-line text-rail-foreground hover:bg-rail-line/80 font-medium text-xs transition-colors cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                Sign out
+              </button>
+            </form>
           )}
         </div>
       </aside>
