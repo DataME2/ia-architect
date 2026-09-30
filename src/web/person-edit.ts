@@ -10,6 +10,8 @@
  * new name never had, and the federation receives the legal name.
  */
 
+import { parseDueDate } from './plan-view.ts';
+
 export const PLACEHOLDER_BIRTH_DATE = '1900-01-01';
 
 export interface PersonEdit {
@@ -45,7 +47,9 @@ export function parsePersonEdit(
   // Blank keeps an import's placeholder rather than inventing a birthday.
   const born = tidy(input.dateOfBirth);
   const dateOfBirth = born === '' ? PLACEHOLDER_BIRTH_DATE : born;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth) || Number.isNaN(Date.parse(dateOfBirth))) {
+  // parseDueDate refuses 2026-02-31 outright; Date.parse would read it as
+  // 3 March, and the database would then refuse the save instead.
+  if (parseDueDate(dateOfBirth) === null) {
     return { ok: false, message: 'Enter the date of birth as a real calendar date.' };
   }
   if (dateOfBirth > today) return { ok: false, message: 'The date of birth cannot be in the future.' };

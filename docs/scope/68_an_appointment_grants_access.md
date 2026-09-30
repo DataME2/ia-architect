@@ -206,6 +206,27 @@ changed. **BR55 shapes it:** changing the legal name withdraws its document
 check, so the person reads *Name unverified* again until someone looks — a
 typo fix must not carry a verification the new name never had.
 
+## Found in review: a claim follows the current email
+
+Reviewing the merged branch found a stale invitation that one password
+sign-in would have turned into a wrong identity: a seventeen-year-old's player
+invitation still addressed to the club's admin mailbox after his email was
+corrected, while password sign-ins now run the claims. The admin login would
+have been linked to his record.
+**`supabase/migrations/0062_a_claim_follows_the_current_email.sql`**: the family,
+player and staff claims only claim an invitation while its address is still the
+invited Person's current email; the family and player claims mark an invitation
+claimed only when the login really ends up linked (the staff claim already
+did); `reissue_workspace_invitation` re-addresses to the current email and
+refuses a Person with none. A repeated **Invite** on a registration now
+re-addresses the stored invitation before the resend goes out. Test
+`supabase/tests/62_a_claim_follows_the_current_email.sql`: 4 scenarios, plus a
+rolled-back break test (the old claim restored: the stale address claimed the
+invitation). Checked against the real data first: the admin login now claims
+nothing. Also fixed: **Edit details** accepted an impossible date such as
+31 February, which the database then refused with a cryptic error — it now
+reuses `parseDueDate`, which refuses it plainly.
+
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |
