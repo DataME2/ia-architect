@@ -104,8 +104,8 @@ export const NotificationBell = React.forwardRef<HTMLDivElement, NotificationBel
           aria-label={defaultLabel}
           onClick={toggleOpen}
           className={cn(
-            'relative inline-flex items-center justify-center w-11 h-11 rounded-sm border border-border bg-surface text-foreground shadow-xs cursor-pointer transition-colors duration-180',
-            'hover:bg-surfaceSubtle hover:border-border-strong',
+            'relative inline-flex items-center justify-center w-11 h-11 p-0 rounded-sm border border-border bg-surface text-foreground shadow-xs cursor-pointer transition-colors duration-180',
+            'hover:bg-surfaceSubtle! hover:text-foreground! hover:border-border-strong',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
             isOpen && 'bg-surfaceSubtle border-primary'
           )}
@@ -151,7 +151,7 @@ export const NotificationBell = React.forwardRef<HTMLDivElement, NotificationBel
                 <button
                   type="button"
                   onClick={onClearAll}
-                  className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer bg-transparent border-none p-0"
+                  className="min-h-0 shadow-none text-xs text-muted-foreground bg-transparent! hover:text-primary! transition-colors cursor-pointer border-none p-0"
                 >
                   Clear all
                 </button>
@@ -189,7 +189,7 @@ export const NotificationBell = React.forwardRef<HTMLDivElement, NotificationBel
                           {item.linkPath ? (
                             <a
                               href={item.linkPath}
-                              className="font-semibold text-primary hover:underline"
+                              className="font-semibold text-primary no-underline hover:underline"
                             >
                               {item.headline}
                             </a>
@@ -215,7 +215,7 @@ export const NotificationBell = React.forwardRef<HTMLDivElement, NotificationBel
                         <button
                           type="button"
                           onClick={() => onMarkRead(item.id)}
-                          className="shrink-0 min-h-[44px] text-[11px] font-medium px-ds-2 py-0.5 rounded border border-border bg-surface hover:bg-surfaceSubtle text-foreground transition-colors cursor-pointer"
+                          className="shrink-0 min-h-[44px] shadow-none text-[11px] font-medium px-ds-2 py-0.5 rounded border border-border bg-surface hover:bg-surfaceSubtle! hover:text-foreground! text-foreground transition-colors cursor-pointer"
                         >
                           Mark read
                         </button>

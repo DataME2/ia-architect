@@ -195,7 +195,9 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
           {officerHref && (
             <a
               href={officerHref}
-              className="text-primary-foreground hover:text-white font-medium text-xs transition-colors flex items-center justify-between min-h-[44px] px-2 rounded-sm hover:bg-rail-line/50"
+              // Rail text, not primary-foreground: that turns near-black in dark
+              // mode, on a rail that stays dark in both.
+              className="text-rail-foreground hover:text-white no-underline font-medium text-xs transition-colors flex items-center justify-between min-h-[44px] px-2 rounded-sm hover:bg-rail-line/50"
             >
               <span>{officerLabel}</span>
             </a>
@@ -204,7 +206,11 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
             <form action={signOutAction}>
               <button
                 type="submit"
-                className="w-full min-h-[44px] px-3 py-2 rounded-sm bg-rail-line text-rail-foreground hover:bg-rail-line/80 font-medium text-xs transition-colors cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                // Explicit flex start, no shadow, and important hover colours:
+                // globals.css centres every <button>, gives it a shadow, and turns
+                // it reef blue on hover with a selector more specific than a
+                // utility class.
+                className="flex w-full items-center justify-start min-h-[44px] px-3 py-2 rounded-sm border-0 shadow-none bg-rail-line text-rail-foreground hover:bg-rail-line/80! hover:text-rail-foreground! font-medium text-xs transition-colors cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 Sign out
               </button>

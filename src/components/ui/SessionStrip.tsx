@@ -166,7 +166,7 @@ export const SessionStrip = React.forwardRef<HTMLDivElement, SessionStripProps>(
             <form action={signOutAction}>
               <button
                 type="submit"
-                className="inline-flex items-center justify-center min-h-[44px] px-3 py-1 rounded-sm text-xs font-semibold bg-secondary text-secondary-foreground border border-border hover:bg-surfaceSubtle hover:border-primary transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="inline-flex items-center justify-center min-h-[44px] px-3 py-1 rounded-sm text-xs font-semibold shadow-none bg-secondary text-secondary-foreground border border-border hover:bg-surfaceSubtle! hover:text-secondary-foreground! hover:border-primary transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 Sign out
               </button>
