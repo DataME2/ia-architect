@@ -21,6 +21,12 @@
     "skipLibCheck": true,
     "jsx": "react-jsx",
     "incremental": true,
+    // The design-system components (src/components/ui) import `@/lib/utils`;
+    // Next resolves this alias natively. The rest of the code stays on
+    // relative imports.
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "types": [
       "node"
     ],

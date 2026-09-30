@@ -3,6 +3,9 @@ import type { ReactNode } from 'react';
 
 import { BrandMark } from './_components/BrandMark.tsx';
 import './globals.css';
+// After globals.css: the design system's utilities (src/components/ui) must
+// win over its element rules. See the header of design-system.css.
+import './design-system.css';
 
 export const metadata: Metadata = {
   title: {

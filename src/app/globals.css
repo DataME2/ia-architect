@@ -1947,7 +1947,8 @@ td {
   background: var(--desert-500);
   color: #fff;
   border-color: var(--desert-500);
-  min-height: 2.1rem;
+  /* DESIGN.md's 44px touch target — used on a phone at the ground. */
+  min-height: 2.75rem;
   padding: 0.35rem 0.8rem;
   font-size: 0.82rem;
 }

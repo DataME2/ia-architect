@@ -1,0 +1,92 @@
+/*
+ * The LTD - Football design system's Tailwind layer (src/DESIGN.md).
+ *
+ * Three constraints shape it, all so the existing screens do not change:
+ *
+ * 1. No preflight. globals.css is the app's base; Tailwind's reset would
+ *    restyle every existing heading, button and table.
+ * 2. Utilities are generated only from src/components/ui — `source(none)`
+ *    plus one @source — so a class name an existing screen happens to use
+ *    (`hidden`, `grid`, …) never picks up Tailwind CSS by accident.
+ * 3. Every colour points at a globals.css variable rather than repeating a
+ *    hex value. DESIGN.md's tokens were derived from those variables and
+ *    its dark values are theirs, so this keeps one source of truth and the
+ *    app's own dark mode (prefers-color-scheme) applies unchanged.
+ *
+ * The theme is imported into a cascade layer, so where Tailwind's variable
+ * names coincide with globals.css (--radius-sm, --shadow-sm, --font-sans)
+ * the unlayered globals.css values win — they are the same values. The
+ * utilities are deliberately NOT layered: a layered utility would lose to
+ * every unlayered element rule in globals.css (h2, button, table).
+ */
+
+@layer theme;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' source(none);
+
+@source '../components/ui';
+
+@theme {
+  /* Surfaces and text */
+  --color-background: var(--bg);
+  --color-backgroundSunk: var(--bg-sunk);
+  --color-surface: var(--surface);
+  --color-surfaceSubtle: var(--surface-2);
+  --color-foreground: var(--text);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  /* Deep Reef — structure and primary actions */
+  --color-primary: var(--accent);
+  --color-primary-hover: var(--accent-hover);
+  --color-primary-soft: var(--accent-soft);
+  --color-primary-foreground: var(--accent-text);
+  --color-secondary: var(--surface-2);
+  --color-secondary-foreground: var(--text);
+
+  /* Desert Orange — the Assistant's only (DESIGN.md Principle 2) */
+  --color-accent: var(--highlight);
+  --color-accent-foreground: var(--accent-text);
+
+  /* Status families: background, text, and the dot beside it */
+  --color-success: var(--ok-bg);
+  --color-success-foreground: var(--ok-text);
+  --color-success-indicator: var(--ok-dot);
+  --color-warning: var(--warn-bg);
+  --color-warning-foreground: var(--warn-text);
+  --color-warning-indicator: var(--warn-dot);
+  --color-destructive: var(--stop-bg);
+  --color-destructive-foreground: var(--stop-text);
+  --color-destructive-indicator: var(--stop-dot);
+  --color-info: var(--info-bg);
+  --color-info-foreground: var(--info-text);
+  --color-info-indicator: var(--info-dot);
+
+  /* The identity rail */
+  --color-rail: var(--rail-bg);
+  --color-rail-line: var(--rail-line);
+  --color-rail-foreground: var(--rail-text);
+  --color-rail-muted: var(--rail-text-2);
+
+  /* The 7-step scale (DESIGN.md), plus the two half steps the components use */
+  --spacing-ds-1: var(--space-1);
+  --spacing-ds-1\.5: 0.375rem;
+  --spacing-ds-2: var(--space-2);
+  --spacing-ds-2\.5: 0.625rem;
+  --spacing-ds-3: var(--space-3);
+  --spacing-ds-4: var(--space-4);
+  --spacing-ds-5: var(--space-5);
+  --spacing-ds-6: var(--space-6);
+  --spacing-ds-7: var(--space-7);
+
+  /* rounded / rounded-DEFAULT are the card radius (12px) */
+  --radius-DEFAULT: var(--radius);
+
+  /* Shadows are inlined by Tailwind, so they are stated here (DESIGN.md) */
+  --shadow-xs: 0 1px 2px rgb(25 20 17 / 6%);
+  --shadow-sm: 0 1px 2px rgb(25 20 17 / 5%), 0 2px 8px rgb(25 20 17 / 6%);
+  --shadow-md: 0 2px 6px rgb(25 20 17 / 7%), 0 12px 28px rgb(25 20 17 / 9%);
+  --shadow-lg: 0 4px 10px rgb(25 20 17 / 8%), 0 22px 46px rgb(25 20 17 / 13%);
+}
