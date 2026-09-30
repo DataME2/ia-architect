@@ -36,31 +36,48 @@ export function AssistantNote({
   readonly onUse?: string;
   readonly useLabel?: string;
 }) {
+  // Styled with the design system's utilities (design-system.css scans this
+  // file). no-underline, shadow-none and the important hovers are there
+  // because globals.css styles every <a> and <button> more specifically.
+  const control =
+    'inline-flex items-center justify-center min-h-[44px] px-ds-3 py-ds-1 text-xs rounded-sm no-underline shadow-none transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2';
   return (
-    <aside className="assistant" aria-label={`Assistant — ${kind}`}>
-      <p className="assistant-head">
-        <span className="assistant-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" strokeWidth="2.4">
+    <aside
+      aria-label={`Assistant — ${kind}`}
+      className="print:hidden font-sans p-ds-4 mb-ds-4 rounded-DEFAULT border border-accent/50 bg-accent/10 shadow-xs"
+    >
+      <p className="flex items-center gap-ds-2 m-0 mb-ds-2 text-xs font-bold tracking-wide text-foreground">
+        <span
+          className="w-5 h-5 rounded-full bg-accent text-accent-foreground inline-flex items-center justify-center shrink-0 shadow-xs"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <path d="M12 3v4m0 10v4M3 12h4m10 0h4M5.6 5.6l2.8 2.8m7.2 7.2l2.8 2.8m0-12.8l-2.8 2.8m-7.2 7.2l-2.8 2.8" />
           </svg>
         </span>
         Assistant &middot; {kind}
       </p>
-      <p>{children}</p>
-      <div className="assistant-foot">
+      <div className="text-sm text-foreground leading-normal mb-ds-4">{children}</div>
+      <div className="flex flex-wrap items-center gap-ds-2 pt-ds-2 border-t border-accent/20">
         {onUse !== undefined && (
-          <a className="button" href={onUse}>
+          <a
+            href={onUse}
+            className={`${control} font-bold bg-accent text-accent-foreground hover:bg-accent-hover! hover:text-accent-foreground! focus-visible:ring-accent`}
+          >
             {useLabel}
           </a>
         )}
-        <button type="button" className="secondary">
+        <button
+          type="button"
+          className={`${control} font-medium border border-border bg-surface text-foreground hover:bg-surfaceSubtle! hover:text-foreground! focus-visible:ring-primary`}
+        >
           Dismiss
         </button>
         {/*
           Said on every single one, not once in an onboarding tour. The
           claim only holds if it is where the action is.
         */}
-        <span className="never">It never sends &mdash; you do</span>
+        <span className="text-xs text-muted-foreground italic ml-auto">It never sends &mdash; you do</span>
       </div>
     </aside>
   );

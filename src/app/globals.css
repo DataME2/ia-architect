@@ -6,17 +6,18 @@
    repaired. See scope 32.
 
    ---------------------------------------------------------------------
-   The palette: Australian landscape
+   The palette: LTD - Football Academy (src/DESIGN.md)
    ---------------------------------------------------------------------
-   Ochre, eucalyptus, deep reef blue and vivid desert orange. Four
-   landscape tones, three of them warm, which would blur into a single
-   mood without one hard rule:
+   Pitch slate, stadium green, trophy gold, card red and electric volt.
+   The ramp names below (reef, euc, ochre, oxide, desert, sand) predate it
+   and are kept so no rule had to be rewritten; their values are the
+   academy palette's.
 
-   **DESERT ORANGE IS THE ASSISTANT AND NOTHING ELSE.** Never a status,
-   never a primary button, never an accent of convenience. Ochre means
-   waiting, oxide means blocked, eucalyptus means ready — and reserving the
+   **ELECTRIC VOLT IS THE ASSISTANT AND NOTHING ELSE.** Never a status,
+   never a primary button, never an accent of convenience. Gold means
+   waiting, red means blocked, green means ready — and reserving the
    fourth tone for a single actor is what keeps those three legible as
-   separate meanings rather than as one warm blur.
+   separate meanings.
 
    The second rule survives from scope 31 and is not negotiable: **no state
    is signalled by hue alone.** Every status pill carries a dot and a word.
@@ -66,54 +67,54 @@
 :root {
   color-scheme: light;
 
-  /* Deep reef — structure, the rail, every primary action. */
-  --reef-50: #e7f1f5;
-  --reef-100: #cfe4ec;
-  --reef-500: #14708e;
-  --reef-600: #0d5a72;
-  --reef-700: #0a465a;
-  --reef-800: #062a36;
-  --reef-900: #04202a;
+  /* Pitch slate — structure, the rail, every primary action; sky for info. */
+  --reef-50: #f1f5f9;
+  --reef-100: #e0f2fe;
+  --reef-500: #0284c7;
+  --reef-600: #0f172a;
+  --reef-700: #1e293b;
+  --reef-800: #090d16;
+  --reef-900: #02040a;
 
-  /* Eucalyptus — ready, cleared, available. */
-  --euc-100: #dfe9e0;
-  --euc-500: #4c6b54;
-  --euc-700: #35503c;
-  --euc-900: #1e3226;
+  /* Stadium green — ready, cleared, available. */
+  --euc-100: #dcfce7;
+  --euc-500: #16a34a;
+  --euc-700: #15803d;
+  --euc-900: #14532d;
 
-  /* Ochre — waiting on somebody, and the demonstration tenant's marker. */
-  --ochre-100: #f7e5d3;
-  --ochre-500: #a8571f;
-  --ochre-700: #6d3610;
+  /* Trophy gold — waiting on somebody, and the demonstration tenant's marker. */
+  --ochre-100: #fef3c7;
+  --ochre-500: #d97706;
+  --ochre-700: #78350f;
 
-  /* Oxide — blocked. Darker than the ochre so the two never trade places. */
-  --oxide-100: #f8dfda;
-  --oxide-500: #9b2c1e;
-  --oxide-700: #6e1d13;
+  /* Card red — blocked. */
+  --oxide-100: #fee2e2;
+  --oxide-500: #dc2626;
+  --oxide-700: #7f1d1d;
 
-  /* Desert — the Assistant, exclusively. See the header. */
-  --desert-100: #fdead6;
-  --desert-500: #f2761b;
-  --desert-700: #8a3d06;
+  /* Electric volt — the Assistant, exclusively. See the header. */
+  --desert-100: #f7fee7;
+  --desert-500: #84cc16;
+  --desert-700: #3f6212;
 
-  /* Sand — neutrals biased warm toward the ochre, never a grey. */
-  --sand-50: #fbf7f1;
-  --sand-100: #f2ebe1;
-  --sand-200: #e6dccd;
-  --sand-300: #d5c8b4;
-  --stone: #6b6157;
-  --ink: #191411;
+  /* Slate — cool neutrals. */
+  --sand-50: #f8fafc;
+  --sand-100: #f1f5f9;
+  --sand-200: #e2e8f0;
+  --sand-300: #cbd5e1;
+  --stone: #64748b;
+  --ink: #0f172a;
 
   /* Semantic aliases. Screens use these; the ramps above are the source. */
-  --bg: var(--sand-100);
-  --bg-sunk: var(--sand-200);
+  --bg: var(--sand-50);
+  --bg-sunk: var(--sand-100);
   --surface: #ffffff;
   --surface-2: var(--sand-50);
   --border: var(--sand-200);
   --border-strong: var(--sand-300);
   --text: var(--ink);
   --muted: var(--stone);
-  --subtle: #7d7266;
+  --subtle: #475569;
 
   --accent: var(--reef-600);
   --accent-hover: var(--reef-700);
@@ -121,8 +122,9 @@
   --accent-text: #ffffff;
   --link: var(--reef-600);
   --highlight: var(--desert-500);
+  --highlight-hover: #65a30d;
   --focus: var(--reef-600);
-  --focus-halo: rgb(242 118 27 / 34%);
+  --focus-halo: rgb(132 204 22 / 45%);
 
   --ok-bg: var(--euc-100);
   --ok-text: var(--euc-900);
@@ -142,9 +144,9 @@
 
   /* The rail. Constant in every role context — see src/web/role-context.ts. */
   --rail-bg: var(--reef-800);
-  --rail-line: #12414f;
-  --rail-text: #e8f1f4;
-  --rail-text-2: #8fb2bd;
+  --rail-line: #1e293b;
+  --rail-text: #f8fafc;
+  --rail-text-2: #94a3b8;
 
   /* Reserved for commissioned artwork. Empty by design — scope 32 WP6 and
      open question 66. A club crest lands in the first; a licensed motif
@@ -160,15 +162,15 @@
   --space-6: 2rem;
   --space-7: 3rem;
 
-  --radius-sm: 8px;
-  --radius: 12px;
-  --radius-lg: 18px;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
   --radius-full: 999px;
 
-  --shadow-xs: 0 1px 2px rgb(25 20 17 / 6%);
-  --shadow-sm: 0 1px 2px rgb(25 20 17 / 5%), 0 2px 8px rgb(25 20 17 / 6%);
-  --shadow-md: 0 2px 6px rgb(25 20 17 / 7%), 0 12px 28px rgb(25 20 17 / 9%);
-  --shadow-lg: 0 4px 10px rgb(25 20 17 / 8%), 0 22px 46px rgb(25 20 17 / 13%);
+  --shadow-xs: 0 1px 2px rgb(15 23 42 / 5%);
+  --shadow-sm: 0 1px 3px rgb(15 23 42 / 8%), 0 1px 2px rgb(15 23 42 / 4%);
+  --shadow-md: 0 4px 12px rgb(15 23 42 / 8%), 0 2px 4px rgb(15 23 42 / 4%);
+  --shadow-lg: 0 12px 32px rgb(15 23 42 / 12%), 0 4px 8px rgb(15 23 42 / 6%);
 
   --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, -apple-system,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -190,51 +192,54 @@
   :root {
     color-scheme: dark;
 
-    --bg: #0c1418;
-    --bg-sunk: #060e11;
-    --surface: #121d22;
-    --surface-2: #16242a;
-    --border: #21343b;
-    --border-strong: #2f4750;
-    --text: #e9eef0;
-    --muted: #9fb2b9;
-    --subtle: #7f9199;
+    --bg: #070b14;
+    --bg-sunk: #02040a;
+    --surface: #0f172a;
+    --surface-2: #1e293b;
+    --border: #1e293b;
+    --border-strong: #334155;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --subtle: #cbd5e1;
 
     /* The action colour lightens so it can carry dark text — the same
        relationship as the light theme, inverted, rather than the light
        theme's reef floated on a dark ground where it would fail twice. */
-    --accent: #4fa8c7;
-    --accent-hover: #6fbcd7;
-    --accent-soft: #0d2c38;
-    --accent-text: #04202a;
-    --link: #79c8e0;
-    --highlight: #ff9145;
-    --focus: #ff9145;
-    --focus-halo: rgb(255 145 69 / 28%);
+    --accent: #38bdf8;
+    --accent-hover: #7dd3fc;
+    --accent-soft: #0c4a6e;
+    --accent-text: #070b14;
+    --link: #38bdf8;
+    --highlight: #a3e635;
+    --highlight-hover: #bef264;
+    --focus: #38bdf8;
+    --focus-halo: rgb(163 230 53 / 30%);
 
-    --ok-bg: #1a2c20;
-    --ok-text: #a8d4b3;
-    --ok-dot: #7fb08c;
-    --warn-bg: #33200c;
-    --warn-text: #e7b483;
-    --warn-dot: #c98a4a;
-    --stop-bg: #341410;
-    --stop-text: #f0a79c;
-    --stop-dot: #cf6154;
-    --info-bg: #0d2c38;
-    --info-text: #9ed4e6;
-    --info-dot: #4fa8c7;
-    --neutral-bg: #17252b;
+    --ok-bg: #064e3b;
+    --ok-text: #86efac;
+    --ok-dot: #4ade80;
+    --warn-bg: #451a03;
+    --warn-text: #fde047;
+    --warn-dot: #facc15;
+    --stop-bg: #450a0a;
+    --stop-text: #fca5a5;
+    --stop-dot: #f87171;
+    --info-bg: #0c4a6e;
+    --info-text: #7dd3fc;
+    --info-dot: #38bdf8;
+    --neutral-bg: #1e293b;
     --neutral-text: var(--muted);
     --neutral-dot: var(--subtle);
 
-    --rail-bg: #04161d;
-    --rail-line: #103340;
-    --rail-text: #e8f1f4;
-    --rail-text-2: #7fa4b0;
+    --rail-bg: #02040a;
+    --rail-line: #0f172a;
+    --rail-text: #f8fafc;
+    /* #94a3b8, not DESIGN.md's #64748b: that is 4.3:1 on this rail, under
+       WCAG AA for the rail's small labels. */
+    --rail-text-2: #94a3b8;
 
-    --desert-100: #33200e;
-    --desert-700: #f5a463;
+    --desert-100: #1a2e05;
+    --desert-700: #bef264;
 
     --shadow-xs: 0 1px 2px rgb(0 0 0 / 45%);
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 45%), 0 2px 8px rgb(0 0 0 / 32%);
@@ -263,8 +268,8 @@ body {
      so the page has a horizon instead of a flat grey field. Fixed, because
      a gradient that scrolls away is a gradient nobody sees twice. */
   background-image:
-    radial-gradient(62rem 30rem at 88% -12%, rgb(168 87 31 / 12%), transparent 66%),
-    radial-gradient(54rem 28rem at -8% -14%, rgb(13 90 114 / 11%), transparent 62%);
+    radial-gradient(62rem 30rem at 88% -12%, rgb(132 204 22 / 8%), transparent 66%),
+    radial-gradient(54rem 28rem at -8% -14%, rgb(56 189 248 / 8%), transparent 62%);
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: var(--text);
@@ -500,7 +505,7 @@ h3 {
   padding: clamp(var(--space-5), 4vw, var(--space-7));
   margin-bottom: var(--space-6);
   background:
-    radial-gradient(40rem 24rem at 100% 0%, rgb(242 118 27 / 20%), transparent 70%),
+    radial-gradient(40rem 24rem at 100% 0%, rgb(132 204 22 / 20%), transparent 70%),
     linear-gradient(135deg, var(--reef-700), var(--reef-800) 58%, var(--reef-900));
   color: #eaf3f6;
   box-shadow: var(--shadow-lg);
@@ -516,8 +521,8 @@ h3 {
   width: 26rem;
   height: 26rem;
   border-radius: 50%;
-  border: 1.5px solid rgb(242 118 27 / 24%);
-  box-shadow: 0 0 0 6rem rgb(242 118 27 / 4%);
+  border: 1.5px solid rgb(132 204 22 / 24%);
+  box-shadow: 0 0 0 6rem rgb(132 204 22 / 4%);
   pointer-events: none;
 }
 
@@ -527,7 +532,7 @@ h3 {
 }
 
 .hero .eyebrow {
-  color: #ffb877;
+  color: #bef264;
 }
 
 .hero h2 {
@@ -583,9 +588,9 @@ h3 {
 @media (prefers-color-scheme: dark) {
   .hero {
     background:
-      radial-gradient(40rem 24rem at 100% 0%, rgb(242 118 27 / 15%), transparent 70%),
-      linear-gradient(135deg, #0a4356, #052430 58%, #03161d);
-    border: 1px solid rgb(242 118 27 / 14%);
+      radial-gradient(40rem 24rem at 100% 0%, rgb(132 204 22 / 15%), transparent 70%),
+      linear-gradient(135deg, #1e293b, #0f172a 58%, #02040a);
+    border: 1px solid rgb(132 204 22 / 14%);
   }
 }
 
@@ -1747,7 +1752,7 @@ td {
 }
 
 .rail-ledger .is-zero b {
-  color: #7fd0a0;
+  color: #4ade80;
 }
 
 .rail-label {
@@ -1882,93 +1887,6 @@ td {
   max-width: var(--reading-width);
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   THE ASSISTANT
-
-   Desert orange lives here and nowhere else in the product. The component
-   is the guardrail: it renders a draft and two controls, `use` and
-   `dismiss`, and there is no variant of it that commits anything. See
-   decision 1 — the Assistant is advisory, and an Assistant that cannot
-   render a committing button cannot acquire one by accident later.
-   ══════════════════════════════════════════════════════════════════════ */
-.assistant {
-  border: 1px solid var(--desert-500);
-  border-left-width: 3px;
-  border-radius: var(--radius);
-  background: var(--desert-100);
-  padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-4);
-  display: grid;
-  gap: var(--space-2);
-}
-
-.assistant-head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--desert-700);
-}
-
-.assistant-mark {
-  width: 1.15rem;
-  height: 1.15rem;
-  border-radius: var(--radius-sm);
-  background: var(--desert-500);
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-}
-
-.assistant p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--text);
-}
-
-.assistant-foot {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  align-items: center;
-}
-
-.assistant-foot .never {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  color: var(--desert-700);
-}
-
-.assistant button {
-  background: var(--desert-500);
-  color: #fff;
-  border-color: var(--desert-500);
-  /* DESIGN.md's 44px touch target — used on a phone at the ground. */
-  min-height: 2.75rem;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.82rem;
-}
-
-.assistant button:hover:not(:disabled) {
-  background: var(--desert-700);
-  color: #fff;
-}
-
-.assistant button.secondary {
-  background: transparent;
-  color: var(--desert-700);
-  border-color: transparent;
-}
-
-.assistant button.secondary:hover:not(:disabled) {
-  background: rgb(242 118 27 / 12%);
-  color: var(--desert-700);
-}
-
 /* ─────────────────────────────────────────────── responsive */
 @media (max-width: 62rem) {
   .role-shell {
@@ -1986,8 +1904,7 @@ td {
 
 @media print {
   .identity-rail,
-  .acting-as,
-  .assistant {
+  .acting-as {
     display: none !important;
   }
 }
@@ -2489,7 +2406,7 @@ td {
 .auth-aside {
   position: relative;
   background:
-    radial-gradient(40rem 24rem at 100% 0%, rgb(242 118 27 / 16%), transparent 70%),
+    radial-gradient(40rem 24rem at 100% 0%, rgb(132 204 22 / 16%), transparent 70%),
     linear-gradient(160deg, var(--reef-700), var(--reef-800) 55%, var(--reef-900));
   color: #eaf3f6;
   padding: clamp(var(--space-5), 4vw, var(--space-7));
@@ -2504,7 +2421,7 @@ td {
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #ffb877;
+  color: #bef264;
 }
 
 .auth-aside h2 {

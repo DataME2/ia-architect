@@ -42,13 +42,13 @@ export const BrandMark = React.forwardRef<SVGSVGElement, BrandMarkProps>(
       >
         <defs>
           <linearGradient id="ldt-brand-mark-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#14708e" />
-            <stop offset="1" stopColor="#04202a" />
+            <stop offset="0" stopColor="#1e293b" />
+            <stop offset="1" stopColor="#02040a" />
           </linearGradient>
         </defs>
         <rect width="32" height="32" rx="9" fill="url(#ldt-brand-mark-grad)" />
-        <circle cx="16" cy="16" r="9.6" fill="#fbf7f1" stroke="#f2761b" strokeWidth="1.3" />
-        <path d="M16 10.1 21.61 14.18 19.47 20.77h-6.94L10.39 14.18Z" fill="#0a465a" />
+        <circle cx="16" cy="16" r="9.6" fill="#f8fafc" stroke="#84cc16" strokeWidth="1.3" />
+        <path d="M16 10.1 21.61 14.18 19.47 20.77h-6.94L10.39 14.18Z" fill="#0f172a" />
       </svg>
     );
   }

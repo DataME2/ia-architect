@@ -1,92 +1,93 @@
 ---
 colors:
-  background: "#f2ebe1"
-  backgroundSunk: "#e6dccd"
+  background: "#f8fafc"
+  backgroundSunk: "#f1f5f9"
   surface: "#ffffff"
-  surfaceSubtle: "#fbf7f1"
-  foreground: "#191411"
+  surfaceSubtle: "#f8fafc"
+  foreground: "#0f172a"
   muted:
-    DEFAULT: "#6b6157"
-    foreground: "#7d7266"
+    DEFAULT: "#64748b"
+    foreground: "#475569"
   border:
-    DEFAULT: "#e6dccd"
-    strong: "#d5c8b4"
+    DEFAULT: "#e2e8f0"
+    strong: "#cbd5e1"
   primary:
-    DEFAULT: "#0d5a72"
-    hover: "#0a465a"
-    soft: "#e7f1f5"
+    DEFAULT: "#0f172a"
+    hover: "#1e293b"
+    soft: "#f1f5f9"
     foreground: "#ffffff"
   secondary:
-    DEFAULT: "#fbf7f1"
-    foreground: "#062a36"
+    DEFAULT: "#f1f5f9"
+    foreground: "#0f172a"
   accent:
-    DEFAULT: "#f2761b"
-    foreground: "#ffffff"
+    DEFAULT: "#84cc16"
+    hover: "#65a30d"
+    foreground: "#0f172a"
   success:
-    DEFAULT: "#dfe9e0"
-    foreground: "#1e3226"
-    indicator: "#4c6b54"
+    DEFAULT: "#dcfce7"
+    foreground: "#14532d"
+    indicator: "#16a34a"
   warning:
-    DEFAULT: "#f7e5d3"
-    foreground: "#6d3610"
-    indicator: "#a8571f"
+    DEFAULT: "#fef3c7"
+    foreground: "#78350f"
+    indicator: "#d97706"
   destructive:
-    DEFAULT: "#f8dfda"
-    foreground: "#6e1d13"
-    indicator: "#9b2c1e"
+    DEFAULT: "#fee2e2"
+    foreground: "#7f1d1d"
+    indicator: "#dc2626"
   info:
-    DEFAULT: "#cfe4ec"
-    foreground: "#0a465a"
-    indicator: "#14708e"
+    DEFAULT: "#e0f2fe"
+    foreground: "#0c4a6e"
+    indicator: "#0284c7"
   rail:
-    DEFAULT: "#062a36"
-    line: "#12414f"
-    foreground: "#e8f1f4"
-    muted: "#8fb2bd"
+    DEFAULT: "#090d16"
+    line: "#1e293b"
+    foreground: "#f8fafc"
+    muted: "#94a3b8"
 colorsDark:
-  background: "#0c1418"
-  backgroundSunk: "#060e11"
-  surface: "#121d22"
-  surfaceSubtle: "#16242a"
-  foreground: "#e9eef0"
+  background: "#070b14"
+  backgroundSunk: "#02040a"
+  surface: "#0f172a"
+  surfaceSubtle: "#1e293b"
+  foreground: "#f8fafc"
   muted:
-    DEFAULT: "#9fb2b9"
-    foreground: "#7f9199"
+    DEFAULT: "#94a3b8"
+    foreground: "#cbd5e1"
   border:
-    DEFAULT: "#21343b"
-    strong: "#2f4750"
+    DEFAULT: "#1e293b"
+    strong: "#334155"
   primary:
-    DEFAULT: "#4fa8c7"
-    hover: "#6fbcd7"
-    soft: "#0d2c38"
-    foreground: "#04202a"
+    DEFAULT: "#38bdf8"
+    hover: "#7dd3fc"
+    soft: "#0c4a6e"
+    foreground: "#070b14"
   secondary:
-    DEFAULT: "#16242a"
-    foreground: "#e9eef0"
+    DEFAULT: "#1e293b"
+    foreground: "#f8fafc"
   accent:
-    DEFAULT: "#ff9145"
-    foreground: "#0c1418"
+    DEFAULT: "#a3e635"
+    foreground: "#070b14"
   success:
-    DEFAULT: "#1a2c20"
-    foreground: "#a8d4b3"
-    indicator: "#7fb08c"
+    DEFAULT: "#064e3b"
+    foreground: "#86efac"
+    indicator: "#4ade80"
   warning:
-    DEFAULT: "#33200c"
-    foreground: "#e7b483"
-    indicator: "#c98a4a"
+    DEFAULT: "#451a03"
+    foreground: "#fde047"
+    indicator: "#facc15"
   destructive:
-    DEFAULT: "#341410"
-    foreground: "#f0a79c"
-    indicator: "#cf6154"
+    DEFAULT: "#450a0a"
+    foreground: "#fca5a5"
+    indicator: "#f87171"
   info:
-    DEFAULT: "#0d2c38"
-    foreground: "#9ed4e6"
-    indicator: "#4fa8c7"
+    DEFAULT: "#0c4a6e"
+    foreground: "#7dd3fc"
+    indicator: "#38bdf8"
   rail:
-    DEFAULT: "#04161d"
-    line: "#103340"
-    foreground: "#e8f1f4"
-    muted: "#7fa4b0"
+    DEFAULT: "#02040a"
+    line: "#0f172a"
+    foreground: "#f8fafc"
+    muted: "#94a3b8"
 typography:
   fontFamily:
     sans: "'Archivo Variable', ui-sans-serif, system-ui, -apple-system, sans-serif"
@@ -115,40 +116,40 @@ spacing:
   6: "2rem"
   7: "3rem"
 rounded:
-  sm: "8px"
-  DEFAULT: "12px"
-  lg: "18px"
+  sm: "6px"
+  DEFAULT: "10px"
+  lg: "16px"
   full: "999px"
 shadows:
-  xs: "0 1px 2px rgba(25, 20, 17, 0.06)"
-  sm: "0 1px 2px rgba(25, 20, 17, 0.05), 0 2px 8px rgba(25, 20, 17, 0.06)"
-  md: "0 2px 6px rgba(25, 20, 17, 0.07), 0 12px 28px rgba(25, 20, 17, 0.09)"
-  lg: "0 4px 10px rgba(25, 20, 17, 0.08), 0 22px 46px rgba(25, 20, 17, 0.13)"
+  xs: "0 1px 2px rgba(15, 23, 42, 0.05)"
+  sm: "0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04)"
+  md: "0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.04)"
+  lg: "0 12px 32px rgba(15, 23, 42, 0.12), 0 4px 8px rgba(15, 23, 42, 0.06)"
 borderWidth:
   DEFAULT: "1px"
 ---
 
 # LTD - Football
 
-LTD - Football is a high-density, mission-critical administration design system built for Australian grassroots football. Rooted in the Australian landscape palette—Deep Reef, Eucalyptus, Warm Ochre, and Oxide Red—the visual language prioritizes instant scanning, multi-role identity clarity, high operational speed under matchday pressure, and unequivocal accessibility.
+LTD - Football is a high-density, mission-critical administration design system built for Australian grassroots football. Its academy palette—Pitch Slate, Stadium Green, Trophy Gold, Card Red, and Electric Volt—gives a modern, athletic look while the visual language still prioritizes instant scanning, multi-role identity clarity, high operational speed under matchday pressure, and unequivocal accessibility.
 
 ## Principles
 
 1. **No State by Hue Alone:** Every status indicator pairs a visual dot with an explicit textual state label. Never rely solely on color to communicate eligibility, approval, or arrears.
-2. **Desert Orange Belongs to the Assistant:** The vibrant desert orange palette is reserved strictly for AI assistant suggestions, drafts, and guidance. It is never used for primary actions, warnings, or statuses.
+2. **Electric Volt Belongs to the Assistant:** The high-visibility electric volt palette is reserved strictly for AI assistant suggestions, drafts, and guidance. It is never used for primary actions, warnings, or statuses.
 3. **Identity Rail is Immutable Across Lenses:** A user's core identity remain anchored in the persistent rail while switching operational context lenses across player, guardian, referee, coach, and administrator roles.
 4. **Speed Over Decor:** Controls are tuned for touch targets at the ground (minimum 44px) and high-contrast focus rings for fast keyboard traversal on club laptops.
 
 ## Color & Theming
 
-The system employs a dual-theme architecture (Light Sand & Dark Pitch). Surface layers stack systematically: page background (`background`), sunken containers (`backgroundSunk`), default cards (`surface`), and elevated panels (`surfaceSubtle`).
+The system employs a dual-theme architecture (Light Slate & Pitch Night). Surface layers stack systematically: page background (`background`), sunken containers (`backgroundSunk`), default cards (`surface`), and elevated panels (`surfaceSubtle`).
 
-- **Deep Reef (`primary`):** Structure, primary navigation, brand identity, and primary call-to-actions.
-- **Eucalyptus (`success`):** Cleared, ready, available, and verified statuses.
-- **Warm Ochre (`warning`):** Pending approvals, outstanding tasks, and demo tenant markers.
-- **Oxide Red (`destructive`):** Blocked clearances, expired compliance (WWCC), lapsed clearances, or irreversible actions.
-- **Desert Orange (`accent`):** Assistant notes, draft suggestions, and advisory guidance only.
-- **Identity Rail (`rail`):** Persistent deep reef dark ground anchored across both light and dark operational modes.
+- **Pitch Slate (`primary`):** Structure, primary navigation, brand identity, and primary call-to-actions.
+- **Stadium Green (`success`):** Cleared, ready, available, and verified statuses.
+- **Trophy Gold (`warning`):** Pending approvals, outstanding tasks, and demo tenant markers.
+- **Card Red (`destructive`):** Blocked clearances, expired compliance (WWCC), lapsed clearances, or irreversible actions.
+- **Electric Volt (`accent`):** Assistant notes, draft suggestions, and advisory guidance only.
+- **Identity Rail (`rail`):** Persistent pitch-black ground anchored across both light and dark operational modes.
 
 ## Typography
 
@@ -171,9 +172,9 @@ Interactive controls maintain a minimum height of `2.75rem` (44px) for field acc
 ## Shape & Elevation
 
 Surfaces rely on structured borders (`border.DEFAULT`) paired with purposeful elevation:
-- `rounded.sm` (8px): Inputs, buttons, status pills, and small badges.
-- `rounded.DEFAULT` (12px): Cards, table wrappers, panels, and forms.
-- `rounded.lg` (18px): Hero section, modal shells, and the identity rail.
+- `rounded.sm` (6px): Inputs, buttons, status pills, and small badges.
+- `rounded.DEFAULT` (10px): Cards, table wrappers, panels, and forms.
+- `rounded.lg` (16px): Hero section, modal shells, and the identity rail.
 - `rounded.full` (999px): Avatar, filter chips, and pill badges.
 
 Shadows range from `shadows.xs` for quiet inline elements to `shadows.lg` for floating overlays and hero cards.
@@ -193,7 +194,7 @@ All transitions use standard duration `180ms` (fast `120ms`) with cubic-bezier `
 
 - **Breakpoints:** Mobile layout collapses at `40rem` (640px) and `55rem` (880px) for navigation rails into toggle panels.
 - **Touch Targets:** All clickable areas maintain a minimum target of 44x44px.
-- **High Contrast:** Text and background pairs maintain WCAG AAA compliance across both Light Sand and Dark Pitch modes.
+- **High Contrast:** Text and background pairs meet at least WCAG AA (4.5:1) in both Light Slate and Pitch Night modes; most reach AAA.
 
 ## Component Conventions
 
@@ -211,11 +212,11 @@ All transitions use standard duration `180ms` (fast `120ms`) with cubic-bezier `
 ## Do's and Don'ts
 
 - **Do** always pair status color pills with an explicit status label and dot indicator.
-- **Do** reserve `accent` (Desert Orange) exclusively for Assistant advice and draft notes.
+- **Do** reserve `accent` (Electric Volt) exclusively for Assistant advice and draft notes.
 - **Do** use `font-mono` for all business rule citations (`BR1`, `BR2`) and financial quantities.
 - **Do** ensure interactive controls have minimum 44px touch target height.
 - **Don't** use hue alone to convey status or eligibility.
-- **Don't** use Desert Orange for primary buttons or warning alerts.
+- **Don't** use Electric Volt for primary buttons or warning alerts.
 - **Don't** omit ARIA roles and keyboard event handlers on custom interactive components.
 - **Don't** use raw hex colors or hardcoded pixel spacing when token classes exist.
 
@@ -227,5 +228,7 @@ Operational views prioritize key status chips at the top right of cards, clear s
 
 ## Gaps & Decisions
 
-- **Source Alignment:** Tokens and styles directly derived from the Australian landscape palette defined in the repository's `globals.css`.
+- **Academy palette (October 2026):** Replaced the Australian landscape palette (sand, reef, eucalyptus, ochre, oxide, desert orange) with Pitch Slate & Electric Volt. `globals.css` carries the same values, so every screen changes with it.
+- **Volt stays the Assistant's only.** The academy brief also proposed volt for calls to action, KPIs and active navigation; that would make the Assistant's colour an ordinary highlight, so Principle 2 is kept until the club decides otherwise.
+- **Dark rail muted text is `#94a3b8`, not the brief's `#64748b`:** that one is 4.3:1 on the dark rail, under WCAG AA for its small labels.
 - **Font Fallbacks:** System UI fallbacks are configured alongside Archivo Variable and DM Mono for self-hosted font safety.

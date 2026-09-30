@@ -52,6 +52,40 @@ Verified by compiling it through `@tailwindcss/postcss`: every token class the
 components use is generated, including the half steps `ds-1.5`/`ds-2.5` and
 opacity modifiers, with no preflight in the output.
 
+## The academy palette (October 2026)
+
+The club replaced the palette with *LTD - Football Academy*: Pitch Slate,
+Stadium Green, Trophy Gold, Card Red and Electric Volt, with 6/10/16px
+radii and slate shadows. Every screen reads its colours from `globals.css`
+variables, so its values were changed there, in both themes, together with
+DESIGN.md's tokens and the brand mark. No rule or class was renamed. The
+old ramp names (`--reef-*`, `--sand-*`, …) now hold the new values.
+
+Two points in the brief were not taken as written:
+
+- **Volt stays the Assistant's only colour** (DESIGN.md Principle 2). The
+  brief also used it for calls to action, KPIs and active navigation, which
+  would stop it marking the Assistant. This stays until the club decides
+  otherwise.
+- **Dark-theme rail labels use `#94a3b8`**, not `#64748b`. The brief's value
+  is 4.3:1 on the dark rail, which is under WCAG AA. The brief's "AAA
+  throughout" is also not met: light muted text on the page background is
+  4.5:1, which is AA only.
+
+Two regenerated components came with it:
+
+- **`AssistantNote`** again accepted a click callback to adopt a draft, a
+  committing control that decision 1 forbids. It also named itself
+  "Tactical AI", which the assistant gate does not recognise, so a second
+  Assistant surface could have passed unnoticed. Its look went onto the
+  guarded `src/app/_components/AssistantNote.tsx` instead: a link to use
+  the draft plus Dismiss, with 44px targets and hidden when printing.
+  `design-system.css` now scans that one file, and the old `.assistant`
+  CSS is gone. Volt's hover is a new `--highlight-hover` token.
+- **`PlayerCard`** adopted as generated, except that its volt border, hover
+  and squad number now use primary (Principle 2), and stats are keyed by
+  label rather than index.
+
 ## EA alignment
 
 | Layer | Impact |
