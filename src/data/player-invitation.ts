@@ -61,7 +61,12 @@ export async function recordPlayerInvitation(
 
   // A second attempt is a resend, not a failure — the same courtesy
   // recordGuardianInvitation extends.
-  if (error.message.includes('duplicate key')) return { alreadyInvited: true };
+  if (error.message.includes('duplicate key')) {
+    // Re-address the stored invitation to the Person's current email before
+    // the resend goes out — see the same step in recordGuardianInvitation.
+    await client.rpc('reissue_workspace_invitation', { p_person_id: personId });
+    return { alreadyInvited: true };
+  }
 
   if (error.message.includes('thirteen')) {
     return { error: 'This player is not yet thirteen — BR63 sets that as the floor for their own account.' };
