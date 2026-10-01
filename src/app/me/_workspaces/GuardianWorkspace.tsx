@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { formatMoney } from '../../../domain/finance/money.ts';
 import { planState } from '../../../domain/finance/plan.ts';
 import { loadFamilyDesignations } from '../../../data/designations.ts';
+import { loadFamilyPlayerProfile } from '../../../data/family-player-record.ts';
 import { loadFinance } from '../../../data/finance.ts';
 import { loadHousehold } from '../../../data/household.ts';
 import { loadConsents, loadMyTeams, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
@@ -13,6 +14,7 @@ import { loadVouchers } from '../../../data/vouchers.ts';
 import { RULE_TITLE, childCard, remainingFigure, selectChild, type Tone } from '../../../web/household-view.ts';
 import { ROLE_HUE, nextFixture, shortDate } from '../../../web/me-view.ts';
 import { needsAvailabilityAnswer } from '../../../web/participation-answer.ts';
+import { playerRecordLines } from '../../../web/player-record-view.ts';
 import { AvailabilityAnswer } from '../_participation/AvailabilityAnswer.tsx';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
 import { loadSubscription } from '../../../data/calendar.ts';
@@ -20,7 +22,7 @@ import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
 import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
 import { ConfirmMatchForm } from '../_officiating/ConfirmMatchForm.tsx';
 import { SettleClaimForm } from '../_officiating/SettleClaimForm.tsx';
-import { ComingSoon, FixtureCard, Panel, WorkspaceHead } from './shared.tsx';
+import { ComingSoon, FixtureCard, Panel, RecordLines, WorkspaceHead } from './shared.tsx';
 
 const CONSENT_LABEL: Readonly<Record<string, string>> = {
   REGISTRATION_COLLECTION_NOTICE: 'Collection notice',
@@ -84,6 +86,10 @@ export async function GuardianWorkspace({
   const vouchers = registration === null ? [] : await loadVouchers(client, link.clubId, registration.id);
   const relief = vouchers.filter((v) => v.state === 'VERIFIED' || v.state === 'CLAIMED');
   const consents = await loadConsents(client, link.clubId, card.personId);
+  // BR155: the child's record as the club last confirmed it — what a
+  // registrar's correction changes, and what this guardian answers for.
+  const profile = registration === null ? null : await loadFamilyPlayerProfile(client, link.clubId, registration.id);
+  const recordLines = playerRecordLines(child.person, profile);
   const teams = season === null ? [] : await loadMyTeams(client, link.clubId, season.id, card.personId);
   const team = teams.find((t) => t.role === 'player') ?? null;
   const fixtures = season === null || team === null ? [] : await loadTeamFixtures(client, link.clubId, season.id, team.team.id);
@@ -231,6 +237,15 @@ export async function GuardianWorkspace({
                 </ul>
               </>
             )}
+          </Panel>
+          <Panel title={`${card.name}'s record`}>
+            <RecordLines lines={recordLines} />
+            <p className="hint" style={{ margin: 'var(--space-1) 0 0' }}>
+              As the club last confirmed it. Something wrong? Ask the club&rsquo;s registrar to correct it.{' '}
+              <span className="mono" style={{ fontSize: '0.7rem' }}>
+                BR155
+              </span>
+            </p>
           </Panel>
           {needsDocument && (
             <ComingSoon title="Upload a document" waitsOn="a family-facing upload — today a registrar records what was sighted">
