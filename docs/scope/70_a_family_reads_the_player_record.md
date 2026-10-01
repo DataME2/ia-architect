@@ -3,7 +3,7 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** branch `claude/wp1-login-identity-to-person` (reverted in #73, because migration 0063 never reached the database), reapplied with WP3 on `claude/family-reads-the-player-record`.
+**Delivered as:** branch `claude/wp1-login-identity-to-person` (reverted in #73, because migration 0063 never reached the database), reapplied on `claude/family-reads-the-player-record` (#74); WP3 on `claude/the-club-reads-the-player-record`.
 **Status: built.**
 
 Reported as a bug (October 2026): a club administrator corrected a
