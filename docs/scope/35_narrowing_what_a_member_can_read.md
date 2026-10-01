@@ -108,7 +108,17 @@ That is recorded as [decision 11](../decisions/11_a_family_reads_through_functio
   `24_player_record.sql` established for physique.
 - **Outcome:** the mechanism exists and is proved before any policy moves.
 
-### WP2 — Money and contact details *(unblocked, September 2026)*
+### WP2 — Money and contact details *(payments delivered October 2026; vouchers and contact details still open)*
+
+> **Delivered (October 2026, migration 0068, branch `claude/a-coach-reads-no-payment-plan`):**
+> - `payment`, `payment_plan` and `payment_installment` are narrowed to admin, treasurer, registrar and IT manager (`digital_technology_manager`). These are the four roles the club's own matrix ([scope 29 §2c](./29_actors-access-and-permissions.md)) gives payment plans and payments to. The family policies are untouched.
+> - Suite 68 proves that a coach, committee member or coordinator reads no plan, instalment or receipt, while a family still reads its own.
+> - The registration page now shows those roles the BR78 verdict and says the details are not theirs to see. It no longer claims there is no plan.
+> - BR3's verdict is unaffected: it reads the balance, and the plan only enriches its message.
+>
+> **Left open, and why:**
+> - `registration_voucher` stays club-wide, because the committee counts the vouchers awaiting its decision (BR21).
+> - `registration.outstanding_amount_cents`, the balance itself and #73's literal question, is a column on the child's registration, so it moves with WP3.
 
 - **Deliverables:** `payment`, `payment_plan`, `payment_installment`,
   `registration_voucher` narrowed to admin, treasurer and registrar.

@@ -13,6 +13,7 @@ import { loadPlayerInvitationStatus } from '../../../data/player-invitation.ts';
 import { loadVouchers, voucherFileUrl } from '../../../data/vouchers.ts';
 import { voucherSummary } from '../../../domain/finance/voucher.ts';
 import { playEligibility } from '../../../domain/finance/eligibility.ts';
+import { canReadMoney } from '../../../web/money-access.ts';
 import { planState } from '../../../domain/finance/plan.ts';
 import { ageAt } from '../../../domain/types.ts';
 import { formatCents } from '../../../web/money.ts';
@@ -125,6 +126,9 @@ export default async function RegistrationDetailPage({
   // Small clubs are small: one person is routinely both registrar and admin.
   // Gating on a single role hid the finance screens from whoever's registrar
   // membership happened to be the older row.
+  // BR78, #73: a coach, the committee and the coordinator read no plan (0068),
+  // so an empty plan for them means "not yours to see", never "none agreed".
+  const readsMoney = canReadMoney(tenant.roles);
   const canTouchMoney =
     tenant.roles.includes('admin') || tenant.roles.includes('treasurer');
   const blocking = failing(entry);
@@ -492,91 +496,102 @@ export default async function RegistrationDetailPage({
       <section className="card">
         <h3 style={{ marginTop: 0 }}>Payment (BR3)</h3>
 
-        {state !== null && finance.plan !== null ? (
-          <>
-            <PlanSchedule state={state} />
-            <p className="hint">
-              BR3 asks whether payment is <strong>in arrears</strong>, not whether a balance
-              exists. A family three weeks into a five-month plan, having paid everything asked
-              of them, is up to date — blocking them would have made the plan worthless, since
-              the club could offer one and the child still could not play.
-            </p>
-            {canTouchMoney && (
-              <form action={cancelPlanAction} style={{ marginTop: '0.75rem' }}>
-                <input type="hidden" name="planId" value={finance.plan.id} />
-                <input type="hidden" name="registrationId" value={registrationId} />
-                <button type="submit" className="secondary">
-                  End this plan
-                </button>
-              </form>
-            )}
-          </>
+        {!readsMoney ? (
+          <p className="hint" style={{ marginTop: 0 }}>
+            The payment plan, its instalments and receipts are shown only to the admin,
+            treasurer, registrar and IT manager (BR78). Whether this player is clear to play is
+            shown above.
+          </p>
         ) : (
           <>
-            <p className="hint" style={{ marginTop: 0 }}>
-              {entry.outstandingCents > 0
-                ? `${formatCents(entry.outstandingCents)} is due in full — no payment plan has been agreed.`
-                : entry.outstandingCents < 0
-                  ? `The club holds a credit of ${formatCents(-entry.outstandingCents)}. BR3 does not treat a credit as an obstacle — blocking a child over money the club owes them would be the wrong way round.`
-                  : 'Nothing outstanding.'}
-            </p>
-            {canTouchMoney && season !== undefined && entry.outstandingCents > 0 && (
+
+            {state !== null && finance.plan !== null ? (
               <>
-                <h4>Agree a payment plan</h4>
-                <NewPlanForm
+                <PlanSchedule state={state} />
+                <p className="hint">
+                  BR3 asks whether payment is <strong>in arrears</strong>, not whether a balance
+                  exists. A family three weeks into a five-month plan, having paid everything asked
+                  of them, is up to date — blocking them would have made the plan worthless, since
+                  the club could offer one and the child still could not play.
+                </p>
+                {canTouchMoney && (
+                  <form action={cancelPlanAction} style={{ marginTop: '0.75rem' }}>
+                    <input type="hidden" name="planId" value={finance.plan.id} />
+                    <input type="hidden" name="registrationId" value={registrationId} />
+                    <button type="submit" className="secondary">
+                      End this plan
+                    </button>
+                  </form>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="hint" style={{ marginTop: 0 }}>
+                  {entry.outstandingCents > 0
+                    ? `${formatCents(entry.outstandingCents)} is due in full — no payment plan has been agreed.`
+                    : entry.outstandingCents < 0
+                      ? `The club holds a credit of ${formatCents(-entry.outstandingCents)}. BR3 does not treat a credit as an obstacle — blocking a child over money the club owes them would be the wrong way round.`
+                      : 'Nothing outstanding.'}
+                </p>
+                {canTouchMoney && season !== undefined && entry.outstandingCents > 0 && (
+                  <>
+                    <h4>Agree a payment plan</h4>
+                    <NewPlanForm
+                      registrationId={registrationId}
+                      seasonId={seasonId}
+                      suggestedTotalCents={entry.outstandingCents}
+                      seasonEndsOn={season.ends_on}
+                    />
+                  </>
+                )}
+                <OutstandingForm
                   registrationId={registrationId}
                   seasonId={seasonId}
-                  suggestedTotalCents={entry.outstandingCents}
-                  seasonEndsOn={season.ends_on}
+                  outstandingCents={entry.outstandingCents}
                 />
               </>
             )}
-            <OutstandingForm
-              registrationId={registrationId}
-              seasonId={seasonId}
-              outstandingCents={entry.outstandingCents}
-            />
-          </>
-        )}
 
-        {canTouchMoney ? (
-          <>
-            <h4>Record a payment</h4>
-            <RecordPaymentForm registrationId={registrationId} />
-          </>
-        ) : (
-          <p className="hint">
-            Recording money is an admin or treasurer&rsquo;s act, not a registrar&rsquo;s —
-            the BR22 separation between running registration and moving money. The database
-            enforces it, so this is a hidden button rather than the control.
-          </p>
-        )}
+            {canTouchMoney ? (
+              <>
+                <h4>Record a payment</h4>
+                <RecordPaymentForm registrationId={registrationId} />
+              </>
+            ) : (
+              <p className="hint">
+                Recording money is an admin or treasurer&rsquo;s act, not a registrar&rsquo;s —
+                the BR22 separation between running registration and moving money. The database
+                enforces it, so this is a hidden button rather than the control.
+              </p>
+            )}
 
-        {finance.payments.length > 0 && (
-          <>
-            <h4>Receipts</h4>
-            <div className="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Received</th>
-                    <th>Amount</th>
-                    <th>How</th>
-                    <th>Reference</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {finance.payments.map((row) => (
-                    <tr key={row.id}>
-                      <td>{row.receivedOn}</td>
-                      <td>{formatCents(row.amountCents)}</td>
-                      <td>{METHOD_LABEL[row.method]}</td>
-                      <td>{row.reference ?? <span className="hint">&mdash;</span>}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {finance.payments.length > 0 && (
+              <>
+                <h4>Receipts</h4>
+                <div className="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Received</th>
+                        <th>Amount</th>
+                        <th>How</th>
+                        <th>Reference</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {finance.payments.map((row) => (
+                        <tr key={row.id}>
+                          <td>{row.receivedOn}</td>
+                          <td>{formatCents(row.amountCents)}</td>
+                          <td>{METHOD_LABEL[row.method]}</td>
+                          <td>{row.reference ?? <span className="hint">&mdash;</span>}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
           </>
         )}
       </section>
