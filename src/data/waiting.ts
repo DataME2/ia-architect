@@ -104,8 +104,9 @@ async function designationsFor(
 ): Promise<readonly WaitingItem[]> {
   const { offered } = await loadFamilyDesignations(client, clubId, [personId], today);
   return awaitingAnswer(offered)
-    // An adult answers their own; a minor's is answered by an adult (BR113).
-    .filter((o) => (who.self ? !o.answeredByAnAdult : o.answeredByAnAdult))
+    // BR113 (scope 73): the official from thirteen, a guardian under eighteen.
+    // From thirteen to seventeen both are told, and the first answer stands.
+    .filter((o) => (who.self ? o.answersForThemselves : o.answeredByAnAdult))
     .map((o) =>
       designationItem(
         clubId,
@@ -123,12 +124,20 @@ async function collectForLink(client: SupabaseClient, link: ClubLink, today: str
     items.push(...(await collectCorrections(client, link.clubId)));
   }
 
-  // The account's own items, where it answers for itself.
-  if (ageAt(link.person.dateOfBirth, today) >= 18) {
+  // The account's own items, where it answers for itself: availability
+  // from eighteen (BR62), designations and match confirmations from thirteen
+  // (BR113, BR151 as restated by scope 73).
+  const age = ageAt(link.person.dateOfBirth, today);
+  if (age >= 18) {
     const self = { id: link.personId, name: nameOf(link.person) };
     const own = await availabilityFor(client, link, self, { self: true }, today);
     if (own !== null) items.push(own);
+  }
+  if (age >= 13) {
     items.push(...(await designationsFor(client, link.clubId, link.personId, { self: true }, today)));
+    for (const m of await loadConfirmableAppointments(client, link.clubId, [link.personId], today, 'self')) {
+      if (!m.confirmed) items.push(matchItem(link.clubId, m, { self: true }));
+    }
   }
 
   // The children it holds authority over (BR1, BR63).
@@ -140,8 +149,8 @@ async function collectForLink(client: SupabaseClient, link: ClubLink, today: str
     if (answer !== null) items.push(answer);
     items.push(...(await designationsFor(client, link.clubId, child.id, who, today)));
   }
-  for (const m of await loadConfirmableAppointments(client, link.clubId, childIds, today)) {
-    if (!m.confirmed) items.push(matchItem(link.clubId, m));
+  for (const m of await loadConfirmableAppointments(client, link.clubId, childIds, today, 'guardian')) {
+    if (!m.confirmed) items.push(matchItem(link.clubId, m, { self: false, childId: m.personId }));
   }
   for (const c of await loadSettleableClaims(client, link.clubId, childIds)) {
     if (c.settlement === null) {

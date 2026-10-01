@@ -32,7 +32,8 @@ async function requireTenant() {
  *
  * Granting `player` also sends the workspace links that season now calls
  * for, if the registration is already COMPLETE (scope 68 WP2) — nobody has
- * to go and press Invite afterwards.
+ * to go and press Invite afterwards. Granting `referee` does the same for
+ * an official of thirteen or over (scope 73, BR150 extended).
  */
 export async function setRoleAction(formData: FormData): Promise<void> {
   const personId = String(formData.get('personId') ?? '');
@@ -47,7 +48,7 @@ export async function setRoleAction(formData: FormData): Promise<void> {
 
   await setSeasonRole(client, tenant.clubId, personId, seasonId, role, granted, user.id);
 
-  if (granted && role === 'player') {
+  if (granted && (role === 'player' || role === 'referee')) {
     const outcome = await inviteWorkspaces(client, tenant.clubId, seasonId, user.id, todayIn(), personId);
     // Best-effort: a failed send is recoverable from the registration's
     // own invite panel, and this form has nowhere to report it.

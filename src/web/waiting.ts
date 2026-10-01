@@ -108,7 +108,7 @@ export function designationItem(
   };
 }
 
-/** BR151: a MiniRef's past match that nobody has confirmed. */
+/** BR151: a past match nobody has confirmed: the guardian's under 13, the official's own from 13. */
 export function matchItem(
   clubId: string,
   m: {
@@ -118,14 +118,17 @@ export function matchItem(
     readonly opponent: string;
     readonly playedOn: string;
   },
+  who: Answering = { self: false, childId: m.personId },
 ): WaitingItem {
   return {
     clubId,
     kind: 'match_unconfirmed',
     subjectKey: `${m.fixtureId}:${m.personId}`,
-    headline: `Did ${m.officialName}'s match against ${m.opponent} on ${m.playedOn} go ahead?`,
+    headline: who.self
+      ? `Did your match against ${m.opponent} on ${m.playedOn} go ahead?`
+      : `Did ${m.officialName}'s match against ${m.opponent} on ${m.playedOn} go ahead?`,
     detail: 'Confirming it marks the fixture played (BR151).',
-    linkPath: workspacePath(clubId, 'guardian', { self: false, childId: m.personId }),
+    linkPath: workspacePath(clubId, 'referee', who),
   };
 }
 
