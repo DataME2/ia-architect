@@ -36,6 +36,11 @@ test('a blank birth date keeps the import placeholder rather than inventing one'
   assert.equal(r.ok && r.value.dateOfBirth, '1900-01-01');
 });
 
+test('an impossible date is refused, not rolled over into the next month', () => {
+  assert.equal(parsePersonEdit({ ...base, dateOfBirth: '2009-02-31' }, TODAY).ok, false);
+  assert.equal(parsePersonEdit({ ...base, dateOfBirth: '2008-02-29' }, TODAY).ok, true, 'a real leap day');
+});
+
 test('a future birth date is refused', () => {
   assert.equal(parsePersonEdit({ ...base, dateOfBirth: '2027-01-01' }, TODAY).ok, false);
 });

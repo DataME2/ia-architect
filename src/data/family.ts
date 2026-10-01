@@ -92,7 +92,14 @@ export async function recordGuardianInvitation(
   // Already recorded — the app treats a second attempt as a resend rather
   // than a failure, since sending the link again is exactly what somebody
   // clicking "Invite" a second time means.
-  if (error.message.includes('duplicate key')) return { alreadyInvited: true };
+  if (error.message.includes('duplicate key')) {
+    // A resend goes to the address passed in — the Person's current one — so
+    // the stored invitation must follow it, or the claim (0062) would refuse
+    // the very link just sent. Refused when the link is already in use,
+    // which is fine: then there is nothing to re-address.
+    await client.rpc('reissue_workspace_invitation', { p_person_id: guardianPersonId });
+    return { alreadyInvited: true };
+  }
 
   if (error.message.includes('BR126')) {
     return { error: 'This child is not yet COMPLETE — invite once their registration is finished.' };

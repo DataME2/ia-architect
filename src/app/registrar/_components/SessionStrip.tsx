@@ -1,22 +1,13 @@
+import { SessionStrip as DesignSessionStrip } from '../../../components/ui/SessionStrip.tsx';
 import type { TenantContext } from '../../../data/queries.ts';
 import type { SignedInUser } from '../../../data/server.ts';
+import { accessLabel } from '../../../web/access-view.ts';
 import { signOutAction } from '../../sign-in/actions.ts';
 
-const ROLE_LABEL: Record<string, string> = {
-  admin: 'Admin',
-  registrar: 'Registrar',
-  treasurer: 'Treasurer',
-  committee: 'Committee',
-  coach: 'Coach',
-  coordinator: 'Coordinator',
-  // Named for what it is rather than what it is called, because this is the
-  // one role whose holder did not choose it and needs to know why a button
-  // is refusing them.
-  viewer: 'Viewer — read-only',
-};
-
 /**
- * Who you are signed in as, and the way out.
+ * Who you are signed in as, and the way out — rendered by the design
+ * system's SessionStrip (scope 69); this adapter keeps every screen's call
+ * unchanged.
  *
  * Worth its own strip rather than a line in the masthead because the roles
  * are load-bearing: what these screens let you do is decided by them, and
@@ -24,6 +15,9 @@ const ROLE_LABEL: Record<string, string> = {
  * verify button on a voucher needs to be able to tell at a glance that it is
  * because they are signed in as a registrar and not an admin (BR78) — rather
  * than concluding the button is broken.
+ *
+ * The name where there is one, the email where there is not — and never the
+ * email dressed as a name (BR108).
  */
 export function SessionStrip({
   user,
@@ -40,67 +34,35 @@ export function SessionStrip({
 }) {
   if (user === null) return null;
 
-  return (
-    <div className={demo ? 'session-strip is-demo' : 'session-strip'}>
-      <div>
-        {/*
-          The name where there is one, the email where there is not — and
-          never the email dressed as a name (BR108). An unlinked account
-          reads as unlinked here rather than looking identified, which is
-          the whole reason the link is worth recording.
-        */}
-        {tenant?.person != null ? (
-          <span className="session-who" title={tenant.person.legalName}>
-            {tenant.person.preferredName?.trim() || tenant.person.legalName}
-          </span>
-        ) : (
-          <span className="session-who">{user.email ?? 'Signed in'}</span>
-        )}
-        {tenant !== null && (
-          <>
-            <span className="session-sep">·</span>
-            <span>{tenant.clubName}</span>
-            {demo && <span className="pill pill-warn" style={{ marginLeft: '0.45rem' }}>Demo</span>}
-            <span className="session-sep">·</span>
-            {tenant.person != null && (
-              <span className="session-since" style={{ marginRight: '0.45rem' }}>
-                {user.email}
-              </span>
-            )}
-            {tenant.roles.map((role) => (
-              <span className="pill" key={role} style={{ marginRight: '0.3rem' }}>
-                {ROLE_LABEL[role] ?? role}
-              </span>
-            ))}
-          </>
-        )}
-        {tenant === null && (
-          <>
-            <span className="session-sep">·</span>
-            {platform ? (
-              // Not a gap to report. This account holds no membership by
-              // design — decision 9 — and "No club membership" reads as a
-              // fault on the one identity for which it is the point.
-              <span className="pill pill-warn">Platform owner &mdash; no club, by design</span>
-            ) : (
-              <span>No club membership</span>
-            )}
-          </>
-        )}
-      </div>
+  const person = tenant?.person ?? null;
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-        {user.lastSignInAt !== null && (
-          <span className="session-since">
-            since {new Date(user.lastSignInAt).toLocaleString('en-AU')}
-          </span>
-        )}
-        <form action={signOutAction}>
-          <button type="submit" className="secondary" style={{ padding: '0.25rem 0.7rem' }}>
-            Sign out
-          </button>
-        </form>
-      </div>
-    </div>
+  return (
+    <DesignSessionStrip
+      user={{
+        ...(user.email !== null && user.email !== undefined ? { email: user.email } : {}),
+        lastSignInAt: user.lastSignInAt,
+      }}
+      tenant={
+        tenant === null
+          ? null
+          : {
+              clubName: tenant.clubName,
+              person:
+                person === null
+                  ? null
+                  : {
+                      legalName: person.legalName,
+                      ...(person.preferredName ? { preferredName: person.preferredName } : {}),
+                    },
+              // `viewer` is named for what it is — its holder did not choose
+              // it and needs to know why a button refuses them.
+              roles: tenant.roles.map((role) =>
+                (role as string) === 'viewer' ? 'Viewer — read-only' : accessLabel(role)),
+            }
+      }
+      demo={demo}
+      platform={platform}
+      signOutAction={signOutAction}
+    />
   );
 }

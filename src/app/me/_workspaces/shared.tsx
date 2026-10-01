@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { formatMoney } from '../../../domain/finance/money.ts';
 import { STATUS_LABEL } from '../../../web/household-view.ts';
 import { shortDate, type FixtureLike, type SeasonFigures } from '../../../web/me-view.ts';
+import type { RecordLine } from '../../../web/player-record-view.ts';
 import type { RegistrationStatusRow } from '../../../data/schema.ts';
 
 /** A titled block in a workspace. Border and fill say "one thing", once. */
@@ -131,5 +132,22 @@ export function WorkspaceHead({ title, children }: { readonly title: string; rea
       <h2>{title}</h2>
       <p>{children}</p>
     </div>
+  );
+}
+
+/**
+ * The player record as its family reads it (BR155) — label and value, one
+ * line each, so a family checking a correction finds the line it expects.
+ */
+export function RecordLines({ lines }: { readonly lines: readonly RecordLine[] }) {
+  return (
+    <dl style={{ display: 'grid', gridTemplateColumns: 'minmax(8rem, max-content) 1fr', gap: '0.25rem 1rem', margin: 0 }}>
+      {lines.map((l) => (
+        <div key={l.label} style={{ display: 'contents' }}>
+          <dt className="hint">{l.label}</dt>
+          <dd style={{ margin: 0, overflowWrap: 'anywhere' }}>{l.value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }

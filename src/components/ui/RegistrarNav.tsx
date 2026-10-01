@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
@@ -85,7 +87,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
         ref={ref}
         aria-label={title}
         className={cn(
-          'w-full max-w-[260px] flex flex-col font-sans text-foreground bg-surface border border-border rounded-md shadow-xs p-3',
+          'print:hidden w-full md:max-w-[260px] flex flex-col font-sans text-foreground bg-surface border border-border rounded-md shadow-xs p-3',
           className
         )}
         {...props}
@@ -96,7 +98,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
           onClick={() => setIsOpen((prev) => !prev)}
           aria-expanded={isOpen}
           aria-controls={navId}
-          className="md:hidden flex items-center justify-between w-full min-h-[44px] px-3 py-2 rounded-sm bg-surfaceSubtle border border-border text-sm font-semibold text-foreground hover:bg-backgroundSunk transition-colors"
+          className="md:hidden flex items-center justify-between w-full min-h-[44px] px-3 py-2 rounded-sm shadow-none bg-surfaceSubtle border border-border text-sm font-semibold text-foreground hover:bg-backgroundSunk! hover:text-foreground! transition-colors"
         >
           <span className="flex items-center gap-2">
             <svg
@@ -154,10 +156,10 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
                 onClick={handleClick}
                 aria-current={isCurrent ? 'page' : undefined}
                 className={cn(
-                  'flex items-center min-h-[44px] px-3 py-2 rounded-sm text-xs font-medium transition-colors select-none border-l-4',
+                  'flex items-center min-h-[44px] px-3 py-2 rounded-sm text-xs font-medium no-underline transition-colors select-none border-l-4',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
                   isCurrent
-                    ? 'bg-primary-soft text-primary font-semibold border-primary shadow-xs'
+                    ? 'bg-primary-soft text-primary hover:text-primary font-semibold border-primary shadow-xs'
                     : 'text-foreground hover:bg-surfaceSubtle hover:text-primary border-transparent'
                 )}
               >
