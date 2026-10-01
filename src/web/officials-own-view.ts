@@ -11,7 +11,14 @@ export interface OwnClaim {
 }
 
 /** Where a claim stands, from the official's side. */
-export function claimStanding(claim: OwnClaim, answersForThemselves: boolean): string {
+export function claimStanding(
+  claim: OwnClaim,
+  answersForThemselves: boolean,
+  payout: { readonly reference: string; readonly simulated: boolean } | null = null,
+): string {
+  if (payout !== null) {
+    return payout.simulated ? `Paid online (simulated) · ${payout.reference}.` : `Paid online · ${payout.reference}.`;
+  }
   if (claim.state === 'raised') return 'Waiting for the treasurer to approve it.';
   if (claim.state === 'rejected') return 'Not approved.';
   if (claim.settlement === null) {

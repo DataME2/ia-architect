@@ -5,10 +5,12 @@ import { revalidatePath } from 'next/cache';
 import { chooseSettlement } from '../../../data/claims.ts';
 import { loadMe } from '../../../data/me.ts';
 import { recordMatchConfirmation } from '../../../data/match-confirmation.ts';
+import { nominatePayout } from '../../../data/payouts.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { parseMatchConfirmation } from '../../../web/match-confirmation-view.ts';
 import { parseSettlement } from '../../../web/claim-view.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
+import { parseNomination } from '../../../web/payout-nomination.ts';
 import { todayIn } from '../../../web/today.ts';
 
 /**
@@ -91,4 +93,33 @@ export async function chooseSettlementAction(
       ? 'Recorded — the club will pay you the way it already pays anyone.'
       : 'Recorded — it will be credited toward next season, once that registration is open.',
   );
+}
+
+/**
+ * Nominate where an official is paid (BR161). The nominator is the
+ * signed-in person, never the form; 0072's policy admits only whoever
+ * chooses pay-or-credit for that official (BR152), and refuses anyone else.
+ */
+export async function nominatePayoutAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const clubId = String(formData.get('clubId') ?? '');
+  const personId = String(formData.get('personId') ?? '');
+  if (clubId === '' || personId === '') return formFailed('Which official?');
+
+  const parsed = parseNomination(Object.fromEntries(formData));
+  if (!parsed.ok) return formFailed(parsed.error);
+
+  const client = await createRequestClient();
+  const user = await currentUser(client);
+  if (user === null) return formFailed('Sign in first.');
+
+  const me = await loadMe(client, user.id, todayIn());
+  const link = me.links.find((l) => l.clubId === clubId);
+  if (link === undefined) return formFailed('That is not your club.');
+
+  const error = await nominatePayout(client, clubId, personId, link.personId, parsed.value);
+  revalidatePath('/me');
+  return error === null ? formOk('Saved. The treasurer pays there from now on.') : formFailed(error);
 }

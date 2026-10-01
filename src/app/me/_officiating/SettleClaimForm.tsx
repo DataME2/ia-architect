@@ -9,9 +9,9 @@ import { FormNotice } from '../../registrar/_components/FormNotice.tsx';
 import { chooseSettlementAction } from './actions.ts';
 
 /**
- * "Pay me, or credit it toward next season?" — BR152. No account details
- * are ever asked for: the club pays outside the platform exactly as it
- * already does (BR118); this only records which one was chosen.
+ * "Pay me, or credit it toward next season?" — BR152. Where a "pay" goes is
+ * a separate nomination (BR161, PayoutNominationForm); this records only
+ * which one was chosen.
  */
 export function SettleClaimForm({
   clubId,

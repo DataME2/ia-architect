@@ -17,6 +17,13 @@ describe('claimStanding', () => {
     assert.match(claimStanding(claim({}), false), /Parent\/Guardian chooses.*BR152/);
   });
 
+  it('says a simulated payout is a simulation', () => {
+    assert.equal(
+      claimStanding(claim({ settlement: 'pay', batchId: 'b' }), true, { reference: 'SIM-1-1', simulated: true }),
+      'Paid online (simulated) · SIM-1-1.',
+    );
+  });
+
   it('follows a chosen claim to its batch', () => {
     assert.match(claimStanding(claim({ settlement: 'credit' }), true), /credited/);
     assert.match(claimStanding(claim({ settlement: 'pay' }), true), /to be paid/);

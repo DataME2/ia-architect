@@ -8,6 +8,9 @@ import { formatMoney } from '../../../domain/finance/money.ts';
 import { isAdultOn } from '../../../web/designation-answer.ts';
 import { claimStanding, credentialStanding } from '../../../web/officials-own-view.ts';
 import { SettleClaimForm } from '../_officiating/SettleClaimForm.tsx';
+import { PayoutNominationForm } from '../_officiating/PayoutNominationForm.tsx';
+import { loadNominations, loadPayouts } from '../../../data/payouts.ts';
+import { displayNameFor } from '../../../web/queue-view.ts';
 import { ConfirmMatchForm } from '../_officiating/ConfirmMatchForm.tsx';
 import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
 import { Panel, WorkspaceHead } from './shared.tsx';
@@ -59,6 +62,11 @@ export async function RefereeWorkspace({
   ]);
   // BR152 still stops at eighteen: under it, the guardian chooses pay or credit.
   const choosesOwnSettlement = isAdultOn(link.person.dateOfBirth, today);
+  // Where they are paid (BR161) and what has been paid online (BR162).
+  const [nominations, payouts] = await Promise.all([
+    choosesOwnSettlement ? loadNominations(client, link.clubId, [link.personId]) : Promise.resolve(new Map<string, string>()),
+    loadPayouts(client, claims.map((c) => c.id)),
+  ]);
 
   // The calendar feed, from the official's own side (scope 41).
   const subscription = await loadSubscription(client, link.clubId, link.personId);
@@ -155,7 +163,7 @@ export async function RefereeWorkspace({
             ) : (
               <ul className="check" style={{ margin: 0 }}>
                 {claims.map((c) =>
-                  choosesOwnSettlement && c.state === 'approved' ? (
+                  choosesOwnSettlement && c.state === 'approved' && !payouts.has(c.id) ? (
                     <SettleClaimForm key={c.id} clubId={link.clubId} claim={c} />
                   ) : (
                     <li key={c.id}>
@@ -163,18 +171,29 @@ export async function RefereeWorkspace({
                         vs {c.opponent} — {c.playedOn} · {formatMoney(c.amountCents)}
                       </span>
                       <br />
-                      <span className="cnote">{claimStanding(c, choosesOwnSettlement)}</span>
+                      <span className="cnote">{claimStanding(c, choosesOwnSettlement, payouts.get(c.id) ?? null)}</span>
                     </li>
                   ),
                 )}
               </ul>
             )}
-            <p className="hint" style={{ margin: 'var(--space-1) 0 0' }}>
-              Paid by the club outside the platform; no account details are ever asked for{' '}
-              <span className="mono" style={{ fontSize: '0.7rem' }}>
-                BR118 · BR152
-              </span>
-            </p>
+            {choosesOwnSettlement ? (
+              <div style={{ marginTop: 'var(--space-1)' }}>
+                <PayoutNominationForm
+                  clubId={link.clubId}
+                  personId={link.personId}
+                  officialName={displayNameFor(link.person)}
+                  current={nominations.get(link.personId) ?? null}
+                />
+              </div>
+            ) : (
+              <p className="hint" style={{ margin: 'var(--space-1) 0 0' }}>
+                Until you are 18, your Parent/Guardian nominates where you are paid{' '}
+                <span className="mono" style={{ fontSize: '0.7rem' }}>
+                  BR152 · BR161
+                </span>
+              </p>
+            )}
           </Panel>
         </div>
       </div>

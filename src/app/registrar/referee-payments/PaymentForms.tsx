@@ -9,6 +9,7 @@ import type { BatchRow, RaisedClaim } from '../../../data/claims.ts';
 import { FormNotice } from '../_components/FormNotice.tsx';
 import {
   addToBatchAction, closeBatchAction, createBatchAction, decideClaimAction, payBatchAction, raiseClaimAction,
+  simulatePayoutAction,
 } from './actions.ts';
 
 /**
@@ -163,6 +164,7 @@ export function AddApprovedToBatch({
 export function BatchCard({ batch }: { readonly batch: BatchRow }) {
   const [closeResult, closeAction, closing] = useActionState(closeBatchAction, IDLE_FORM);
   const [payResult, payAction, paying] = useActionState(payBatchAction, IDLE_FORM);
+  const [simResult, simAction, simulating] = useActionState(simulatePayoutAction, IDLE_FORM);
 
   const standing = batch.paidAt !== null ? 'paid' : batch.closedAt !== null ? 'closed' : 'open';
 
@@ -196,6 +198,19 @@ export function BatchCard({ batch }: { readonly batch: BatchRow }) {
           </p>
           <button type="submit" disabled={paying}>{paying ? '…' : 'Record as paid'}</button>
           <FormNotice result={payResult} />
+        </form>
+      )}
+
+      {standing === 'closed' && (
+        <form action={simAction} style={{ marginTop: '0.5rem' }}>
+          <input type="hidden" name="batchId" value={batch.id} />
+          <button type="submit" className="secondary" disabled={simulating}>
+            {simulating ? '…' : 'Pay online (simulated)'}
+          </button>{' '}
+          <span className="hint">
+            Pays every claim to its official&rsquo;s nominated account. A simulation: no money moves (BR162).
+          </span>
+          <FormNotice result={simResult} />
         </form>
       )}
 
