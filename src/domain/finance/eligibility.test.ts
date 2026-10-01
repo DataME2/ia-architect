@@ -23,6 +23,13 @@ describe('BR79 — no pay, no play', () => {
     assert.match(playEligibility('COMPLETE', 8032).reason, /BR79/);
   });
 
+  test('without the figure, the verdict still holds and names no amount (BR78)', () => {
+    const blocked = playEligibility('COMPLETE', null, true);
+    assert.equal(blocked.blockedBy, 'owes-money');
+    assert.doesNotMatch(blocked.reason, /\$/);
+    assert.equal(playEligibility('COMPLETE', null, false).mayPlay, true);
+  });
+
   test('a credit is not a debt — the club owes them', () => {
     const result = playEligibility('COMPLETE', -2500);
     assert.equal(result.mayPlay, true);

@@ -127,7 +127,16 @@ That is recorded as [decision 11](../decisions/11_a_family_reads_through_functio
   the narrowing buildable: BR79 is computed fresh every time rather than
   stored, so the verdict can be shown without the figure behind it.
 
-### WP3 — The child's record *(unblocked, September 2026)*
+### WP3 — The child's record *(delivered for the coach, October 2026)*
+
+> **Delivered (October 2026, migration 0070, [scope 74](./74_a_coach_sees_their_own_team.md)):**
+> the balance column is no longer selectable and comes back through
+> `app_registration_money()` (the figure for the money roles and the family,
+> the verdict for everyone else). A member whose only role is coach reads
+> their own teams' people, guardians, consents and registrations, nothing
+> of other teams, and no invitation, login link or voucher. Officers stay
+> club-wide, as the club answered #78b. `fixture` and `appearance` are not
+> narrowed here.
 
 - **Deliverables:** `registration`, `consent`, `guardianship`,
   `registration_document`, `validation_result` narrowed to the roles that

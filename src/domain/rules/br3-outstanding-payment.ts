@@ -26,6 +26,13 @@ export const br3OutstandingPayment: RegistrationRule = {
   evaluate: ({ registration, paymentPlan, payments, asAt }) => {
     const outstanding = registration.outstandingAmountCents;
 
+    // Not the reader's figure (BR78): the verdict without the amount.
+    if (outstanding === null) {
+      return registration.owesMoney
+        ? fail('BR3', 'Money is outstanding. The amount is for the treasurer and registrar (BR78).')
+        : pass('BR3', 'Nothing outstanding.');
+    }
+
     if (outstanding <= 0) {
       return pass('BR3', outstanding === 0
         ? 'Nothing outstanding.'

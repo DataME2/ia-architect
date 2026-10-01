@@ -1,6 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { formatMoney } from '../../../domain/finance/money.ts';
 import { loadMyTeams, loadRoster, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
 import { loadFixtureParticipationResponses } from '../../../data/participation.ts';
 import { nextFixture } from '../../../web/me-view.ts';
@@ -32,9 +31,8 @@ export async function CoachWorkspace({
     : await loadFixtureParticipationResponses(client, link.clubId, next.id);
 
   // BR79: registered with the federation, and still cannot take the field.
-  const cannotPlay = players.filter(
-    (p) => p.registration !== null && p.registration.outstanding_amount_cents > 0,
-  );
+  // The coach is told that money is owed, never how much (BR78, #73).
+  const cannotPlay = players.filter((p) => p.registration !== null && p.registration.owes);
   const unregistered = players.filter((p) => p.registration === null || p.registration.status !== 'COMPLETE');
 
   return (
@@ -59,8 +57,8 @@ export async function CoachWorkspace({
                     </span>
                     {p.registration === null ? (
                       <span className="pill pill-stop">Not registered</span>
-                    ) : p.registration.outstanding_amount_cents > 0 ? (
-                      <span className="pill pill-stop">{formatMoney(p.registration.outstanding_amount_cents)} owing</span>
+                    ) : p.registration.owes ? (
+                      <span className="pill pill-stop">Not clear to play</span>
                     ) : p.registration.status === 'COMPLETE' ? (
                       <span className="pill pill-ok">Registered</span>
                     ) : (
@@ -110,9 +108,9 @@ export async function CoachWorkspace({
                 {cannotPlay.map((p) => (
                   <p className="callout" key={p.person.id}>
                     <b>
-                      {displayNameFor(p.person)} — {formatMoney(p.registration!.outstanding_amount_cents)} outstanding.
+                      {displayNameFor(p.person)} — not clear to play.
                     </b>{' '}
-                    Registered with the federation, so every other screen calls this one finished. It is not.{' '}
+                    Money is owed. The amount is for the treasurer and registrar, not the coach.{' '}
                     <span className="mono" style={{ fontSize: '0.7rem' }}>BR79</span>
                   </p>
                 ))}

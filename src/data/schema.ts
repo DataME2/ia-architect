@@ -181,7 +181,13 @@ export interface RegistrationRow {
   person_id: string;
   season_id: string;
   status: RegistrationStatusRow;
-  outstanding_amount_cents: number;
+  /**
+   * Not a selectable column since 0070: filled by `withMoney` from
+   * `app_registration_money()`. Null when the figure is not the caller's to
+   * see (BR78); `owes` is then all they learn.
+   */
+  outstanding_amount_cents: number | null;
+  owes: boolean;
   created_at: InstantString;
 }
 

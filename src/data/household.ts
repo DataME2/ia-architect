@@ -16,6 +16,7 @@ import type { ChildCardInput } from '../web/household-view.ts';
 import { loadChildren } from './me.ts';
 import { toConsent, toGuardianship, toPayment, toPaymentPlan, toRegistration } from './mappers.ts';
 import { QueryError } from './queries.ts';
+import { REGISTRATION_COLUMNS, withMoney, type RegistrationBaseRow } from './registration-money.ts';
 import type {
   ConsentRow,
   GuardianshipRow,
@@ -54,15 +55,15 @@ export async function loadHousehold(
   if (children.length === 0 || seasonId === null) return children.map(unregistered);
 
   const ids = children.map((c) => c.id);
-  const regs = unwrap<RegistrationRow[]>(
+  const regs = await withMoney(client, unwrap<RegistrationBaseRow[]>(
     'registration',
     await client
       .from('registration')
-      .select('id, club_id, person_id, season_id, status, outstanding_amount_cents, created_at')
+      .select(REGISTRATION_COLUMNS)
       .eq('club_id', clubId)
       .eq('season_id', seasonId)
       .in('person_id', ids),
-  );
+  ));
   if (regs.length === 0) return children.map(unregistered);
   const regIds = regs.map((r) => r.id);
 
@@ -132,7 +133,7 @@ export async function loadHousehold(
 
     const balanceCents =
       plan === null
-        ? row.outstanding_amount_cents
+        ? (row.outstanding_amount_cents ?? 0)
         : planState(plan.totalCents, plan.installments, received, asAt).outstandingCents;
 
     return { person, status: row.status, registration: row, outcomes, balanceCents };

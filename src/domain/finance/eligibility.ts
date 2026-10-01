@@ -53,24 +53,26 @@ export interface PlayEligibility {
  */
 export function playEligibility(
   status: RegistrationStatus,
-  outstandingCents: number,
+  /** Null when the figure is not the reader's to see (BR78): `owes` decides. */
+  outstandingCents: number | null,
+  owes: boolean = (outstandingCents ?? 0) > 0,
 ): PlayEligibility {
+  const amount = outstandingCents === null ? 'money' : formatMoney(outstandingCents);
   if (!isEligibleToPlay(status)) {
     return {
       mayPlay: false,
       blockedBy: 'not-registered',
-      reason:
-        outstandingCents > 0
-          ? `Not registered with the federation, and ${formatMoney(outstandingCents)} is outstanding.`
-          : 'Not yet confirmed present in the federation’s system (BR43).',
+      reason: owes
+        ? `Not registered with the federation, and ${amount} is outstanding.`
+        : 'Not yet confirmed present in the federation’s system (BR43).',
     };
   }
 
-  if (outstandingCents > 0) {
+  if (owes) {
     return {
       mayPlay: false,
       blockedBy: 'owes-money',
-      reason: `Registered, but ${formatMoney(outstandingCents)} is outstanding — no pay, no play (BR79).`,
+      reason: `Registered, but ${amount} is outstanding — no pay, no play (BR79).`,
     };
   }
 
@@ -85,17 +87,19 @@ export function playEligibility(
  * progress; this is the pile that *looks* finished on every other screen and
  * is not — the one a coach would otherwise pick from.
  */
-export function blockedByMoney<T extends { readonly status: RegistrationStatus; readonly outstandingCents: number }>(
+export function blockedByMoney<
+  T extends { readonly status: RegistrationStatus; readonly outstandingCents: number | null; readonly owes?: boolean },
+>(
   entries: readonly T[],
 ): readonly T[] {
   return entries.filter(
-    (e) => playEligibility(e.status, e.outstandingCents).blockedBy === 'owes-money',
+    (e) => playEligibility(e.status, e.outstandingCents, e.owes).blockedBy === 'owes-money',
   );
 }
 
 /** What the club is owed across a set of registrations, ignoring credits. */
 export function totalOwed(
-  entries: readonly { readonly outstandingCents: number }[],
+  entries: readonly { readonly outstandingCents: number | null }[],
 ): number {
-  return entries.reduce((sum, e) => sum + Math.max(0, e.outstandingCents), 0);
+  return entries.reduce((sum, e) => sum + Math.max(0, e.outstandingCents ?? 0), 0);
 }

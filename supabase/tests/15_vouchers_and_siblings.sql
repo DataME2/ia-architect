@@ -263,7 +263,8 @@ begin
   end;
 
   -- 6. BR81 in effect: the balance has not moved.
-  select outstanding_amount_cents into owed from registration where id = the_reg;
+  -- Through the function since 0070: the column is not selectable (BR78).
+  select m.outstanding_amount_cents into owed from app_registration_money(array[the_reg]) m;
   if owed <> 20000 then
     failures := array_append(
       failures,

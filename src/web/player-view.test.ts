@@ -78,13 +78,13 @@ test('an ineligible appearance is flagged, and only when one happened', () => {
   // BR103: the flag exists so somebody can act on it afterwards. With no
   // appearances there is nothing to act on, however ineligible the player.
   assert.deepEqual(
-    ineligibleAppearances({ appearances: 0, outstandingCents: 5000, federationConfirmed: false }),
+    ineligibleAppearances({ appearances: 0, owes: true, federationConfirmed: false }),
     [],
   );
 
   const owing = ineligibleAppearances({
     appearances: 2,
-    outstandingCents: 5000,
+    owes: true,
     federationConfirmed: true,
   });
   assert.equal(owing.length, 1);
@@ -94,7 +94,7 @@ test('an ineligible appearance is flagged, and only when one happened', () => {
 test('both breaches are reported, not just the first', () => {
   const both = ineligibleAppearances({
     appearances: 1,
-    outstandingCents: 100,
+    owes: true,
     federationConfirmed: false,
   });
   assert.equal(both.length, 2);
@@ -102,7 +102,7 @@ test('both breaches are reported, not just the first', () => {
 
 test('an eligible player with appearances is flagged for nothing', () => {
   assert.deepEqual(
-    ineligibleAppearances({ appearances: 9, outstandingCents: 0, federationConfirmed: true }),
+    ineligibleAppearances({ appearances: 9, owes: false, federationConfirmed: true }),
     [],
   );
 });

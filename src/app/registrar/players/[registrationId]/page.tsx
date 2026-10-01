@@ -101,7 +101,7 @@ export default async function PlayerPage({
   const recent = mostRecentFirst(appearances);
   const flags = ineligibleAppearances({
     appearances: record.appearances,
-    outstandingCents: detail.entry.outstandingCents,
+    owes: detail.entry.owes,
     federationConfirmed: detail.entry.status === 'COMPLETE',
   });
 

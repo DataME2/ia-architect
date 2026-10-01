@@ -87,14 +87,15 @@ export interface IneligibleAppearance {
 
 export function ineligibleAppearances(input: {
   readonly appearances: number;
-  readonly outstandingCents: number;
+  /** BR79's money half: the figure itself is not needed, nor always readable (BR78). */
+  readonly owes: boolean;
   readonly federationConfirmed: boolean;
 }): readonly IneligibleAppearance[] {
   if (input.appearances === 0) return [];
 
   const flags: IneligibleAppearance[] = [];
 
-  if (input.outstandingCents > 0) {
+  if (input.owes) {
     flags.push({
       reason:
         'This player has taken the field with money outstanding. No pay, no play (BR79) — the club should know this happened.',
