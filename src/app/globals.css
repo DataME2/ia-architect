@@ -386,6 +386,10 @@ a:hover {
 }
 
 .masthead nav a {
+  /* 44px touch target (DESIGN.md); the padding alone made 38px. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-full);
   color: var(--muted);
@@ -948,7 +952,7 @@ button,
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: 2.6rem;
+  min-height: 2.75rem; /* DESIGN.md: 44px touch target */
   background: var(--accent);
   color: var(--accent-text);
   border: 1px solid transparent;
