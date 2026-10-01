@@ -243,3 +243,33 @@ comment on function app_registration_money(uuid[]) is
   'BR78/BR79: for each readable registration, the balance (money roles, a '
   'guardian with authority, an adult about themself; otherwise null) and '
   'whether anything is owed, the money half of "clear to play".';
+
+-- ------------------------------------------------- 0052's trigger, re-read
+-- It ran `select *` from registration as the proposing player, which the
+-- column privilege above now refuses. Same check, only the columns it uses.
+
+create or replace function assert_correction_matches_its_registration()
+returns trigger
+language plpgsql
+set search_path = public, pg_temp
+as $$
+declare
+  v_person uuid;
+  v_club   uuid;
+begin
+  select person_id, club_id into v_person, v_club from registration where id = new.registration_id;
+  if v_person is null or v_person <> new.person_id or v_club <> new.club_id then
+    raise exception 'that registration does not belong to this person and club'
+      using errcode = '23514';
+  end if;
+
+  -- BR148: the proposer must be the player themselves, eighteen or over.
+  if not coalesce(app_is_adult_on(new.person_id, current_date), false) then
+    raise exception
+      'BR148: only a player of eighteen or over may propose a correction to their own record'
+      using errcode = '23514';
+  end if;
+
+  return new;
+end;
+$$;
