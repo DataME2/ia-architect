@@ -3,7 +3,7 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** branch `claude/wp1-login-identity-to-person` (reverted in #73, because migration 0063 never reached the database), reapplied on `claude/family-reads-the-player-record` (#74); WP3 on `claude/the-club-reads-the-player-record`.
+**Delivered as:** branch `claude/wp1-login-identity-to-person` (reverted in #73, because migration 0063 never reached the database), reapplied on `claude/family-reads-the-player-record` (#74); WP3 on `claude/the-club-reads-the-player-record` (#75); WP4 on `claude/the-committee-sees-the-photograph`.
 **Status: built.**
 
 Reported as a bug (October 2026): a club administrator corrected a
@@ -30,15 +30,19 @@ because BR99 narrowed the whole row to the roles that pick teams. **BR156**
 lets every club member read the four ordinary columns, and keeps height and
 weight as narrow as before.
 
+Its photograph showed "No photo" to the same committee member, because the
+photo bucket's read policy also stopped at the roles that identify players
+(migration 0021). **BR157** names the committee among BR100's "club staff" (WP4).
+
 ## EA alignment (assessed top-down before implementing)
 
 | Layer         | Impact |
 | ------------- | ------ |
 | 1_strategy    | No change. Serves P1 (one `Person`, one record everyone reads) and P5 (the household is derived, never supplied). No principle is bent: BR99's narrowing is kept, not traded |
-| 2_business    | **New BR155 and BR156** in [5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md). No new term — "player record" and "authority" are already in the glossary's sense (BR1, BR63, BR149) |
+| 2_business    | **New BR155, BR156 and BR157** in [5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md). No new term — "player record" and "authority" are already in the glossary's sense (BR1, BR63, BR149) |
 | 3_information | No new data object. One new **read path** to `player_profile`, returning six of its columns; height and weight are never in it. A second read path for club members (BR156), with the same columns. Classification unchanged |
 | 4_application | New component row in [2_application-components.md](../ea/4_application/2_application-components.md): `app_family_player_profiles()`, `src/data/family-player-record.ts`, `src/web/player-record-view.ts`, and a record panel in both `GuardianWorkspace` and `PlayerWorkspace` |
-| 5_technology  | No change. Two migrations (0063, 0064) and two behavioural RLS suites (63, 64) |
+| 5_technology  | No change. Three migrations (0063, 0064, 0065) and two behavioural RLS suites (63, 64). 0065 changes a storage policy, which the local test Postgres cannot run (no `storage` schema), the same as 0021 |
 
 ## Plateaus
 
@@ -92,6 +96,14 @@ the whole RLS run stopped there. The fixture now computes a fifteen-year-old
   - The player page says when height and weight are not visible to the viewer's role, and shows the profile form only to roles that can save it.
 - **Outcome:** an officer's correction reads the same on the registrar's page to every member of the club. Height and weight are still seen only by the roles that pick teams.
 
+### WP4: The committee sees the photograph (BR157)
+
+- **Deliverables:**
+  - `supabase/migrations/0065_the_committee_sees_the_photograph.sql` recreates `photo_files_read` with the committee added. It is guarded like 0021, since the test Postgres has no `storage` schema.
+  - `canUploadPhotograph` in `src/web/player-profile-access.ts` (with tests).
+  - The player page shows "Add a photograph" only to the admin and registrar. Where a photograph is on file but the viewer may not see it, the page says so instead of "No photo".
+- **Outcome:** a committee member sees the photograph an officer attached. A treasurer or viewer is told it is not shown to their role.
+
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |
@@ -99,6 +111,7 @@ the whole RLS run stopped there. The fixture now computes a fifteen-year-old
 | Reading the confirmed record: person details and non-physique profile | Height and weight for the family (BR99 keeps them narrow) |
 | Guardian with authority, and the player themselves | A contact-only guardian (BR1: contact is not authority) |
 | Every club member reads positions, foot and squad number (BR156) | Height and weight for roles that do not pick teams (BR99) |
+| The committee sees the photograph on the player record (BR157) | The photograph for a treasurer or viewer, or anywhere but the player record (BR100) |
 | | A guardian *proposing* a correction for a minor (BR149 is self-only) |
 | | The identification photograph (BR56, its own consent) |
 | | Notifying the family that a correction was made |
