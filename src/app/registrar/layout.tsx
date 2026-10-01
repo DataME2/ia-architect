@@ -4,6 +4,7 @@ import { Suspense, type ReactNode } from 'react';
 import { RegistrarShell } from '../../components/ui/RegistrarShell.tsx';
 import { loadNotifications } from '../../data/inbox.ts';
 import { loadTenantContext } from '../../data/queries.ts';
+import { syncStaffWaiting } from '../../data/waiting.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
 import { isDemoClub } from '../../web/nav.ts';
 import { NotificationBell } from './_components/NotificationBell.tsx';
@@ -53,6 +54,9 @@ export default async function RegistrarLayout({
   // 0050. Fetched once with the page — the bell reads what was true when
   // this layout rendered, not a live feed; the same "the client's own
   // refresh cycle" acceptance the calendar feed makes.
+  // BR159: the staff kind only (a proposed correction), so every club
+  // screen stays one cheap query; /me synchronises the family kinds.
+  if (user !== null && tenant !== null) await syncStaffWaiting(client, tenant.clubId, tenant.roles);
   const notifications = user !== null && tenant !== null
     ? await loadNotifications(client, user.id)
     : [];

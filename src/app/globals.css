@@ -1885,6 +1885,14 @@ td {
   margin-right: 0.3rem;
 }
 
+/* The account's own bell on /me (BR159, scope 72), at the top right of the
+   workspace column, where the club screens keep theirs. */
+.me-bell {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-2);
+}
+
 /* ─────────────────────────────────────────────── acting-as banner */
 .acting-as {
   display: flex;

@@ -56,6 +56,8 @@ export async function loadNotifications(
     .from('notification')
     .select('id, kind, headline, detail, link_path, created_at, read_at')
     .eq('recipient_user_id', userId)
+    // BR159: an item that stopped waiting is retired, not deleted (0067).
+    .is('settled_at', null)
     .order('created_at', { ascending: false })
     .limit(50);
 
