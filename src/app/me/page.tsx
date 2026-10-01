@@ -1,11 +1,14 @@
 import { redirect } from 'next/navigation';
 
+import { loadNotifications } from '../../data/inbox.ts';
 import { loadMe, type ClubLink } from '../../data/me.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
+import { syncEverythingWaiting } from '../../data/waiting.ts';
 import { ROLE_HUE } from '../../web/me-view.ts';
 import { ROLE_LABEL, resolveActive, type RoleHolding } from '../../web/role-context.ts';
 import { todayIn } from '../../web/today.ts';
 import { IdentityRail } from '../_components/IdentityRail.tsx';
+import { NotificationBell } from '../registrar/_components/NotificationBell.tsx';
 import { signOutAction } from '../sign-in/actions.ts';
 import { CoachWorkspace } from './_workspaces/CoachWorkspace.tsx';
 import { CommitteeWorkspace } from './_workspaces/CommitteeWorkspace.tsx';
@@ -42,6 +45,10 @@ export default async function MePage({
 
   const today = todayIn();
   const me = await loadMe(client, user.id, today);
+  // BR159 (scope 72): whatever the workspaces show as waiting on this
+  // account goes into its own bell, retired once answered.
+  await syncEverythingWaiting(client, me, today);
+  const notifications = await loadNotifications(client, user.id);
   const active = resolveActive(me.holdings, { key: params.role ?? null, clubId: params.club ?? null });
   const link = active === null ? null : me.links.find((l) => l.clubId === active.holding.clubId) ?? null;
 
@@ -58,6 +65,9 @@ export default async function MePage({
       />
 
       <main className="work-body" id="main">
+        <div className="me-bell">
+          <NotificationBell notifications={notifications} />
+        </div>
         {active !== null && link !== null ? (
           <>
             <p className="acting-as" style={{ ['--role-hue' as string]: ROLE_HUE[active.holding.key] }}>

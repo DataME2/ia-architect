@@ -26,5 +26,7 @@ export async function markNotificationReadAction(
   if (error !== null) return formFailed(error);
 
   revalidatePath('/registrar', 'layout');
+  // BR159: the same bell sits on /me (scope 72).
+  revalidatePath('/me');
   return formOk('Marked read.');
 }
