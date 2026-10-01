@@ -2409,7 +2409,7 @@ td {
   background: transparent;
   color: var(--rail-text-2);
   border-color: var(--rail-line);
-  min-height: 2rem;
+  min-height: 2.75rem; /* DESIGN.md: 44px touch target */
   padding: 0.3rem 0.7rem;
   font-size: 0.78rem;
   box-shadow: none;
