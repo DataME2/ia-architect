@@ -1266,6 +1266,10 @@ td {
 }
 
 .registrar-nav-link {
+  /* 44px touch target (DESIGN.md); the padding alone made 38px. */
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
   padding: 0.5rem 0.7rem;
   border-radius: var(--radius-sm);
   border-left: 3px solid transparent;
