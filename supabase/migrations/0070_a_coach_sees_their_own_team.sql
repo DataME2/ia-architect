@@ -273,3 +273,11 @@ begin
   return new;
 end;
 $$;
+
+-- ------------------------------------------------- 0020's coherence check
+-- It read the fixture and registration as the caller. A coach of another
+-- team no longer reads that registration, so the check refused them as
+-- "incoherent" before BR158's policy could refuse them as not theirs. A
+-- coherence check is about the rows, not the reader.
+
+alter function assert_appearance_is_coherent() security definer set search_path = public, pg_temp;
