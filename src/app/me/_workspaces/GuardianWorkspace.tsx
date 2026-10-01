@@ -22,6 +22,8 @@ import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
 import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
 import { ConfirmMatchForm } from '../_officiating/ConfirmMatchForm.tsx';
 import { SettleClaimForm } from '../_officiating/SettleClaimForm.tsx';
+import { PayoutNominationForm } from '../_officiating/PayoutNominationForm.tsx';
+import { loadNominations } from '../../../data/payouts.ts';
 import { ComingSoon, FixtureCard, Panel, RecordLines, WorkspaceHead } from './shared.tsx';
 
 const CONSENT_LABEL: Readonly<Record<string, string>> = {
@@ -139,6 +141,9 @@ export async function GuardianWorkspace({
   // BR152: any approved claim for this household's officials, settled or
   // still waiting on a choice — the whole household, same reason as above.
   const settleable = await loadSettleableClaims(client, link.clubId, cards.map((c) => c.personId));
+  // Where each child with money owed is paid (BR161).
+  const owedTo = [...new Map(settleable.map((c) => [c.personId, c.officialName])).entries()];
+  const nominations = await loadNominations(client, link.clubId, owedTo.map(([id]) => id));
 
   const firstBlocker = card.blockers[0];
   const guardianRecorded = child.outcomes.some((o) => o.ruleId === 'BR1' && o.status === 'pass');
@@ -342,11 +347,10 @@ export async function GuardianWorkspace({
               meta={`${settleable.filter((c) => c.settlement === null).length} WAITING`}
             >
               <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
-                Money is owed for officiating. The club pays outside the platform exactly as it
-                already does for anyone &mdash; no account details are collected here, only which
-                you&rsquo;d prefer.{' '}
+                Money is owed for officiating. Choose pay or credit for each claim, and nominate where
+                a payment goes.{' '}
                 <span className="mono" style={{ fontSize: '0.7rem' }}>
-                  BR152
+                  BR152 · BR161
                 </span>
               </p>
               <ul className="check" style={{ margin: 0 }}>
@@ -354,6 +358,15 @@ export async function GuardianWorkspace({
                   <SettleClaimForm key={c.id} clubId={link.clubId} claim={c} />
                 ))}
               </ul>
+              {owedTo.map(([personId, name]) => (
+                <PayoutNominationForm
+                  key={personId}
+                  clubId={link.clubId}
+                  personId={personId}
+                  officialName={name}
+                  current={nominations.get(personId) ?? null}
+                />
+              ))}
             </Panel>
           )}
           <Panel title={`${card.name}'s next match`}>

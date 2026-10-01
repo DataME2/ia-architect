@@ -7,7 +7,8 @@ import {
   recordBatchPaid,
 } from '../../../data/claims.ts';
 import { loadRates, loadSchedules } from '../../../data/fees.ts';
-import { loadTenantContext } from '../../../data/queries.ts';
+import { simulateBatchPayout } from '../../../data/payouts.ts';
+import { loadTenantContext, recordAudit } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { previewClaim, parseDecision, canClose, canPay, type BatchSummary } from '../../../web/claim-view.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
@@ -153,4 +154,27 @@ export async function payBatchAction(_previous: FormResult, formData: FormData):
   const error = await recordBatchPaid(client, tenant.clubId, batchId, paidReference === '' ? null : paidReference, user.id);
   revalidatePath('/registrar/referee-payments');
   return error === null ? formOk('Recorded as paid.') : formFailed(error);
+}
+
+/**
+ * Pay a closed run online, simulated (BR162). The database checks the
+ * treasurer, the closed run and a live nomination for every official, and
+ * pays all or none; this only reports it and leaves an audit line.
+ */
+export async function simulatePayoutAction(_previous: FormResult, formData: FormData): Promise<FormResult> {
+  const batchId = String(formData.get('batchId') ?? '');
+  if (batchId === '') return formFailed('Which payment run?');
+
+  const { client, user, tenant } = await requireTenant();
+  const result = await simulateBatchPayout(client, batchId);
+  revalidatePath('/registrar/referee-payments');
+  if ('error' in result) return formFailed(result.error);
+
+  await recordAudit(client, tenant.clubId, user.id, {
+    action: 'referee_payout_simulated',
+    entity: 'referee_payment_batch',
+    entityId: batchId,
+    detail: { paid: result.paid, provider: 'simulation' },
+  });
+  return formOk(`Simulated: ${result.paid} payment${result.paid === 1 ? '' : 's'} recorded. No money moved.`);
 }
