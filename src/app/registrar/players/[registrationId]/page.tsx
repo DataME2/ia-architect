@@ -16,7 +16,7 @@ import {
   recordSummary,
   weightLabel,
 } from '../../../../web/player-view.ts';
-import { canWritePlayerProfile } from '../../../../web/player-profile-access.ts';
+import { canUploadPhotograph, canWritePlayerProfile } from '../../../../web/player-profile-access.ts';
 import { todayIn } from '../../../../web/today.ts';
 import { StatusPill } from '../../../_components/rules.tsx';
 import { CorrectionReview } from './CorrectionReview.tsx';
@@ -75,6 +75,8 @@ export default async function PlayerPage({
   // The roles that pick teams both read the physique and record the profile
   // (BR99, BR125); every other member reads the rest of it (BR156).
   const picksTeams = canWritePlayerProfile(tenant.roles);
+  // A photograph on file that this viewer may not see is not "no photo" (BR157).
+  const photoWithheld = detail.person.photoPath !== null && photoUrl === null;
 
   const record = seasonRecord(appearances);
   const recent = mostRecentFirst(appearances);
@@ -109,7 +111,9 @@ export default async function PlayerPage({
         <div className="player-card-head">
           <div className="player-photo">
             {photoUrl === null ? (
-              <span className="player-photo-empty">No photo</span>
+              <span className="player-photo-empty">
+                {photoWithheld ? 'Photo not shown to your role' : 'No photo'}
+              </span>
             ) : (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img src={photoUrl} alt={`Identification photograph of ${displayNameFor(detail.person)}`} />
@@ -181,13 +185,15 @@ export default async function PlayerPage({
         </p>
       ))}
 
-      <PhotoCropper
-        registrationId={registrationId}
-        personId={detail.person.id}
-        currentUrl={photoUrl}
-        currentPath={detail.person.photoPath}
-        playerName={displayNameFor(detail.person)}
-      />
+      {canUploadPhotograph(tenant.roles) && (
+        <PhotoCropper
+          registrationId={registrationId}
+          personId={detail.person.id}
+          currentUrl={photoUrl}
+          currentPath={detail.person.photoPath}
+          playerName={displayNameFor(detail.person)}
+        />
+      )}
       <CorrectionReview registrationId={registrationId} correction={pendingCorrection} />
       {picksTeams && <PlayerProfileForm registrationId={registrationId} profile={profile} />}
       <AppearanceForm
