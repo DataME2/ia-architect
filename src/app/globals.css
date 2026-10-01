@@ -920,7 +920,10 @@ input[type='radio'] {
   height: 1.1rem;
 }
 
-.check {
+/* div.check, not .check: ul.check below is the checklist, a different thing
+   with the same name, and inheriting this grid laid its items out side by
+   side (the guardian workspace's consents, matches and payments). */
+div.check {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: var(--space-3);
@@ -931,15 +934,15 @@ input[type='radio'] {
   transition: background var(--dur-fast) var(--ease);
 }
 
-.check:hover {
+div.check:hover {
   background: var(--surface-2);
 }
 
-.check input {
+div.check input {
   margin-top: 0.3rem;
 }
 
-.check label {
+div.check label {
   margin: 0;
   font-weight: 500;
 }
@@ -2204,6 +2207,17 @@ td {
   align-items: start;
   padding: 0.55rem 0;
   border-bottom: 1px solid var(--border);
+}
+
+/* A row without a status box (a match to confirm, a payment to settle) is
+   one column; the box layout squeezed its text into the 1.2rem icon track. */
+.check li:not(:has(> .box)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* In a grid the <br> between title and note is an empty row of its own. */
+.check li > br {
+  display: none;
 }
 
 .check li:last-child {
