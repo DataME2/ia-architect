@@ -40,11 +40,10 @@ const STATUS_LABEL: Record<RegistrationStatus, string> = {
 };
 
 export function StatusPill({ status }: { readonly status: RegistrationStatus }) {
+  // Red is for blocked, and a status is never that by itself — a blocking
+  // rule carries its own red pill. A draft is neutral; anything awaiting
+  // somebody is gold (DESIGN.md: pending → warning).
   const tone =
-    status === 'COMPLETE'
-      ? 'pill-ok'
-      : status === 'PENDING_EXTERNAL_REGISTRATION'
-        ? 'pill-warn'
-        : 'pill-stop';
-  return <span className={`pill ${tone}`}>{STATUS_LABEL[status]}</span>;
+    status === 'COMPLETE' ? 'pill-ok' : status === 'DRAFT' ? '' : 'pill-warn';
+  return <span className={tone === '' ? 'pill' : `pill ${tone}`}>{STATUS_LABEL[status]}</span>;
 }

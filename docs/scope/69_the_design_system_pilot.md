@@ -52,36 +52,67 @@ Verified by compiling it through `@tailwindcss/postcss`: every token class the
 components use is generated, including the half steps `ds-1.5`/`ds-2.5` and
 opacity modifiers, with no preflight in the output.
 
-## Phase 1 — every screen's frame (October 2026)
+## The academy palette (October 2026)
 
-Asked for next: *"I want that screens change according with the new design."*
-Screens move in order of reach. Phase 1 is what every screen sits inside, so
-it changes all 33 pages at once without editing any of them: each shared
-component in `src/app` keeps its interface and now renders its design-system
-counterpart.
+The club replaced the palette with *LTD - Football Academy*: Pitch Slate,
+Stadium Green, Trophy Gold, Card Red and Electric Volt, with 6/10/16px
+radii and slate shadows. Every screen reads its colours from `globals.css`
+variables, so its values were changed there, in both themes, together with
+DESIGN.md's tokens and the brand mark. No rule or class was renamed. The
+old ramp names (`--reef-*`, `--sand-*`, …) now hold the new values.
 
-| Shared component | Now renders | Fixed in the design component on the way |
-| ---------------- | ----------- | ---------------------------------------- |
-| Registrar layout | `RegistrarShell` | Rendered a second `<main>` inside the root layout's (invalid), wrapped the nav in a landmark within a landmark, and added page padding and width the app's `.shell` already sets, and a flex column that would have changed every page's spacing |
-| `RegistrarNav` | `RegistrarNav` | The app's tested destination list (`src/web/nav.ts`) is passed in — the component's own hard-coded copy would drift; full width on a phone; hidden when printing, as before |
-| `SessionStrip` | `SessionStrip` | `useMemo` after an early return (breaks React's rules of hooks); sign-out was a click callback — now a form posting the app's server action; 44px target; access levels named in words (`accessLabel`) |
-| `NotificationBell` | `NotificationBell` | 40px button and a tiny Mark-read under the 44px target; dead `animate-in` classes from a plugin not installed; sorted by recency and stamped as before; Mark-read calls the same server action |
-| `FormNotice` | `FormNotice` (**written** — the generated file was a byte-for-byte copy of `FormFieldset`) | Success now reads as success: it used the warning style, which DESIGN.md keeps for things still waiting |
-| `IdentityRail` (workspaces) | `IdentityRail` + `RoleSwitcher` | Pending-task badges were Desert Orange — the Assistant's colour only (Principle 2) — now Ochre; `role="list"` over plain links (invalid); sign-out as a form; full width and not sticky on a phone, hidden when printing, the commissioned-artwork slot kept |
+Two points in the brief were not taken as written:
 
-Also: 13 of the 28 components used hooks or event handlers without
-`'use client'`, which crashes a server-rendered screen at request time — marked.
+- **Volt stays the Assistant's only colour** (DESIGN.md Principle 2). The
+  brief also used it for calls to action, KPIs and active navigation, which
+  would stop it marking the Assistant. This stays until the club decides
+  otherwise.
+- **Dark-theme rail labels use `#94a3b8`**, not `#64748b`. The brief's value
+  is 4.3:1 on the dark rail, which is under WCAG AA. The brief's "AAA
+  throughout" is also not met: light muted text on the page background is
+  4.5:1, which is AA only.
 
-**Verified:** `npm run check` green (925 tests, accessibility, assistant
-autonomy); every class the new frame depends on — `print:hidden`, the `md:`/`lg:`
-breakpoints, the 44px targets — confirmed in the compiled CSS. **Not verified
-in a browser:** the browser tools were unavailable, so the club reviews each
-phase in its running dev server before the next.
+Two regenerated components came with it:
 
-**Next phases:** the building blocks inside pages (status pills, buttons,
-cards, tables, form fields), then screen by screen. The old CSS for the
-frame (`.registrar-shell`, `.registrar-nav-*`, `.session-strip`,
-`.identity-rail`, `.role-item`) stays until phase 1 is confirmed, then goes.
+- **`AssistantNote`** again accepted a click callback to adopt a draft, a
+  committing control that decision 1 forbids. It also named itself
+  "Tactical AI", which the assistant gate does not recognise, so a second
+  Assistant surface could have passed unnoticed. Its look went onto the
+  guarded `src/app/_components/AssistantNote.tsx` instead: a link to use
+  the draft plus Dismiss, with 44px targets and hidden when printing.
+  `design-system.css` now scans that one file, and the old `.assistant`
+  CSS is gone. Volt's hover is a new `--highlight-hover` token.
+- **`PlayerCard`** adopted as generated, except that its volt border, hover
+  and squad number now use primary (Principle 2), and stats are keyed by
+  label rather than index.
+
+## A design review of the running app (October 2026)
+
+The new palette was checked in a browser across the public pages and two
+signed-in accounts. The accounts were Karen's demo account (guardian and
+committee) and a registrar account. Twelve findings were fixed, each one
+re-checked in the browser:
+
+- **Layout.** The pages had three layout bugs:
+  - Two unrelated `.check` rules collided. As a result, the guardian
+    workspace's matches and payments collapsed to one word per line and
+    overlapped.
+  - The identity rail clipped its own content.
+  - Fields with no `type` attribute rendered unstyled. That covers more
+    than 100 inputs.
+- **Touch targets.** Buttons, header links, the registrar menu, the rail's
+  links and disclosures now meet DESIGN.md's 44px.
+- **Status colour.** A draft registration was shown in blocked red. Draft
+  is now neutral and anything awaiting somebody is gold. Red stays on the
+  rule that actually blocks. This is a presentation change only: no rule,
+  status or count changed.
+- **Spacing.** Text-only cards, role cards and the demo form.
+
+Not changed, for the club to decide:
+
+- The role hues (`ROLE_HUE`) are still the landscape palette.
+- The hero's volt accents.
+- The orphaned fifth card on the home page.
 
 ## EA alignment
 

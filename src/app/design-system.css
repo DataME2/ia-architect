@@ -6,7 +6,8 @@
  * 1. No preflight. globals.css is the app's base; Tailwind's reset would
  *    restyle every existing heading, button and table.
  * 2. Utilities are generated only from src/components/ui — `source(none)`
- *    plus one @source — so a class name an existing screen happens to use
+ *    plus two @source lines (the library, and the Assistant's one surface in
+ *    src/app) — so a class name an existing screen happens to use
  *    (`hidden`, `grid`, …) never picks up Tailwind CSS by accident.
  * 3. Every colour points at a globals.css variable rather than repeating a
  *    hex value. DESIGN.md's tokens were derived from those variables and
@@ -25,6 +26,8 @@
 @import 'tailwindcss/utilities.css' source(none);
 
 @source '../components/ui';
+/* The Assistant's one surface lives in src/app (scripts/check_assistant.py). */
+@source './_components/AssistantNote.tsx';
 
 @theme {
   /* Surfaces and text */
@@ -38,7 +41,7 @@
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
 
-  /* Deep Reef — structure and primary actions */
+  /* Pitch slate — structure and primary actions */
   --color-primary: var(--accent);
   --color-primary-hover: var(--accent-hover);
   --color-primary-soft: var(--accent-soft);
@@ -46,8 +49,9 @@
   --color-secondary: var(--surface-2);
   --color-secondary-foreground: var(--text);
 
-  /* Desert Orange — the Assistant's only (DESIGN.md Principle 2) */
+  /* Electric volt — the Assistant's only (DESIGN.md Principle 2) */
   --color-accent: var(--highlight);
+  --color-accent-hover: var(--highlight-hover);
   --color-accent-foreground: var(--accent-text);
 
   /* Status families: background, text, and the dot beside it */
@@ -81,12 +85,12 @@
   --spacing-ds-6: var(--space-6);
   --spacing-ds-7: var(--space-7);
 
-  /* rounded / rounded-DEFAULT are the card radius (12px) */
+  /* rounded / rounded-DEFAULT are the card radius (10px) */
   --radius-DEFAULT: var(--radius);
 
   /* Shadows are inlined by Tailwind, so they are stated here (DESIGN.md) */
-  --shadow-xs: 0 1px 2px rgb(25 20 17 / 6%);
-  --shadow-sm: 0 1px 2px rgb(25 20 17 / 5%), 0 2px 8px rgb(25 20 17 / 6%);
-  --shadow-md: 0 2px 6px rgb(25 20 17 / 7%), 0 12px 28px rgb(25 20 17 / 9%);
-  --shadow-lg: 0 4px 10px rgb(25 20 17 / 8%), 0 22px 46px rgb(25 20 17 / 13%);
+  --shadow-xs: 0 1px 2px rgb(15 23 42 / 5%);
+  --shadow-sm: 0 1px 3px rgb(15 23 42 / 8%), 0 1px 2px rgb(15 23 42 / 4%);
+  --shadow-md: 0 4px 12px rgb(15 23 42 / 8%), 0 2px 4px rgb(15 23 42 / 4%);
+  --shadow-lg: 0 12px 32px rgb(15 23 42 / 12%), 0 4px 8px rgb(15 23 42 / 6%);
 }

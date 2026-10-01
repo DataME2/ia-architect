@@ -23,7 +23,7 @@ export type RegistrationStatus =
 
 export interface StatusPillProps extends React.HTMLAttributes<HTMLSpanElement> {
   /**
-   * Explicit status variant mapping to Eucalyptus (cleared), Ochre (pending), Oxide (blocked), Deep Reef (info), or Sand (neutral).
+   * Explicit status variant mapping to Stadium Green (cleared), Trophy Gold (pending), Card Red (blocked), sky (info), or Slate (neutral).
    */
   variant?: StatusPillVariant;
   /**
