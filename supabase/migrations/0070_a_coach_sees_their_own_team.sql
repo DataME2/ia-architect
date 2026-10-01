@@ -198,7 +198,7 @@ create policy registration_voucher_select on registration_voucher
 
 revoke select on registration from anon, authenticated;
 grant select (id, club_id, person_id, season_id, status, created_at)
-  on registration to authenticated;
+  on registration to anon, authenticated;
 
 -- BR78 and BR79 per registration. A row is returned only for a registration
 -- the caller may read at all (the same doors as `registration_select` and
