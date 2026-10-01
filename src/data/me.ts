@@ -21,6 +21,7 @@ import {
 } from '../domain/governance/term.ts';
 import type { Person } from '../domain/types.ts';
 import { guardianScope, holdsCommitteeRole, type FixtureLike } from '../web/me-view.ts';
+import type { OwnCredential } from '../web/officials-own-view.ts';
 import { displayNameFor, fullLegalName } from '../web/queue-view.ts';
 import { buildContexts, type RoleHolding, type RoleKey } from '../web/role-context.ts';
 import { loadGovernanceOrEmpty } from './governance.ts';
@@ -492,6 +493,45 @@ export async function loadOfficialSelfView(
     visible,
     appointments: appointments.data?.length ?? 0,
     windows: windows.data?.length ?? 0,
+  };
+}
+
+export interface OwnCredentials {
+  /** The latest classification (BR110: a history, the current one is the newest). */
+  readonly classification: { readonly level: string; readonly effectiveFrom: string; readonly sighted: boolean } | null;
+  readonly credentials: readonly OwnCredential[];
+}
+
+/**
+ * The official's own classification, accreditations and Blue Card, readable
+ * by themself since 0071 (scope 75). A revoked clearance is not listed.
+ */
+export async function loadOwnCredentials(
+  client: SupabaseClient,
+  clubId: string,
+  personId: string,
+): Promise<OwnCredentials> {
+  const [classifications, accreditations, clearances] = await Promise.all([
+    client.from('referee_classification').select('level, effective_from, sighted_at')
+      .eq('club_id', clubId).eq('person_id', personId).order('effective_from', { ascending: false }).limit(1),
+    client.from('referee_accreditation').select('kind, expires_on, verified_at')
+      .eq('club_id', clubId).eq('person_id', personId),
+    client.from('clearance').select('kind, expires_on, verified_at')
+      .eq('club_id', clubId).eq('person_id', personId).is('revoked_at', null),
+  ]);
+  for (const r of [classifications, accreditations, clearances]) {
+    if (r.error !== null) throw new QueryError('referee credentials', r.error.message);
+  }
+  const c = (classifications.data ?? [])[0] as { level: string; effective_from: string; sighted_at: string | null } | undefined;
+  const rows = (kind: string, data: unknown[] | null) =>
+    ((data ?? []) as { kind: string; expires_on: string | null; verified_at: string | null }[]).map((r) => ({
+      label: `${kind}: ${r.kind}`,
+      expiresOn: r.expires_on,
+      sighted: r.verified_at !== null,
+    }));
+  return {
+    classification: c === undefined ? null : { level: c.level, effectiveFrom: c.effective_from, sighted: c.sighted_at !== null },
+    credentials: [...rows('Accreditation', accreditations.data), ...rows('Clearance', clearances.data)],
   };
 }
 
