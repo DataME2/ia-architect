@@ -92,8 +92,8 @@ below.
 | Seasons & requirements | **W** | **W** | R | R | R | R | R |
 | Registration links | **W** | **W** | R | R | R | R | R |
 | Consents | **W** | **W** | R | R | R | R | R |
-| Payment plans & instalments | **W** | R | **W** | R | R | R | R |
-| Payments | **W** | R | **W** | R | R | R | R |
+| Payment plans & instalments | **W** | R | **W** | — | — | — | — |
+| Payments | **W** | R | **W** | — | — | — | — |
 | Vouchers — attach | **W** | **W** | **W** | R | R | R | R |
 | Vouchers — verify / reject | **W** | R | **W** | R | R | R | R |
 | Teams & rosters | **W** | **W** | R | **W** | R | R | R |
@@ -108,6 +108,8 @@ below.
 | Prospects | — | — | — | — | — | — | — |
 
 **W** = read and write · **R** = read only · **—** = no access at all
+
+*Payment plans, instalments and payments narrowed October 2026 (migration 0068, [scope 35](./35_narrowing_what_a_member_can_read.md) WP2) to admin, treasurer, registrar and IT manager, as the club's own matrix in §2c gives them. A family still reads its own.*
 
 ### Three things this table says out loud
 
