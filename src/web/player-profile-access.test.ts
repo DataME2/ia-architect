@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { canWritePlayerProfile } from './player-profile-access.ts';
+import { canUploadPhotograph, canWritePlayerProfile } from './player-profile-access.ts';
 
 describe('canWritePlayerProfile', () => {
   it('lets the roles that pick teams record the profile', () => {
@@ -22,5 +22,18 @@ describe('canWritePlayerProfile', () => {
 
   it('gives no form to a viewer with no club role at all', () => {
     assert.equal(canWritePlayerProfile([]), false);
+  });
+});
+
+describe('canUploadPhotograph', () => {
+  it('lets only the admin and registrar attach a photograph', () => {
+    assert.equal(canUploadPhotograph(['admin']), true);
+    assert.equal(canUploadPhotograph(['registrar']), true);
+  });
+
+  it('shows the photograph to coach and committee but gives them no upload (BR157)', () => {
+    for (const role of ['coach', 'coordinator', 'committee', 'treasurer']) {
+      assert.equal(canUploadPhotograph([role]), false, role);
+    }
   });
 });

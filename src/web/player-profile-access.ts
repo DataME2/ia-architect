@@ -20,3 +20,12 @@ export const PLAYER_PROFILE_WRITERS: readonly string[] = [
 export function canWritePlayerProfile(roles: readonly string[]): boolean {
   return roles.some((role) => PLAYER_PROFILE_WRITERS.includes(role));
 }
+
+/**
+ * Who may attach, replace or remove the identification photograph: the
+ * admin and registrar (BR157; the storage write policies, migration 0021).
+ * More roles may see it than may change it.
+ */
+export function canUploadPhotograph(roles: readonly string[]): boolean {
+  return roles.includes('admin') || roles.includes('registrar');
+}
