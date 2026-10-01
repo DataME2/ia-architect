@@ -634,7 +634,9 @@ h3 {
   flex-direction: column;
 }
 
-.card-grid .card > :last-child {
+/* Actions line up along the bottom of a row of cards. Only an action: a
+   card that ends in text keeps it under its heading. */
+.card-grid .card > :last-child:has(.button, button) {
   margin-top: auto;
 }
 
