@@ -1,7 +1,13 @@
 import { notFound, redirect } from 'next/navigation';
 
 import { loadRegistrationDetail, loadSeasons, loadTenantContext } from '../../../../data/queries.ts';
-import { loadAppearances, loadFixtures, loadPlayerProfile } from '../../../../data/performance.ts';
+import {
+  loadAppearances,
+  loadCoachesRegistration,
+  loadFixtures,
+  loadPlayerProfile,
+  loadRecorderNames,
+} from '../../../../data/performance.ts';
 import { photographUrl } from '../../../../data/photos.ts';
 import { loadPendingCorrection } from '../../../../data/player-record-correction.ts';
 import { createRequestClient, currentUser } from '../../../../data/server.ts';
@@ -16,7 +22,12 @@ import {
   recordSummary,
   weightLabel,
 } from '../../../../web/player-view.ts';
-import { canUploadPhotograph, canWritePlayerProfile } from '../../../../web/player-profile-access.ts';
+import {
+  canRecordAppearance,
+  canUploadPhotograph,
+  canWritePlayerProfile,
+  recorderLabel,
+} from '../../../../web/player-profile-access.ts';
 import { todayIn } from '../../../../web/today.ts';
 import { StatusPill } from '../../../_components/rules.tsx';
 import { CorrectionReview } from './CorrectionReview.tsx';
@@ -64,18 +75,26 @@ export default async function PlayerPage({
   );
   if (detail === null) notFound();
 
-  const [profile, appearances, fixtures, photoUrl, pendingCorrection] = await Promise.all([
+  const [profile, appearances, fixtures, photoUrl, pendingCorrection, coachesThePlayer] = await Promise.all([
     loadPlayerProfile(client, registrationId),
     loadAppearances(client, registrationId),
     loadFixtures(client, tenant.clubId, season.id),
     photographUrl(client, detail.person.photoPath),
     loadPendingCorrection(client, registrationId),
+    loadCoachesRegistration(client, registrationId),
   ]);
+  const recorders = await loadRecorderNames(
+    client,
+    tenant.clubId,
+    appearances.flatMap((a) => (a.recordedBy === null ? [] : [a.recordedBy])),
+  );
 
   // The roles that pick teams both read the physique and record the profile
   // (BR99, BR125); every other member reads the rest of it (BR156).
   const picksTeams = canWritePlayerProfile(tenant.roles);
   // A photograph on file that this viewer may not see is not "no photo" (BR157).
+  // BR158: the admin, registrar, coordinator, or the player's own coach.
+  const recordsAppearances = canRecordAppearance(tenant.roles, coachesThePlayer);
   const photoWithheld = detail.person.photoPath !== null && photoUrl === null;
 
   const record = seasonRecord(appearances);
@@ -196,11 +215,13 @@ export default async function PlayerPage({
       )}
       <CorrectionReview registrationId={registrationId} correction={pendingCorrection} />
       {picksTeams && <PlayerProfileForm registrationId={registrationId} profile={profile} />}
-      <AppearanceForm
-        registrationId={registrationId}
-        personId={detail.person.id}
-        fixtures={fixtureOptions}
-      />
+      {recordsAppearances && (
+        <AppearanceForm
+          registrationId={registrationId}
+          personId={detail.person.id}
+          fixtures={fixtureOptions}
+        />
+      )}
 
       <h3>Appearances</h3>
       {recent.length === 0 ? (
@@ -218,6 +239,7 @@ export default async function PlayerPage({
                 <th>Min</th>
                 <th>G</th>
                 <th>A</th>
+                <th>Recorded</th>
               </tr>
             </thead>
             <tbody>
@@ -233,6 +255,12 @@ export default async function PlayerPage({
                   <td>{a.minutesPlayed}</td>
                   <td>{a.goals}</td>
                   <td>{a.assists}</td>
+                  <td className="hint">
+                    {recorderLabel(
+                      a.recordedBy === null ? null : recorders.get(a.recordedBy),
+                      a.recordedAt,
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
