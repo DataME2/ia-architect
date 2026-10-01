@@ -22,8 +22,13 @@ export interface QueueEntry {
   readonly outcomes: readonly RuleOutcome[];
   /** Unresolved BR5 candidates. A pack excludes these rather than guessing. */
   readonly duplicateCount: number;
-  /** What the registration still owes (BR3). Negative is a credit. */
-  readonly outstandingCents: number;
+  /**
+   * What the registration still owes (BR3). Negative is a credit. Null
+   * when the figure is not the reader's to see (BR78, scope 74).
+   */
+  readonly outstandingCents: number | null;
+  /** Whether anything is owed: BR79's money half, which every reader gets. */
+  readonly owes: boolean;
 }
 
 /**
@@ -34,7 +39,7 @@ export interface QueueEntry {
  * Tuesday.
  */
 export function eligibilityOf(entry: QueueEntry): PlayEligibility {
-  return playEligibility(entry.status, entry.outstandingCents);
+  return playEligibility(entry.status, entry.outstandingCents, entry.owes);
 }
 
 /**
@@ -47,6 +52,7 @@ export function eligibilityOf(entry: QueueEntry): PlayEligibility {
  * is exactly what keeps the child off the field.
  */
 export function moneyNote(entry: QueueEntry): string | null {
+  if (entry.outstandingCents === null) return entry.owes ? 'Money outstanding' : null;
   if (entry.outstandingCents > 0) return `${formatMoney(entry.outstandingCents)} outstanding`;
   if (entry.outstandingCents < 0) {
     return `${formatMoney(-entry.outstandingCents)} in credit`;
@@ -160,14 +166,14 @@ export function unpaidButRegistered(
 ): readonly QueueEntry[] {
   return entries
     .filter((e) => eligibilityOf(e).blockedBy === 'owes-money')
-    .sort((a, b) => b.outstandingCents - a.outstandingCents);
+    .sort((a, b) => (b.outstandingCents ?? 0) - (a.outstandingCents ?? 0));
 }
 
 /** Everyone the club is owed money by, most owed first. */
 export function owing(entries: readonly QueueEntry[]): readonly QueueEntry[] {
   return entries
-    .filter((e) => e.outstandingCents > 0)
-    .sort((a, b) => b.outstandingCents - a.outstandingCents);
+    .filter((e) => e.owes)
+    .sort((a, b) => (b.outstandingCents ?? 0) - (a.outstandingCents ?? 0));
 }
 
 export interface BlockerCount {

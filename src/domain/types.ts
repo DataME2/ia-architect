@@ -130,8 +130,13 @@ export interface Registration {
   readonly status: RegistrationStatus;
   readonly requiredDocumentTypes: readonly string[];
   readonly providedDocumentTypes: readonly string[];
-  /** Cents, to avoid float money. Zero means nothing outstanding. */
-  readonly outstandingAmountCents: number;
+  /**
+   * Cents, to avoid float money. Zero means nothing outstanding. Null when
+   * the figure is not the reader's to see (BR78, scope 74): `owesMoney`
+   * still carries BR79's half of the verdict.
+   */
+  readonly outstandingAmountCents: number | null;
+  readonly owesMoney: boolean;
 }
 
 /** Age in whole years at `asAt`. */

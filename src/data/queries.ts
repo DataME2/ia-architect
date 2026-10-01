@@ -38,6 +38,7 @@ import {
   type RoleSummary,
 } from '../web/people-view.ts';
 import { displayNameFor, fullLegalName, type QueueEntry } from '../web/queue-view.ts';
+import { REGISTRATION_COLUMNS, withMoney, type RegistrationBaseRow } from './registration-money.ts';
 import {
   toConsent,
   toGuardianship,
@@ -292,14 +293,14 @@ async function loadSlice(
   clubId: string,
   seasonId: string,
 ): Promise<SliceData> {
-  const registrations = unwrap<RegistrationRow[]>(
+  const registrations = await withMoney(client, unwrap<RegistrationBaseRow[]>(
     'registration',
     await client
       .from('registration')
-      .select('id, club_id, person_id, season_id, status, outstanding_amount_cents, created_at')
+      .select(REGISTRATION_COLUMNS)
       .eq('club_id', clubId)
       .eq('season_id', seasonId),
-  );
+  ));
 
   // Merged tombstones are excluded everywhere they would otherwise be
   // matched or listed: a resolved duplicate must not come back as a new one
@@ -487,6 +488,7 @@ export async function loadQueue(
       outcomes,
       duplicateCount: duplicates.length,
       outstandingCents: registration.outstandingAmountCents,
+      owes: registration.owesMoney,
     });
   }
 
@@ -585,6 +587,7 @@ export async function loadRegistrationDetail(
       outcomes,
       duplicateCount: duplicates.length,
       outstandingCents: registration.outstandingAmountCents,
+      owes: registration.owesMoney,
     },
     person,
     documents,
@@ -1177,14 +1180,14 @@ export async function loadDuplicates(
 
   const involved = [...new Set(pairs.flatMap((p) => [p.aId, p.bId]))];
 
-  const registrations = unwrap<RegistrationRow[]>(
+  const registrations = await withMoney(client, unwrap<RegistrationBaseRow[]>(
     'registration',
     await client
       .from('registration')
-      .select('id, club_id, person_id, season_id, status, outstanding_amount_cents, created_at')
+      .select(REGISTRATION_COLUMNS)
       .eq('club_id', clubId)
       .in('person_id', involved),
-  );
+  ));
 
   const guardianships = unwrap<GuardianshipRow[]>(
     'guardianship',

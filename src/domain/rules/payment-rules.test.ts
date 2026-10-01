@@ -30,6 +30,19 @@ describe('BR3 without a payment plan — the original rule, unchanged', () => {
   });
 });
 
+describe('BR3 for a reader without the figure (BR78, scope 74)', () => {
+  test('owing fails without naming an amount', () => {
+    const outcome = evaluate({ registration: registration({ outstandingAmountCents: null, owesMoney: true }) });
+    assert.equal(outcome.status, 'fail');
+    assert.doesNotMatch(outcome.message, /\$/);
+  });
+
+  test('owing nothing passes', () => {
+    const outcome = evaluate({ registration: registration({ outstandingAmountCents: null, owesMoney: false }) });
+    assert.equal(outcome.status, 'pass');
+  });
+});
+
 describe('BR3 with a payment plan — no pay, no play is absolute (BR79)', () => {
   test('a family up to date on a plan still fails, because they still owe', () => {
     // The club's policy is absolute: a plan schedules the debt, it does not

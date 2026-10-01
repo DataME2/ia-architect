@@ -36,7 +36,7 @@ function QueueCard({ entry }: { readonly entry: QueueEntry }) {
         </div>
         <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
           {money !== null && (
-            <span className={entry.outstandingCents > 0 ? 'pill pill-stop' : 'pill pill-ok'}>
+            <span className={entry.owes ? 'pill pill-stop' : 'pill pill-ok'}>
               {money}
             </span>
           )}
@@ -237,7 +237,7 @@ export default async function RegistrarPage({
                         {entry.displayName}
                       </a>
                     </td>
-                    <td>{formatMoney(entry.outstandingCents)}</td>
+                    <td>{entry.outstandingCents === null ? 'Owes (BR78)' : formatMoney(entry.outstandingCents)}</td>
                   </tr>
                 ))}
               </tbody>

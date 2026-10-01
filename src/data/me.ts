@@ -26,6 +26,7 @@ import { buildContexts, type RoleHolding, type RoleKey } from '../web/role-conte
 import { loadGovernanceOrEmpty } from './governance.ts';
 import { toPerson } from './mappers.ts';
 import { QueryError } from './queries.ts';
+import { REGISTRATION_COLUMNS, withMoney, type RegistrationBaseRow } from './registration-money.ts';
 import type {
   ClubMembershipRow,
   ClubRow,
@@ -229,11 +230,11 @@ export async function loadMe(client: SupabaseClient, userId: string, today: stri
       const children = await loadChildren(client, link.club_id, link.person_id);
       childNames = children.map(displayNameFor);
       if (season !== null && children.length > 0) {
-        const regs = unwrap<RegistrationRow[]>(
+        const regs = unwrap<RegistrationBaseRow[]>(
           'registration',
           await client
             .from('registration')
-            .select('id, club_id, person_id, season_id, status, outstanding_amount_cents, created_at')
+            .select(REGISTRATION_COLUMNS)
             .eq('club_id', link.club_id)
             .eq('season_id', season.id)
             .in('person_id', children.map((c) => c.id)),
@@ -367,16 +368,16 @@ export async function loadMyRegistration(
   seasonId: string,
   personId: string,
 ): Promise<RegistrationRow | null> {
-  const rows = unwrap<RegistrationRow[]>(
+  const rows = await withMoney(client, unwrap<RegistrationBaseRow[]>(
     'registration',
     await client
       .from('registration')
-      .select('id, club_id, person_id, season_id, status, outstanding_amount_cents, created_at')
+      .select(REGISTRATION_COLUMNS)
       .eq('club_id', clubId)
       .eq('season_id', seasonId)
       .eq('person_id', personId)
       .limit(1),
-  );
+  ));
   return rows[0] ?? null;
 }
 
@@ -403,13 +404,14 @@ export async function loadRoster(
     client.from('person').select('*').eq('club_id', clubId).in('id', ids),
     client
       .from('registration')
-      .select('id, club_id, person_id, season_id, status, outstanding_amount_cents, created_at')
+      .select(REGISTRATION_COLUMNS)
       .eq('club_id', clubId)
       .eq('season_id', seasonId)
       .in('person_id', ids),
   ]);
   const personRows = unwrap<PersonRow[]>('person', people);
-  const regRows = unwrap<RegistrationRow[]>('registration', regs);
+  // A coach learns whether a player owes, never how much (BR78, scope 74).
+  const regRows = await withMoney(client, unwrap<RegistrationBaseRow[]>('registration', regs));
   return members.flatMap((m) => {
     const row = personRows.find((p) => p.id === m.person_id);
     if (row === undefined) return [];

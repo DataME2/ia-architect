@@ -129,6 +129,8 @@ export default async function RegistrationDetailPage({
   // BR78, #73: a coach, the committee and the coordinator read no plan (0068),
   // so an empty plan for them means "not yours to see", never "none agreed".
   const readsMoney = canReadMoney(tenant.roles);
+  // The figure, which 0070 returns exactly where readsMoney holds.
+  const owed = entry.outstandingCents ?? 0;
   const canTouchMoney =
     tenant.roles.includes('admin') || tenant.roles.includes('treasurer');
   const blocking = failing(entry);
@@ -527,19 +529,19 @@ export default async function RegistrationDetailPage({
             ) : (
               <>
                 <p className="hint" style={{ marginTop: 0 }}>
-                  {entry.outstandingCents > 0
-                    ? `${formatCents(entry.outstandingCents)} is due in full — no payment plan has been agreed.`
-                    : entry.outstandingCents < 0
-                      ? `The club holds a credit of ${formatCents(-entry.outstandingCents)}. BR3 does not treat a credit as an obstacle — blocking a child over money the club owes them would be the wrong way round.`
+                  {owed > 0
+                    ? `${formatCents(owed)} is due in full — no payment plan has been agreed.`
+                    : owed < 0
+                      ? `The club holds a credit of ${formatCents(-owed)}. BR3 does not treat a credit as an obstacle — blocking a child over money the club owes them would be the wrong way round.`
                       : 'Nothing outstanding.'}
                 </p>
-                {canTouchMoney && season !== undefined && entry.outstandingCents > 0 && (
+                {canTouchMoney && season !== undefined && owed > 0 && (
                   <>
                     <h4>Agree a payment plan</h4>
                     <NewPlanForm
                       registrationId={registrationId}
                       seasonId={seasonId}
-                      suggestedTotalCents={entry.outstandingCents}
+                      suggestedTotalCents={owed}
                       seasonEndsOn={season.ends_on}
                     />
                   </>
@@ -547,7 +549,7 @@ export default async function RegistrationDetailPage({
                 <OutstandingForm
                   registrationId={registrationId}
                   seasonId={seasonId}
-                  outstandingCents={entry.outstandingCents}
+                  outstandingCents={owed}
                 />
               </>
             )}

@@ -102,6 +102,7 @@ export function toRegistration(
     requiredDocumentTypes: required,
     providedDocumentTypes: provided,
     outstandingAmountCents: row.outstanding_amount_cents,
+    owesMoney: row.owes,
   };
 }
 

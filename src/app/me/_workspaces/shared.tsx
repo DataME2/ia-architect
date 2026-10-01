@@ -114,14 +114,15 @@ export function RegistrationPill({
   outstandingCents,
 }: {
   readonly status: RegistrationStatusRow;
-  readonly outstandingCents: number;
+  /** Null when the figure is not the viewer's (BR78): a player under 18 sees no money. */
+  readonly outstandingCents: number | null;
 }) {
   const tone =
     status === 'COMPLETE' ? 'pill-ok' : status === 'PENDING_EXTERNAL_REGISTRATION' ? 'pill-warn' : 'pill-stop';
   return (
     <span style={{ display: 'inline-flex', gap: '0.4rem', flexWrap: 'wrap' }}>
       <span className={`pill ${tone}`}>{STATUS_LABEL[status]}</span>
-      {outstandingCents > 0 && <span className="pill pill-stop">{formatMoney(outstandingCents)} outstanding</span>}
+      {outstandingCents !== null && outstandingCents > 0 && <span className="pill pill-stop">{formatMoney(outstandingCents)} outstanding</span>}
     </span>
   );
 }

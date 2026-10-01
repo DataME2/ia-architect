@@ -18,7 +18,7 @@ import {
 } from './queue-view.ts';
 
 function entry(overrides: Partial<QueueEntry> = {}): QueueEntry {
-  return {
+  const e = {
     registrationId: 'reg-1',
     personId: 'person-1',
     displayName: 'Alex Nguyen',
@@ -29,6 +29,7 @@ function entry(overrides: Partial<QueueEntry> = {}): QueueEntry {
     outstandingCents: 0,
     ...overrides,
   };
+  return { ...e, owes: overrides.owes ?? (e.outstandingCents ?? 0) > 0 };
 }
 
 describe('naming (BR55)', () => {

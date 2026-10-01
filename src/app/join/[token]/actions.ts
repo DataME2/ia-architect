@@ -113,6 +113,7 @@ export async function submitJoinAction(
       requiredDocumentTypes: [],
       providedDocumentTypes: [],
       outstandingAmountCents: 0,
+      owesMoney: false,
     },
     person: {
       id: '',

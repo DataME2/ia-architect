@@ -194,11 +194,12 @@ export async function recordHandover(
   // Move each covered registration to the eligibility gate.
   const personIds = pack.manifest.map((r) => r.personId);
   if (personIds.length > 0) {
-    const affected = unwrap<RegistrationRow[]>(
+    const affected = unwrap<Pick<RegistrationRow, 'id' | 'status'>[]>(
       'registration',
       await client
         .from('registration')
-        .select('*')
+        // Not '*': the balance column is not selectable since 0070.
+        .select('id, status')
         .eq('club_id', clubId)
         .eq('season_id', pack.season_id)
         .in('person_id', personIds),
@@ -254,11 +255,11 @@ export async function recordSubmissionOutcome(
     .eq('club_id', clubId);
   if (recordError !== null) throw new QueryError('submission_record', recordError.message);
 
-  const registrations = unwrap<RegistrationRow[]>(
+  const registrations = unwrap<Pick<RegistrationRow, 'id' | 'status'>[]>(
     'registration',
     await client
       .from('registration')
-      .select('*')
+      .select('id, status')
       .eq('club_id', clubId)
       .eq('season_id', seasonId)
       .eq('person_id', personId)

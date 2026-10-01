@@ -54,6 +54,7 @@ export function registration(overrides: Partial<Registration> = {}): Registratio
     requiredDocumentTypes: ['birth-certificate'],
     providedDocumentTypes: ['birth-certificate'],
     outstandingAmountCents: 0,
+    owesMoney: false,
     ...overrides,
   };
 }

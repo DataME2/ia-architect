@@ -17,6 +17,7 @@ import type { Payment, PaymentMethod, PaymentPlan, PlanCadence } from '../domain
 import type { IsoDate } from '../domain/types.ts';
 import { toPayment, toPaymentPlan } from './mappers.ts';
 import { QueryError, recordAudit } from './queries.ts';
+import { withMoney, type RegistrationBaseRow } from './registration-money.ts';
 import type { PaymentInstallmentRow, PaymentPlanRow, PaymentRow } from './schema.ts';
 
 function unwrap<T>(table: string, result: { data: T | null; error: { message: string } | null }): T {
@@ -251,15 +252,7 @@ export async function recordPayment(
   const outstanding =
     plan !== null
       ? plan.totalCents - totalReceived(payments)
-      : unwrap<{ outstanding_amount_cents: number }[]>(
-          'registration',
-          await client
-            .from('registration')
-            .select('outstanding_amount_cents')
-            .eq('id', registrationId)
-            .eq('club_id', clubId)
-            .limit(1),
-        )[0]?.outstanding_amount_cents ?? 0;
+      : (await withMoney(client, [{ id: registrationId } as RegistrationBaseRow]))[0]?.outstanding_amount_cents ?? 0;
 
   const nextOutstanding = plan !== null ? outstanding : outstanding - input.amountCents;
 
