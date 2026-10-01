@@ -837,6 +837,9 @@ label {
   text-wrap: pretty;
 }
 
+/* input:not([type]) is a text input too: most of the app's forms omit the
+   attribute, and without it those fields fell back to the browser default. */
+input:not([type]),
 input[type='text'],
 input[type='email'],
 input[type='tel'],
