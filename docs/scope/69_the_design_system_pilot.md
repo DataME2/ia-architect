@@ -86,6 +86,34 @@ Two regenerated components came with it:
   and squad number now use primary (Principle 2), and stats are keyed by
   label rather than index.
 
+## A design review of the running app (October 2026)
+
+The new palette was checked in a browser across the public pages and two
+signed-in accounts. The accounts were Karen's demo account (guardian and
+committee) and a registrar account. Twelve findings were fixed, each one
+re-checked in the browser:
+
+- **Layout.** The pages had three layout bugs:
+  - Two unrelated `.check` rules collided. As a result, the guardian
+    workspace's matches and payments collapsed to one word per line and
+    overlapped.
+  - The identity rail clipped its own content.
+  - Fields with no `type` attribute rendered unstyled. That covers more
+    than 100 inputs.
+- **Touch targets.** Buttons, header links, the registrar menu, the rail's
+  links and disclosures now meet DESIGN.md's 44px.
+- **Status colour.** A draft registration was shown in blocked red. Draft
+  is now neutral and anything awaiting somebody is gold. Red stays on the
+  rule that actually blocks. This is a presentation change only: no rule,
+  status or count changed.
+- **Spacing.** Text-only cards, role cards and the demo form.
+
+Not changed, for the club to decide:
+
+- The role hues (`ROLE_HUE`) are still the landscape palette.
+- The hero's volt accents.
+- The orphaned fifth card on the home page.
+
 ## EA alignment
 
 | Layer | Impact |
