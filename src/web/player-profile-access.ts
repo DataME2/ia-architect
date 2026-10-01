@@ -1,3 +1,5 @@
+import { DEFAULT_TIME_ZONE, todayIn } from './today.ts';
+
 /**
  * Who may write a player's profile (BR99, BR125), and so who sees its form.
  *
@@ -28,4 +30,28 @@ export function canWritePlayerProfile(roles: readonly string[]): boolean {
  */
 export function canUploadPhotograph(roles: readonly string[]): boolean {
   return roles.includes('admin') || roles.includes('registrar');
+}
+
+/**
+ * Who may record a player's appearance (BR158): the admin, registrar or
+ * coordinator, or the player's own coach, which the database works out
+ * (`app_coaches_registration`, 0066) and the caller passes in.
+ */
+export function canRecordAppearance(roles: readonly string[], coachesThePlayer: boolean): boolean {
+  return coachesThePlayer || roles.some((r) => r === 'admin' || r === 'registrar' || r === 'coordinator');
+}
+
+/**
+ * Who recorded an appearance and when (BR101), as the table shows it. An
+ * account linked to no Person is named as such, never guessed at, and a row
+ * from before the database kept the recorder (null) says that instead. The day is
+ * the club's, not the server's: a Brisbane morning is still yesterday in UTC.
+ */
+export function recorderLabel(
+  name: string | null | undefined,
+  recordedAt: string,
+  timeZone: string = DEFAULT_TIME_ZONE,
+): string {
+  const who = name === null ? 'Recorder not on file' : (name ?? 'An account with no linked person');
+  return `${who} · ${todayIn(timeZone, new Date(recordedAt))}`;
 }

@@ -100,7 +100,7 @@ below.
 | Clearances (WWCC) | **W** | **W** | — | — | — | — | — |
 | Committee terms & positions | **W** | R | R | R | R | R | R |
 | Fixtures | **W** | **W** | R | **W** | R | **W** | R |
-| Appearances & statistics | **W** | **W** | R | **W** | R | **W** | R |
+| Appearances & statistics | **W** | **W** | R | **W** | R | **W** own players ([BR158](../ea/2_business/5_domain-context-and-rules.md), [scope 71](./71_who_records_an_appearance.md)) | R |
 | Player physique (height, weight) | **W** | **W** | — | **W** | — | R | — |
 | Club membership (who has access) | **W** | R | R | R | R | R | R |
 | Submission packs | **W** | **W** | R | R | R | R | R |

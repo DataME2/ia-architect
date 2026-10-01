@@ -126,3 +126,62 @@ export async function loadFixtures(
       .order('played_on', { ascending: false }),
   );
 }
+
+/**
+ * Whether the signed-in user coaches this registration's player: a coach or
+ * assistant coach on a team the player is on that season (BR158, 0066). The
+ * database derives the answer; the page only uses it to offer the form.
+ */
+export async function loadCoachesRegistration(
+  client: SupabaseClient,
+  registrationId: string,
+): Promise<boolean> {
+  const { data, error } = await client.rpc('app_coaches_registration', {
+    p_registration_id: registrationId,
+  });
+  if (error !== null) throw new QueryError('app_coaches_registration', error.message);
+  return data === true;
+}
+
+/**
+ * The name behind each recorder's account (BR101: each row records whose).
+ * A recorder whose login is linked to no Person is absent from the map, and
+ * the screen says so rather than inventing a name.
+ */
+export async function loadRecorderNames(
+  client: SupabaseClient,
+  clubId: string,
+  userIds: readonly string[],
+): Promise<ReadonlyMap<string, string>> {
+  if (userIds.length === 0) return new Map();
+  const links = unwrap<{ user_id: string; person_id: string }[]>(
+    'account_person',
+    await client
+      .from('account_person')
+      .select('user_id, person_id')
+      .eq('club_id', clubId)
+      .in('user_id', [...new Set(userIds)]),
+  );
+  if (links.length === 0) return new Map();
+  const people = unwrap<
+    { id: string; preferred_name: string | null; legal_given_names: string; legal_family_name: string }[]
+  >(
+    'person',
+    await client
+      .from('person')
+      .select('id, preferred_name, legal_given_names, legal_family_name')
+      .in('id', links.map((l) => l.person_id)),
+  );
+  const nameOf = new Map(
+    people.map((p) => [
+      p.id,
+      `${p.preferred_name?.trim() || p.legal_given_names} ${p.legal_family_name}`,
+    ]),
+  );
+  return new Map(
+    links.flatMap((l) => {
+      const name = nameOf.get(l.person_id);
+      return name === undefined ? [] : [[l.user_id, name] as const];
+    }),
+  );
+}
