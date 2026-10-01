@@ -346,6 +346,8 @@ export interface SettleableClaim {
   readonly playedOn: string;
   readonly amountCents: number;
   readonly settlement: 'pay' | 'credit' | null;
+  readonly state: 'raised' | 'approved' | 'rejected';
+  readonly batchId: string | null;
 }
 
 /**
@@ -359,6 +361,8 @@ export async function loadSettleableClaims(
   client: SupabaseClient,
   clubId: string,
   personIds: readonly string[],
+  /** Approved only for BR152's question; every state for "Owed to you" (scope 75). */
+  states: readonly SettleableClaim['state'][] = ['approved'],
 ): Promise<readonly SettleableClaim[]> {
   if (personIds.length === 0) return [];
 
@@ -372,11 +376,18 @@ export async function loadSettleableClaims(
 
   const { data: claims } = await client
     .from('referee_payment_claim')
-    .select('id, appointment_id, amount_cents, state, settlement')
+    .select('id, appointment_id, amount_cents, state, settlement, batch_id')
     .eq('club_id', clubId)
-    .eq('state', 'approved')
+    .in('state', states)
     .in('appointment_id', apptIds.map((a) => a.id));
-  const rows = (claims ?? []) as { id: string; appointment_id: string; amount_cents: number; settlement: string | null }[];
+  const rows = (claims ?? []) as {
+    id: string;
+    appointment_id: string;
+    amount_cents: number;
+    state: string;
+    settlement: string | null;
+    batch_id: string | null;
+  }[];
   if (rows.length === 0) return [];
 
   const personOfAppt = new Map(apptIds.map((a) => [a.id, a.person_id]));
@@ -414,6 +425,8 @@ export async function loadSettleableClaims(
       playedOn: fixture.played_on,
       amountCents: Number(c.amount_cents),
       settlement: (c.settlement as SettleableClaim['settlement']) ?? null,
+      state: c.state as SettleableClaim['state'],
+      batchId: c.batch_id ?? null,
     });
   }
   return out;

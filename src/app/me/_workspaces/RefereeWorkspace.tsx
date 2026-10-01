@@ -2,10 +2,15 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { loadFamilyDesignations } from '../../../data/designations.ts';
 import { loadConfirmableAppointments } from '../../../data/match-confirmation.ts';
-import { loadOfficialSelfView, type ClubLink } from '../../../data/me.ts';
+import { loadSettleableClaims } from '../../../data/claims.ts';
+import { loadOfficialSelfView, loadOwnCredentials, type ClubLink } from '../../../data/me.ts';
+import { formatMoney } from '../../../domain/finance/money.ts';
+import { isAdultOn } from '../../../web/designation-answer.ts';
+import { claimStanding, credentialStanding } from '../../../web/officials-own-view.ts';
+import { SettleClaimForm } from '../_officiating/SettleClaimForm.tsx';
 import { ConfirmMatchForm } from '../_officiating/ConfirmMatchForm.tsx';
 import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
-import { ComingSoon, Panel, WorkspaceHead } from './shared.tsx';
+import { Panel, WorkspaceHead } from './shared.tsx';
 import { loadSubscription } from '../../../data/calendar.ts';
 import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
 
@@ -23,8 +28,8 @@ import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
  * person to their own designations so that BR113's question can reach the
  * guardian it is addressed to; the adult official reached by the same
  * policy is the half of BR65 that came with it. The referee record itself —
- * classification, accreditation, what is owed — is still the coordinator's,
- * and still says so.
+ * classification, accreditation, what is owed — is the official's to read
+ * too since scope 75 (0071), their own and nobody else's.
  */
 export async function RefereeWorkspace({
   client,
@@ -45,6 +50,15 @@ export async function RefereeWorkspace({
   // BR151 as restated by scope 73: from thirteen on the day, the official
   // confirms their own match. Under thirteen it stays the guardian's.
   const confirmable = await loadConfirmableAppointments(client, link.clubId, [link.personId], today, 'self');
+
+  // The official's own side (scope 75): every claim, and the record that
+  // decides whether they may be appointed (readable by themself since 0071).
+  const [claims, standing] = await Promise.all([
+    loadSettleableClaims(client, link.clubId, [link.personId], ['raised', 'approved', 'rejected']),
+    loadOwnCredentials(client, link.clubId, link.personId),
+  ]);
+  // BR152 still stops at eighteen: under it, the guardian chooses pay or credit.
+  const choosesOwnSettlement = isAdultOn(link.person.dateOfBirth, today);
 
   // The calendar feed, from the official's own side (scope 41).
   const subscription = await loadSubscription(client, link.clubId, link.personId);
@@ -92,13 +106,76 @@ export async function RefereeWorkspace({
           </Panel>
         </div>
         <div className="stack">
-          <ComingSoon title="Accreditation" waitsOn="the same read policy — C4 built it for the coordinator">
-            Your classification, your Blue Card and its expiry, and whether the club has sighted them.
-          </ComingSoon>
-          <ComingSoon title="Owed to you" waitsOn="C5 referee finance, and a claims view for the official">
-            Matches officiated and what is unpaid — paid by whoever made the appointment, the association or
-            the club.
-          </ComingSoon>
+          <Panel title="Accreditation">
+            {standing.classification === null && standing.credentials.length === 0 ? (
+              <p className="empty" style={{ margin: 0 }}>
+                The club has not recorded a classification, accreditation or Blue Card for you yet.
+              </p>
+            ) : (
+              <ul className="check" style={{ margin: 0 }}>
+                {standing.classification !== null && (
+                  <li>
+                    <span className="ctitle">Classification: {standing.classification.level}</span>
+                    <br />
+                    <span className="cnote">
+                      From {standing.classification.effectiveFrom};{' '}
+                      {standing.classification.sighted ? 'sighted by the club' : 'not yet sighted by the club'}.
+                    </span>
+                  </li>
+                )}
+                {standing.credentials.map((c) => {
+                  const st = credentialStanding(c, today);
+                  return (
+                    <li key={c.label + (c.expiresOn ?? '')}>
+                      <span className="ctitle">{c.label}</span>{' '}
+                      {st.tone !== 'ok' && (
+                        <span className={st.tone === 'stop' ? 'pill pill-stop' : 'pill pill-warn'}>
+                          {st.tone === 'stop' ? 'Expired' : 'Check'}
+                        </span>
+                      )}
+                      <br />
+                      <span className="cnote">{st.text}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            <p className="hint" style={{ margin: 'var(--space-1) 0 0' }}>
+              Checked against the date of each fixture, not today: an expired accreditation stops a designation{' '}
+              <span className="mono" style={{ fontSize: '0.7rem' }}>
+                BR10 · BR111
+              </span>
+            </p>
+          </Panel>
+          <Panel title="Owed to you" meta={`${claims.length} CLAIMS`}>
+            {claims.length === 0 ? (
+              <p className="empty" style={{ margin: 0 }}>
+                No claims yet. The coordinator raises one after a match is verified.
+              </p>
+            ) : (
+              <ul className="check" style={{ margin: 0 }}>
+                {claims.map((c) =>
+                  choosesOwnSettlement && c.state === 'approved' ? (
+                    <SettleClaimForm key={c.id} clubId={link.clubId} claim={c} />
+                  ) : (
+                    <li key={c.id}>
+                      <span className="ctitle">
+                        vs {c.opponent} — {c.playedOn} · {formatMoney(c.amountCents)}
+                      </span>
+                      <br />
+                      <span className="cnote">{claimStanding(c, choosesOwnSettlement)}</span>
+                    </li>
+                  ),
+                )}
+              </ul>
+            )}
+            <p className="hint" style={{ margin: 'var(--space-1) 0 0' }}>
+              Paid by the club outside the platform; no account details are ever asked for{' '}
+              <span className="mono" style={{ fontSize: '0.7rem' }}>
+                BR118 · BR152
+              </span>
+            </p>
+          </Panel>
         </div>
       </div>
     
