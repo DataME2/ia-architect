@@ -16,6 +16,7 @@ import {
   recordSummary,
   weightLabel,
 } from '../../../../web/player-view.ts';
+import { canWritePlayerProfile } from '../../../../web/player-profile-access.ts';
 import { todayIn } from '../../../../web/today.ts';
 import { StatusPill } from '../../../_components/rules.tsx';
 import { CorrectionReview } from './CorrectionReview.tsx';
@@ -70,6 +71,10 @@ export default async function PlayerPage({
     photographUrl(client, detail.person.photoPath),
     loadPendingCorrection(client, registrationId),
   ]);
+
+  // The roles that pick teams both read the physique and record the profile
+  // (BR99, BR125); every other member reads the rest of it (BR156).
+  const picksTeams = canWritePlayerProfile(tenant.roles);
 
   const record = seasonRecord(appearances);
   const recent = mostRecentFirst(appearances);
@@ -156,7 +161,12 @@ export default async function PlayerPage({
           {recordSummary(record)}
         </p>
 
-        {hasPhysique(profile) && (
+        {!picksTeams && (
+          <p className="hint" style={{ margin: '0.35rem 0 0' }}>
+            Height and weight are shown only to the roles that pick teams (BR99).
+          </p>
+        )}
+        {picksTeams && hasPhysique(profile) && (
           <p className="hint" style={{ margin: '0.35rem 0 0' }}>
             {heightLabel(profile?.heightCm ?? null) ?? 'Height not recorded'} &middot;{' '}
             {weightLabel(profile?.weightKg ?? null) ?? 'weight not recorded'}
@@ -179,7 +189,7 @@ export default async function PlayerPage({
         playerName={displayNameFor(detail.person)}
       />
       <CorrectionReview registrationId={registrationId} correction={pendingCorrection} />
-      <PlayerProfileForm registrationId={registrationId} profile={profile} />
+      {picksTeams && <PlayerProfileForm registrationId={registrationId} profile={profile} />}
       <AppearanceForm
         registrationId={registrationId}
         personId={detail.person.id}

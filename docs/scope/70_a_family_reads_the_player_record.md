@@ -3,7 +3,7 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** branch `claude/wp1-login-identity-to-person`.
+**Delivered as:** branch `claude/wp1-login-identity-to-person` (reverted in #73, because migration 0063 never reached the database), reapplied with WP3 on `claude/family-reads-the-player-record`.
 **Status: built.**
 
 Reported as a bug (October 2026): a club administrator corrected a
@@ -24,15 +24,21 @@ BR65 and BR131 already drew the line this needed: a Person sees their own
 information and that of the Persons they hold authority over. **BR155**
 states it for the player record.
 
+The same report had a second half (WP3): a **committee** member opening the
+registrar's player page saw "Position not recorded" and an empty edit form,
+because BR99 narrowed the whole row to the roles that pick teams. **BR156**
+lets every club member read the four ordinary columns, and keeps height and
+weight as narrow as before.
+
 ## EA alignment (assessed top-down before implementing)
 
 | Layer         | Impact |
 | ------------- | ------ |
 | 1_strategy    | No change. Serves P1 (one `Person`, one record everyone reads) and P5 (the household is derived, never supplied). No principle is bent: BR99's narrowing is kept, not traded |
-| 2_business    | **New BR155** in [5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md). No new term — "player record" and "authority" are already in the glossary's sense (BR1, BR63, BR149) |
-| 3_information | No new data object. One new **read path** to `player_profile`, returning six of its columns; height and weight are never in it. Classification unchanged |
+| 2_business    | **New BR155 and BR156** in [5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md). No new term — "player record" and "authority" are already in the glossary's sense (BR1, BR63, BR149) |
+| 3_information | No new data object. One new **read path** to `player_profile`, returning six of its columns; height and weight are never in it. A second read path for club members (BR156), with the same columns. Classification unchanged |
 | 4_application | New component row in [2_application-components.md](../ea/4_application/2_application-components.md): `app_family_player_profiles()`, `src/data/family-player-record.ts`, `src/web/player-record-view.ts`, and a record panel in both `GuardianWorkspace` and `PlayerWorkspace` |
-| 5_technology  | No change. One migration (0063), one behavioural RLS suite (63) |
+| 5_technology  | No change. Two migrations (0063, 0064) and two behavioural RLS suites (63, 64) |
 
 ## Plateaus
 
@@ -76,12 +82,23 @@ under thirteen) that child, now eleven, could not be linked to a login, and
 the whole RLS run stopped there. The fixture now computes a fifteen-year-old
 — still under eighteen, which is all BR149's refusal needs.
 
+### WP3: The club reads it too (BR156)
+
+- **Deliverables:**
+  - `supabase/migrations/0064_the_club_reads_the_player_record.sql`: `app_club_player_profile(p_registration_id)`, `security definer`. It returns the non-physique columns to any member of the player's club, via `app_member_club_ids()`.
+  - `supabase/tests/64_the_club_reads_the_player_record.sql`. A committee member reads the admin's correction, but still reads no `player_profile` row directly (BR99, BR122). A member of another club and an anonymous caller read nothing.
+  - `src/web/player-profile-access.ts` (with tests) decides which roles may write the profile.
+  - `loadPlayerProfile` falls back to the function and marks the physique hidden.
+  - The player page says when height and weight are not visible to the viewer's role, and shows the profile form only to roles that can save it.
+- **Outcome:** an officer's correction reads the same on the registrar's page to every member of the club. Height and weight are still seen only by the roles that pick teams.
+
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |
 | -------- | ------------------------------------------- |
 | Reading the confirmed record: person details and non-physique profile | Height and weight for the family (BR99 keeps them narrow) |
 | Guardian with authority, and the player themselves | A contact-only guardian (BR1: contact is not authority) |
+| Every club member reads positions, foot and squad number (BR156) | Height and weight for roles that do not pick teams (BR99) |
 | | A guardian *proposing* a correction for a minor (BR149 is self-only) |
 | | The identification photograph (BR56, its own consent) |
 | | Notifying the family that a correction was made |
