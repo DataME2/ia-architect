@@ -1109,7 +1109,12 @@ button.destructive:hover:not(:disabled),
   cursor: pointer;
   font-weight: 580;
   color: var(--text);
-  list-style-position: outside;
+  /* Inside: outside hung the triangle past the box's left edge. The padding
+     and the matching negative margin make the row a 44px target without
+     changing the closed box's size. */
+  list-style-position: inside;
+  padding-block: 0.6875rem;
+  margin-block: calc(-1 * var(--space-2));
 }
 
 .process-detail[open] > summary {
