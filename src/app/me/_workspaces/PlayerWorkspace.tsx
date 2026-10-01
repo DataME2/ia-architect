@@ -1,6 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { loadFamilyPlayerProfile } from '../../../data/family-player-record.ts';
 import { loadAppearances } from '../../../data/performance.ts';
 import { loadMyRegistration, loadMyTeams, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
 import { loadParticipationResponse } from '../../../data/participation.ts';
@@ -8,10 +7,9 @@ import { loadMyCorrection } from '../../../data/player-record-correction.ts';
 import { ageAt } from '../../../domain/types.ts';
 import { nextFixture, seasonFigures } from '../../../web/me-view.ts';
 import { participationBanner } from '../../../web/participation-answer.ts';
-import { playerRecordLines } from '../../../web/player-record-view.ts';
 import { AvailabilityAnswer } from '../_participation/AvailabilityAnswer.tsx';
 import { CorrectionPanel } from '../_player/CorrectionPanel.tsx';
-import { Figures, FixtureCard, Panel, RecordLines, RegistrationPill, WorkspaceHead } from './shared.tsx';
+import { Figures, FixtureCard, Panel, RegistrationPill, WorkspaceHead } from './shared.tsx';
 
 /**
  * A player's own Saturday. What is here is theirs only (BR65) — no other
@@ -40,9 +38,6 @@ export async function PlayerWorkspace({
   const isAdult = ageAt(link.person.dateOfBirth, today) >= 18;
   const pendingCorrection =
     isAdult && registration !== null ? await loadMyCorrection(client, registration.id) : null;
-
-  // BR155 (and BR149's promise): the confirmed record, never a pending claim.
-  const profile = registration === null ? null : await loadFamilyPlayerProfile(client, link.clubId, registration.id);
 
   const response =
     next === null ? null : await loadParticipationResponse(client, link.clubId, next.id, link.personId);
@@ -93,11 +88,8 @@ export async function PlayerWorkspace({
           <Panel title="This season">
             <Figures figures={seasonFigures(appearances)} />
           </Panel>
-          <Panel title="Your record">
-            <RecordLines lines={playerRecordLines(link.person, profile)} />
-          </Panel>
           {isAdult && registration !== null && (
-            <Panel title="Propose a correction">
+            <Panel title="Your record">
               <CorrectionPanel
                 clubId={link.clubId}
                 registrationId={registration.id}

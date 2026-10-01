@@ -34,7 +34,7 @@ insert into person (id, club_id, legal_given_names, legal_family_name, date_of_b
   ('b63a0000-0000-0000-0000-000000000001', '99996300-0000-0000-0000-000000000001',
    'Adult', 'Player', '2000-01-01', 'Ad'),
   ('b63a0000-0000-0000-0000-000000000002', '99996300-0000-0000-0000-000000000001',
-   'Minor', 'Player', (current_date - interval '15 years')::date, null),
+   'Minor', 'Player', '2015-01-01', null),
   ('b63a0000-0000-0000-0000-000000000003', '99996300-0000-0000-0000-000000000001',
    'Other', 'Player', '1999-01-01', null);
 
