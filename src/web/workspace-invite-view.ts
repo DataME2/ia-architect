@@ -9,6 +9,11 @@
  *   - 18 and over: the player only.
  * COMPLETE stays the gate BR126 and BR150 already enforce in the database;
  * what goes is the wait for somebody to press Invite.
+ *
+ * Scope 73 (BR150 extended): a **match official of thirteen or over** with a
+ * referee role this season is invited to their own workspace too, with no
+ * registration needed. Their guardians are not: BR126 still asks for a
+ * COMPLETE registration before a family workspace.
  */
 
 export interface InviteCandidate {
@@ -22,6 +27,8 @@ export interface InviteInput {
   readonly age: number;
   readonly isPlayerThisSeason: boolean;
   readonly registrationComplete: boolean;
+  /** Holds a referee role this season (scope 73): an own workspace from 13. */
+  readonly isRefereeThisSeason?: boolean;
   readonly player: InviteCandidate;
   /** Guardians holding authority for this player (`guardianship.is_authority`). */
   readonly authorityGuardians: readonly InviteCandidate[];
@@ -108,10 +115,15 @@ export interface WorkspaceRow {
 export function workspaceRows(input: {
   readonly age: number;
   readonly registrationComplete: boolean;
+  /** A player this season; false for an official who only referees (scope 73). */
+  readonly isPlayer?: boolean;
+  /** A referee this season: their own row needs no registration (scope 73). */
+  readonly isReferee?: boolean;
   readonly player: WorkspaceHolder;
   readonly authorityGuardians: readonly WorkspaceHolder[];
 }): readonly WorkspaceRow[] {
-  const row = (kind: WorkspaceRow['kind'], h: WorkspaceHolder): WorkspaceRow => ({
+  const isPlayer = input.isPlayer ?? true;
+  const row = (kind: WorkspaceRow['kind'], h: WorkspaceHolder, ready: boolean): WorkspaceRow => ({
     kind,
     personId: h.personId,
     name: h.name,
@@ -122,7 +134,7 @@ export function workspaceRows(input: {
       ? 'active'
       : h.invited
         ? 'link-sent'
-        : !input.registrationComplete
+        : !ready
           ? 'waiting-complete'
           : (h.email ?? '').trim() === ''
             ? 'no-email'
@@ -130,13 +142,19 @@ export function workspaceRows(input: {
   });
 
   return [
-    ...(input.age < 18 ? input.authorityGuardians.map((g) => row('guardian', g)) : []),
-    ...(input.age >= 13 ? [row('player', input.player)] : []),
+    ...(isPlayer && input.age < 18
+      ? input.authorityGuardians.map((g) => row('guardian', g, input.registrationComplete))
+      : []),
+    ...(input.age >= 13
+      ? [row('player', input.player, input.registrationComplete || input.isReferee === true)]
+      : []),
   ];
 }
 
 export function planWorkspaceInvites(input: InviteInput): InvitePlan {
-  if (!input.isPlayerThisSeason || !input.registrationComplete) return NOTHING;
+  const asPlayer = input.isPlayerThisSeason && input.registrationComplete;
+  const asReferee = input.isRefereeThisSeason === true && input.age >= 13;
+  if (!asPlayer && !asReferee) return NOTHING;
 
   const send: Recipient[] = [];
   const missingEmail: { kind: Recipient['kind']; name: string }[] = [];
@@ -147,7 +165,8 @@ export function planWorkspaceInvites(input: InviteInput): InvitePlan {
     else send.push({ kind, personId: c.personId, email });
   };
 
-  const minor = input.age < 18;
+  // Guardians only for a player: BR126 (scope 73 leaves it there).
+  const minor = asPlayer && input.age < 18;
   if (minor) input.authorityGuardians.forEach((g) => consider('guardian', g));
   if (input.age >= 13) consider('player', input.player);
 

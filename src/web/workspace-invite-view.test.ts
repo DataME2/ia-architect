@@ -41,6 +41,14 @@ test('nothing is sent until the player is PLAYER this season and COMPLETE', () =
   assert.deepEqual(sentTo(input(15, { registrationComplete: false })), []);
 });
 
+test('a referee of thirteen or over is invited to their own workspace only (scope 73)', () => {
+  const referee = { isPlayerThisSeason: false, registrationComplete: false, isRefereeThisSeason: true };
+  const plan = planWorkspaceInvites(input(15, referee));
+  assert.deepEqual(plan.send.map((r) => r.kind), ['player']);
+  assert.equal(plan.noGuardian, false);
+  assert.deepEqual(sentTo(input(12, referee)), []);
+});
+
 test('an existing invitation is not sent again', () => {
   assert.deepEqual(sentTo(input(15, { player: who('kid', 'kid@x.test', true) })), ['guardian:mum']);
 });

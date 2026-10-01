@@ -48,6 +48,12 @@ describe('the five waiting items', () => {
     );
   });
 
+  it("asks a thirteen-plus official about their own match, on their own workspace", () => {
+    const item = matchItem('c', { ...fixture, officialName: 'Ana' }, { self: true });
+    assert.equal(item.headline, 'Did your match against Robina on 2026-09-19 go ahead?');
+    assert.equal(item.linkPath, '/me?role=referee&club=c');
+  });
+
   it('names the role a designation offers', () => {
     const d = { appointmentId: 'ap-1', officialName: 'Sebastian', role: 'referee', opponent: 'Robina', playedOn: '2026-09-19' };
     assert.equal(designationItem('c', d, { self: false, childId: 'kid-1' }).headline, 'Sebastian is offered as referee against Robina on 2026-09-19');

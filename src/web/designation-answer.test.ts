@@ -46,6 +46,17 @@ describe('proposedTo — BR113, said in a sentence', () => {
     assert.match(proposedTo('Ana', ['Marta', 'Diego'], true), /Marta and Diego/);
   });
 
+  it('names the official and the guardian from thirteen, first answer standing', () => {
+    assert.equal(
+      proposedTo('Ana', ['Marta Reina'], true, true),
+      'Ana or Marta Reina answers, whichever answers first (BR113).',
+    );
+  });
+
+  it('lets a thirteen-plus official with no guardian answer for themselves', () => {
+    assert.equal(proposedTo('Ana', [], true, true), 'Ana answers for themselves (BR113).');
+  });
+
   it('says an adult answers for themselves', () => {
     assert.match(proposedTo('Ana', [], false), /answers for themselves/);
   });
@@ -96,6 +107,7 @@ describe('awaitingAnswer — only what is actually a question', () => {
     id,
     officialName: 'Ana',
     answeredByAnAdult: true,
+    answersForThemselves: false,
     opponent: 'Rivals',
     playedOn,
     kickOff,

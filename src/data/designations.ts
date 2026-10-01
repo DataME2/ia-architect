@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { isAdultOn, type OfferedDesignation } from '../web/designation-answer.ts';
+import { hasTurnedOn, isAdultOn, type OfferedDesignation } from '../web/designation-answer.ts';
 
 /**
  * Designations, from the side of the person being asked (BR113).
@@ -118,6 +118,8 @@ export async function loadFamilyDesignations(
       // Measured today, not at the fixture — the same choice 0045 makes,
       // for the same reason: authority is about who may decide now.
       answeredByAnAdult: !isAdultOn(person.date_of_birth, today),
+      // BR113 restated (scope 73): from thirteen the official answers too.
+      answersForThemselves: hasTurnedOn(person.date_of_birth, 13, today),
       opponent: fixture.opponent,
       playedOn: fixture.played_on,
       kickOff: fixture.kick_off,
@@ -185,7 +187,9 @@ export async function answerersFor(
   personId: string,
   asOf: string,
 ): Promise<{ readonly self: boolean; readonly guardians: readonly Answerer[] }> {
-  const { data } = await client.rpc('app_may_answer_designation', {
+  // Designations have their own answerers since scope 73 (0069): the
+  // official from thirteen as well as a guardian under eighteen.
+  const { data } = await client.rpc('app_may_answer_as_official', {
     p_person_id: personId,
     p_club_id: clubId,
     p_as_of: asOf,

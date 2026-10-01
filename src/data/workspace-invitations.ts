@@ -50,6 +50,9 @@ interface PlayerSeason {
   readonly name: string;
   readonly age: number;
   readonly complete: boolean;
+  readonly isPlayer: boolean;
+  /** Holds a referee role this season: an own workspace from 13 (scope 73). */
+  readonly isReferee: boolean;
   readonly guardians: readonly PersonRow[];
 }
 
@@ -68,13 +71,15 @@ async function loadWorkspaceData(
   today: string,
   onlyPersonId: string | null,
 ): Promise<WorkspaceData> {
-  const playerRoles = await selectAll<{ person_id: string }>('person_role', (from, to) => {
-    let q = client.from('person_role').select('person_id')
-      .eq('club_id', clubId).eq('season_id', seasonId).eq('role', 'player');
+  const roleRows = await selectAll<{ person_id: string; role: string }>('person_role', (from, to) => {
+    let q = client.from('person_role').select('person_id, role')
+      .eq('club_id', clubId).eq('season_id', seasonId).in('role', ['player', 'referee']);
     if (onlyPersonId !== null) q = q.eq('person_id', onlyPersonId);
     return q.range(from, to);
   });
-  if (playerRoles.length === 0) {
+  const roles = new Map<string, Set<string>>();
+  for (const r of roleRows) roles.set(r.person_id, (roles.get(r.person_id) ?? new Set()).add(r.role));
+  if (roles.size === 0) {
     return { players: [], guardianInvites: new Map(), playerInvites: new Map(), linkedPersons: new Set() };
   }
 
@@ -100,7 +105,7 @@ async function loadWorkspaceData(
   const complete = new Set(completeRows.map((r) => r.person_id));
   const byId = new Map(people.map((p) => [p.id, p]));
 
-  const players = playerRoles.flatMap(({ person_id }) => {
+  const players = [...roles].flatMap(([person_id, held]) => {
     const player = byId.get(person_id);
     if (player === undefined) return [];
     return [{
@@ -108,6 +113,8 @@ async function loadWorkspaceData(
       name: displayNameFor(toPerson(player)),
       age: ageAt(player.date_of_birth, today),
       complete: complete.has(person_id),
+      isPlayer: held.has('player'),
+      isReferee: held.has('referee'),
       guardians: guardianships
         .filter((g) => g.person_id === person_id && g.is_authority)
         .flatMap((g) => {
@@ -170,6 +177,8 @@ export async function loadWorkspaceStatus(
       rows: workspaceRows({
         age: p.age,
         registrationComplete: p.complete,
+        isPlayer: p.isPlayer,
+        isReferee: p.isReferee,
         player: holder(p.player, data.playerInvites.get(p.player.id), data.linkedPersons),
         authorityGuardians: p.guardians.map((g) => holder(g, data.guardianInvites.get(g.id), data.linkedPersons)),
       }),
@@ -207,7 +216,8 @@ export async function inviteWorkspaces(
     const toCandidate = (h: WorkspaceHolder) => ({ ...h, alreadyInvited: h.invited });
     const plan = planWorkspaceInvites({
       age: p.age,
-      isPlayerThisSeason: true,
+      isPlayerThisSeason: p.isPlayer,
+      isRefereeThisSeason: p.isReferee,
       registrationComplete: p.complete,
       player: toCandidate(holder(p.player, data.playerInvites.get(p.player.id), data.linkedPersons)),
       authorityGuardians: p.guardians.map((g) => toCandidate(holder(g, data.guardianInvites.get(g.id), data.linkedPersons))),

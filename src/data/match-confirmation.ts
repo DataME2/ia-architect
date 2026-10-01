@@ -35,6 +35,12 @@ export async function loadConfirmableAppointments(
   clubId: string,
   personIds: readonly string[],
   today: string,
+  /**
+   * Whose confirmation (BR151 as restated by scope 73): a guardian confirms
+   * for an official under thirteen on the day, the official their own from
+   * thirteen. Each side is offered only what the trigger would accept.
+   */
+  side: 'guardian' | 'self' = 'guardian',
 ): Promise<readonly ConfirmableAppointment[]> {
   if (personIds.length === 0) return [];
 
@@ -85,7 +91,8 @@ export async function loadConfirmableAppointments(
     // row — a screen offering a confirmation the trigger would refuse is
     // worse than not offering it.
     if (fixture.played_on > today) continue;
-    if (!wasUnderThirteenOn(person.date_of_birth, fixture.played_on)) continue;
+    const underThirteen = wasUnderThirteenOn(person.date_of_birth, fixture.played_on);
+    if (side === 'guardian' ? !underThirteen : underThirteen) continue;
 
     out.push({
       fixtureId: row.fixture_id,

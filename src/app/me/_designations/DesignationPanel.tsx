@@ -82,7 +82,7 @@ function AnswerRow({
       </p>
 
       <p className="hint" style={{ margin: 0 }}>
-        {proposedTo(offered.officialName, guardians, offered.answeredByAnAdult)}
+        {proposedTo(offered.officialName, guardians, offered.answeredByAnAdult, offered.answersForThemselves)}
       </p>
 
       <FormNotice result={result} />

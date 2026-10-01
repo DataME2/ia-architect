@@ -57,9 +57,11 @@ insert into person (id, club_id, legal_given_names, legal_family_name, date_of_b
   -- A second adult on the record for contact only. BR67's other flag.
   ('b46c0000-0000-0000-0000-000000000003', '46c00000-0000-0000-0000-000000000001',
    'Contact', 'Only', '1984-01-01'),
-  -- Fifteen, and nobody is recorded as holding authority over him.
+  -- Twelve, and nobody is recorded as holding authority over him. (Was
+  -- fifteen until scope 73: from thirteen an official may answer for
+  -- themselves, so only an under-13 with no guardian has nobody to ask.)
   ('b46c0000-0000-0000-0000-000000000004', '46c00000-0000-0000-0000-000000000001',
-   'Unparented', 'MiniRef', (current_date - interval '15 years')::date),
+   'Unparented', 'MiniRef', (current_date - interval '12 years')::date),
   -- An adult official with a verified card. BR113 says nothing about him.
   ('b46c0000-0000-0000-0000-000000000005', '46c00000-0000-0000-0000-000000000001',
    'Grown', 'Official', '1980-01-01'),
@@ -150,7 +152,7 @@ begin
     insert into match_official_appointment (club_id, fixture_id, person_id, role)
     values (the_club, f2, unparented, 'referee');
     failures := array_append(failures,
-      'a fifteen-year-old with no guardian holding authority was designated — '
+      'a twelve-year-old with no guardian holding authority was designated — '
       || 'the proposal has nobody to go to (BR113)');
   exception when others then
     null;

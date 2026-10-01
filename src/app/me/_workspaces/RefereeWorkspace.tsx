@@ -1,7 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { loadFamilyDesignations } from '../../../data/designations.ts';
+import { loadConfirmableAppointments } from '../../../data/match-confirmation.ts';
 import { loadOfficialSelfView, type ClubLink } from '../../../data/me.ts';
+import { ConfirmMatchForm } from '../_officiating/ConfirmMatchForm.tsx';
 import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
 import { ComingSoon, Panel, WorkspaceHead } from './shared.tsx';
 import { loadSubscription } from '../../../data/calendar.ts';
@@ -40,6 +42,9 @@ export async function RefereeWorkspace({
   // the sentence out for the half of the pathway that is not a child.
   const designations = await loadFamilyDesignations(client, link.clubId, [link.personId], today);
 
+  // BR151 as restated by scope 73: from thirteen on the day, the official
+  // confirms their own match. Under thirteen it stays the guardian's.
+  const confirmable = await loadConfirmableAppointments(client, link.clubId, [link.personId], today, 'self');
 
   // The calendar feed, from the official's own side (scope 41).
   const subscription = await loadSubscription(client, link.clubId, link.personId);
@@ -59,6 +64,22 @@ export async function RefereeWorkspace({
               answerers={designations.answerers}
             />
           </Panel>
+          {confirmable.length > 0 && (
+            <Panel title="Confirm the match" meta={`${confirmable.filter((c) => !c.confirmed).length} WAITING`}>
+              <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
+                Did it go ahead with you there? Confirming marks the fixture played. A score is optional and
+                never overwrites the club&rsquo;s own.{' '}
+                <span className="mono" style={{ fontSize: '0.7rem' }}>
+                  BR151
+                </span>
+              </p>
+              <ul className="check" style={{ margin: 0 }}>
+                {confirmable.map((a) => (
+                  <ConfirmMatchForm key={a.fixtureId} clubId={link.clubId} appointment={a} />
+                ))}
+              </ul>
+            </Panel>
+          )}
           <Panel title="Refused before it reaches you">
             <p className="callout" style={{ marginBottom: 0 }}>
               <b>A match you play in, coach, manage, or have a child in is never offered.</b> The conflict is

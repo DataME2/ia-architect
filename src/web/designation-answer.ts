@@ -20,6 +20,8 @@ export interface OfferedDesignation {
   readonly officialName: string;
   /** True when the official is under 18 and an adult must answer for them. */
   readonly answeredByAnAdult: boolean;
+  /** True from thirteen: the official may answer too (BR113 restated, scope 73). */
+  readonly answersForThemselves: boolean;
   readonly opponent: string;
   /** ISO date of the fixture. */
   readonly playedOn: string;
@@ -65,6 +67,20 @@ export function isAdultOn(dateOfBirth: string | null, asOf: string): boolean {
 }
 
 /**
+ * Whether this person had turned a given age on a date: the same ISO-string
+ * arithmetic as `isAdultOn`, for BR113's thirteen.
+ */
+export function hasTurnedOn(dateOfBirth: string | null, years: number, asOf: string): boolean {
+  if (dateOfBirth === null || dateOfBirth === '') return false;
+  const parts = dateOfBirth.split('-');
+  if (parts.length !== 3) return false;
+  const [y, m, d] = parts.map(Number) as [number, number, number];
+  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return false;
+  const birthday = `${String(y + years).padStart(4, '0')}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  return birthday <= asOf;
+}
+
+/**
  * The sentence naming who the question has gone to.
  *
  * A proposal the family cannot see the shape of is not much of a proposal,
@@ -75,8 +91,14 @@ export function proposedTo(
   official: string,
   guardians: readonly string[],
   answeredByAnAdult: boolean,
+  answersForThemselves: boolean = !answeredByAnAdult,
 ): string {
   if (!answeredByAnAdult) return `${official} answers for themselves.`;
+  // Thirteen to seventeen: the official or a guardian, the first answer standing.
+  if (answersForThemselves) {
+    if (guardians.length === 0) return `${official} answers for themselves (BR113).`;
+    return `${official} or ${joinNames(guardians)} answers, whichever answers first (BR113).`;
+  }
   if (guardians.length === 0) {
     return `${official} is under 18 and no Parent/Guardian holding authority is recorded — nobody can answer this (BR113).`;
   }
