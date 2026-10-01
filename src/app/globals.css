@@ -2397,6 +2397,10 @@ td {
 }
 
 .rail-link {
+  /* 44px touch target (DESIGN.md); as bare text it was 20px. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--rail-text);
