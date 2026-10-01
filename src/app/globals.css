@@ -1671,6 +1671,9 @@ td {
   border-radius: var(--radius-lg);
   padding: var(--space-4);
   display: grid;
+  /* minmax(0, 1fr), not the implicit auto track: auto grows to the widest
+     content (a long email), wider than the rail, and overflow clipped it. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
   align-content: start;
   box-shadow: var(--shadow-md);
@@ -1682,6 +1685,13 @@ td {
   display: flex;
   gap: var(--space-3);
   align-items: center;
+}
+
+/* The name column may shrink, and a long name or an email standing in for one
+   wraps rather than running under the rail's clipped edge. */
+.rail-person > :last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .rail-avatar {
