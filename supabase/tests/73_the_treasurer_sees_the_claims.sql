@@ -1,5 +1,5 @@
--- 0073: the treasurer reads the appointment behind every claim, and no
--- other appointment (bug fix; BR78, BR117).
+-- 0073/0074: the treasurer reads every match appointment, read only, and
+-- deletes an open payment run but never a closed one (BR163, BR117).
 
 \set ON_ERROR_STOP on
 
@@ -57,15 +57,17 @@ commit;
 do $$
 declare
   n        integer;
+  run_open   uuid;
+  run_closed uuid;
   failures text[] := '{}';
 begin
   perform set_config('role', 'authenticated', true);
 
-  -- 1. The treasurer reads the claimed appointment, and only that one.
+  -- 1. The treasurer reads every appointment, claimed or merely designated (0074).
   perform set_config('request.jwt.claim.sub', 'd0073000-0000-0000-0000-000000000001', true);
   select count(*) into n from match_official_appointment where club_id = '99990073-0000-0000-0000-000000000001';
-  if n <> 1 or not exists (select 1 from match_official_appointment where id = '99990073-0000-0000-0000-0000000000a1') then
-    failures := array_append(failures, format('the treasurer read %s appointments, not only the claimed one', n));
+  if n <> 2 then
+    failures := array_append(failures, format('the treasurer read %s appointments, not both', n));
   end if;
 
   -- 2. Reading is not managing.
@@ -76,11 +78,40 @@ begin
     failures := array_append(failures, 'the treasurer changed an appointment');
   end if;
 
-  -- 3. The committee still reads none.
+  -- 4. An open run with a claim in it is deleted, and the claim waits again.
+  update referee_payment_claim set state = 'approved', decided_by = 'd0073000-0000-0000-0000-000000000001', decided_at = now()
+   where appointment_id = '99990073-0000-0000-0000-0000000000a1';
+  insert into referee_payment_batch (club_id, reference) values ('99990073-0000-0000-0000-000000000001', 'Oops')
+  returning id into run_open;
+  update referee_payment_claim set batch_id = run_open where appointment_id = '99990073-0000-0000-0000-0000000000a1';
+  begin
+    delete from referee_payment_batch where id = run_open;
+  exception when others then
+    failures := array_append(failures, 'the treasurer could not delete an open run: ' || sqlerrm);
+  end;
+  if exists (select 1 from referee_payment_claim where appointment_id = '99990073-0000-0000-0000-0000000000a1' and (batch_id is not null or state <> 'approved')) then
+    failures := array_append(failures, 'the deleted run''s claim did not return to approved and unbatched');
+  end if;
+
+  -- 5. A closed run is never deleted.
+  insert into referee_payment_batch (club_id, reference, closed_at) values ('99990073-0000-0000-0000-000000000001', 'Final', now())
+  returning id into run_closed;
+  begin
+    delete from referee_payment_batch where id = run_closed;
+    failures := array_append(failures, 'a closed run was deleted');
+  exception when check_violation then null;
+  end;
+
+  -- 3. The committee still reads none, and deletes no run.
   perform set_config('request.jwt.claim.sub', 'd0073000-0000-0000-0000-000000000002', true);
   select count(*) into n from match_official_appointment where club_id = '99990073-0000-0000-0000-000000000001';
   if n <> 0 then
     failures := array_append(failures, format('the committee read %s appointments', n));
+  end if;
+  delete from referee_payment_batch where club_id = '99990073-0000-0000-0000-000000000001';
+  get diagnostics n = row_count;
+  if n <> 0 then
+    failures := array_append(failures, 'the committee deleted a payment run');
   end if;
 
   perform set_config('role', 'postgres', true);
@@ -88,5 +119,5 @@ begin
   if array_length(failures, 1) > 0 then
     raise exception E'The treasurer sees the claims FAILED:\n  - %', array_to_string(failures, E'\n  - ');
   end if;
-  raise notice 'The treasurer sees the claims OK — 3 scenarios';
+  raise notice 'The treasurer reads the referee side OK — 5 scenarios';
 end $$;

@@ -106,8 +106,20 @@ below.
 | Submission packs | **W** | **W** | R | R | R | R | R |
 | Audit log | R | — | — | — | — | — | — |
 | Prospects | — | — | — | — | — | — | — |
+| Match officials' record (classification, accreditations, availability) | **W** | **W** | — | **W** | — | — | — |
+| Designations (who officiates which match) | **W** | **W** | R ([scope 77](./77_the_treasurer_reads_the_referee_side.md), BR163) | **W** | — | — | — |
+| Match verification (it happened, BR13) | **W** | **W** | R ([scope 77](./77_the_treasurer_reads_the_referee_side.md), BR163) | **W** | — | — | — |
+| Referee claims — raise | **W** | **W** | R | **W** | — | — | — |
+| Referee claims — approve or reject | **W** | R | **W** | R | — | — | — |
+| Payment runs — create, add, close, record paid | **W** | R | **W** | R | — | — | — |
+| Payment runs — delete an **open** run | **W** | — | **W** ([scope 77](./77_the_treasurer_reads_the_referee_side.md), BR117) | — | — | — | — |
+| Pay a run online (simulated, BR162) | **W** | — | **W** | — | — | — | — |
+| Where an official is paid (nominations, BR161) | R | — | R | — | — | — | — |
+| Match official fee schedules | **W** | R | **W** | R | — | — | — |
 
 **W** = read and write · **R** = read only · **—** = no access at all
+
+*Referee rows added October 2026 ([scope 77](./77_the_treasurer_reads_the_referee_side.md)), read from `pg_policies` after migration 0074. An official reads their own appointments, claims, payouts and standing (BR160, BR162); the official from eighteen, or their guardian before, answers designations and nominates where they are paid (BR113, BR161) — those are family reads, not membership roles, so they are not columns here. A coach-only member reads only their own teams' people (scope 74).*
 
 *Payment plans, instalments and payments narrowed October 2026 (migration 0068, [scope 35](./35_narrowing_what_a_member_can_read.md) WP2) to admin, treasurer, registrar and IT manager, as the club's own matrix in §2c gives them. A family still reads its own.*
 

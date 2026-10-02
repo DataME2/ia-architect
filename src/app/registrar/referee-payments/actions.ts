@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import {
-  addClaimsToBatch, closeBatch, createBatch, decideClaim, loadClaimCandidates, notifyClaimDecision, raiseClaim,
+  addClaimsToBatch, closeBatch, createBatch, deleteBatch, decideClaim, loadClaimCandidates, notifyClaimDecision, raiseClaim,
   recordBatchPaid,
 } from '../../../data/claims.ts';
 import { loadRates, loadSchedules } from '../../../data/fees.ts';
@@ -177,4 +177,23 @@ export async function simulatePayoutAction(_previous: FormResult, formData: Form
     detail: { paid: result.paid, provider: 'simulation' },
   });
   return formOk(`Simulated: ${result.paid} payment${result.paid === 1 ? '' : 's'} recorded. No money moved.`);
+}
+
+/** Delete an open payment run made by mistake (BR117 extended); its claims wait for a run again. */
+export async function deleteBatchAction(_previous: FormResult, formData: FormData): Promise<FormResult> {
+  const batchId = String(formData.get('batchId') ?? '');
+  if (batchId === '') return formFailed('Which payment run?');
+
+  const { client, user, tenant } = await requireTenant();
+  const error = await deleteBatch(client, tenant.clubId, batchId);
+  revalidatePath('/registrar/referee-payments');
+  if (error !== null) return formFailed(error);
+
+  await recordAudit(client, tenant.clubId, user.id, {
+    action: 'referee_payment_batch_deleted',
+    entity: 'referee_payment_batch',
+    entityId: batchId,
+    detail: {},
+  });
+  return formOk('Payment run deleted. Any claims in it are waiting to be added to a run again.');
 }
