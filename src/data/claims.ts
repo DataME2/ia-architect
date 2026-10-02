@@ -545,6 +545,22 @@ export async function addClaimsToBatch(
   return error === null ? null : error.message.replace(/^.*?:\s*/, '');
 }
 
+/**
+ * Delete an open payment run (BR117 extended, scope 77). The database
+ * refuses a closed or paid run and puts any claim in it back to "approved,
+ * not in a run"; zero rows deleted means the caller may not.
+ */
+export async function deleteBatch(client: SupabaseClient, clubId: string, batchId: string): Promise<string | null> {
+  const { data, error } = await client
+    .from('referee_payment_batch')
+    .delete()
+    .eq('club_id', clubId)
+    .eq('id', batchId)
+    .select('id');
+  if (error !== null) return error.message.replace(/^.*?:\s*/, '');
+  return (data ?? []).length === 0 ? 'Only the treasurer or an administrator deletes a payment run.' : null;
+}
+
 export async function closeBatch(
   client: SupabaseClient,
   clubId: string,

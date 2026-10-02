@@ -41,12 +41,15 @@ export default async function DesignationsPage({
   const mayAppoint = tenant.roles.some((r) =>
     ['admin', 'registrar', 'coordinator'].includes(r),
   );
-  if (!mayAppoint) {
+  // BR163: the treasurer reads who officiates what, so a claim is never
+  // approved blind; designating stays with the three roles above.
+  const mayRead = mayAppoint || tenant.roles.includes('treasurer');
+  if (!mayRead) {
     return (
       <>
         <h2>Designations</h2>
         <p className="notice">
-          <strong>Only an administrator, registrar or coordinator can see this.</strong> You are
+          <strong>Only an administrator, registrar, coordinator or treasurer can see this.</strong> You are
           signed in as {tenant.roles.join(', ')} at {tenant.clubName}.
         </p>
       </>
@@ -103,10 +106,47 @@ export default async function DesignationsPage({
             </ul>
           </div>
 
-          {chosen !== undefined && <FixtureBoard client={client} tenant={tenant} season={season.id} fixture={chosen} />}
+          {chosen !== undefined &&
+            (mayAppoint ? (
+              <FixtureBoard client={client} tenant={tenant} season={season.id} fixture={chosen} />
+            ) : (
+              <ReadOnlyFixture fixture={chosen} />
+            ))}
         </>
       )}
     </>
+  );
+}
+
+/** The treasurer's view (BR163): who is designated and where each answer stands, and nothing to change. */
+function ReadOnlyFixture({
+  fixture,
+}: {
+  readonly fixture: Awaited<ReturnType<typeof loadDesignationFixtures>>[number];
+}) {
+  return (
+    <div className="card">
+      <h3 style={{ marginTop: 0 }}>
+        {fixture.playedOn} &mdash; {fixture.homeAway} to {fixture.opponent}
+      </h3>
+      {fixture.appointed.length === 0 ? (
+        <p className="hint" style={{ margin: 0 }}>Nobody is designated to this fixture yet.</p>
+      ) : (
+        <ul className="check" style={{ margin: 0 }}>
+          {fixture.appointed.map((a) => (
+            <li key={`${a.personId}-${a.role}`}>
+              <span className="ctitle">{a.name}</span> &middot; {a.role}{' '}
+              <span className={`pill ${a.state === 'accepted' ? 'pill-ok' : a.state === 'declined' || a.state === 'withdrawn' ? 'pill-stop' : 'pill-warn'}`}>
+                {a.state}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="hint" style={{ marginBottom: 0 }}>
+        Read only. Designating is the coordinator&rsquo;s, registrar&rsquo;s or administrator&rsquo;s (BR163).
+      </p>
+    </div>
   );
 }
 

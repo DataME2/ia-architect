@@ -9,7 +9,7 @@ import type { BatchRow, RaisedClaim } from '../../../data/claims.ts';
 import { FormNotice } from '../_components/FormNotice.tsx';
 import {
   addToBatchAction, closeBatchAction, createBatchAction, decideClaimAction, payBatchAction, raiseClaimAction,
-  simulatePayoutAction,
+  simulatePayoutAction, deleteBatchAction,
 } from './actions.ts';
 
 /**
@@ -165,6 +165,7 @@ export function BatchCard({ batch }: { readonly batch: BatchRow }) {
   const [closeResult, closeAction, closing] = useActionState(closeBatchAction, IDLE_FORM);
   const [payResult, payAction, paying] = useActionState(payBatchAction, IDLE_FORM);
   const [simResult, simAction, simulating] = useActionState(simulatePayoutAction, IDLE_FORM);
+  const [delResult, delAction, deleting] = useActionState(deleteBatchAction, IDLE_FORM);
 
   const standing = batch.paidAt !== null ? 'paid' : batch.closedAt !== null ? 'closed' : 'open';
 
@@ -185,6 +186,22 @@ export function BatchCard({ batch }: { readonly batch: BatchRow }) {
           <input type="hidden" name="claimCount" value={batch.claimCount} />
           <button type="submit" disabled={closing}>{closing ? '…' : 'Close this payment run'}</button>
           <FormNotice result={closeResult} />
+        </form>
+      )}
+
+      {standing === 'open' && (
+        <form
+          action={delAction}
+          style={{ marginTop: '0.5rem' }}
+          onSubmit={(e) => {
+            if (!window.confirm('Delete this payment run? Any claims in it go back to waiting for a run.')) e.preventDefault();
+          }}
+        >
+          <input type="hidden" name="batchId" value={batch.id} />
+          <button type="submit" className="secondary" disabled={deleting}>
+            {deleting ? '…' : 'Delete this payment run'}
+          </button>
+          <FormNotice result={delResult} />
         </form>
       )}
 

@@ -30,7 +30,8 @@ export default async function VerificationPage({
   if (tenant === null) redirect('/registrar');
 
   const mayVerify = tenant.roles.some((r) => ['admin', 'registrar', 'coordinator'].includes(r));
-  if (!mayVerify) {
+  // BR163: the treasurer reads what is waiting to be verified, read only.
+  if (!mayVerify && !tenant.roles.includes('treasurer')) {
     return (
       <>
         <h2>Verify a match</h2>
@@ -72,7 +73,18 @@ export default async function VerificationPage({
         <div className="stack">
           {waiting.map((a) => (
             <div className="card" key={a.appointmentId}>
-              <VerificationRow appointment={a} />
+              {mayVerify ? (
+                <VerificationRow appointment={a} />
+              ) : (
+                <p style={{ margin: 0 }}>
+                  <b>{a.officialName}</b> &middot; {a.role}
+                  <br />
+                  <span className="hint">
+                    {a.opponent}, {a.playedOn} &mdash; waiting to be verified by a coordinator, registrar or
+                    administrator (BR13, BR163)
+                  </span>
+                </p>
+              )}
             </div>
           ))}
         </div>
