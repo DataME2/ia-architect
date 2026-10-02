@@ -143,8 +143,9 @@ export default async function RefereePaymentsPage({
           <p className="hint" style={{ marginTop: 0 }}>
             A payment run groups approved claims so they can be paid together. Add claims to it, then{' '}
             <b>close it</b> once the group is final &mdash; a closed run&rsquo;s total is fixed and admits
-            no more claims (BR117). Once you&rsquo;ve actually paid it, outside the platform, come back and{' '}
-            <b>record it as paid</b> (BR118) &mdash; this screen never sends money itself.
+            no more claims (BR117). Then either pay it yourself and <b>record it as paid</b> (BR118), or{' '}
+            <b>pay it online</b> to each official&rsquo;s nominated account (BR162) &mdash; a{' '}
+            <b>simulation</b> for now: no payment provider is connected and no money moves.
           </p>
           <NewBatch />
           <div className="stack">
