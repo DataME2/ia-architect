@@ -99,16 +99,20 @@ begin
   end;
   perform set_config('request.jwt.claim.sub', 'd0079000-0000-0000-0000-000000000003', true);
   result := app_confirm_committee_position(member_pos);
+  perform set_config('role', 'postgres', true);
   if exists (select 1 from committee_position where id = member_pos and confirmed_at is not null) then
     failures := array_append(failures, 'two of three confirmations confirmed the position');
   end if;
+  perform set_config('role', 'authenticated', true);
   perform set_config('request.jwt.claim.sub', 'd0079000-0000-0000-0000-000000000004', true);
   result := app_confirm_committee_position(member_pos);
+  perform set_config('role', 'postgres', true);
   if result <> 'confirmed' or not exists (select 1 from committee_position where id = member_pos and confirmed_at is not null) then
     failures := array_append(failures, 'the third confirmation did not confirm the position');
   end if;
 
   -- 5. An officer is never confirmed by the executive.
+  perform set_config('role', 'authenticated', true);
   begin
     perform app_confirm_committee_position('99990079-0000-0000-0000-0000000000c6');
     failures := array_append(failures, 'the executive confirmed an officer');
