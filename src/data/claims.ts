@@ -266,8 +266,8 @@ export interface RaisedClaim {
   readonly state: 'raised' | 'approved' | 'rejected';
   readonly decisionNote: string | null;
   readonly batchId: string | null;
-  /** BR152: how the family chose to settle it, or null until they do. */
-  readonly settlement: 'pay' | 'credit' | null;
+  /** BR152 restated (scope 79): always paid out; 'pay' where recorded. */
+  readonly settlement: 'pay' | null;
 }
 
 /** The treasurer's queue, and what a coordinator already raised. */
@@ -345,7 +345,7 @@ export interface SettleableClaim {
   readonly opponent: string;
   readonly playedOn: string;
   readonly amountCents: number;
-  readonly settlement: 'pay' | 'credit' | null;
+  readonly settlement: 'pay' | null;
   readonly state: 'raised' | 'approved' | 'rejected';
   readonly batchId: string | null;
 }
@@ -430,32 +430,6 @@ export async function loadSettleableClaims(
     });
   }
   return out;
-}
-
-/**
- * Record a family's choice (BR152). `chosenByPersonId` is the signed-in
- * person's own Person at this club, never chosen on the screen — the
- * database checks it holds authority for the official and refuses
- * otherwise.
- */
-export async function chooseSettlement(
-  client: SupabaseClient,
-  clubId: string,
-  claimId: string,
-  settlement: 'pay' | 'credit',
-  chosenByPersonId: string,
-): Promise<string | null> {
-  const { error } = await client
-    .from('referee_payment_claim')
-    .update({
-      settlement,
-      settlement_chosen_by: chosenByPersonId,
-      settlement_chosen_at: new Date().toISOString(),
-    })
-    .eq('club_id', clubId)
-    .eq('id', claimId);
-
-  return error === null ? null : error.message.replace(/^.*?:\s*/, '');
 }
 
 // ----------------------------------------------------------------- batches

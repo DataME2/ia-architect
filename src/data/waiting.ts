@@ -30,6 +30,7 @@ import { loadFamilyDesignations } from './designations.ts';
 import { loadConfirmableAppointments } from './match-confirmation.ts';
 import { loadChildren, loadMyTeams, loadTeamFixtures, type ClubLink, type MeSnapshot } from './me.ts';
 import { loadParticipationResponse } from './participation.ts';
+import { loadNominations } from './payouts.ts';
 
 /** BR125's five, from `player_record_correction_select_officer` (0052). */
 const CORRECTION_CONFIRMERS: readonly string[] = ['admin', 'registrar', 'coordinator', 'coach', 'technical_director'];
@@ -132,8 +133,12 @@ async function collectForLink(client: SupabaseClient, link: ClubLink, today: str
     const self = { id: link.personId, name: nameOf(link.person) };
     const own = await availabilityFor(client, link, self, { self: true }, today);
     if (own !== null) items.push(own);
-    for (const c of await loadSettleableClaims(client, link.clubId, [link.personId])) {
-      if (c.settlement === null) items.push(claimItem(link.clubId, { ...c, claimId: c.id }, { self: true }));
+    // BR152/BR161 (scope 79): an approved claim waits on nothing but a
+    // nomination of where it is paid.
+    const ownClaims = await loadSettleableClaims(client, link.clubId, [link.personId]);
+    const ownNominated = await loadNominations(client, link.clubId, ownClaims.length > 0 ? [link.personId] : []);
+    for (const c of ownClaims) {
+      if (!ownNominated.has(c.personId)) items.push(claimItem(link.clubId, { ...c, claimId: c.id }, { self: true }));
     }
     items.push(...(await designationsFor(client, link.clubId, link.personId, { self: true }, today)));
     for (const m of await loadConfirmableAppointments(client, link.clubId, [link.personId], today, 'self')) {
@@ -153,8 +158,10 @@ async function collectForLink(client: SupabaseClient, link: ClubLink, today: str
   for (const m of await loadConfirmableAppointments(client, link.clubId, childIds, today, 'guardian')) {
     if (!m.confirmed) items.push(matchItem(link.clubId, m, { self: false, childId: m.personId }));
   }
-  for (const c of await loadSettleableClaims(client, link.clubId, childIds)) {
-    if (c.settlement === null) {
+  const childClaims = await loadSettleableClaims(client, link.clubId, childIds);
+  const childNominated = await loadNominations(client, link.clubId, [...new Set(childClaims.map((c) => c.personId))]);
+  for (const c of childClaims) {
+    if (!childNominated.has(c.personId)) {
       items.push(claimItem(link.clubId, { ...c, claimId: c.id }));
     }
   }

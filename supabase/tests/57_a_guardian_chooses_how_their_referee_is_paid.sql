@@ -163,17 +163,25 @@ begin
     failures := array_append(failures, 'a fifteen-year-old could not choose her own settlement (BR152, 0075): ' || sqlerrm);
   end;
 
-  -- 4. The authority guardian chooses "credit" for the minor.
+  -- 4. "Credit" is retired (0076, BR152 restated): every approved claim is
+  --    paid out. The authority guardian records "pay" for the minor.
   begin
     update referee_payment_claim
        set settlement = 'credit', settlement_chosen_by = mum
      where id = claim1;
+    failures := array_append(failures, 'a claim was settled as credit after credit was retired (BR152)');
+  exception when check_violation then null;
+  end;
+  begin
+    update referee_payment_claim
+       set settlement = 'pay', settlement_chosen_by = mum
+     where id = claim1;
   exception when others then
-    failures := array_append(failures, 'the authority mother could not choose for her daughter: ' || sqlerrm);
+    failures := array_append(failures, 'the authority mother could not record pay for her daughter: ' || sqlerrm);
   end;
 
   select settlement into v_settle from referee_payment_claim where id = claim1;
-  if v_settle is distinct from 'credit' then
+  if v_settle is distinct from 'pay' then
     failures := array_append(failures, 'the guardian''s choice did not land — settlement is ' || coalesce(v_settle, 'null'));
   end if;
 

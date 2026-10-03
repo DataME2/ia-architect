@@ -7,7 +7,6 @@ import { loadOfficialSelfView, loadOwnCredentials, type ClubLink } from '../../.
 import { formatMoney } from '../../../domain/finance/money.ts';
 import { hasTurnedOn } from '../../../web/designation-answer.ts';
 import { claimStanding, credentialStanding } from '../../../web/officials-own-view.ts';
-import { SettleClaimForm } from '../_officiating/SettleClaimForm.tsx';
 import { PayoutNominationForm } from '../_officiating/PayoutNominationForm.tsx';
 import { loadNominations, loadPayouts } from '../../../data/payouts.ts';
 import { displayNameFor } from '../../../web/queue-view.ts';
@@ -163,19 +162,15 @@ export async function RefereeWorkspace({
               </p>
             ) : (
               <ul className="check" style={{ margin: 0 }}>
-                {claims.map((c) =>
-                  choosesOwnSettlement && c.state === 'approved' && !payouts.has(c.id) ? (
-                    <SettleClaimForm key={c.id} clubId={link.clubId} claim={c} />
-                  ) : (
-                    <li key={c.id}>
-                      <span className="ctitle">
-                        vs {c.opponent} — {c.playedOn} · {formatMoney(c.amountCents)}
-                      </span>
-                      <br />
-                      <span className="cnote">{claimStanding(c, choosesOwnSettlement, payouts.get(c.id) ?? null)}</span>
-                    </li>
-                  ),
-                )}
+                {claims.map((c) => (
+                  <li key={c.id}>
+                    <span className="ctitle">
+                      vs {c.opponent} — {c.playedOn} · {formatMoney(c.amountCents)}
+                    </span>
+                    <br />
+                    <span className="cnote">{claimStanding(c, payouts.get(c.id) ?? null)}</span>
+                  </li>
+                ))}
               </ul>
             )}
             {choosesOwnSettlement ? (
