@@ -5,7 +5,7 @@ import { loadConfirmableAppointments } from '../../../data/match-confirmation.ts
 import { loadSettleableClaims } from '../../../data/claims.ts';
 import { loadOfficialSelfView, loadOwnCredentials, type ClubLink } from '../../../data/me.ts';
 import { formatMoney } from '../../../domain/finance/money.ts';
-import { isAdultOn } from '../../../web/designation-answer.ts';
+import { hasTurnedOn } from '../../../web/designation-answer.ts';
 import { claimStanding, credentialStanding } from '../../../web/officials-own-view.ts';
 import { SettleClaimForm } from '../_officiating/SettleClaimForm.tsx';
 import { PayoutNominationForm } from '../_officiating/PayoutNominationForm.tsx';
@@ -60,8 +60,9 @@ export async function RefereeWorkspace({
     loadSettleableClaims(client, link.clubId, [link.personId], ['raised', 'approved', 'rejected']),
     loadOwnCredentials(client, link.clubId, link.personId),
   ]);
-  // BR152 still stops at eighteen: under it, the guardian chooses pay or credit.
-  const choosesOwnSettlement = isAdultOn(link.person.dateOfBirth, today);
+  // BR152 and BR161 from thirteen (question 80 (C), scope 78): the official
+  // chooses pay or credit and where it is paid; a guardian may too until 18.
+  const choosesOwnSettlement = hasTurnedOn(link.person.dateOfBirth, 13, today);
   // Where they are paid (BR161) and what has been paid online (BR162).
   const [nominations, payouts] = await Promise.all([
     choosesOwnSettlement ? loadNominations(client, link.clubId, [link.personId]) : Promise.resolve(new Map<string, string>()),
