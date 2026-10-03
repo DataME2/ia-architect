@@ -2,6 +2,7 @@ import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 
 import {
+  confirmationStatus,
   enabledProgramNames,
   parseEnablement,
   parseResolution,
@@ -88,5 +89,19 @@ describe('enabledProgramNames — matched the way the database itself compares B
   it('does not match a different program', () => {
     const names = enabledProgramNames([enablement('Play On!')]);
     assert.ok(!names.has('kickstart'));
+  });
+});
+
+describe('confirmationStatus — BR166, BR167', () => {
+  it('an officer waits on the AGM election, then is confirmed by it', () => {
+    assert.equal(confirmationStatus('president', null, []).label, 'Awaiting the AGM election resolution');
+    assert.equal(confirmationStatus('it-manager', '2026-06-01T00:00:00Z', []).label, 'Confirmed by the AGM election');
+  });
+
+  it('any other position counts the executive, naming who is still to confirm', () => {
+    const st = confirmationStatus('committee-member', null, ['president']);
+    assert.equal(st.label, '1 of 3 — awaiting Treasurer, Secretary');
+    assert.deepEqual(st.awaiting, ['treasurer', 'secretary']);
+    assert.equal(confirmationStatus('registrar', '2026-06-02T00:00:00Z', ['president', 'treasurer', 'secretary']).confirmed, true);
   });
 });

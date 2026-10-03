@@ -103,6 +103,7 @@ export function toRegistration(
     providedDocumentTypes: provided,
     outstandingAmountCents: row.outstanding_amount_cents,
     owesMoney: row.owes,
+    hardshipUntil: row.hardship_until,
   };
 }
 
@@ -208,6 +209,7 @@ export function toCommitteeMember(row: CommitteePositionRow): CommitteeMember {
     position: row.position,
     electedOn: row.elected_on,
     resignedOn: row.resigned_on,
+    confirmedAt: row.confirmed_at ?? null,
   };
 }
 

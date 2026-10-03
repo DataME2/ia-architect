@@ -287,7 +287,7 @@ export async function recordResolution(
     readonly decidedOn: IsoDate;
     readonly summary: string;
     readonly movedByPersonId: string | null;
-    readonly category: 'general' | 'voucher_program';
+    readonly category: 'general' | 'voucher_program' | 'agm_election';
   },
   actorUserId: string,
 ): Promise<GovernanceResult & { readonly id?: string }> {
@@ -358,4 +358,26 @@ export async function enableVoucherProgram(
     detail: { ...input, rule: 'BR21' },
   });
   return { ok: true };
+}
+
+/** Which executive offices have confirmed each position (BR167). */
+export async function loadPositionConfirmations(
+  client: SupabaseClient,
+  clubId: string,
+): Promise<ReadonlyMap<string, readonly string[]>> {
+  const { data } = await client
+    .from('committee_position_confirmation')
+    .select('position_id, confirmer_office')
+    .eq('club_id', clubId);
+  const out = new Map<string, string[]>();
+  for (const r of (data ?? []) as { position_id: string; confirmer_office: string }[]) {
+    out.set(r.position_id, [...(out.get(r.position_id) ?? []), r.confirmer_office]);
+  }
+  return out;
+}
+
+/** One executive confirmation (BR167); the database decides whose and records it. */
+export async function confirmPosition(client: SupabaseClient, positionId: string): Promise<GovernanceResult> {
+  const { error } = await client.rpc('app_confirm_committee_position', { p_position_id: positionId });
+  return error === null ? { ok: true } : { ok: false, error: error.message };
 }

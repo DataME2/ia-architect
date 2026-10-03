@@ -15,7 +15,7 @@ import type { RegistrationRow } from './schema.ts';
 /** Every registration column a signed-in caller may select. */
 export const REGISTRATION_COLUMNS = 'id, club_id, person_id, season_id, status, created_at';
 
-export type RegistrationBaseRow = Omit<RegistrationRow, 'outstanding_amount_cents' | 'owes'>;
+export type RegistrationBaseRow = Omit<RegistrationRow, 'outstanding_amount_cents' | 'owes' | 'hardship_until'>;
 
 /** The rows, each with its balance (or null: not the caller's to see) and whether it owes. */
 export async function withMoney(
@@ -28,11 +28,21 @@ export async function withMoney(
   });
   if (error !== null) throw new QueryError('app_registration_money', error.message);
   const byId = new Map(
-    ((data ?? []) as { registration_id: string; outstanding_amount_cents: number | null; owes: boolean }[])
+    ((data ?? []) as {
+      registration_id: string;
+      outstanding_amount_cents: number | null;
+      owes: boolean;
+      hardship_until: string | null;
+    }[])
       .map((m) => [m.registration_id, m]),
   );
   return rows.map((r) => {
     const m = byId.get(r.id);
-    return { ...r, outstanding_amount_cents: m?.outstanding_amount_cents ?? null, owes: m?.owes ?? false };
+    return {
+      ...r,
+      outstanding_amount_cents: m?.outstanding_amount_cents ?? null,
+      owes: m?.owes ?? false,
+      hardship_until: m?.hardship_until ?? null,
+    };
   });
 }
