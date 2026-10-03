@@ -143,13 +143,16 @@ export function claimItem(
     readonly playedOn: string;
     readonly amountCents: number;
   },
+  who: Answering = { self: false, childId: c.personId },
 ): WaitingItem {
   return {
     clubId,
     kind: 'claim_unsettled',
     subjectKey: c.claimId,
-    headline: `${c.officialName} is owed ${formatMoney(c.amountCents)} for ${c.opponent} on ${c.playedOn}`,
-    detail: 'Choose to be paid, or to take it as credit next season (BR152).',
-    linkPath: workspacePath(clubId, 'guardian', { self: false, childId: c.personId }),
+    headline: who.self
+      ? `You are owed ${formatMoney(c.amountCents)} for ${c.opponent} on ${c.playedOn}`
+      : `${c.officialName} is owed ${formatMoney(c.amountCents)} for ${c.opponent} on ${c.playedOn}`,
+    detail: 'Nominate the account it is paid to; every approved claim is paid out (BR152, BR161).',
+    linkPath: who.self ? workspacePath(clubId, 'referee', who) : workspacePath(clubId, 'guardian', who),
   };
 }

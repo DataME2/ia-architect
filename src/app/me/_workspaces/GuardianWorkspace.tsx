@@ -21,7 +21,7 @@ import { loadSubscription } from '../../../data/calendar.ts';
 import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
 import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
 import { ConfirmMatchForm } from '../_officiating/ConfirmMatchForm.tsx';
-import { SettleClaimForm } from '../_officiating/SettleClaimForm.tsx';
+import { claimStanding } from '../../../web/officials-own-view.ts';
 import { PayoutNominationForm } from '../_officiating/PayoutNominationForm.tsx';
 import { loadNominations } from '../../../data/payouts.ts';
 import { ComingSoon, FixtureCard, Panel, RecordLines, WorkspaceHead } from './shared.tsx';
@@ -344,18 +344,24 @@ export async function GuardianWorkspace({
           {settleable.length > 0 && (
             <Panel
               title="Referee payment"
-              meta={`${settleable.filter((c) => c.settlement === null).length} WAITING`}
+              meta={`${settleable.length} APPROVED`}
             >
               <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
-                Money is owed for officiating. Choose pay or credit for each claim, and nominate where
-                a payment goes.{' '}
+                Money is owed for officiating. Every approved claim is paid out to the account you
+                nominate below &mdash; there is no credit to choose.{' '}
                 <span className="mono" style={{ fontSize: '0.7rem' }}>
                   BR152 · BR161
                 </span>
               </p>
               <ul className="check" style={{ margin: 0 }}>
                 {settleable.map((c) => (
-                  <SettleClaimForm key={c.id} clubId={link.clubId} claim={c} />
+                  <li key={c.id}>
+                    <span className="ctitle">
+                      {c.officialName} vs {c.opponent} — {c.playedOn} · {formatMoney(c.amountCents)}
+                    </span>
+                    <br />
+                    <span className="cnote">{claimStanding(c)}</span>
+                  </li>
                 ))}
               </ul>
               {owedTo.map(([personId, name]) => (

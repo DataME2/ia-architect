@@ -59,6 +59,11 @@ must never appear**.
 > and the migrations applied with `check_rls.py` run against it. The order
 > and the reasoning are in
 > [scope 49's runbook](../../scope/49_an_environment_of_its_own.md).
+>
+> **Two more, confirmed by the product owner October 2026** ([scope 78](../../scope/78_thirteen_decides_money_and_saturdays.md)). The development project holds **synthetic data only** — no real family, referee or bank detail — and production will be a **new Supabase project, tagged prod**, created when the product meets expectations. In it:
+>
+> 1. **The simulated referee payout is refused** (BR162, [decision 16](../../decisions/16_the_platform_records_a_payout_a_provider_moves_it.md)) — only a connected provider may mark a run paid.
+> 2. **`payout_nomination.bsb` and `account_number` are encrypted at rest** (Supabase Vault / pgsodium), on top of the masking and the three-role read already enforced.
 
 **Preview deployments must never point at production.** A preview URL is
 effectively public — it is in the pull request, and pull requests here are

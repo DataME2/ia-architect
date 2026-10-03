@@ -38,6 +38,9 @@ export async function PlayerWorkspace({
   // BR148: only once you are eighteen may you propose your own correction —
   // the trigger enforces it too, this only decides whether to offer the form.
   const isAdult = ageAt(link.person.dateOfBirth, today) >= 18;
+  // BR62 from thirteen (question 80 (C), scope 78): the player answers their
+  // own Saturday; until eighteen their guardian may answer too.
+  const answersOwnSaturday = ageAt(link.person.dateOfBirth, today) >= 13;
   const pendingCorrection =
     isAdult && registration !== null ? await loadMyCorrection(client, registration.id) : null;
 
@@ -66,14 +69,14 @@ export async function PlayerWorkspace({
           </Panel>
           {next !== null && (
             <Panel title="Are you available?">
-              {isAdult ? (
+              {answersOwnSaturday ? (
                 <AvailabilityAnswer clubId={link.clubId} fixtureId={next.id} personId={link.personId} response={response} />
               ) : (
                 <p style={{ margin: 0 }}>
                   <span className={participationBanner(response).className}>{participationBanner(response).label}</span>
                   <br />
                   <span className="hint">
-                    Your guardian answers this for you until you turn eighteen (BR63).
+                    Your guardian answers this for you until you turn thirteen (BR62, BR63).
                   </span>
                 </p>
               )}
