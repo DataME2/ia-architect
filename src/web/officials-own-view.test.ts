@@ -8,26 +8,18 @@ describe('claimStanding', () => {
     ({ state: 'approved', settlement: null, batchId: null, ...over }) as const;
 
   it('says who a claim waits on', () => {
-    assert.match(claimStanding(claim({ state: 'raised' }), true), /treasurer/);
-    assert.equal(claimStanding(claim({ state: 'rejected' }), true), 'Not approved.');
+    assert.match(claimStanding(claim({ state: 'raised' })), /treasurer/);
+    assert.equal(claimStanding(claim({ state: 'rejected' })), 'Not approved.');
   });
 
-  it('asks an adult to choose, and tells a minor their guardian chooses (BR152)', () => {
-    assert.equal(claimStanding(claim({}), true), 'Approved: choose pay or credit.');
-    assert.match(claimStanding(claim({}), false), /Parent\/Guardian chooses.*BR152/);
+  it('pays every approved claim out, with no credit to choose (BR152, scope 79)', () => {
+    assert.equal(claimStanding(claim({})), 'Approved: it will be paid to the nominated account.');
+    assert.match(claimStanding(claim({ batchId: 'b' })), /payment run/);
+    assert.doesNotMatch(claimStanding(claim({})), /credit/i);
   });
 
   it('says a simulated payout is a simulation', () => {
-    assert.equal(
-      claimStanding(claim({ settlement: 'pay', batchId: 'b' }), true, { reference: 'SIM-1-1', simulated: true }),
-      'Paid online (simulated) · SIM-1-1.',
-    );
-  });
-
-  it('follows a chosen claim to its batch', () => {
-    assert.match(claimStanding(claim({ settlement: 'credit' }), true), /credited/);
-    assert.match(claimStanding(claim({ settlement: 'pay' }), true), /to be paid/);
-    assert.match(claimStanding(claim({ settlement: 'pay', batchId: 'b' }), true), /payment batch/);
+    assert.equal(claimStanding(claim({ batchId: 'b' }), { reference: 'SIM-1-1', simulated: true }), 'Paid online (simulated) · SIM-1-1.');
   });
 });
 
