@@ -124,16 +124,17 @@ async function collectForLink(client: SupabaseClient, link: ClubLink, today: str
     items.push(...(await collectCorrections(client, link.clubId)));
   }
 
-  // The account's own items, where it answers for itself: availability
-  // from eighteen (BR62), designations and match confirmations from thirteen
-  // (BR113, BR151 as restated by scope 73).
+  // The account's own items, where it answers for itself, all from thirteen:
+  // designations and match confirmations (scope 73), Saturday availability
+  // and an unsettled claim (question 80 (C), scope 78).
   const age = ageAt(link.person.dateOfBirth, today);
-  if (age >= 18) {
+  if (age >= 13) {
     const self = { id: link.personId, name: nameOf(link.person) };
     const own = await availabilityFor(client, link, self, { self: true }, today);
     if (own !== null) items.push(own);
-  }
-  if (age >= 13) {
+    for (const c of await loadSettleableClaims(client, link.clubId, [link.personId])) {
+      if (c.settlement === null) items.push(claimItem(link.clubId, { ...c, claimId: c.id }, { self: true }));
+    }
     items.push(...(await designationsFor(client, link.clubId, link.personId, { self: true }, today)));
     for (const m of await loadConfirmableAppointments(client, link.clubId, [link.personId], today, 'self')) {
       if (!m.confirmed) items.push(matchItem(link.clubId, m, { self: true }));
