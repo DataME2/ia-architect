@@ -32,7 +32,10 @@ export async function CoachWorkspace({
 
   // BR79: registered with the federation, and still cannot take the field.
   // The coach is told that money is owed, never how much (BR78, #73).
-  const cannotPlay = players.filter((p) => p.registration !== null && p.registration.owes);
+  // An approved hardship (BR164) clears the verdict; the coach is not told why.
+  const cannotPlay = players.filter(
+    (p) => p.registration !== null && p.registration.owes && p.registration.hardship_until === null,
+  );
   const unregistered = players.filter((p) => p.registration === null || p.registration.status !== 'COMPLETE');
 
   return (
@@ -57,7 +60,7 @@ export async function CoachWorkspace({
                     </span>
                     {p.registration === null ? (
                       <span className="pill pill-stop">Not registered</span>
-                    ) : p.registration.owes ? (
+                    ) : p.registration.owes && p.registration.hardship_until === null ? (
                       <span className="pill pill-stop">Not clear to play</span>
                     ) : p.registration.status === 'COMPLETE' ? (
                       <span className="pill pill-ok">Registered</span>

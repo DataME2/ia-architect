@@ -24,6 +24,8 @@ import { ConfirmMatchForm } from '../_officiating/ConfirmMatchForm.tsx';
 import { claimStanding } from '../../../web/officials-own-view.ts';
 import { PayoutNominationForm } from '../_officiating/PayoutNominationForm.tsx';
 import { loadNominations } from '../../../data/payouts.ts';
+import { loadHardshipRequests } from '../../../data/hardship.ts';
+import { HardshipRequestForm } from '../_hardship/HardshipForms.tsx';
 import { ComingSoon, FixtureCard, Panel, RecordLines, WorkspaceHead } from './shared.tsx';
 
 const CONSENT_LABEL: Readonly<Record<string, string>> = {
@@ -141,6 +143,9 @@ export async function GuardianWorkspace({
   // BR152: any approved claim for this household's officials, settled or
   // still waiting on a choice — the whole household, same reason as above.
   const settleable = await loadSettleableClaims(client, link.clubId, cards.map((c) => c.personId));
+  // BR164: this child's latest hardship request, if any.
+  const hardship = (await loadHardshipRequests(client, link.clubId, [card.personId]))[0] ?? null;
+  const hardshipActive = hardship?.state === 'approved' && hardship.validUntil !== null && hardship.validUntil >= today;
   // Where each child with money owed is paid (BR161).
   const owedTo = [...new Map(settleable.map((c) => [c.personId, c.officialName])).entries()];
   const nominations = await loadNominations(client, link.clubId, owedTo.map(([id]) => id));
@@ -297,6 +302,34 @@ export async function GuardianWorkspace({
                   </span>
                 )}
               </>
+            )}
+            {registration !== null && child.balanceCents > 0 && (
+              <div style={{ marginTop: 'var(--space-1)' }}>
+                {hardship?.state === 'requested' ? (
+                  <p className="hint" style={{ margin: 0 }}>
+                    Hardship asked {hardship.requestedAt.slice(0, 10)} &mdash; waiting for the committee (BR164).
+                  </p>
+                ) : hardshipActive ? (
+                  <p className="hint" style={{ margin: 0 }}>
+                    <span className="pill pill-ok">Hardship until {hardship!.validUntil}</span> {card.name} may play
+                    meanwhile; the amount is still owed.
+                  </p>
+                ) : (
+                  <>
+                    {hardship?.state === 'declined' && (
+                      <p className="hint" style={{ margin: '0 0 0.4rem' }}>
+                        The committee declined the last request: {hardship.decisionNote}
+                      </p>
+                    )}
+                    <HardshipRequestForm
+                      clubId={link.clubId}
+                      registrationId={registration.id}
+                      personId={card.personId}
+                      playerName={card.name}
+                    />
+                  </>
+                )}
+              </div>
             )}
             {relief.map((v) => (
               <p key={v.id} className="hint" style={{ margin: 0 }}>

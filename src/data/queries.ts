@@ -489,6 +489,7 @@ export async function loadQueue(
       duplicateCount: duplicates.length,
       outstandingCents: registration.outstandingAmountCents,
       owes: registration.owesMoney,
+      hardshipUntil: registration.hardshipUntil,
     });
   }
 
@@ -588,6 +589,7 @@ export async function loadRegistrationDetail(
       duplicateCount: duplicates.length,
       outstandingCents: registration.outstandingAmountCents,
       owes: registration.owesMoney,
+      hardshipUntil: registration.hardshipUntil,
     },
     person,
     documents,
