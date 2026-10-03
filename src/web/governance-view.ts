@@ -15,6 +15,7 @@ export const POSITION_LABEL: Readonly<Record<CommitteePosition, string>> = {
   'vice-president': 'Vice-president',
   secretary: 'Secretary',
   treasurer: 'Treasurer',
+  'it-manager': 'IT Manager',
   registrar: 'Registrar',
   'committee-member': 'Committee member',
   'subcommittee-member': 'Subcommittee member',
@@ -58,7 +59,36 @@ export function termNote(status: TermStatus, days: number): string {
 export const RESOLUTION_CATEGORY_LABEL: Readonly<Record<CommitteeResolution['category'], string>> = {
   general: 'General',
   voucher_program: 'Voucher Program approval',
+  agm_election: 'AGM election (confirms the officers)',
 };
+
+/** The officers the AGM election confirms (BR166); every other position needs the executive (BR167). */
+export const ELECTED_OFFICERS: readonly CommitteePosition[] = ['president', 'secretary', 'treasurer', 'it-manager'];
+export const EXECUTIVE_CONFIRMERS = ['president', 'treasurer', 'secretary'] as const;
+
+/** Where a position's confirmation stands, in words, and who is still to confirm it. */
+export function confirmationStatus(
+  position: CommitteePosition,
+  confirmedAt: string | null,
+  confirmedBy: readonly string[],
+): { readonly label: string; readonly confirmed: boolean; readonly awaiting: readonly string[] } {
+  if (confirmedAt !== null) {
+    return {
+      label: ELECTED_OFFICERS.includes(position) ? 'Confirmed by the AGM election' : 'Confirmed by the executive',
+      confirmed: true,
+      awaiting: [],
+    };
+  }
+  if (ELECTED_OFFICERS.includes(position)) {
+    return { label: 'Awaiting the AGM election resolution', confirmed: false, awaiting: [] };
+  }
+  const awaiting = EXECUTIVE_CONFIRMERS.filter((o) => !confirmedBy.includes(o));
+  return {
+    label: `${3 - awaiting.length} of 3 — awaiting ${awaiting.map((o) => POSITION_LABEL[o]).join(', ')}`,
+    confirmed: false,
+    awaiting,
+  };
+}
 
 export type ParsedResolution =
   | {
@@ -91,7 +121,8 @@ export function parseResolution(fields: {
   const summary = fields.summary.trim();
   if (summary === '') return { ok: false, error: 'Say what the Committee decided.' };
 
-  const category = fields.category === 'voucher_program' ? 'voucher_program' : 'general';
+  const category =
+    fields.category === 'voucher_program' || fields.category === 'agm_election' ? fields.category : 'general';
 
   return {
     ok: true,

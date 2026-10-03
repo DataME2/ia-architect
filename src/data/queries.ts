@@ -324,7 +324,7 @@ async function loadSlice(
           'registration_document',
           await client
             .from('registration_document')
-            .select('id, club_id, registration_id, document_type, storage_path, required, provided_at')
+            .select('id, club_id, registration_id, document_type, storage_path, required, provided_at, submitted_at')
             .eq('club_id', clubId)
             .in('registration_id', registrationIds),
         );
@@ -489,6 +489,7 @@ export async function loadQueue(
       duplicateCount: duplicates.length,
       outstandingCents: registration.outstandingAmountCents,
       owes: registration.owesMoney,
+      hardshipUntil: registration.hardshipUntil,
     });
   }
 
@@ -588,6 +589,7 @@ export async function loadRegistrationDetail(
       duplicateCount: duplicates.length,
       outstandingCents: registration.outstandingAmountCents,
       owes: registration.owesMoney,
+      hardshipUntil: registration.hardshipUntil,
     },
     person,
     documents,

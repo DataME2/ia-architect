@@ -32,6 +32,7 @@ function member(overrides: Partial<CommitteeMember> = {}): CommitteeMember {
     position: 'president',
     electedOn: '2026-03-01',
     resignedOn: null,
+    confirmedAt: null,
     ...overrides,
   };
 }

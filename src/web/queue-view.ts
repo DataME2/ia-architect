@@ -29,6 +29,8 @@ export interface QueueEntry {
   readonly outstandingCents: number | null;
   /** Whether anything is owed: BR79's money half, which every reader gets. */
   readonly owes: boolean;
+  /** An approved hardship (BR164) lets an owing player play until this date. */
+  readonly hardshipUntil?: string | null;
 }
 
 /**
@@ -39,7 +41,7 @@ export interface QueueEntry {
  * Tuesday.
  */
 export function eligibilityOf(entry: QueueEntry): PlayEligibility {
-  return playEligibility(entry.status, entry.outstandingCents, entry.owes);
+  return playEligibility(entry.status, entry.outstandingCents, entry.owes, entry.hardshipUntil ?? null);
 }
 
 /**

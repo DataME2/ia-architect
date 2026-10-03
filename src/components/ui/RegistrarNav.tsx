@@ -25,6 +25,7 @@ export const DEFAULT_REGISTRAR_NAV: RegistrarNavItem[] = [
   { href: '/registrar/referee-payments', label: 'Match official payments', seasonScoped: true },
   { href: '/registrar/fees', label: 'Match official fees', seasonScoped: false },
   { href: '/registrar/governance', label: 'Governance', seasonScoped: false },
+  { href: '/registrar/committee-hub', label: 'Committee hub', seasonScoped: false },
   { href: '/registrar/duplicates', label: 'Duplicates', seasonScoped: false },
   { href: '/registrar/pack', label: 'Submission pack', seasonScoped: true },
   { href: '/registrar/reports', label: 'Reports', seasonScoped: true },

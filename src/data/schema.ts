@@ -188,6 +188,8 @@ export interface RegistrationRow {
    */
   outstanding_amount_cents: number | null;
   owes: boolean;
+  /** An approved, unexpired hardship (BR164, scope 82): may play until this date although owing. */
+  hardship_until: string | null;
   created_at: InstantString;
 }
 
@@ -199,6 +201,8 @@ export interface RegistrationDocumentRow {
   storage_path: string | null;
   required: boolean;
   provided_at: InstantString | null;
+  /** A family upload (BR165, scope 83): submitted, not yet received. */
+  submitted_at?: InstantString | null;
 }
 
 export interface ConsentRow {
@@ -332,10 +336,11 @@ export interface CommitteePositionRow {
   position: CommitteePosition;
   elected_on: DateString | null;
   resigned_on: DateString | null;
+  confirmed_at?: InstantString | null;
   created_at: InstantString;
 }
 
-export type CommitteeResolutionCategory = 'general' | 'voucher_program';
+export type CommitteeResolutionCategory = 'general' | 'voucher_program' | 'agm_election';
 
 export interface CommitteeResolutionRow {
   id: string;

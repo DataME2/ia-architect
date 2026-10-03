@@ -6,14 +6,13 @@
 
 export interface OwnClaim {
   readonly state: 'raised' | 'approved' | 'rejected';
-  readonly settlement: 'pay' | 'credit' | null;
+  readonly settlement: 'pay' | null;
   readonly batchId: string | null;
 }
 
 /** Where a claim stands, from the official's side. */
 export function claimStanding(
   claim: OwnClaim,
-  answersForThemselves: boolean,
   payout: { readonly reference: string; readonly simulated: boolean } | null = null,
 ): string {
   if (payout !== null) {
@@ -21,13 +20,10 @@ export function claimStanding(
   }
   if (claim.state === 'raised') return 'Waiting for the treasurer to approve it.';
   if (claim.state === 'rejected') return 'Not approved.';
-  if (claim.settlement === null) {
-    return answersForThemselves
-      ? 'Approved: choose pay or credit.'
-      : 'Approved: your Parent/Guardian chooses pay or credit until you are 18 (BR152).';
-  }
-  if (claim.settlement === 'credit') return 'Approved: credited toward next season.';
-  return claim.batchId === null ? 'Approved: to be paid.' : 'Approved: in a payment batch.';
+  // BR152 restated (scope 79): every approved claim is paid out.
+  return claim.batchId === null
+    ? 'Approved: it will be paid to the nominated account.'
+    : 'Approved: in a payment run, to be paid to the nominated account.';
 }
 
 export interface OwnCredential {
