@@ -54,6 +54,16 @@ describe('the five waiting items', () => {
     assert.equal(item.linkPath, '/me?role=referee&club=c');
   });
 
+  it("tells a thirteen-plus official about their own claim, on their own workspace", () => {
+    const item = claimItem(
+      'c',
+      { claimId: 'k', personId: 'p', officialName: 'Ana', opponent: 'Robina', playedOn: '2026-09-19', amountCents: 3000 },
+      { self: true },
+    );
+    assert.equal(item.headline, 'You are owed $30.00 for Robina on 2026-09-19');
+    assert.equal(item.linkPath, '/me?role=referee&club=c');
+  });
+
   it('names the role a designation offers', () => {
     const d = { appointmentId: 'ap-1', officialName: 'Sebastian', role: 'referee', opponent: 'Robina', playedOn: '2026-09-19' };
     assert.equal(designationItem('c', d, { self: false, childId: 'kid-1' }).headline, 'Sebastian is offered as referee against Robina on 2026-09-19');

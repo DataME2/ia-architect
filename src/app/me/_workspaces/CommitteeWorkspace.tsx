@@ -9,9 +9,11 @@ import {
 } from '../../../domain/governance/term.ts';
 import { loadGovernanceOrEmpty } from '../../../data/governance.ts';
 import { countVouchersAwaiting, type ClubLink } from '../../../data/me.ts';
+import { loadHardshipRequests } from '../../../data/hardship.ts';
+import { HardshipDecisionRow } from '../_hardship/HardshipForms.tsx';
 import { displayNameFor } from '../../../web/queue-view.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
-import { ComingSoon, Panel, WorkspaceHead } from './shared.tsx';
+import { Panel, WorkspaceHead } from './shared.tsx';
 
 function titleCase(value: string): string {
   return value.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -34,6 +36,10 @@ export async function CommitteeWorkspace({
   const vacant = term === null ? [] : vacantOffices(members, today);
   const vouchers = await countVouchersAwaiting(client, link.clubId);
   const treasurer = link.membershipRoles.some((r) => r === 'treasurer' || r === 'admin');
+  // BR164: the committee decides hardship; RLS returns only what it may read.
+  const hardship = await loadHardshipRequests(client, link.clubId);
+  const waitingHardship = hardship.filter((h) => h.state === 'requested');
+  const activeHardship = hardship.filter((h) => h.state === 'approved' && h.validUntil !== null && h.validUntil >= today);
 
   return (
     <>
@@ -56,11 +62,27 @@ export async function CommitteeWorkspace({
               </li>
             </ul>
           </Panel>
-          <ComingSoon title="Hardship requests" waitsOn="open question 50 — a recorded override for BR79">
-            A family that cannot pay this week will be kept off the field by nobody. The open question is
-            whether that happens here, with an approver and a reason recorded, or by someone quietly zeroing
-            a balance.
-          </ComingSoon>
+          <Panel title="Hardship requests" meta={`${waitingHardship.length} WAITING`}>
+            <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
+              An approved hardship lets a player take the field until a date although money is owed. The debt is
+              not forgiven, and your name and reason are recorded.{' '}
+              <span className="mono" style={{ fontSize: '0.7rem' }}>BR79 · BR164</span>
+            </p>
+            {waitingHardship.length === 0 ? (
+              <p className="empty" style={{ margin: 0 }}>No request is waiting.</p>
+            ) : (
+              <ul className="check" style={{ margin: 0 }}>
+                {waitingHardship.map((h) => (
+                  <HardshipDecisionRow key={h.id} clubId={link.clubId} request={h} />
+                ))}
+              </ul>
+            )}
+            {activeHardship.length > 0 && (
+              <p className="hint" style={{ marginBottom: 0 }}>
+                In force: {activeHardship.map((h) => `${h.playerName} until ${h.validUntil}`).join(' · ')}.
+              </p>
+            )}
+          </Panel>
           <AssistantNote kind="summary">
             When the meeting is called, a one-page summary of what is waiting — with last year&rsquo;s voucher
             uptake beside it — will be drafted here. It approves nothing; the committee does.

@@ -21,9 +21,11 @@ import { loadSubscription } from '../../../data/calendar.ts';
 import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
 import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
 import { ConfirmMatchForm } from '../_officiating/ConfirmMatchForm.tsx';
-import { SettleClaimForm } from '../_officiating/SettleClaimForm.tsx';
+import { claimStanding } from '../../../web/officials-own-view.ts';
 import { PayoutNominationForm } from '../_officiating/PayoutNominationForm.tsx';
 import { loadNominations } from '../../../data/payouts.ts';
+import { loadHardshipRequests } from '../../../data/hardship.ts';
+import { HardshipRequestForm } from '../_hardship/HardshipForms.tsx';
 import { ComingSoon, FixtureCard, Panel, RecordLines, WorkspaceHead } from './shared.tsx';
 
 const CONSENT_LABEL: Readonly<Record<string, string>> = {
@@ -141,6 +143,9 @@ export async function GuardianWorkspace({
   // BR152: any approved claim for this household's officials, settled or
   // still waiting on a choice — the whole household, same reason as above.
   const settleable = await loadSettleableClaims(client, link.clubId, cards.map((c) => c.personId));
+  // BR164: this child's latest hardship request, if any.
+  const hardship = (await loadHardshipRequests(client, link.clubId, [card.personId]))[0] ?? null;
+  const hardshipActive = hardship?.state === 'approved' && hardship.validUntil !== null && hardship.validUntil >= today;
   // Where each child with money owed is paid (BR161).
   const owedTo = [...new Map(settleable.map((c) => [c.personId, c.officialName])).entries()];
   const nominations = await loadNominations(client, link.clubId, owedTo.map(([id]) => id));
@@ -298,6 +303,34 @@ export async function GuardianWorkspace({
                 )}
               </>
             )}
+            {registration !== null && child.balanceCents > 0 && (
+              <div style={{ marginTop: 'var(--space-1)' }}>
+                {hardship?.state === 'requested' ? (
+                  <p className="hint" style={{ margin: 0 }}>
+                    Hardship asked {hardship.requestedAt.slice(0, 10)} &mdash; waiting for the committee (BR164).
+                  </p>
+                ) : hardshipActive ? (
+                  <p className="hint" style={{ margin: 0 }}>
+                    <span className="pill pill-ok">Hardship until {hardship!.validUntil}</span> {card.name} may play
+                    meanwhile; the amount is still owed.
+                  </p>
+                ) : (
+                  <>
+                    {hardship?.state === 'declined' && (
+                      <p className="hint" style={{ margin: '0 0 0.4rem' }}>
+                        The committee declined the last request: {hardship.decisionNote}
+                      </p>
+                    )}
+                    <HardshipRequestForm
+                      clubId={link.clubId}
+                      registrationId={registration.id}
+                      personId={card.personId}
+                      playerName={card.name}
+                    />
+                  </>
+                )}
+              </div>
+            )}
             {relief.map((v) => (
               <p key={v.id} className="hint" style={{ margin: 0 }}>
                 A {v.program} voucher covered {formatMoney(v.faceValueCents)}.
@@ -344,18 +377,24 @@ export async function GuardianWorkspace({
           {settleable.length > 0 && (
             <Panel
               title="Referee payment"
-              meta={`${settleable.filter((c) => c.settlement === null).length} WAITING`}
+              meta={`${settleable.length} APPROVED`}
             >
               <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
-                Money is owed for officiating. Choose pay or credit for each claim, and nominate where
-                a payment goes.{' '}
+                Money is owed for officiating. Every approved claim is paid out to the account you
+                nominate below &mdash; there is no credit to choose.{' '}
                 <span className="mono" style={{ fontSize: '0.7rem' }}>
                   BR152 · BR161
                 </span>
               </p>
               <ul className="check" style={{ margin: 0 }}>
                 {settleable.map((c) => (
-                  <SettleClaimForm key={c.id} clubId={link.clubId} claim={c} />
+                  <li key={c.id}>
+                    <span className="ctitle">
+                      {c.officialName} vs {c.opponent} — {c.playedOn} · {formatMoney(c.amountCents)}
+                    </span>
+                    <br />
+                    <span className="cnote">{claimStanding(c)}</span>
+                  </li>
                 ))}
               </ul>
               {owedTo.map(([personId, name]) => (

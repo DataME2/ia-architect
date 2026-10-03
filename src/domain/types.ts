@@ -137,6 +137,8 @@ export interface Registration {
    */
   readonly outstandingAmountCents: number | null;
   readonly owesMoney: boolean;
+  /** An approved hardship runs until this date (BR164): BR79 does not block until then. */
+  readonly hardshipUntil: string | null;
 }
 
 /** Age in whole years at `asAt`. */

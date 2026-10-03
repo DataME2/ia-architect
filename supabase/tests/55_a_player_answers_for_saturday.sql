@@ -2,7 +2,7 @@
 -- family routing BR113 already proved (BR62/BR63)?
 --
 --   * an adult player answers for themselves,
---   * a minor with no guardian holding authority cannot be answered for at
+--   * a minor under thirteen with no guardian holding authority cannot be answered for at
 --     all — nobody to ask,
 --   * a minor with an authority guardian is answered by that guardian,
 --   * a contact-only guardian (no authority) cannot answer for a minor,
@@ -48,7 +48,7 @@ insert into person (id, club_id, legal_given_names, legal_family_name, date_of_b
    'Contact', 'Only', '1984-01-01'),
   -- A minor with nobody recorded as holding authority.
   ('b55c0000-0000-0000-0000-000000000005', '55c00000-0000-0000-0000-000000000001',
-   'Unparented', 'Minor', (current_date - interval '13 years')::date),
+   'Unparented', 'Minor', (current_date - interval '12 years')::date),
   -- Another family entirely, at the same club.
   ('b55c0000-0000-0000-0000-000000000006', '55c00000-0000-0000-0000-000000000001',
    'Someone', 'Else', '1983-01-01');
@@ -125,17 +125,14 @@ begin
     end if;
   end;
 
-  -- 3. Nobody may name somebody else's answer as their own — the minor
-  --    cannot answer for herself even with her mother's row inserted under
-  --    her own name.
+  -- 3. From thirteen a player answers her own Saturday (question 80, (C),
+  --    0075). Removed again so the guardian's answer below is the one kept.
   begin
     insert into participation_response (club_id, fixture_id, person_id, status, responded_by_person_id)
     values (the_club, f1, minor, 'available', minor);
-    failures := array_append(failures, 'a fourteen-year-old answered her own participation (BR62/BR63)');
+    delete from participation_response where fixture_id = f1 and person_id = minor;
   exception when others then
-    if sqlerrm not like '%does not hold authority%' then
-      failures := array_append(failures, 'the self-answer refusal did not name the reason: ' || sqlerrm);
-    end if;
+    failures := array_append(failures, 'a fourteen-year-old could not answer her own Saturday (BR62, 0075): ' || sqlerrm);
   end;
 
   -- 4. The authority guardian answers for the minor — this is the shape.

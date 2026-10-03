@@ -2,7 +2,7 @@ import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 
 import {
-  batchStanding, canClose, canPay, needsVerification, parseDecision, parseSettlement, parseVerification,
+  batchStanding, canClose, canPay, needsVerification, parseDecision, parseVerification,
   previewClaim,
   type BatchSummary, type ClaimCandidate, type VerifiableAppointment,
 } from './claim-view.ts';
@@ -190,21 +190,3 @@ describe('batches — open, closed, paid, in that order', () => {
   });
 });
 
-describe('parseSettlement — a family\'s choice for an approved claim', () => {
-  it('accepts pay', () => {
-    assert.deepEqual(parseSettlement({ claimId: 'c1', settlement: 'pay' }), { ok: true, claimId: 'c1', settlement: 'pay' });
-  });
-
-  it('accepts credit', () => {
-    assert.deepEqual(parseSettlement({ claimId: 'c1', settlement: 'credit' }), { ok: true, claimId: 'c1', settlement: 'credit' });
-  });
-
-  it('refuses anything else', () => {
-    assert.equal(parseSettlement({ claimId: 'c1', settlement: 'cash' }).ok, false);
-    assert.equal(parseSettlement({ claimId: 'c1' }).ok, false);
-  });
-
-  it('refuses with no claim named', () => {
-    assert.equal(parseSettlement({ settlement: 'pay' }).ok, false);
-  });
-});

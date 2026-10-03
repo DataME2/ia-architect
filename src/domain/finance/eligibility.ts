@@ -56,6 +56,8 @@ export function playEligibility(
   /** Null when the figure is not the reader's to see (BR78): `owes` decides. */
   outstandingCents: number | null,
   owes: boolean = (outstandingCents ?? 0) > 0,
+  /** An approved, unexpired hardship (BR164): owing does not block until this date. */
+  hardshipUntil: string | null = null,
 ): PlayEligibility {
   const amount = outstandingCents === null ? 'money' : formatMoney(outstandingCents);
   if (!isEligibleToPlay(status)) {
@@ -65,6 +67,14 @@ export function playEligibility(
       reason: owes
         ? `Not registered with the federation, and ${amount} is outstanding.`
         : 'Not yet confirmed present in the federation’s system (BR43).',
+    };
+  }
+
+  if (owes && hardshipUntil !== null) {
+    return {
+      mayPlay: true,
+      blockedBy: null,
+      reason: `Registered, and playing under a hardship the committee approved until ${hardshipUntil} (BR164) — the ${amount} is still owed.`,
     };
   }
 
@@ -88,12 +98,17 @@ export function playEligibility(
  * is not — the one a coach would otherwise pick from.
  */
 export function blockedByMoney<
-  T extends { readonly status: RegistrationStatus; readonly outstandingCents: number | null; readonly owes?: boolean },
+  T extends {
+    readonly status: RegistrationStatus;
+    readonly outstandingCents: number | null;
+    readonly owes?: boolean;
+    readonly hardshipUntil?: string | null;
+  },
 >(
   entries: readonly T[],
 ): readonly T[] {
   return entries.filter(
-    (e) => playEligibility(e.status, e.outstandingCents, e.owes).blockedBy === 'owes-money',
+    (e) => playEligibility(e.status, e.outstandingCents, e.owes, e.hardshipUntil ?? null).blockedBy === 'owes-money',
   );
 }
 

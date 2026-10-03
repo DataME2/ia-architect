@@ -188,6 +188,8 @@ export interface RegistrationRow {
    */
   outstanding_amount_cents: number | null;
   owes: boolean;
+  /** An approved, unexpired hardship (BR164, scope 82): may play until this date although owing. */
+  hardship_until: string | null;
   created_at: InstantString;
 }
 
