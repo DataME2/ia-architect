@@ -336,10 +336,11 @@ export interface CommitteePositionRow {
   position: CommitteePosition;
   elected_on: DateString | null;
   resigned_on: DateString | null;
+  confirmed_at?: InstantString | null;
   created_at: InstantString;
 }
 
-export type CommitteeResolutionCategory = 'general' | 'voucher_program';
+export type CommitteeResolutionCategory = 'general' | 'voucher_program' | 'agm_election';
 
 export interface CommitteeResolutionRow {
   id: string;

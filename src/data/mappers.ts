@@ -209,6 +209,7 @@ export function toCommitteeMember(row: CommitteePositionRow): CommitteeMember {
     position: row.position,
     electedOn: row.elected_on,
     resignedOn: row.resigned_on,
+    confirmedAt: row.confirmed_at ?? null,
   };
 }
 

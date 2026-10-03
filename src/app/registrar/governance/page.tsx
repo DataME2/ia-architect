@@ -6,7 +6,7 @@ import {
   loadFunctionAppointments,
   mayConfirmAppointments,
 } from '../../../data/appointments.ts';
-import { loadGovernance } from '../../../data/governance.ts';
+import { loadGovernance, loadPositionConfirmations } from '../../../data/governance.ts';
 import { loadTenantContext } from '../../../data/queries.ts';
 import { loadAssignablePeople, loadClearanceCoverage } from '../../../data/teams.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
@@ -23,6 +23,7 @@ import {
   RESOLUTION_CATEGORY_LABEL,
   TERM_STATUS_LABEL,
   TERM_STATUS_TONE,
+  confirmationStatus,
   enabledProgramNames,
   termNote,
 } from '../../../web/governance-view.ts';
@@ -37,6 +38,7 @@ import {
   AccessCell,
   AppointForm,
   AppointFunctionForm,
+  ConfirmPositionButton,
   EnableVoucherProgramForm,
   EndFunctionButton,
   MemberRow,
@@ -97,6 +99,17 @@ export default async function GovernancePage() {
     mayConfirmAppointments(client, tenant.clubId),
     loadAssignablePeople(client, tenant.clubId),
   ]);
+  // BR166/BR167: who has confirmed each position, and which executive
+  // offices this viewer holds, confirmed, in each term.
+  const [confirmations, { data: myLinks }] = await Promise.all([
+    loadPositionConfirmations(client, tenant.clubId),
+    client.from('account_person').select('person_id').eq('club_id', tenant.clubId).eq('user_id', user.id),
+  ]);
+  const myPersons = new Set(((myLinks ?? []) as { person_id: string }[]).map((l) => l.person_id));
+  const myExecutive = (termId: string) =>
+    members
+      .filter((m) => m.termId === termId && myPersons.has(m.personId) && m.confirmedAt !== null && m.resignedOn === null)
+      .map((m) => m.position as string);
   const accessByPosition = new Map(
     accessRows.filter((r) => r.committeePositionId !== null).map((r) => [r.committeePositionId, r]),
   );
@@ -177,6 +190,7 @@ export default async function GovernancePage() {
                       <th>Position</th>
                       <th>Person</th>
                       <th>Elected</th>
+                      <th>Confirmed</th>
                       <th>Access it carries</th>
                       <th />
                     </tr>
@@ -191,6 +205,16 @@ export default async function GovernancePage() {
                           position={member.position}
                           electedOn={member.electedOn}
                           person={person}
+                          confirmation={(() => {
+                            const st = confirmationStatus(member.position, member.confirmedAt, confirmations.get(member.id) ?? []);
+                            const canConfirm = st.awaiting.some((o) => myExecutive(term.id).includes(o));
+                            return (
+                              <>
+                                <span className={st.confirmed ? 'pill pill-ok' : 'pill pill-warn'}>{st.label}</span>
+                                {canConfirm && <ConfirmPositionButton positionId={member.id} />}
+                              </>
+                            );
+                          })()}
                           access={
                             <AccessCell
                               target={{ positionId: member.id }}
