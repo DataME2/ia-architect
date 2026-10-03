@@ -34,6 +34,7 @@ import { GuardianInvite } from './GuardianInvite.tsx';
 import { PlayerInvite } from './PlayerInvite.tsx';
 import { ReminderPanel } from './ReminderPanel.tsx';
 import { AttachVoucherForm } from './VoucherPanel.tsx';
+import { documentLink } from '../../../data/documents.ts';
 import { OutstandingForm } from './OutstandingForm.tsx';
 import { NewPlanForm, PlanSchedule, RecordPaymentForm } from './PaymentPlanPanel.tsx';
 
@@ -95,6 +96,14 @@ export default async function RegistrationDetailPage({
 
   const season = seasons.find((s) => s.id === seasonId);
   const { entry, person, documents, consents, duplicates } = detail;
+  // BR165: a short-lived link to each file a family sent, for the registrar to open before marking it received.
+  const sentLinks = new Map(
+    await Promise.all(
+      documents
+        .filter((d) => d.storage_path !== null && (d.submitted_at ?? null) !== null)
+        .map(async (d) => [d.id, await documentLink(client, d.storage_path!)] as const),
+    ),
+  );
 
   // Loaded whatever the status. BR126 still refuses the *invitation* until
   // the registration is COMPLETE — the panel below says why — but a
@@ -338,7 +347,25 @@ export default async function RegistrationDetailPage({
                     <td>{doc.required ? 'Yes' : 'No'}</td>
                     <td>
                       {doc.provided_at === null ? (
-                        <span className="pill pill-stop">Outstanding</span>
+                        <>
+                          <span className="pill pill-stop">Outstanding</span>
+                          {(doc.submitted_at ?? null) !== null && (
+                            <>
+                              <br />
+                              <span className="hint">
+                                Sent by the family {doc.submitted_at!.slice(0, 10)}
+                                {sentLinks.get(doc.id) ? (
+                                  <>
+                                    {' '}&middot;{' '}
+                                    <a href={sentLinks.get(doc.id)!} target="_blank" rel="noreferrer">
+                                      View
+                                    </a>
+                                  </>
+                                ) : null}
+                              </span>
+                            </>
+                          )}
+                        </>
                       ) : (
                         new Date(doc.provided_at).toLocaleDateString('en-AU')
                       )}
