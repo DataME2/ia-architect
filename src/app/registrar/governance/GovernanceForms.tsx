@@ -15,6 +15,7 @@ import {
   appointFunctionAction,
   appointMemberAction,
   confirmAccessAction,
+  confirmPositionAction,
   createTermAction,
   editMemberAction,
   enableVoucherProgramAction,
@@ -313,19 +314,22 @@ export function MemberRow({
   electedOn,
   person,
   access,
+  confirmation,
 }: {
   readonly positionId: string;
   readonly position: CommitteePosition;
   readonly electedOn: string | null;
   readonly person: Person | undefined;
   readonly access: ReactNode;
+  /** BR166/BR167: where its confirmation stands. */
+  readonly confirmation: ReactNode;
 }) {
   const [editing, setEditing] = useState(false);
 
   if (editing) {
     return (
       <tr>
-        <td colSpan={5}>
+        <td colSpan={6}>
           <EditPositionForm
             positionId={positionId}
             position={position}
@@ -355,6 +359,7 @@ export function MemberRow({
         )}
       </td>
       <td>{electedOn ?? <span className="hint">&mdash;</span>}</td>
+      <td>{confirmation}</td>
       <td>{access}</td>
       <td style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
         <button
@@ -414,6 +419,7 @@ export function RecordResolutionForm({
             <select id={`category-${termId}`} name="category" defaultValue="general">
               <option value="general">{RESOLUTION_CATEGORY_LABEL.general}</option>
               <option value="voucher_program">{RESOLUTION_CATEGORY_LABEL.voucher_program}</option>
+              <option value="agm_election">{RESOLUTION_CATEGORY_LABEL.agm_election}</option>
             </select>
           </div>
           <div style={{ flex: '2 1 13rem' }}>
@@ -506,5 +512,19 @@ export function EnableVoucherProgramForm({
         </button>
       </form>
     </>
+  );
+}
+
+/** The confirmed President, Treasurer or Secretary confirms a position (BR167). */
+export function ConfirmPositionButton({ positionId }: { readonly positionId: string }) {
+  const [state, formAction, pending] = useActionState(confirmPositionAction, IDLE_FORM);
+  return (
+    <form action={formAction} style={{ marginTop: '0.3rem' }}>
+      <input type="hidden" name="positionId" value={positionId} />
+      <button type="submit" className="secondary" style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }} disabled={pending}>
+        {pending ? '…' : 'Confirm'}
+      </button>
+      <FormNotice result={state} />
+    </form>
   );
 }

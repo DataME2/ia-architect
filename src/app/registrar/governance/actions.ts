@@ -10,6 +10,7 @@ import {
   enableVoucherProgram,
   recordResolution,
   resignMember,
+  confirmPosition,
 } from '../../../data/governance.ts';
 import { appointFunction, confirmAppointmentAccess, endFunction } from '../../../data/appointments.ts';
 import { loadTenantContext } from '../../../data/queries.ts';
@@ -295,4 +296,14 @@ export async function confirmAccessAction(
     `Link sent to ${outcome.email}. When they open it and set a password they arrive with `
       + `${accessLabel(outcome.accessRole)} access, already linked to their record.`,
   );
+}
+
+/** One executive confirmation of a committee position (BR167); the database decides whose. */
+export async function confirmPositionAction(_previous: FormResult, formData: FormData): Promise<FormResult> {
+  const positionId = String(formData.get('positionId') ?? '');
+  if (positionId === '') return formFailed('Which position?');
+  const { client } = await requireTenant();
+  const result = await confirmPosition(client, positionId);
+  revalidatePath('/registrar/governance');
+  return result.ok ? formOk('Confirmed. The committee has been told.') : formFailed(result.error);
 }

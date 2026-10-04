@@ -20,6 +20,7 @@ export const COMMITTEE_POSITIONS = [
   'vice-president',
   'secretary',
   'treasurer',
+  'it-manager',
   'registrar',
   'committee-member',
   'subcommittee-member',
@@ -42,6 +43,8 @@ export interface CommitteeMember {
   readonly position: CommitteePosition;
   readonly electedOn: IsoDate | null;
   readonly resignedOn: IsoDate | null;
+  /** BR166/BR167: when the position was confirmed, or null while it is not. */
+  readonly confirmedAt: string | null;
 }
 
 /**
@@ -59,7 +62,7 @@ export interface CommitteeResolution {
   readonly decidedOn: IsoDate;
   readonly summary: string;
   readonly movedByPersonId: string | null;
-  readonly category: 'general' | 'voucher_program';
+  readonly category: 'general' | 'voucher_program' | 'agm_election';
 }
 
 /** BR21 — a Voucher Program a club's Committee has approved for its own invoices. */
