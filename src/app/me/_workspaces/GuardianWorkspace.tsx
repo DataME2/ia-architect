@@ -26,6 +26,8 @@ import { PayoutNominationForm } from '../_officiating/PayoutNominationForm.tsx';
 import { loadNominations } from '../../../data/payouts.ts';
 import { loadHardshipRequests } from '../../../data/hardship.ts';
 import { HardshipRequestForm } from '../_hardship/HardshipForms.tsx';
+import { loadFamilyDocuments } from '../../../data/documents.ts';
+import { DocumentUploadForm } from '../_documents/DocumentUploadForm.tsx';
 import { ComingSoon, FixtureCard, Panel, RecordLines, WorkspaceHead } from './shared.tsx';
 
 const CONSENT_LABEL: Readonly<Record<string, string>> = {
@@ -143,6 +145,9 @@ export async function GuardianWorkspace({
   // BR152: any approved claim for this household's officials, settled or
   // still waiting on a choice — the whole household, same reason as above.
   const settleable = await loadSettleableClaims(client, link.clubId, cards.map((c) => c.personId));
+  // BR165: the documents this child's registration still needs.
+  const documents = child.registration === null ? [] : await loadFamilyDocuments(client, link.clubId, child.registration.id);
+  const missing = documents.filter((d) => d.providedAt === null);
   // BR164: this child's latest hardship request, if any.
   const hardship = (await loadHardshipRequests(client, link.clubId, [card.personId]))[0] ?? null;
   const hardshipActive = hardship?.state === 'approved' && hardship.validUntil !== null && hardship.validUntil >= today;
@@ -257,11 +262,35 @@ export async function GuardianWorkspace({
               </span>
             </p>
           </Panel>
-          {needsDocument && (
-            <ComingSoon title="Upload a document" waitsOn="a family-facing upload — today a registrar records what was sighted">
-              The missing document will be uploadable here. Until then the registrar records it from what you
-              bring.
-            </ComingSoon>
+          {(needsDocument || missing.length > 0) && registration !== null && (
+            <Panel title="Documents" meta={`${missing.length} MISSING`}>
+              <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
+                Send a PDF or a photo of the page (up to 4 MB). The registrar marks it received once they have
+                looked at it.{' '}
+                <span className="mono" style={{ fontSize: '0.7rem' }}>BR2 · BR165</span>
+              </p>
+              <ul className="check" style={{ margin: 0 }}>
+                {missing.map((d) => (
+                  <li key={d.id}>
+                    {d.submittedAt !== null ? (
+                      <>
+                        <span className="ctitle">{d.documentType}</span>
+                        <br />
+                        <span className="cnote">
+                          Sent {d.submittedAt.slice(0, 10)}, waiting for the registrar. You can send a clearer one.
+                        </span>
+                      </>
+                    ) : null}
+                    <DocumentUploadForm
+                      clubId={link.clubId}
+                      registrationId={registration.id}
+                      documentId={d.id}
+                      documentType={d.documentType}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </Panel>
           )}
           {firstBlocker !== undefined && (
             <AssistantNote kind="explaining">

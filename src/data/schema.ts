@@ -201,6 +201,8 @@ export interface RegistrationDocumentRow {
   storage_path: string | null;
   required: boolean;
   provided_at: InstantString | null;
+  /** A family upload (BR165, scope 83): submitted, not yet received. */
+  submitted_at?: InstantString | null;
 }
 
 export interface ConsentRow {
