@@ -68,4 +68,4 @@ Then record the AGM election resolution.
   confirmation is still separate; whether access should wait for confirmation
   is a question for the club.
 - The minutes of the meeting that elected the committee belong in the
-  Management Committee Hub (scope 81, next).
+  Management Committee Hub ([scope 81](./81_the_management_committee_hub.md)).

@@ -30,6 +30,7 @@ export const REGISTRAR_NAV: readonly NavItem[] = [
   // season and does not reset with one.
   { href: '/registrar/fees', label: 'Match official fees', seasonScoped: false },
   { href: '/registrar/governance', label: 'Governance', seasonScoped: false },
+  { href: '/registrar/committee-hub', label: 'Committee hub', seasonScoped: false },
   { href: '/registrar/duplicates', label: 'Duplicates', seasonScoped: false },
   { href: '/registrar/pack', label: 'Submission pack', seasonScoped: true },
   { href: '/registrar/reports', label: 'Reports', seasonScoped: true },
