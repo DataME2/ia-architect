@@ -103,6 +103,7 @@ export function toRegistration(
     providedDocumentTypes: provided,
     outstandingAmountCents: row.outstanding_amount_cents,
     owesMoney: row.owes,
+    hardshipUntil: row.hardship_until,
   };
 }
 

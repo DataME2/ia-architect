@@ -30,6 +30,14 @@ describe('BR79 — no pay, no play', () => {
     assert.equal(playEligibility('COMPLETE', null, false).mayPlay, true);
   });
 
+  test('an approved hardship lets an owing player take the field, and still names the debt (BR164)', () => {
+    const r = playEligibility('COMPLETE', 4000, true, '2026-12-31');
+    assert.equal(r.mayPlay, true);
+    assert.match(r.reason, /hardship.*2026-12-31/);
+    assert.match(r.reason, /\$40\.00 is still owed/);
+    assert.equal(playEligibility('PENDING_EXTERNAL_REGISTRATION', 4000, true, '2026-12-31').mayPlay, false);
+  });
+
   test('a credit is not a debt — the club owes them', () => {
     const result = playEligibility('COMPLETE', -2500);
     assert.equal(result.mayPlay, true);
