@@ -153,17 +153,14 @@ begin
     end if;
   end;
 
-  -- 3. Nobody may name somebody else's choice as their own — the minor
-  --    cannot choose for herself.
+  -- 3. From thirteen the official chooses for herself (question 80 (C),
+  --    0075); her mother's choice below then replaces it.
   begin
     update referee_payment_claim
        set settlement = 'pay', settlement_chosen_by = minor
      where id = claim1;
-    failures := array_append(failures, 'a fifteen-year-old chose her own settlement (BR152)');
   exception when others then
-    if sqlerrm not like '%does not hold authority%' then
-      failures := array_append(failures, 'the self-choice refusal did not name the reason: ' || sqlerrm);
-    end if;
+    failures := array_append(failures, 'a fifteen-year-old could not choose her own settlement (BR152, 0075): ' || sqlerrm);
   end;
 
   -- 4. The authority guardian chooses "credit" for the minor.
