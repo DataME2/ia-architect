@@ -22,4 +22,3 @@ next-env.d.ts
 
 # A stale nested clone of this repo lives here on one machine; never track it.
 /ia-architect/
-.gstack/
