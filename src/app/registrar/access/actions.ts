@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { testAddressNote } from '../../../web/test-address.ts';
 
 import { createRequestClient } from '../../../data/server.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
@@ -145,5 +146,5 @@ export async function reissueWorkspaceAction(
   if (sendError !== null) {
     return formFailed(`The invitation is reset, but the email did not send: ${sendError}. Press again to retry.`);
   }
-  return formOk(`New link sent to ${email}. When they open it, their workspace is back.`);
+  return formOk(testAddressNote(email) ?? `New link sent to ${email}. When they open it, their workspace is back.`);
 }

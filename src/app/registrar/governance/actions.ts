@@ -21,6 +21,7 @@ import { FUNCTION_LABEL, isFunctionKind } from '../../../web/appointment-view.ts
 import { parseDueDate } from '../../../web/plan-view.ts';
 import { parseEnablement, parseResolution } from '../../../web/governance-view.ts';
 import { todayIn } from '../../../web/today.ts';
+import { testAddressNote } from '../../../web/test-address.ts';
 import { sendWorkspaceMagicLink } from '../actions.ts';
 
 function parsePosition(value: unknown): CommitteePosition | null {
@@ -292,6 +293,8 @@ export async function confirmAccessAction(
       `Recorded, but the email did not send: ${sendError}. Press the button again to resend.`,
     );
   }
+  const note = testAddressNote(outcome.email);
+  if (note !== null) return formOk(note);
   return formOk(
     `Link sent to ${outcome.email}. When they open it and set a password they arrive with `
       + `${accessLabel(outcome.accessRole)} access, already linked to their record.`,
