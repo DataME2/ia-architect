@@ -38,6 +38,7 @@ import { parseAmountCents } from '../../web/money.ts';
 import { planReminders, summarise } from '../../web/bulk-reminders.ts';
 import { parseDueDate, parseMethod, parsePlanDraft } from '../../web/plan-view.ts';
 import { todayIn } from '../../web/today.ts';
+import { isReservedTestAddress, testAddressNote } from '../../web/test-address.ts';
 
 /**
  * Every action re-derives the tenant from the session rather than trusting a
@@ -62,6 +63,9 @@ async function requireTenant() {
  * (`persistSession: false`), only sends the email.
  */
 export async function sendWorkspaceMagicLink(email: string): Promise<string | null> {
+  // A reserved test address (the QA cast) cannot receive mail and Supabase
+  // refuses it: skip, and let the account sign in with its password.
+  if (isReservedTestAddress(email)) return null;
   const requestHeaders = await headers();
   const host = requestHeaders.get('host') ?? 'localhost:3000';
   const proto = requestHeaders.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
@@ -482,7 +486,8 @@ export async function inviteGuardianAction(
     );
   }
   return formOk(
-    result.alreadyInvited ? `A new link was sent to ${email}.` : `${email} was invited to their workspace.`,
+    testAddressNote(email) ??
+      (result.alreadyInvited ? `A new link was sent to ${email}.` : `${email} was invited to their workspace.`),
   );
 }
 
@@ -520,7 +525,8 @@ export async function invitePlayerAction(
     );
   }
   return formOk(
-    result.alreadyInvited ? `A new link was sent to ${email}.` : `${email} was invited to their own workspace.`,
+    testAddressNote(email) ??
+      (result.alreadyInvited ? `A new link was sent to ${email}.` : `${email} was invited to their own workspace.`),
   );
 }
 
