@@ -62,6 +62,25 @@ The product owner asked for three things after scope 84:
   - **Advertise the club**: partners with their counts, their link, and
     payment.
 
+## Follow-up: sponsor money in the treasurer's workspace
+
+QA found that a treasurer working from `/me` saw none of this; it lived only on
+`/registrar/sponsors`. The Committee workspace now carries a **Sponsor
+money** panel for the treasurer or an admin. It is itemised by model:
+
+- **CPC**: `40 clicks × $0.50 = $20.00`.
+- **CPM**: `2,500 impressions ÷ 1,000 × $5.00 = $12.50`.
+- **CPA (sponsor)**: `3 acquisitions × $10.00 = $30.00`, as the sponsor
+  reports them.
+- **Platform campaigns** add the club's share.
+- **Partners (the club pays, CPA)**: `completed × fee = earned`, then what
+  is paid and what is owed. Registrations not yet complete are counted
+  separately, because they earn nothing yet.
+
+The panel also shows the invoices awaiting payment. The Sponsors screen's
+statement and partner lines show the same breakdown. `chargeBasis()` and
+`partnerBalance()` in `src/web/sponsor-billing.ts` are tested.
+
 ## EA alignment (assessed top-down before implementing)
 
 | Layer         | Impact |

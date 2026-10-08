@@ -12,6 +12,10 @@ import { countVouchersAwaiting, type ClubLink } from '../../../data/me.ts';
 import { loadHardshipRequests } from '../../../data/hardship.ts';
 import { HardshipDecisionRow } from '../_hardship/HardshipForms.tsx';
 import { loadAssignablePeople } from '../../../data/teams.ts';
+import { loadCampaignReports, type CampaignReport } from '../../../data/sponsors.ts';
+import { loadInvoices, loadPartners } from '../../../data/sponsor-money.ts';
+import { formatMoney } from '../../../domain/finance/money.ts';
+import { MODEL_LABEL, chargeBasis, clubShareCents, owedCents, partnerBalance, type PricingModel } from '../../../web/sponsor-billing.ts';
 import { displayNameFor, fullLegalName } from '../../../web/queue-view.ts';
 import { ConfirmPositionButton, RecordResolutionForm } from '../../registrar/governance/GovernanceForms.tsx';
 import { POSITION_LABEL, RESOLUTION_CATEGORY_LABEL, confirmationStatus } from '../../../web/governance-view.ts';
@@ -53,6 +57,11 @@ export async function CommitteeWorkspace({
   const myExecutive: readonly string[] = members
     .filter((m) => m.personId === link.personId && m.confirmedAt !== null && m.resignedOn === null)
     .map((m) => m.position);
+  // BR170–BR172: the money roles see sponsor revenue and partner fees, item by item.
+  const [reports, invoices, partners] = treasurer
+    ? await Promise.all([loadCampaignReports(client, link.clubId), loadInvoices(client, link.clubId), loadPartners(client, link.clubId)])
+    : [[] as readonly CampaignReport[], [], []];
+  const awaitingInvoices = invoices.filter((i) => i.status === 'issued');
   // Who may record a resolution: 0084's policy.
   const mayRecord = link.membershipRoles.some((r) => ['admin', 'committee', 'secretary', 'treasurer'].includes(r));
   const assignable = term === null || !mayRecord
@@ -126,6 +135,81 @@ export async function CommitteeWorkspace({
             </p>
             {term !== null && mayRecord && <RecordResolutionForm termId={term.id} people={assignable} />}
           </Panel>
+          {treasurer && (
+            <Panel title="Sponsor money" meta="BR170 · BR171 · BR172">
+              <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
+                <b>Sponsors pay the club</b>, each by its own model, counted to date.
+              </p>
+              {reports.length === 0 ? (
+                <p className="empty" style={{ margin: 0 }}>No sponsor campaign yet.</p>
+              ) : (
+                (['cpc', 'cpm', 'cpa'] as const satisfies readonly PricingModel[]).map((model) => {
+                  const rows = reports.filter((r) => r.campaign.pricingModel === model);
+                  if (rows.length === 0) return null;
+                  return (
+                    <div key={model}>
+                      <h4 style={{ margin: 'var(--space-1) 0 0' }}>{MODEL_LABEL[model]}</h4>
+                      <ul className="roster">
+                        {rows.map((r) => {
+                          const owed = owedCents(model, r.campaign.rateCents, r.tally);
+                          const share = clubShareCents(owed, r.campaign.clubShareBps);
+                          return (
+                            <li key={r.campaign.id}>
+                              <span>
+                                <span className="who">{r.campaign.sponsorName}</span>
+                                <span className="why">
+                                  {chargeBasis(model, r.campaign.rateCents, r.tally)} = {formatMoney(owed)}
+                                  {r.campaign.owner === 'platform' && ` · club's share ${r.campaign.clubShareBps / 100}% = ${formatMoney(share)}`}
+                                  {model === 'cpa' && ' · acquisitions as the sponsor reports them'}
+                                </span>
+                              </span>
+                              <span className="pill pill-info">{formatMoney(share)}</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  );
+                })
+              )}
+              <p className="hint">
+                Invoices awaiting the sponsor&rsquo;s payment: <b>{awaitingInvoices.length}</b>, totalling{' '}
+                <b>{formatMoney(awaitingInvoices.reduce((t, i) => t + i.amountCents, 0))}</b>.
+              </p>
+              <p className="hint" style={{ margin: 'var(--space-1) 0' }}>
+                <b>The club pays its partners (CPA)</b>: each <b>completed</b> registration through a partner&rsquo;s link
+                earns that partner its fee. A registration not yet complete earns nothing.
+              </p>
+              {partners.length === 0 ? (
+                <p className="empty" style={{ margin: 0 }}>No referral partner yet.</p>
+              ) : (
+                <ul className="roster">
+                  {partners.map((p) => {
+                    const b = partnerBalance(p);
+                    const pending = p.attributed - p.completed;
+                    return (
+                      <li key={p.id}>
+                        <span>
+                          <span className="who">{p.name}</span>
+                          <span className="why">
+                            {p.completed} completed × {formatMoney(p.cpaRateCents)} = {formatMoney(b.earnedCents)} earned ·{' '}
+                            {formatMoney(b.paidCents)} paid · {b.unpaid} unpaid
+                            {pending > 0 && ` · ${pending} registered, not yet complete`}
+                          </span>
+                        </span>
+                        <span className={b.owedCents > 0 ? 'pill pill-warn' : 'pill pill-ok'}>
+                          {b.owedCents > 0 ? `${formatMoney(b.owedCents)} owed` : 'Settled'}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              <p className="hint" style={{ marginBottom: 0 }}>
+                Invoice, record payments and pay partners on the <a href="/registrar/sponsors">Sponsors screen</a>.
+              </p>
+            </Panel>
+          )}
           <Panel title="Hardship requests" meta={`${waitingHardship.length} WAITING`}>
             <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
               An approved hardship lets a player take the field until a date although money is owed. The debt is
