@@ -33,8 +33,13 @@ that out here:
    - Impressions and clicks are tallied per campaign per day.
    - A one-way hash, kept for two days, stops a refresh being counted twice.
      Nobody can read it.
-   - A click passes through the platform's own redirect, with no query
-     string and no referrer.
+   - A click passes through the platform's own redirect, with no referrer.
+     Since [scope 85](../scope/85_sponsor_invoices_and_club_referrals.md)
+     it carries one query string: the campaign's UTM tags
+     (`utm_source=letsdatatalk&utm_medium=sponsor&utm_campaign=sponsor-…`).
+     They are the same for every viewer, so they name the campaign and
+     never the person. The sponsor's own analytics can then count CPA
+     conversions itself.
 4. **A banner is hosted by the platform, never hot-linked from the sponsor**
    (0082). An image on the sponsor's server would give it every viewer's IP
    address and browser on every view.

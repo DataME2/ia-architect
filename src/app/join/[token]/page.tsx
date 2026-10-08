@@ -1,5 +1,6 @@
 import { RegistrationForm } from '../../_components/RegistrationForm.tsx';
 import { submitJoinAction } from './actions.ts';
+import { readUtm } from '../../../web/utm.ts';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,10 +15,14 @@ export const dynamic = 'force-dynamic';
  */
 export default async function JoinPage({
   params,
+  searchParams,
 }: {
   readonly params: Promise<{ readonly token: string }>;
+  readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { token } = await params;
+  // BR172: a partner's link carries its UTM pair; it names the partner, not the family.
+  const utm = readUtm(await searchParams);
 
   return (
     <>
@@ -27,7 +32,7 @@ export default async function JoinPage({
         not need an account, and you will not be asked to type these details again.
       </p>
 
-      <RegistrationForm action={submitJoinAction} token={token} />
+      <RegistrationForm action={submitJoinAction} token={token} utm={utm} />
     </>
   );
 }

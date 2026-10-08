@@ -94,6 +94,23 @@ upload. Add Stripe or PayPal only if officials ask for them.
    production. That needs a club or environment setting, added with the
    first real provider.
 
+## Collecting from sponsors, and paying referral partners
+
+[Scope 85](../scope/85_sponsor_invoices_and_club_referrals.md) adds money
+moving in both directions. Both are **simulated** today, in the same way as
+referee payouts: provider `simulation` and a `SIM-…` reference.
+
+| Direction | Method | What the real version needs |
+| - | - | - |
+| Sponsor pays the club (BR171) | **PayPal** | PayPal Invoicing API: send the invoice from the club's PayPal Business account, and a webhook marks it paid |
+| | **Google Pay** | Google Pay is not a merchant on its own. It needs a processor, such as Stripe Payment Links or Checkout with Google Pay enabled, and a Stripe webhook marks the invoice paid |
+| | **Online bank transfer** | The invoice shows the club's BSB and account, or a PayID, with the invoice number as the reference. The treasurer reconciles it against the statement (no API needed) |
+| Club pays a partner (BR172) | **PayPal** | PayPal Payouts, as for referees above |
+| | **Bank transfer** | The ABA bank file, as for referees above |
+
+A partner's bank details carry the same APP 11 obligations as a referee's
+(below). They are shown masked and read only by the admin and treasurer.
+
 ## Personal information (APP 11)
 
 - **Bank account numbers are held in the platform's database** for the bank
