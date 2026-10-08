@@ -142,6 +142,8 @@ export default async function RegistrationDetailPage({
   const owed = entry.outstandingCents ?? 0;
   const canTouchMoney =
     tenant.roles.includes('admin') || tenant.roles.includes('treasurer');
+  // validation_result is written by admin and registrar only (0002's policy).
+  const canRecheck = tenant.roles.includes('admin') || tenant.roles.includes('registrar');
   const blocking = failing(entry);
   const history = await loadValidationHistory(client, registrationId, 20);
 
@@ -176,13 +178,15 @@ export default async function RegistrationDetailPage({
         <h3 style={{ marginTop: 0 }}>Rules</h3>
         <RuleList outcomes={entry.outcomes} />
 
-        <form action={recheckAction} style={{ marginTop: '1rem' }}>
-          <input type="hidden" name="registrationId" value={registrationId} />
-          <input type="hidden" name="seasonId" value={seasonId} />
-          <button type="submit" className="secondary">
-            Re-check and record
-          </button>
-        </form>
+        {canRecheck && (
+          <form action={recheckAction} style={{ marginTop: '1rem' }}>
+            <input type="hidden" name="registrationId" value={registrationId} />
+            <input type="hidden" name="seasonId" value={seasonId} />
+            <button type="submit" className="secondary">
+              Re-check and record
+            </button>
+          </form>
+        )}
         <p className="hint">
           Appends to the validation history rather than replacing it — the table has no update
           or delete policy, so what was wrong in March stays answerable.
