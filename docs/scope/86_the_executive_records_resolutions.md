@@ -52,5 +52,20 @@ Reported by the product owner during QA, October 2026:
 
 - **Voucher-program enablement** (also admin and committee only) is
   unchanged; it was not asked.
-- **Recording from the workspace itself.** The workspace links to the
-  governance screen rather than duplicating its form.
+- ~~Recording from the workspace itself.~~ Done in the follow-up below.
+
+## Follow-up: the committee acts from its workspace
+
+QA found that the panel only *showed* the queue. The President had no
+button to confirm a position and no way to record the AGM election from
+`/me`. The panel now reuses the governance screen's own forms:
+
+- **Record a resolution** (the same form, `RecordResolutionForm`), for
+  anyone 0084 admits: admin, committee, secretary or treasurer. Recording
+  the **AGM election** confirms the officers (BR166). That is the first
+  step, because only a confirmed executive can confirm anybody else.
+- **Confirm** (`ConfirmPositionButton`) beside a position that is waiting
+  on an executive office the viewer holds, confirmed (BR167).
+- Every governance action now also refreshes `/me`.
+
+No rule changed, so no migration.
