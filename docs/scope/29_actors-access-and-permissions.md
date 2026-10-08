@@ -116,6 +116,9 @@ below.
 | Pay a run online (simulated, BR162) | **W** | — | **W** | — | — | — | — |
 | Where an official is paid (nominations, BR161) | R | — | R | — | — | — | — |
 | Match official fee schedules | **W** | R | **W** | R | — | — | — |
+| Sponsor campaigns — create, pause, record acquisitions ([scope 84](./84_sponsors_in_the_workspace.md), BR170) | **W** | — | **W** | — | — | — | — |
+| Sponsor statement (counts, earned, club share) | R | — | R | — | — | — | — |
+| Sponsors shown in the workspace (BR169: adults only) | R | R | R | R | R | R | — |
 
 **W** = read and write · **R** = read only · **—** = no access at all
 

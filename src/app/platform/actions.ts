@@ -10,6 +10,7 @@ import { formFailed, formOk, type FormResult } from '../../web/form-result.ts';
 import { parseProvision, type ProvisionDraft } from '../../web/platform-view.ts';
 import { addAssociation, addCompetition, addLevel } from '../../data/competitions.ts';
 import { retryFailedAlerts } from '../../data/enquiries.ts';
+import { parseCampaign } from '../../web/sponsor-billing.ts';
 
 /**
  * Invite one contact by email.
@@ -303,4 +304,42 @@ export async function retryAlertsAction(
       ? `${summary.delivered} delivered, ${summary.stillFailing.length} still failing: ${reasons}`
       : `Still failing: ${reasons}`,
   );
+}
+
+/**
+ * Place a Let'sDataTalk campaign into a club that opted in (scope 84, BR170).
+ * `app_platform_place_campaign` checks the platform and the opt-in, and
+ * records the club's share at placement.
+ */
+export async function placeCampaignAction(_previous: FormResult, formData: FormData): Promise<FormResult> {
+  const clubId = String(formData.get('clubId') ?? '');
+  if (clubId === '') return formFailed('Which club?');
+  const parsed = parseCampaign({
+    sponsorName: String(formData.get('sponsorName') ?? ''),
+    headline: String(formData.get('headline') ?? ''),
+    body: String(formData.get('body') ?? ''),
+    linkUrl: String(formData.get('linkUrl') ?? ''),
+    pricingModel: String(formData.get('pricingModel') ?? ''),
+    rate: String(formData.get('rate') ?? ''),
+    audience: formData.getAll('audience').map(String),
+    startsOn: String(formData.get('startsOn') ?? ''),
+    endsOn: String(formData.get('endsOn') ?? ''),
+  });
+  if (!parsed.ok) return formFailed(parsed.error);
+  const client = await createRequestClient();
+  const v = parsed.value;
+  const { error } = await client.rpc('app_platform_place_campaign', {
+    p_club_id: clubId,
+    p_sponsor_name: v.sponsorName,
+    p_headline: v.headline,
+    p_body: v.body,
+    p_link_url: v.linkUrl,
+    p_pricing_model: v.pricingModel,
+    p_rate_cents: v.rateCents,
+    p_audience: v.audience,
+    p_starts_on: v.startsOn,
+    p_ends_on: v.endsOn,
+  });
+  revalidatePath('/platform');
+  return error === null ? formOk('Placed. The club sees it on its Sponsors statement.') : formFailed(error.message);
 }
