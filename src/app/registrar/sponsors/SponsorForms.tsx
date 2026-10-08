@@ -30,6 +30,10 @@ export function NewCampaignForm() {
       </div>
       <label>Headline (90) <input name="headline" maxLength={90} placeholder="Free coffee for parents on match day" /></label>
       <label>Text (optional, 200) <input name="body" maxLength={200} /></label>
+      <label>
+        Banner (optional: PNG, JPEG or WebP, up to 1 MB; 728×90 recommended){' '}
+        <input name="banner" type="file" accept="image/png,image/jpeg,image/webp" />
+      </label>
       <div className="row" style={{ gap: '0.6rem', flexWrap: 'wrap' }}>
         <label>
           Model{' '}

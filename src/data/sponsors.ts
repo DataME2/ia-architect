@@ -23,10 +23,14 @@ export interface SponsorCampaign {
   readonly endsOn: string;
   readonly status: 'active' | 'paused' | 'ended';
   readonly clubShareBps: number;
+  /** A banner in the platform's own public bucket (decision 17), or null for a text card. */
+  readonly imagePath: string | null;
 }
 
 const COLUMNS =
-  'id, owner, sponsor_name, headline, body, link_url, pricing_model, rate_cents, audience, starts_on, ends_on, status, club_share_bps';
+  'id, owner, sponsor_name, headline, body, link_url, pricing_model, rate_cents, audience, starts_on, ends_on, status, club_share_bps, image_path';
+
+const CREATIVES = 'sponsor-creatives';
 
 function toCampaign(r: Record<string, unknown>): SponsorCampaign {
   return {
@@ -43,6 +47,7 @@ function toCampaign(r: Record<string, unknown>): SponsorCampaign {
     endsOn: r.ends_on as string,
     status: r.status as SponsorCampaign['status'],
     clubShareBps: Number(r.club_share_bps),
+    imagePath: (r.image_path as string | null) ?? null,
   };
 }
 
@@ -121,8 +126,8 @@ export async function createClubCampaign(
   clubId: string,
   input: NewCampaign,
   userId: string,
-): Promise<string | null> {
-  const { error } = await client.from('sponsor_campaign').insert({
+): Promise<{ readonly id: string } | { readonly error: string }> {
+  const { data, error } = await client.from('sponsor_campaign').insert({
     club_id: clubId,
     owner: 'club',
     sponsor_name: input.sponsorName,
@@ -135,9 +140,32 @@ export async function createClubCampaign(
     starts_on: input.startsOn,
     ends_on: input.endsOn,
     created_by_user_id: userId,
-  });
-  if (error === null) return null;
-  return error.code === '42501' ? 'Only the club’s admin or treasurer manages sponsors (BR170).' : error.message;
+  }).select('id').single();
+  if (error === null) return { id: (data as { id: string }).id };
+  return { error: error.code === '42501' ? 'Only the club’s admin or treasurer manages sponsors (BR170).' : error.message };
+}
+
+/** Upload a banner to the platform's own bucket and attach it (decision 17). */
+export async function attachBanner(
+  client: SupabaseClient,
+  clubId: string,
+  campaignId: string,
+  path: string,
+  file: File,
+): Promise<string | null> {
+  const { error: uploadError } = await client.storage.from(CREATIVES).upload(path, file, { contentType: file.type, upsert: false });
+  if (uploadError !== null) return uploadError.message;
+  const { error } = await client.from('sponsor_campaign').update({ image_path: path }).eq('club_id', clubId).eq('id', campaignId);
+  if (error !== null) {
+    await client.storage.from(CREATIVES).remove([path]);
+    return error.message;
+  }
+  return null;
+}
+
+/** The banner's public address: the platform's storage, never the sponsor's server. */
+export function bannerUrl(client: SupabaseClient, path: string): string {
+  return client.storage.from(CREATIVES).getPublicUrl(path).data.publicUrl;
 }
 
 export async function setCampaignStatus(

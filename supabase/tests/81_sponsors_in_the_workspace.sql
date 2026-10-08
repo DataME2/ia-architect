@@ -59,6 +59,16 @@ begin
   exception when insufficient_privilege then null;
   end;
 
+  -- 1b. A banner lives in the club's own folder of the platform's bucket,
+  --     never a sponsor's address (0082, decision 17).
+  perform set_config('request.jwt.claim.sub', 'd0081000-0000-0000-0000-000000000001', true);
+  update sponsor_campaign set image_path = the_club::text || '/' || camp::text || '-1.png' where id = camp;
+  begin
+    update sponsor_campaign set image_path = 'https://sponsor.example.com/banner.png' where id = camp;
+    failures := array_append(failures, 'a sponsor-hosted banner address was accepted');
+  exception when check_violation then null;
+  end;
+
   -- 2. An adult parent's impression counts once a day, however many times.
   perform set_config('request.jwt.claim.sub', 'd0081000-0000-0000-0000-000000000003', true);
   ok_ := app_record_sponsor_event(camp, 'impression');
@@ -131,5 +141,5 @@ begin
   if array_length(failures, 1) > 0 then
     raise exception E'Sponsors in the workspace FAILED:\n  - %', array_to_string(failures, E'\n  - ');
   end if;
-  raise notice 'Sponsors in the workspace OK — 7 scenarios';
+  raise notice 'Sponsors in the workspace OK — 8 scenarios';
 end $$;

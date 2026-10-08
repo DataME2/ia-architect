@@ -4,9 +4,9 @@ import { revalidatePath } from 'next/cache';
 
 import { loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
-import { createClubCampaign, recordAcquisitions, saveSponsorSettings, setCampaignStatus } from '../../../data/sponsors.ts';
+import { attachBanner, createClubCampaign, recordAcquisitions, saveSponsorSettings, setCampaignStatus } from '../../../data/sponsors.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
-import { parseCampaign } from '../../../web/sponsor-billing.ts';
+import { bannerPath, checkBanner, parseCampaign } from '../../../web/sponsor-billing.ts';
 
 async function requireTenant() {
   const client = await createRequestClient();
@@ -31,10 +31,23 @@ export async function createCampaignAction(_previous: FormResult, formData: Form
     endsOn: String(formData.get('endsOn') ?? ''),
   });
   if (!parsed.ok) return formFailed(parsed.error);
+
+  // An optional banner, checked before anything is written (decision 17: we host it).
+  const banner = formData.get('banner');
+  const file = banner instanceof File && banner.size > 0 ? banner : null;
+  const checked = file === null ? null : checkBanner(file);
+  if (checked !== null && !checked.ok) return formFailed(checked.error);
+
   const { client, user, tenant } = await requireTenant();
-  const error = await createClubCampaign(client, tenant.clubId, parsed.value, user.id);
+  const created = await createClubCampaign(client, tenant.clubId, parsed.value, user.id);
+  if ('error' in created) return formFailed(created.error);
   revalidatePath('/registrar/sponsors');
-  return error === null ? formOk('Campaign live from its start date.') : formFailed(error);
+  if (file !== null && checked !== null && checked.ok) {
+    const path = bannerPath(tenant.clubId, created.id, Date.now(), checked.extension);
+    const error = await attachBanner(client, tenant.clubId, created.id, path, file);
+    if (error !== null) return formFailed(`Campaign created, but the banner did not upload: ${error}`);
+  }
+  return formOk('Campaign live from its start date.');
 }
 
 export async function setCampaignStatusAction(_previous: FormResult, formData: FormData): Promise<FormResult> {

@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import {
-  clickThroughRate, clubShareCents, isSponsorLink, owedCents, parseCampaign, showsSponsors, sumTallies,
+  bannerPath, checkBanner, clickThroughRate, clubShareCents, isSponsorLink, owedCents, parseCampaign, showsSponsors,
+  sumTallies,
 } from './sponsor-billing.ts';
 
 const tally = { impressions: 2500, clicks: 40, acquisitions: 3 };
@@ -62,4 +63,17 @@ describe('parseCampaign', () => {
     assert.equal(parseCampaign({ ...good, audience: [] }).ok, false);
     assert.equal(parseCampaign({ ...good, endsOn: '2026-10-01' }).ok, false);
   });
+});
+
+describe('checkBanner — the platform hosts it (decision 17)', () => {
+  it('accepts a PNG, JPEG or WebP up to 1 MB', () => {
+    assert.deepEqual(checkBanner({ type: 'image/png', size: 50_000 }), { ok: true, extension: 'png' });
+    assert.equal(checkBanner({ type: 'image/webp', size: 1024 * 1024 }).ok, true);
+  });
+  it('refuses another type, an empty file or one too large', () => {
+    assert.equal(checkBanner({ type: 'image/gif', size: 10 }).ok, false);
+    assert.equal(checkBanner({ type: 'image/png', size: 0 }).ok, false);
+    assert.equal(checkBanner({ type: 'image/png', size: 1024 * 1024 + 1 }).ok, false);
+  });
+  it('files under the club', () => assert.equal(bannerPath('c', 'k', 7, 'png'), 'c/k-7.png'));
 });

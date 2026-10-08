@@ -65,12 +65,29 @@ How it is measured without tracking anybody is
 | 2_business    | **BR169 and BR170 added**; decision 17 |
 | 3_information | Four tables (settings, campaigns, tallies, the dedupe hash) |
 | 4_application | The slot, the click redirect, the Sponsors page, the platform placement, three functions |
-| 5_technology  | No change. Migration 0081, suite 81 |
+| 5_technology  | A public bucket for banners (`sponsor-creatives`, 0082). Migrations 0081 and 0082, suite 81 |
+
+## Banners (0082)
+
+A campaign may carry **one banner image**: PNG, JPEG or WebP, up to 1 MB, with the
+728×90 leaderboard recommended. The club uploads it with the campaign.
+
+- **It is stored in the platform's own public bucket (`sponsor-creatives`),
+  never hot-linked from the sponsor.** A sponsor-hosted image would hand the
+  sponsor every viewer's IP address and browser on every view, which decision
+  17 rules out.
+- **The click still goes through `/sponsor/{id}`**, so the visit is counted
+  and the sponsor gets no referrer.
+- **The banner markup follows the leaderboard pattern clubs already use**
+  (`sponsor-banner-container`, `sponsor-label`, `sponsor-image`), restyled with
+  the app's tokens. The hover zoom is dropped for anyone who prefers reduced
+  motion, and the alt text names the sponsor.
 
 ## Out of scope / gaps
 
-- **Creative images.** A campaign is text only: headline, text and link. A
-  logo needs a public bucket and image review.
+- **Banner review.** An uploaded image is shown as uploaded; no moderation step
+  checks it.
+- **Platform campaigns carry no banner yet.** The placement form is text only.
 - **Monthly statements and PDF invoices.** The statement is to date. A
   period filter and export come when a club invoices its first sponsor.
 - **Budgets and auto-pause.** Not chosen. The schema can add a cap later.

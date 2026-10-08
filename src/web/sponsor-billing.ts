@@ -114,3 +114,21 @@ export function parseCampaign(fields: {
     value: { sponsorName, headline, body: body === '' ? null : body, linkUrl, pricingModel: model, rateCents: rate, audience, startsOn, endsOn },
   };
 }
+
+/** A banner the platform will host (decision 17): PNG, JPEG or WebP, up to 1 MB; 728×90 recommended. */
+export const MAX_BANNER_BYTES = 1024 * 1024;
+
+const BANNER_EXTENSION: Readonly<Record<string, string>> = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' };
+
+export function checkBanner(file: { readonly type: string; readonly size: number }):
+  { readonly ok: true; readonly extension: string } | { readonly ok: false; readonly error: string } {
+  const extension = BANNER_EXTENSION[file.type];
+  if (extension === undefined) return { ok: false, error: 'A banner is a PNG, JPEG or WebP image.' };
+  if (file.size === 0 || file.size > MAX_BANNER_BYTES) return { ok: false, error: 'A banner is up to 1 MB.' };
+  return { ok: true, extension };
+}
+
+/** `<club>/<campaign>-<stamp>.<ext>`: the club segment the bucket policy checks. */
+export function bannerPath(clubId: string, campaignId: string, stamp: number, extension: string): string {
+  return `${clubId}/${campaignId}-${stamp}.${extension}`;
+}

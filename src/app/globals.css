@@ -2666,3 +2666,75 @@ td {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+
+/* ------------------------------------------------- the sponsor slot (BR169)
+   The club's leaderboard markup, adapted: our tokens instead of fixed greys
+   (so dark mode follows), a label readers and screen readers both see, and
+   no hover zoom for anyone who asked their system to reduce motion. */
+
+.sponsor-banner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: var(--space-3) auto;
+  max-width: 728px; /* the standard leaderboard width */
+  width: 100%;
+}
+
+.sponsor-label {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.sponsor-banner-container > a {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+.sponsor-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+
+.sponsor-image:hover {
+  transform: scale(1.01);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sponsor-image,
+  .sponsor-image:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* The text card, for a campaign without a banner. */
+.sponsor-text {
+  align-items: flex-start;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.sponsor-headline {
+  font-weight: 600;
+  color: var(--link);
+}
+
+.sponsor-body {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 2px;
+}

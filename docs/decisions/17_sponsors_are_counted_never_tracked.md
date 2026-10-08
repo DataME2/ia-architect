@@ -35,10 +35,13 @@ that out here:
      Nobody can read it.
    - A click passes through the platform's own redirect, with no query
      string and no referrer.
-4. **Acquisitions are reported, not observed.** CPA conversions are what the
+4. **A banner is hosted by the platform, never hot-linked from the sponsor**
+   (0082). An image on the sponsor's server would give it every viewer's IP
+   address and browser on every view.
+5. **Acquisitions are reported, not observed.** CPA conversions are what the
    sponsor reports (a promo code redeemed, a sign-up), recorded by the club.
    There is no pixel on the sponsor's site.
-5. **Measure and invoice.** The platform computes what is owed. The club,
+6. **Measure and invoice.** The platform computes what is owed. The club,
    or Let'sDataTalk for its own campaigns, invoices. No card is processed
    (BR170).
 
