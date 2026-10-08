@@ -47,14 +47,14 @@ returns trigger
 language plpgsql
 security definer
 set search_path = public, pg_temp
-as $
+as $$
 begin
   if not app_is_platform() then
     new.platform_share_bps := case when tg_op = 'UPDATE' then old.platform_share_bps else 3000 end;
   end if;
   return new;
 end;
-$;
+$$;
 
 create trigger club_sponsor_share_is_the_platforms
   before insert or update on club_sponsor_settings
