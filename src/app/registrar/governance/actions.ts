@@ -78,6 +78,7 @@ export async function createTermAction(
   if (!result.ok) return formFailed(result.error);
 
   revalidatePath('/registrar/governance');
+  revalidatePath('/me');
   return formOk('Governance year opened.');
 }
 
@@ -113,6 +114,7 @@ export async function appointMemberAction(
   if (!result.ok) return formFailed(result.error);
 
   revalidatePath('/registrar/governance');
+  revalidatePath('/me');
   return formOk('Committee member recorded.');
 }
 
@@ -138,6 +140,7 @@ export async function editMemberAction(
   if (!result.ok) return formFailed(result.error);
 
   revalidatePath('/registrar/governance');
+  revalidatePath('/me');
   return formOk('Corrected.');
 }
 
@@ -153,6 +156,7 @@ export async function resignMemberAction(formData: FormData): Promise<void> {
   await resignMember(client, tenant.clubId, positionId, resignedOn, user.id);
 
   revalidatePath('/registrar/governance');
+  revalidatePath('/me');
 }
 
 /** BR123: record what the Committee decided. */
@@ -185,6 +189,7 @@ export async function recordResolutionAction(
   if (!result.ok) return formFailed(result.error);
 
   revalidatePath('/registrar/governance');
+  revalidatePath('/me');
   return formOk('Resolution recorded.');
 }
 
@@ -209,6 +214,7 @@ export async function enableVoucherProgramAction(
   if (!result.ok) return formFailed(result.error);
 
   revalidatePath('/registrar/governance');
+  revalidatePath('/me');
   return formOk(`${parsed.program} is now an enabled Voucher Program.`);
 }
 
@@ -239,6 +245,7 @@ export async function appointFunctionAction(
   }
 
   revalidatePath('/registrar/governance');
+  revalidatePath('/me');
   return formOk(`Appointed as ${FUNCTION_LABEL[kind]}. Confirm their access when you are ready.`);
 }
 
@@ -253,6 +260,7 @@ export async function endFunctionAction(formData: FormData): Promise<void> {
   const { client, tenant } = await requireTenant();
   await endFunction(client, tenant.clubId, appointmentId, todayIn());
   revalidatePath('/registrar/governance');
+  revalidatePath('/me');
   revalidatePath('/registrar/access');
 }
 
@@ -281,6 +289,7 @@ export async function confirmAccessAction(
   }
 
   revalidatePath('/registrar/governance');
+  revalidatePath('/me');
   revalidatePath('/registrar/access');
 
   if (outcome.kind === 'granted') {
@@ -308,5 +317,6 @@ export async function confirmPositionAction(_previous: FormResult, formData: For
   const { client } = await requireTenant();
   const result = await confirmPosition(client, positionId);
   revalidatePath('/registrar/governance');
+  revalidatePath('/me');
   return result.ok ? formOk('Confirmed. The committee has been told.') : formFailed(result.error);
 }
