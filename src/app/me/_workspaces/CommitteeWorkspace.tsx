@@ -7,11 +7,12 @@ import {
   termStatus,
   vacantOffices,
 } from '../../../domain/governance/term.ts';
-import { loadGovernanceOrEmpty } from '../../../data/governance.ts';
+import { loadGovernanceOrEmpty, loadPositionConfirmations } from '../../../data/governance.ts';
 import { countVouchersAwaiting, type ClubLink } from '../../../data/me.ts';
 import { loadHardshipRequests } from '../../../data/hardship.ts';
 import { HardshipDecisionRow } from '../_hardship/HardshipForms.tsx';
 import { displayNameFor } from '../../../web/queue-view.ts';
+import { POSITION_LABEL, RESOLUTION_CATEGORY_LABEL, confirmationStatus } from '../../../web/governance-view.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
 import { Panel, WorkspaceHead } from './shared.tsx';
 
@@ -40,6 +41,12 @@ export async function CommitteeWorkspace({
   const hardship = await loadHardshipRequests(client, link.clubId);
   const waitingHardship = hardship.filter((h) => h.state === 'requested');
   const activeHardship = hardship.filter((h) => h.state === 'approved' && h.validUntil !== null && h.validUntil >= today);
+  // BR123, BR166, BR167: the same queue the governance screen shows an admin.
+  const confirmations = await loadPositionConfirmations(client, link.clubId);
+  const unconfirmed = members
+    .map((m) => ({ m, st: confirmationStatus(m.position, m.confirmedAt, confirmations.get(m.id) ?? []) }))
+    .filter((x) => !x.st.confirmed);
+  const resolutions = term === null ? [] : governance.resolutions.filter((r) => r.termId === term.id).slice(0, 5);
 
   return (
     <>
@@ -61,6 +68,43 @@ export async function CommitteeWorkspace({
                 <span className={vouchers > 0 ? 'pill pill-warn' : 'pill pill-ok'}>{vouchers} waiting</span>
               </li>
             </ul>
+          </Panel>
+          <Panel title="Committee resolutions" meta={`${unconfirmed.length} AWAITING CONFIRMATION`}>
+            {unconfirmed.length === 0 ? (
+              <p className="empty" style={{ margin: 0 }}>Every position this term is confirmed.</p>
+            ) : (
+              <ul className="roster">
+                {unconfirmed.map(({ m, st }) => {
+                  const person = governance.people.get(m.personId);
+                  return (
+                    <li key={m.id}>
+                      <span>
+                        <span className="who">{person === undefined ? 'Unknown' : displayNameFor(person)}</span>
+                        <span className="why">{POSITION_LABEL[m.position]} · {st.label}</span>
+                      </span>
+                      <span className="pill pill-warn">Awaiting</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {resolutions.length > 0 && (
+              <ul className="roster">
+                {resolutions.map((r) => (
+                  <li key={r.id}>
+                    <span>
+                      <span className="who">{r.summary}</span>
+                      <span className="why">{r.decidedOn} · {RESOLUTION_CATEGORY_LABEL[r.category]}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="hint" style={{ marginBottom: 0 }}>
+              Record a resolution or confirm a position on the <a href="/registrar/governance">governance screen</a>.
+              The President, Secretary, Treasurer and committee may record.{' '}
+              <span className="mono" style={{ fontSize: '0.7rem' }}>BR123 · BR166 · BR167</span>
+            </p>
           </Panel>
           <Panel title="Hardship requests" meta={`${waitingHardship.length} WAITING`}>
             <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>

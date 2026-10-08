@@ -99,6 +99,7 @@ below.
 | Teams & rosters | **W** | **W** | R | **W** | R | R | R |
 | Clearances (WWCC) | **W** | **W** | — | — | — | — | — |
 | Committee terms & positions | **W** | R | R | R | R | R | R |
+| Committee resolutions — record (BR123; secretary too, [scope 86](./86_the_executive_records_resolutions.md)) | **W** | — | **W** | — | **W** | — | — |
 | Fixtures | **W** | **W** | R | **W** | R | **W** | R |
 | Appearances & statistics | **W** | **W** | R | **W** | R | **W** own players ([BR158](../ea/2_business/5_domain-context-and-rules.md), [scope 71](./71_who_records_an_appearance.md)) | R |
 | Player physique (height, weight) | **W** | **W** | — | **W** | — | R | — |
@@ -181,7 +182,8 @@ September 2026**, after this document's own WP4 named them as the gate:
 - **#59 — whether `committee` may write anything:** yes — it records its
   own decisions. `committee_resolution` (BR123, [scope 57](./57_the_committee_records_its_own_decisions.md))
   is live: `committee_resolution_record` lets `admin` or `committee`
-  insert one, matching `pg_policies` today.
+  insert one. Since [scope 86](./86_the_executive_records_resolutions.md)
+  (0084), the `secretary` and `treasurer` may too.
 
 **What WP4 did not do — and [scope 62](./62_named_roles_for_actors_already_documented.md)
 said so at the time — is give five roles anything to write or narrowly
