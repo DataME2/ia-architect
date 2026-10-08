@@ -15,6 +15,9 @@ import { CommitteeWorkspace } from './_workspaces/CommitteeWorkspace.tsx';
 import { GuardianWorkspace } from './_workspaces/GuardianWorkspace.tsx';
 import { PlayerWorkspace } from './_workspaces/PlayerWorkspace.tsx';
 import { RefereeWorkspace } from './_workspaces/RefereeWorkspace.tsx';
+import { SponsorSlot } from './_sponsors/SponsorSlot.tsx';
+import { ageAt } from '../../domain/types.ts';
+import { showsSponsors } from '../../web/sponsor-billing.ts';
 
 export const dynamic = 'force-dynamic';
 
@@ -87,6 +90,10 @@ export default async function MePage({
               </span>
             </p>
             <Workspace active={active.holding} link={link} client={client} today={today} childId={params.child ?? null} />
+            {/* BR169: sponsors only for an adult; never in a 13-17 person's own workspace. */}
+            {showsSponsors({ age: ageAt(link.person.dateOfBirth, today), holdsClubRole: link.membershipRoles.length > 0 }) && (
+              <SponsorSlot client={client} clubId={link.clubId} role={active.holding.key} today={today} />
+            )}
           </>
         ) : (
           <Prompt me={me} />

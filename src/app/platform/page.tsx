@@ -15,6 +15,7 @@ import { AssociationForm, CompetitionForm, LevelForm } from './CatalogueForms.ts
 import { loadAssociations, loadCompetitions, loadLevels } from '../../data/competitions.ts';
 import { loadEnquiries } from '../../data/enquiries.ts';
 import { EnquiryList } from './EnquiryList.tsx';
+import { SponsorPlacementForm } from './SponsorPlacementForm.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -110,6 +111,16 @@ export default async function PlatformPage() {
   }));
 
   const today = todayIn();
+  // Clubs that accept platform campaigns, with their share (scope 84).
+  const { data: optedIn } = await client
+    .from('club_sponsor_settings')
+    .select('club_id, platform_share_bps')
+    .eq('accepts_platform_campaigns', true);
+  const sponsorClubs = ((optedIn ?? []) as { club_id: string; platform_share_bps: number }[]).map((o) => ({
+    id: o.club_id,
+    name: clubs.find((c) => c.clubId === o.club_id)?.name ?? o.club_id,
+    sharePct: o.platform_share_bps / 100,
+  }));
   const summary = summarise(clubs, today);
   const money = (cents: number) =>
     (cents / 100).toLocaleString('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 });
@@ -269,6 +280,17 @@ export default async function PlatformPage() {
       <EnquiryList enquiries={enquiries} />
 
       <ProvisionForm />
+
+      <section className="card">
+        <h3 style={{ marginTop: 0 }}>Sponsor placement (BR170)</h3>
+        <p className="hint">
+          A platform campaign is placed into one club at a time, only where the club opted in, with the club&rsquo;s share
+          recorded at placement. Shown to adults only (BR169).
+        </p>
+        <SponsorPlacementForm
+          clubs={sponsorClubs}
+        />
+      </section>
 
       <section className="card">
         <h3 style={{ marginTop: 0 }}>Competition catalogue (BR134)</h3>

@@ -104,14 +104,14 @@ begin
        when others then null;
   end;
 
-  -- 2. Nor a treasurer.
+  -- 2. A treasurer may, since 0084 (scope 86: the executive records what
+  --    the meeting decided).
   perform set_config('request.jwt.claim.sub', treasurer_u::text, true);
   begin
     insert into committee_resolution (club_id, term_id, decided_on, summary, category)
-    values (the_club, term_id, current_date, 'Treasurer tries to decide something.', 'general');
-    failures := array_append(failures, 'a treasurer recorded a Committee resolution');
-  exception when insufficient_privilege then null;
-       when others then null;
+    values (the_club, term_id, current_date, 'Treasurer records the adopted budget.', 'general');
+  exception when insufficient_privilege then
+    failures := array_append(failures, 'a treasurer could not record a Committee resolution (0084)');
   end;
 
   -- 3. `committee` may -- the first thing that role has ever been able to

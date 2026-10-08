@@ -6,6 +6,8 @@ import { createRequestClient } from '../../../data/server.ts';
 import { parseRegistrationForm } from '../../../web/registration-form.ts';
 import type { RegistrationFormState } from '../../../web/registration-form-state.ts';
 import { todayIn } from '../../../web/today.ts';
+import { attributeRegistration } from '../../../data/sponsor-money.ts';
+import { readUtm } from '../../../web/utm.ts';
 
 /**
  * Submit a registration through a public invitation link (BR72).
@@ -84,6 +86,11 @@ export async function submitJoinAction(
   // Never allowed to fail the registration (BR136): it is a claim about a
   // Person, and a registration saved without its officiating answer is
   // recoverable where the reverse is not.
+  // BR172: credit a partner whose link the family came through. Like the
+  // officiating answer, it never fails the registration.
+  const utm = readUtm({ utm_source: String(formData.get('utmSource') ?? ''), utm_campaign: String(formData.get('utmCampaign') ?? '') });
+  if (utm !== null) await attributeRegistration(client, result.registrationId, utm);
+
   if (draft.officiating !== null) {
     await client.rpc('app_declare_interest', {
       p_registration_id: result.registrationId,

@@ -113,6 +113,9 @@ export async function recheckAction(formData: FormData): Promise<void> {
   if (registrationId === '' || seasonId === '') throw new Error('Missing identifiers.');
 
   const { client, user, tenant } = await requireTenant();
+  if (!tenant.roles.includes('admin') && !tenant.roles.includes('registrar')) {
+    throw new Error('Only the administrator or registrar records a re-check.');
+  }
 
   const detail = await loadRegistrationDetail(
     client,
