@@ -75,11 +75,14 @@ export function RegistrationForm({
   action,
   seasons,
   token,
+  utm,
 }: {
   readonly action: RegistrationAction;
   /** Omitted on the public link — the invitation already names the season. */
   readonly seasons?: readonly SeasonRow[];
   readonly token?: string;
+  /** A partner's UTM pair (BR172), carried to the action so the registration is credited. */
+  readonly utm?: { readonly source: string; readonly campaign: string } | null;
 }) {
   const [state, formAction, pending] = useActionState(action, EMPTY_FORM_STATE);
 
@@ -144,6 +147,8 @@ export function RegistrationForm({
   return (
     <form action={formAction} className="stack" key={formKey}>
       {token !== undefined && <input type="hidden" name="token" value={token} />}
+      {utm != null && <input type="hidden" name="utmSource" value={utm.source} />}
+      {utm != null && <input type="hidden" name="utmCampaign" value={utm.campaign} />}
 
       {sibling !== null && (
         <p className="notice">
