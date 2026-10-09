@@ -97,7 +97,7 @@ take the field?" becomes the **Financial Gate**:
 **Earlier seasons show amber, not red.** Eligibility as built reads this
 season's balance. If an old debt were red, a player could show "clear to
 play" with a red reason beside it. Whether an old debt should stop play is
-[open question 81](./open-questions.md).
+[open question 81](./open-questions.md). **Superseded by [scope 92](./92_an_earlier_debt_stops_play.md):** Q81 was answered, an earlier debt at the same club now stops play, and the tile is red (amber once amended).
 
 ## Preview
 

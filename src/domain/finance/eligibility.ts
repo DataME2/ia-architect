@@ -58,23 +58,33 @@ export function playEligibility(
   owes: boolean = (outstandingCents ?? 0) > 0,
   /** An approved, unexpired hardship (BR164): owing does not block until this date. */
   hardshipUntil: string | null = null,
+  /**
+   * An earlier season at this club still owes, unamended (BR79 amended,
+   * scope 92). It stops play exactly as this season's balance does.
+   */
+  owesEarlier: boolean = false,
 ): PlayEligibility {
   const amount = outstandingCents === null ? 'money' : formatMoney(outstandingCents);
+  const earlier = 'a debt from an earlier season at this club is unpaid';
   if (!isEligibleToPlay(status)) {
     return {
       mayPlay: false,
       blockedBy: 'not-registered',
       reason: owes
         ? `Not registered with the federation, and ${amount} is outstanding.`
-        : 'Not yet confirmed present in the federation’s system (BR43).',
+        : owesEarlier
+          ? `Not registered with the federation, and ${earlier}.`
+          : 'Not yet confirmed present in the federation’s system (BR43).',
     };
   }
 
-  if (owes && hardshipUntil !== null) {
+  if ((owes || owesEarlier) && hardshipUntil !== null) {
     return {
       mayPlay: true,
       blockedBy: null,
-      reason: `Registered, and playing under a hardship the committee approved until ${hardshipUntil} (BR164) — the ${amount} is still owed.`,
+      reason: owes
+        ? `Registered, and playing under a hardship the committee approved until ${hardshipUntil} (BR164) — the ${amount} is still owed.`
+        : `Registered, and playing under a hardship the committee approved until ${hardshipUntil} (BR164) — ${earlier}.`,
     };
   }
 
@@ -83,6 +93,14 @@ export function playEligibility(
       mayPlay: false,
       blockedBy: 'owes-money',
       reason: `Registered, but ${amount} is outstanding — no pay, no play (BR79).`,
+    };
+  }
+
+  if (owesEarlier) {
+    return {
+      mayPlay: false,
+      blockedBy: 'owes-money',
+      reason: `Registered and this season is paid, but ${earlier} — no pay, no play (BR79).`,
     };
   }
 
@@ -103,12 +121,13 @@ export function blockedByMoney<
     readonly outstandingCents: number | null;
     readonly owes?: boolean;
     readonly hardshipUntil?: string | null;
+    readonly owesEarlier?: boolean;
   },
 >(
   entries: readonly T[],
 ): readonly T[] {
   return entries.filter(
-    (e) => playEligibility(e.status, e.outstandingCents, e.owes, e.hardshipUntil ?? null).blockedBy === 'owes-money',
+    (e) => playEligibility(e.status, e.outstandingCents, e.owes, e.hardshipUntil ?? null, e.owesEarlier ?? false).blockedBy === 'owes-money',
   );
 }
 

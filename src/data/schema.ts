@@ -190,6 +190,8 @@ export interface RegistrationRow {
   owes: boolean;
   /** An approved, unexpired hardship (BR164, scope 82): may play until this date although owing. */
   hardship_until: string | null;
+  /** An earlier season at this club still owes, unamended (BR79 amended, 0088). */
+  owes_earlier?: boolean;
   created_at: InstantString;
 }
 
