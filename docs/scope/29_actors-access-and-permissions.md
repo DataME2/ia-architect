@@ -119,7 +119,7 @@ below.
 | Match official fee schedules | **W** | R | **W** | R | — | — | — |
 | Sponsor campaigns — create, pause, record acquisitions ([scope 84](./84_sponsors_in_the_workspace.md), BR170) | **W** | — | **W** | — | — | — | — |
 | Sponsor statement (counts, earned, club share) | R | — | R | — | — | — | — |
-| Sponsor invoices — issue, record payment (simulated) ([scope 85](./85_sponsor_invoices_and_club_referrals.md), BR171) | **W** | — | **W** | — | — | — | — |
+| Sponsor invoices — issue, record payment (simulated), delete an unpaid one issued in error ([scope 85](./85_sponsor_invoices_and_club_referrals.md), [87](./87_an_invoice_issued_in_error.md), BR171) | **W** | — | **W** | — | — | — | — |
 | Referral partners — create, pay (simulated) (BR172) | **W** | — | **W** | — | — | — | — |
 | Which registrations a partner brought (BR172) | R | R | R | — | — | — | — |
 | Sponsors shown in the workspace (BR169: adults only) | R | R | R | R | R | R | — |
