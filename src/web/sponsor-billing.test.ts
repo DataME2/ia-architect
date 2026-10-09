@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import {
-  bannerPath, checkBanner, clickThroughRate, clubShareCents, isSponsorLink, owedCents, parseCampaign, showsSponsors,
-  sumTallies,
+  bannerPath, chargeBasis, checkBanner, clickThroughRate, clubShareCents, isSponsorLink, owedCents, parseCampaign, showsSponsors,
+  partnerBalance, sumTallies,
 } from './sponsor-billing.ts';
 
 const tally = { impressions: 2500, clicks: 40, acquisitions: 3 };
@@ -76,4 +76,19 @@ describe('checkBanner — the platform hosts it (decision 17)', () => {
     assert.equal(checkBanner({ type: 'image/png', size: 1024 * 1024 + 1 }).ok, false);
   });
   it('files under the club', () => assert.equal(bannerPath('c', 'k', 7, 'png'), 'c/k-7.png'));
+});
+
+describe('chargeBasis — each model in its own terms', () => {
+  it('CPC: clicks × rate', () => assert.equal(chargeBasis('cpc', 50, tally), '40 clicks × $0.50'));
+  it('CPM: impressions ÷ 1,000 × rate', () => assert.equal(chargeBasis('cpm', 500, tally), '2,500 impressions ÷ 1,000 × $5.00'));
+  it('CPA: acquisitions × rate', () => assert.equal(chargeBasis('cpa', 1000, tally), '3 acquisitions × $10.00'));
+  it('says one click, not one clicks', () => assert.equal(chargeBasis('cpc', 50, { ...tally, clicks: 1 }), '1 click × $0.50'));
+});
+
+describe('partnerBalance — BR172, completed registrations only', () => {
+  it('earns per completed registration and owes the unpaid ones', () =>
+    assert.deepEqual(partnerBalance({ cpaRateCents: 1500, completed: 3, paidAcquisitions: 1, paidCents: 1500 }),
+      { earnedCents: 4500, paidCents: 1500, owedCents: 3000, unpaid: 2 }));
+  it('never owes a negative amount', () =>
+    assert.equal(partnerBalance({ cpaRateCents: 1500, completed: 1, paidAcquisitions: 2, paidCents: 3000 }).owedCents, 0));
 });

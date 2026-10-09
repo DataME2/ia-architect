@@ -4,6 +4,8 @@
  * database. Money is integer cents throughout.
  */
 
+import { formatMoney } from '../domain/finance/money.ts';
+
 export type PricingModel = 'cpc' | 'cpm' | 'cpa';
 
 export const MODEL_LABEL: Readonly<Record<PricingModel, string>> = {
@@ -131,4 +133,29 @@ export function checkBanner(file: { readonly type: string; readonly size: number
 /** `<club>/<campaign>-<stamp>.<ext>`: the club segment the bucket policy checks. */
 export function bannerPath(clubId: string, campaignId: string, stamp: number, extension: string): string {
   return `${clubId}/${campaignId}-${stamp}.${extension}`;
+}
+
+/**
+ * How a charge is made, in the model's own terms, so the treasurer sees the
+ * count and the rate rather than only a total: "40 clicks × $0.50".
+ */
+export function chargeBasis(model: PricingModel, rateCents: number, tally: Tally): string {
+  const n = (x: number) => x.toLocaleString('en-AU');
+  if (model === 'cpc') return `${n(tally.clicks)} click${tally.clicks === 1 ? '' : 's'} × ${formatMoney(rateCents)}`;
+  if (model === 'cpa') return `${n(tally.acquisitions)} acquisition${tally.acquisitions === 1 ? '' : 's'} × ${formatMoney(rateCents)}`;
+  return `${n(tally.impressions)} impressions ÷ 1,000 × ${formatMoney(rateCents)}`;
+}
+
+/**
+ * A referral partner's account (BR172): each COMPLETE registration earns the
+ * fee; what is paid comes from the payouts. Owed never goes below zero.
+ */
+export function partnerBalance(p: {
+  readonly cpaRateCents: number;
+  readonly completed: number;
+  readonly paidAcquisitions: number;
+  readonly paidCents: number;
+}): { readonly earnedCents: number; readonly paidCents: number; readonly owedCents: number; readonly unpaid: number } {
+  const unpaid = Math.max(0, p.completed - p.paidAcquisitions);
+  return { earnedCents: p.completed * p.cpaRateCents, paidCents: p.paidCents, owedCents: unpaid * p.cpaRateCents, unpaid };
 }

@@ -4,7 +4,7 @@ import { formatMoney } from '../../../domain/finance/money.ts';
 import { loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { loadCampaignReports, loadSponsorSettings } from '../../../data/sponsors.ts';
-import { MODEL_UNIT, clickThroughRate, clubShareCents, owedCents } from '../../../web/sponsor-billing.ts';
+import { MODEL_UNIT, chargeBasis, clickThroughRate, clubShareCents, owedCents, partnerBalance } from '../../../web/sponsor-billing.ts';
 import { CampaignStatusButton, NewCampaignForm, RecordAcquisitionsForm, SponsorSettingsForm } from './SponsorForms.tsx';
 import { loadInvoices, loadPartners } from '../../../data/sponsor-money.ts';
 import { IssueInvoiceForm, NewPartnerForm, PartnerLink, PayPartnerForm, RecordPaymentForm } from './MoneyForms.tsx';
@@ -94,7 +94,7 @@ export default async function SponsorsPage() {
                       {r.tally.acquisitions}
                       {r.campaign.pricingModel === 'cpa' && r.campaign.owner === 'club' && <RecordAcquisitionsForm id={r.campaign.id} />}
                     </td>
-                    <td>{formatMoney(r.owed)}</td>
+                    <td>{formatMoney(r.owed)}<br /><span className="hint">{chargeBasis(r.campaign.pricingModel, r.campaign.rateCents, r.tally)}</span></td>
                     <td>{formatMoney(r.clubShare)}</td>
                     <td>
                       {r.campaign.owner === 'club' && r.campaign.status === 'active' && (
@@ -176,7 +176,9 @@ export default async function SponsorsPage() {
               </span>
               <br />
               <span className="hint">
-                {p.attributed} registered through the link · {p.completed} completed · paid for {p.paidAcquisitions} ({formatMoney(p.paidCents)})
+                {p.attributed} registered through the link · {p.completed} completed × {formatMoney(p.cpaRateCents)} ={' '}
+                {formatMoney(partnerBalance(p).earnedCents)} earned · paid for {p.paidAcquisitions} ({formatMoney(p.paidCents)}) ·{' '}
+                <b>{formatMoney(partnerBalance(p).owedCents)} owed</b>
               </span>
             </p>
             <PartnerLink source={p.utmSource} medium={p.utmMedium} campaign={p.utmCampaign} />
