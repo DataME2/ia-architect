@@ -4,6 +4,7 @@ import { loadNotifications } from '../../data/inbox.ts';
 import { loadMe, type ClubLink } from '../../data/me.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
 import { syncEverythingWaiting } from '../../data/waiting.ts';
+import type { InboxNotification } from '../../web/inbox-view.ts';
 import { ROLE_HUE } from '../../web/me-view.ts';
 import { ROLE_LABEL, resolveActive, type RoleHolding } from '../../web/role-context.ts';
 import { todayIn } from '../../web/today.ts';
@@ -16,6 +17,7 @@ import { GuardianWorkspace } from './_workspaces/GuardianWorkspace.tsx';
 import { PlayerWorkspace } from './_workspaces/PlayerWorkspace.tsx';
 import { RefereeWorkspace } from './_workspaces/RefereeWorkspace.tsx';
 import { SponsorSlot } from './_sponsors/SponsorSlot.tsx';
+import { PersonHome } from './_home/PersonHome.tsx';
 import { ageAt } from '../../domain/types.ts';
 import { showsSponsors } from '../../web/sponsor-billing.ts';
 
@@ -64,6 +66,7 @@ export default async function MePage({
         active={active}
         clubCount={me.links.length}
         officerHref={me.isClubOfficer ? '/registrar' : null}
+        homeHref={me.holdings.length > 1 ? '/me' : null}
         signOut={signOutAction}
       />
 
@@ -96,7 +99,7 @@ export default async function MePage({
             )}
           </>
         ) : (
-          <Prompt me={me} />
+          <Prompt me={me} notifications={notifications} />
         )}
       </main>
     </div>
@@ -134,7 +137,13 @@ async function Workspace({
  * The screen BR61 makes unavoidable: several roles, none chosen — or no
  * roles at all, which has three honest causes and gets three answers.
  */
-function Prompt({ me }: { readonly me: Awaited<ReturnType<typeof loadMe>> }) {
+function Prompt({
+  me,
+  notifications,
+}: {
+  readonly me: Awaited<ReturnType<typeof loadMe>>;
+  readonly notifications: readonly InboxNotification[];
+}) {
   if (!me.hasAccess) {
     return (
       <div className="role-prompt">
@@ -178,32 +187,5 @@ function Prompt({ me }: { readonly me: Awaited<ReturnType<typeof loadMe>> }) {
       </div>
     );
   }
-  return (
-    <div className="role-prompt">
-      <p className="eyebrow">One person · {me.holdings.length} roles</p>
-      <h2>Which role are you acting in?</h2>
-      <p className="lede">
-        You hold more than one, and the app will not guess — switching is explicit, and no switch merges two
-        roles&rsquo; views. Choose one in the rail, or here.{' '}
-        <span className="mono" style={{ fontSize: '0.75rem' }}>BR61</span>
-      </p>
-      <div className="role-choices">
-        {me.holdings.map((h) => (
-          <a
-            key={`${h.key}:${h.clubId}`}
-            className="role-choice"
-            href={`/me?role=${h.key}&club=${encodeURIComponent(h.clubId)}`}
-            style={{ ['--role-hue' as string]: ROLE_HUE[h.key] }}
-          >
-            <span className="role-choice-name">{ROLE_LABEL[h.key]}</span>
-            <span className="role-choice-where">
-              {h.clubName}
-              {h.scope !== null && ` · ${h.scope}`}
-            </span>
-            {h.pending > 0 && <span className="role-item-count">{h.pending} waiting</span>}
-          </a>
-        ))}
-      </div>
-    </div>
-  );
+  return <PersonHome holdings={me.holdings} notifications={notifications} />;
 }
