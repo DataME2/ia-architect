@@ -23,6 +23,10 @@ export interface IdentityRailProps extends React.HTMLAttributes<HTMLElement> {
   signInCount?: number;
   /** URL path for administration access (e.g., "/registrar"), or null if unprivileged */
   officerHref?: string | null;
+  /** The person's home (everything waiting, all roles), or null with one role. */
+  homeHref?: string | null;
+  /** Whether the home is what is on screen now. */
+  homeActive?: boolean;
   /** Label text for the officer administration link */
   officerLabel?: string;
   /** The sign-out form's action — a server action in this app, so it works without JavaScript. */
@@ -58,6 +62,8 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
       duplicateAccountCount = 0,
       signInCount = 1,
       officerHref,
+      homeHref = null,
+      homeActive = false,
       officerLabel = 'Club administration →',
       signOutAction,
       onRoleSelect,
@@ -166,6 +172,23 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
             </span>
           </div>
         </div>
+
+        {/* The person's home: everything waiting, across roles (scope 89). */}
+        {homeHref && (
+          <a
+            href={homeHref}
+            aria-current={homeActive ? 'page' : undefined}
+            className={cn(
+              'flex items-center min-h-[44px] px-3 py-2 rounded-sm text-xs font-semibold no-underline border-l-4 transition-colors duration-180',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
+              homeActive
+                ? 'bg-rail-line text-rail-foreground hover:text-rail-foreground border-primary'
+                : 'text-rail-foreground/80 hover:bg-rail-line/60 hover:text-rail-foreground border-transparent',
+            )}
+          >
+            Home · everything waiting
+          </a>
+        )}
 
         {/* Role Switcher List */}
         <RoleSwitcher

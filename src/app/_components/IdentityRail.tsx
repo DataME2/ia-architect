@@ -28,6 +28,7 @@ export function IdentityRail({
   active,
   clubCount,
   officerHref,
+  homeHref = null,
   signOut,
 }: {
   readonly personName: string;
@@ -37,6 +38,8 @@ export function IdentityRail({
   readonly clubCount: number;
   /** `/registrar` for a club officer; null for a person who holds no such role. */
   readonly officerHref: string | null;
+  /** `/me` for a person with several roles: their home, everything waiting (scope 89). */
+  readonly homeHref?: string | null;
   readonly signOut: () => Promise<void>;
 }) {
   return (
@@ -55,6 +58,8 @@ export function IdentityRail({
       activeClubId={active?.holding.clubId}
       clubCount={clubCount}
       officerHref={officerHref}
+      homeHref={homeHref}
+      homeActive={active === null}
       signOutAction={signOut}
       // Reserved for commissioned artwork — empty until a licence exists
       // (scope 32 WP6, open question 66). Never machine-generated.
