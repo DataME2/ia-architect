@@ -50,6 +50,7 @@ it:
 | `form-result.ts` | The one shape every action hands back — `idle \| ok \| error`, **always with a message**, because silence is not a success state |
 | `home-view.ts` | The person's home (scope 89): which of their own waiting items are listed, in what order, under which role, and each role card's count. BR61 holds: every item is a link into one role context |
 | `referee-board.ts` | The match official board (scope 90): the availability grid's round trip to windows (BR174), each upcoming appointment's red/amber/green check with its rules (BR7, BR10, BR111), and the claims ledger |
+| `registration-wizard.ts`, `financial-gate.ts` | Scope 91. The registration form's steps, matched to the fields `parseRegistrationForm` reports, so a step is checked by the server's own parser; and the Financial Gate, a restatement of `playEligibility`, `planState` and the two-year arrears as one summary |
 | `household-view.ts`, `me-view.ts`, `role-context.ts` | The person-facing surface: one record, one active role at a time (BR61, BR63, BR65). `holdsCommitteeRole` is here rather than in `src/data/` because it is a **decision**, and it was wrong: three things can be called committee and the screen asked about the two that are access grants rather than the one that is the elected office |
 | `plan-view.ts`, `money.ts` | Instalment ledgers, arrears, and money formatted one way everywhere |
 | `referee-view.ts`, `availability-view.ts` | The officiating roster and who may officiate what |
