@@ -40,7 +40,11 @@ export interface GateInput {
   readonly vouchers: readonly { readonly state: 'ATTACHED' | 'VERIFIED' | 'REJECTED' | 'CLAIMED'; readonly faceValueCents: number }[];
   readonly plan: PlanState | null;
   /** Earlier seasons still owing, within BR79's window; this season excluded. */
-  readonly earlier: readonly { readonly seasonName: string; readonly outstandingCents: number }[] | null;
+  /**
+   * Earlier seasons at this club still owing, within BR79's window.
+   * `amended`: the treasurer recorded an amendment, so it no longer stops play.
+   */
+  readonly earlier: readonly { readonly seasonName: string; readonly outstandingCents: number; readonly amended?: boolean }[] | null;
 }
 
 export function financialGate(input: GateInput): FinancialGate {
@@ -117,6 +121,7 @@ export function financialGate(input: GateInput): FinancialGate {
     });
   } else {
     const total = input.earlier.reduce((t, e) => t + e.outstandingCents, 0);
+    const unamended = input.earlier.filter((e) => e.amended !== true && e.outstandingCents > 0);
     lines.push({
       key: 'earlier',
       label: 'Earlier seasons',
@@ -124,11 +129,17 @@ export function financialGate(input: GateInput): FinancialGate {
       note:
         total === 0
           ? 'Nothing owed from the last two years.'
-          : `${input.earlier.map((e) => `${e.seasonName}: ${formatMoney(e.outstandingCents)}`).join(' · ')}. Pursued or amended with a reason, never written off silently (BR79).`,
-      // Amber, not red: eligibility (`playEligibility`) is this season's
-      // balance, so an old debt is to pursue, and must not read as the reason
-      // a player shown "clear" is stopped (scope 91 gap).
-      tone: total > 0 ? 'pending' : 'ok',
+          : `${input.earlier
+              .map((e) => `${e.seasonName}: ${formatMoney(e.outstandingCents)}${e.amended === true ? ' (amended)' : ''}`)
+              .join(' · ')}. ${
+              unamended.length > 0
+                ? 'An unpaid earlier season at this club stops play until it is paid or the treasurer records an amendment (BR79).'
+                : 'Amended by the treasurer with a reason, so it does not stop play (BR79).'
+            }`,
+      // Red while it stops play (scope 92): the same verdict
+      // `app_registration_money().owes_earlier` gives every screen. An
+      // amended debt is still owed, so amber, but no longer a block.
+      tone: unamended.length > 0 ? 'blocked' : total > 0 ? 'pending' : 'ok',
     });
   }
 

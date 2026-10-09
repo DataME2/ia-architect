@@ -490,6 +490,7 @@ export async function loadQueue(
       outstandingCents: registration.outstandingAmountCents,
       owes: registration.owesMoney,
       hardshipUntil: registration.hardshipUntil,
+      owesEarlier: registration.owesEarlierSeason ?? false,
     });
   }
 
@@ -590,6 +591,7 @@ export async function loadRegistrationDetail(
       outstandingCents: registration.outstandingAmountCents,
       owes: registration.owesMoney,
       hardshipUntil: registration.hardshipUntil,
+      owesEarlier: registration.owesEarlierSeason ?? false,
     },
     person,
     documents,

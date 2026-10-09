@@ -12,7 +12,7 @@ import { loadGuardianCandidates } from '../../../data/family.ts';
 import { loadPlayerInvitationStatus } from '../../../data/player-invitation.ts';
 import { loadVouchers, voucherFileUrl } from '../../../data/vouchers.ts';
 import { voucherSummary } from '../../../domain/finance/voucher.ts';
-import { playEligibility } from '../../../domain/finance/eligibility.ts';
+
 import { canReadMoney } from '../../../web/money-access.ts';
 import { planState, totalReceived } from '../../../domain/finance/plan.ts';
 import { outstandingBalances } from '../../../data/arrears.ts';
@@ -21,7 +21,7 @@ import { FinancialGatePanel } from '../../../components/ui/FinancialGatePanel.ts
 import { ageAt } from '../../../domain/types.ts';
 import { formatCents } from '../../../web/money.ts';
 import { METHOD_LABEL } from '../../../web/plan-view.ts';
-import { failing } from '../../../web/queue-view.ts';
+import { eligibilityOf, failing } from '../../../web/queue-view.ts';
 import { todayIn } from '../../../web/today.ts';
 import { RuleList, StatusPill } from '../../_components/rules.tsx';
 import {
@@ -134,7 +134,9 @@ export default async function RegistrationDetailPage({
   // BR79, asked fresh from the status and the balance together. Neither
   // alone answers it: the status cannot fall back out of COMPLETE, and the
   // balance says nothing about the federation.
-  const eligibility = playEligibility(entry.status, entry.outstandingCents);
+  // The entry's own verdict: this season's balance, a hardship (BR164) and
+  // an earlier season's unpaid debt (BR79 amended, scope 92).
+  const eligibility = eligibilityOf(entry);
   // Small clubs are small: one person is routinely both registrar and admin.
   // Gating on a single role hid the finance screens from whoever's registrar
   // membership happened to be the older row.
@@ -165,7 +167,11 @@ export default async function RegistrationDetailPage({
         ? null
         : arrears.figures
             .filter((a) => a.personId === person.id && a.seasonId !== seasonId)
-            .map((a) => ({ seasonName: a.seasonName, outstandingCents: a.outstandingCents })),
+            .map((a) => ({
+              seasonName: a.seasonName,
+              outstandingCents: a.outstandingCents,
+              amended: a.lastAction === 'amendment_recorded',
+            })),
   });
   const history = await loadValidationHistory(client, registrationId, 20);
 
