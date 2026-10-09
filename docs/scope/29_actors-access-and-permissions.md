@@ -108,6 +108,7 @@ below.
 | Audit log | R | — | — | — | — | — | — |
 | Prospects | — | — | — | — | — | — | — |
 | Match officials' record (classification, accreditations, availability) | **W** | **W** | — | **W** | — | — | — |
+| An official's **own** weekly availability and time away, from `/me` ([scope 90](./90_the_referee_board.md), BR174; the official, whatever their club role) | — | — | — | — | — | — | — |
 | Designations (who officiates which match) | **W** | **W** | R ([scope 77](./77_the_treasurer_reads_the_referee_side.md), BR163) | **W** | — | — | — |
 | Match verification (it happened, BR13) | **W** | **W** | R ([scope 77](./77_the_treasurer_reads_the_referee_side.md), BR163) | **W** | — | — | — |
 | Referee claims — raise | **W** | **W** | R | **W** | — | — | — |
