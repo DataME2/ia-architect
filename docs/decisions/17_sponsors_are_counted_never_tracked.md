@@ -50,6 +50,11 @@ that out here:
    or Let'sDataTalk for its own campaigns, invoices. No card is processed
    (BR170).
 
+7. **Rotation is weighted and stateless** ([scope 88](../scope/88_sponsor_share_of_voice.md), BR173).
+   Each view is a fresh weighted pick, so no record of which sponsor a
+   viewer saw is kept. A strict round-robin per viewer would need exactly
+   that record.
+
 ## Rejected
 
 - **Third-party ad networks.** They bring their own tracking, which cannot be

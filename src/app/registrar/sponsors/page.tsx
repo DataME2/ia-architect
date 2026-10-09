@@ -4,9 +4,10 @@ import { formatMoney } from '../../../domain/finance/money.ts';
 import { loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { loadCampaignReports, loadSponsorSettings } from '../../../data/sponsors.ts';
-import { MODEL_UNIT, chargeBasis, clickThroughRate, clubShareCents, owedCents, partnerBalance } from '../../../web/sponsor-billing.ts';
-import { CampaignStatusButton, NewCampaignForm, RecordAcquisitionsForm, SponsorSettingsForm } from './SponsorForms.tsx';
-import { loadInvoices, loadPartners } from '../../../data/sponsor-money.ts';
+import { MODEL_UNIT, ROTATION_LABEL, chargeBasis, shareOfVoice, clickThroughRate, clubShareCents, owedCents, partnerBalance } from '../../../web/sponsor-billing.ts';
+import { CampaignStatusButton, NewCampaignForm, RecordAcquisitionsForm, RotationSelect, SponsorSettingsForm } from './SponsorForms.tsx';
+import { loadDeletedInvoices, loadInvoices, loadPartners } from '../../../data/sponsor-money.ts';
+import { todayIn } from '../../../web/today.ts';
 import { DeleteInvoiceButton, IssueInvoiceForm, NewPartnerForm, PartnerLink, PayPartnerForm, RecordPaymentForm } from './MoneyForms.tsx';
 
 /**
@@ -33,12 +34,22 @@ export default async function SponsorsPage() {
     );
   }
 
-  const [reports, settings, invoices, partners] = await Promise.all([
+  const [reports, settings, invoices, partners, deleted] = await Promise.all([
     loadCampaignReports(client, tenant.clubId),
     loadSponsorSettings(client, tenant.clubId),
     loadInvoices(client, tenant.clubId),
     loadPartners(client, tenant.clubId),
+    loadDeletedInvoices(client, tenant.clubId),
   ]);
+  // BR173: each live campaign's expected share of the views today. A
+  // campaign shown to fewer workspaces competes in fewer of them, so this is
+  // the share where it does appear, approximately.
+  const today = todayIn();
+  const share = shareOfVoice(
+    reports
+      .filter((r) => r.campaign.status === 'active' && r.campaign.startsOn <= today && r.campaign.endsOn >= today)
+      .map((r) => r.campaign),
+  );
   const campaignName = new Map(reports.map((r) => [r.campaign.id, r.campaign.sponsorName]));
   const outstanding = invoices.filter((i) => i.status === 'issued').reduce((s, i) => s + i.amountCents, 0);
   const rows = reports.map((r) => {
@@ -73,6 +84,7 @@ export default async function SponsorsPage() {
                   <th>Acquisitions</th>
                   <th>Earned</th>
                   <th>Club&rsquo;s share</th>
+                  <th>How often (share of views)</th>
                   <th />
                 </tr>
               </thead>
@@ -96,6 +108,14 @@ export default async function SponsorsPage() {
                     </td>
                     <td>{formatMoney(r.owed)}<br /><span className="hint">{chargeBasis(r.campaign.pricingModel, r.campaign.rateCents, r.tally)}</span></td>
                     <td>{formatMoney(r.clubShare)}</td>
+                    <td>
+                      {r.campaign.owner === 'club' ? (
+                        <RotationSelect id={r.campaign.id} weight={r.campaign.rotationWeight} />
+                      ) : (
+                        ROTATION_LABEL[r.campaign.rotationWeight]
+                      )}
+                      <span className="hint">{share.has(r.campaign.id) ? `≈ ${share.get(r.campaign.id)}% of views today` : 'Not live today'}</span>
+                    </td>
                     <td>
                       {r.campaign.owner === 'club' && r.campaign.status === 'active' && (
                         <CampaignStatusButton id={r.campaign.id} status="paused" label="Pause" />
@@ -159,6 +179,30 @@ export default async function SponsorsPage() {
           </div>
         )}
         <p className="hint" style={{ marginBottom: 0 }}>Awaiting payment: <b>{formatMoney(outstanding)}</b>.</p>
+        {deleted.length > 0 && (
+          <>
+            <h4>Removed invoices</h4>
+            <p className="hint" style={{ marginTop: 0 }}>
+              Kept by the audit, so whoever removed one can see why. Their numbers are never issued again.
+            </p>
+            <ul className="roster">
+              {deleted.map((d) => (
+                <li key={`${d.number}-${d.deletedAt}`}>
+                  <span>
+                    <span className="who">
+                      <span className="mono">{d.number}</span> · {campaignName.get(d.campaignId) ?? 'a removed campaign'} ·{' '}
+                      {d.periodFrom} → {d.periodTo} · {formatMoney(d.amountCents)}
+                    </span>
+                    <span className="why">
+                      &ldquo;{d.reason}&rdquo; · removed by {d.deletedBy} on {d.deletedAt.slice(0, 10)}
+                    </span>
+                  </span>
+                  <span className="pill pill-stop">Removed</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
 
       <div className="card">

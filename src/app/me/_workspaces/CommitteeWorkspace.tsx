@@ -15,7 +15,7 @@ import { loadAssignablePeople } from '../../../data/teams.ts';
 import { loadCampaignReports, type CampaignReport } from '../../../data/sponsors.ts';
 import { loadInvoices, loadPartners } from '../../../data/sponsor-money.ts';
 import { formatMoney } from '../../../domain/finance/money.ts';
-import { MODEL_LABEL, chargeBasis, clubShareCents, owedCents, partnerBalance, type PricingModel } from '../../../web/sponsor-billing.ts';
+import { MODEL_LABEL, ROTATION_LABEL, chargeBasis, clubShareCents, owedCents, partnerBalance, type PricingModel } from '../../../web/sponsor-billing.ts';
 import { displayNameFor, fullLegalName } from '../../../web/queue-view.ts';
 import { ConfirmPositionButton, RecordResolutionForm } from '../../registrar/governance/GovernanceForms.tsx';
 import { POSITION_LABEL, RESOLUTION_CATEGORY_LABEL, confirmationStatus } from '../../../web/governance-view.ts';
@@ -161,6 +161,7 @@ export async function CommitteeWorkspace({
                                   {chargeBasis(model, r.campaign.rateCents, r.tally)} = {formatMoney(owed)}
                                   {r.campaign.owner === 'platform' && ` · club's share ${r.campaign.clubShareBps / 100}% = ${formatMoney(share)}`}
                                   {model === 'cpa' && ' · acquisitions as the sponsor reports them'}
+                                  {` · ${ROTATION_LABEL[r.campaign.rotationWeight]}`}
                                 </span>
                               </span>
                               <span className="pill pill-info">{formatMoney(share)}</span>

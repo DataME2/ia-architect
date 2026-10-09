@@ -118,6 +118,8 @@ below.
 | Where an official is paid (nominations, BR161) | R | — | R | — | — | — | — |
 | Match official fee schedules | **W** | R | **W** | R | — | — | — |
 | Sponsor campaigns — create, pause, record acquisitions ([scope 84](./84_sponsors_in_the_workspace.md), BR170) | **W** | — | **W** | — | — | — | — |
+| Sponsor rotation tier — Standard, Featured, Premium ([scope 88](./88_sponsor_share_of_voice.md), BR173) | **W** | — | **W** | — | — | — | — |
+| Removed sponsor invoices, with reason and who (BR171, 0086) | R | — | R | — | — | — | — |
 | Sponsor statement (counts, earned, club share) | R | — | R | — | — | — | — |
 | Sponsor invoices — issue, record payment (simulated), delete an unpaid one issued in error ([scope 85](./85_sponsor_invoices_and_club_referrals.md), [87](./87_an_invoice_issued_in_error.md), BR171) | **W** | — | **W** | — | — | — | — |
 | Referral partners — create, pay (simulated) (BR172) | **W** | — | **W** | — | — | — | — |

@@ -3,14 +3,17 @@
 import { useActionState } from 'react';
 
 import { IDLE_FORM } from '../../../web/form-result.ts';
-import { MODEL_LABEL, type PricingModel } from '../../../web/sponsor-billing.ts';
+import { MODEL_LABEL, ROTATION_LABEL, type PricingModel, type RotationWeight } from '../../../web/sponsor-billing.ts';
 import { FormNotice } from '../_components/FormNotice.tsx';
 import {
   createCampaignAction,
   recordAcquisitionsAction,
   saveSponsorSettingsAction,
   setCampaignStatusAction,
+  setCampaignWeightAction,
 } from './actions.ts';
+
+const WEIGHTS = [1, 2, 3] as const satisfies readonly RotationWeight[];
 
 const AUDIENCE_LABEL = {
   guardian: 'Guardians',
@@ -44,6 +47,12 @@ export function NewCampaignForm() {
         <label>Rate ($) <input name="rate" inputMode="decimal" style={{ width: '6rem' }} placeholder="0.50" /></label>
         <label>From <input type="date" name="startsOn" /></label>
         <label>Until <input type="date" name="endsOn" /></label>
+        <label>
+          How often{' '}
+          <select name="rotation" defaultValue="1">
+            {WEIGHTS.map((w) => <option key={w} value={w}>{ROTATION_LABEL[w]}</option>)}
+          </select>
+        </label>
       </div>
       <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
         <legend>Show in the workspace of</legend>
@@ -72,6 +81,29 @@ export function CampaignStatusButton({ id, status, label }: { readonly id: strin
       <button type="submit" className="secondary" style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }} disabled={pending}>
         {label}
       </button>
+      <FormNotice result={state} />
+    </form>
+  );
+}
+
+/**
+ * BR173: change a club campaign's tier. Submits on change; the share column
+ * beside it shows what the tier buys among the campaigns live today.
+ */
+export function RotationSelect({ id, weight }: { readonly id: string; readonly weight: RotationWeight }) {
+  const [state, action, pending] = useActionState(setCampaignWeightAction, IDLE_FORM);
+  return (
+    <form action={action}>
+      <input type="hidden" name="id" value={id} />
+      <select
+        name="rotation"
+        defaultValue={weight}
+        disabled={pending}
+        aria-label="How often this sponsor appears"
+        onChange={(e) => e.currentTarget.form?.requestSubmit()}
+      >
+        {WEIGHTS.map((w) => <option key={w} value={w}>{ROTATION_LABEL[w]}</option>)}
+      </select>
       <FormNotice result={state} />
     </form>
   );

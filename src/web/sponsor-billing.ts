@@ -77,6 +77,8 @@ export interface CampaignDraft {
   readonly audience: readonly SponsorAudience[];
   readonly startsOn: string;
   readonly endsOn: string;
+  /** BR173: Standard, Featured or Premium; Standard when the form says nothing. */
+  readonly rotationWeight: RotationWeight;
 }
 
 /** A campaign form, read and checked before the database checks it again. */
@@ -90,6 +92,7 @@ export function parseCampaign(fields: {
   readonly audience?: readonly string[];
   readonly startsOn?: string;
   readonly endsOn?: string;
+  readonly rotation?: string;
 }): { readonly ok: true; readonly value: CampaignDraft } | { readonly ok: false; readonly error: string } {
   const sponsorName = (fields.sponsorName ?? '').trim();
   const headline = (fields.headline ?? '').trim();
@@ -100,6 +103,7 @@ export function parseCampaign(fields: {
   const audience = (fields.audience ?? []).filter((a): a is SponsorAudience => (AUDIENCES as readonly string[]).includes(a));
   const startsOn = fields.startsOn ?? '';
   const endsOn = fields.endsOn ?? '';
+  const rotationWeight = Number(fields.rotation ?? '1');
 
   if (sponsorName === '') return { ok: false, error: 'Name the sponsor.' };
   if (headline === '' || headline.length > 90) return { ok: false, error: 'A headline, up to 90 characters.' };
@@ -111,9 +115,10 @@ export function parseCampaign(fields: {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(startsOn) || !/^\d{4}-\d{2}-\d{2}$/.test(endsOn) || endsOn < startsOn) {
     return { ok: false, error: 'Give a start date and an end date on or after it.' };
   }
+  if (!isRotationWeight(rotationWeight)) return { ok: false, error: 'Choose Standard, Featured or Premium.' };
   return {
     ok: true,
-    value: { sponsorName, headline, body: body === '' ? null : body, linkUrl, pricingModel: model, rateCents: rate, audience, startsOn, endsOn },
+    value: { sponsorName, headline, body: body === '' ? null : body, linkUrl, pricingModel: model, rateCents: rate, audience, startsOn, endsOn, rotationWeight },
   };
 }
 
@@ -158,4 +163,41 @@ export function partnerBalance(p: {
 }): { readonly earnedCents: number; readonly paidCents: number; readonly owedCents: number; readonly unpaid: number } {
   const unpaid = Math.max(0, p.completed - p.paidAcquisitions);
   return { earnedCents: p.completed * p.cpaRateCents, paidCents: p.paidCents, owedCents: unpaid * p.cpaRateCents, unpaid };
+}
+
+// ------------------------------------------------ share of voice (BR173)
+
+/** How often a campaign appears, relative to the others live with it. */
+export type RotationWeight = 1 | 2 | 3;
+
+export const ROTATION_LABEL: Readonly<Record<RotationWeight, string>> = {
+  1: 'Standard (1×)',
+  2: 'Featured (2×)',
+  3: 'Premium (3×)',
+};
+
+export function isRotationWeight(value: number): value is RotationWeight {
+  return value === 1 || value === 2 || value === 3;
+}
+
+/**
+ * Pick one item with probability weight ÷ total weight. `random` is in
+ * [0, 1), injected so the choice is testable. No memory of past picks, and
+ * so nothing about the viewer is kept (decision 17).
+ */
+export function pickWeighted<T extends { readonly rotationWeight: number }>(items: readonly T[], random: number): T | null {
+  const total = items.reduce((t, i) => t + i.rotationWeight, 0);
+  if (total <= 0) return null;
+  let point = random * total;
+  for (const item of items) {
+    point -= item.rotationWeight;
+    if (point < 0) return item;
+  }
+  return items[items.length - 1] ?? null;
+}
+
+/** Each campaign's expected share of the views, as a whole percentage, among those given. */
+export function shareOfVoice(items: readonly { readonly id: string; readonly rotationWeight: number }[]): ReadonlyMap<string, number> {
+  const total = items.reduce((t, i) => t + i.rotationWeight, 0);
+  return new Map(items.map((i) => [i.id, total === 0 ? 0 : Math.round((i.rotationWeight / total) * 100)]));
 }

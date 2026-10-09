@@ -76,6 +76,33 @@ export async function deleteInvoice(
   return error === null ? { number: String(data) } : { error: error.message };
 }
 
+/** An invoice removed in error, as the audit keeps it (BR171, 0086). */
+export interface DeletedInvoice {
+  readonly number: string;
+  readonly campaignId: string;
+  readonly periodFrom: string;
+  readonly periodTo: string;
+  readonly amountCents: number;
+  readonly reason: string;
+  readonly deletedAt: string;
+  readonly deletedBy: string;
+}
+
+/** The club's removed invoices, newest first. Empty for anyone who may not bill. */
+export async function loadDeletedInvoices(client: SupabaseClient, clubId: string): Promise<readonly DeletedInvoice[]> {
+  const { data } = await client.rpc('app_deleted_sponsor_invoices', { p_club_id: clubId });
+  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+    number: r.invoice_number as string,
+    campaignId: r.campaign_id as string,
+    periodFrom: r.period_from as string,
+    periodTo: r.period_to as string,
+    amountCents: Number(r.amount_cents),
+    reason: r.reason as string,
+    deletedAt: r.deleted_at as string,
+    deletedBy: r.deleted_by as string,
+  }));
+}
+
 // ------------------------------------------------------- referral partners
 
 export interface ReferralPartner {
