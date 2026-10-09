@@ -25,13 +25,15 @@ export interface PublicEntranceProps {
   readonly lede: React.ReactNode;
   /** The footer's left note, e.g. "Public · no personal data". */
   readonly footerNote: string;
+  /** The rail's session line; "Signed out" unless the page says more. */
+  readonly status?: string;
   readonly children: React.ReactNode;
   readonly className?: string;
 }
 
 const MONO = 'font-mono uppercase tracking-wider';
 
-export function PublicEntrance({ nav, breadcrumb, eyebrow, title, lede, footerNote, children, className }: PublicEntranceProps) {
+export function PublicEntrance({ nav, status = 'Signed out', breadcrumb, eyebrow, title, lede, footerNote, children, className }: PublicEntranceProps) {
   return (
     <div
       className={cn(
@@ -55,7 +57,7 @@ export function PublicEntrance({ nav, breadcrumb, eyebrow, title, lede, footerNo
 
         <div>
           <p className={cn('m-0 text-[10px] text-rail-muted', MONO)}>Account-safe public view</p>
-          <p className="m-0 text-[15px] font-semibold">Signed out</p>
+          <p className="m-0 text-[15px] font-semibold">{status}</p>
         </div>
 
         <nav aria-label="Public pages" className="flex flex-col gap-ds-2">

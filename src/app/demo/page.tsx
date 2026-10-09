@@ -1,7 +1,7 @@
 import { loadTenantContext } from '../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
 import { whereAmI } from '../../web/nav.ts';
-import { EnterDemoForm } from './EnterDemoForm.tsx';
+import { DemoEntrance } from './DemoEntrance.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +23,10 @@ export default async function DemoPage() {
   const user = await currentUser(client);
   const tenant = user === null ? null : await loadTenantContext(client, user.id);
   const here = whereAmI(user !== null, tenant?.clubName ?? null);
+
+  // Signed out: the public entrance (Figma "Read-only demo entrance", 33:5019).
+  // The three signed-in answers below keep their own cards.
+  if (here.kind === 'signed-out') return <DemoEntrance />;
 
   return (
     <>
@@ -100,22 +104,7 @@ export default async function DemoPage() {
         </div>
       )}
 
-      {here.kind === 'signed-out' && (
-        <div className="card demo-card">
-          <p className="hint" style={{ marginTop: 0 }}>
-            The demonstration club is a working club with invented families &mdash; a blocked
-            registration that names the rule holding it up, a voucher waiting to be verified, a
-            coach without a Working with Children Check, an overdue AGM. You can look around it
-            without an account.
-          </p>
-          <EnterDemoForm />
-          <p className="hint" style={{ marginBottom: 0 }}>
-            You will be able to <strong>read everything and change nothing</strong>, so the demo
-            stays the same for whoever looks next. A club officer with an account should{' '}
-            <a href="/sign-in">sign in</a> instead.
-          </p>
-        </div>
-      )}
     </>
   );
 }
+

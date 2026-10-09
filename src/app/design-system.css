@@ -32,6 +32,7 @@
    its own. Its existing class names (stack, field, process-detail) are not
    Tailwind utilities, so nothing it already had is restyled by accident. */
 @source './sign-in';
+@source './demo';
 
 @theme {
   /* Surfaces and text */

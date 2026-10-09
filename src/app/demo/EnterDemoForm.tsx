@@ -2,7 +2,10 @@
 
 import { useActionState } from 'react';
 
-import { FormNotice } from '../registrar/_components/FormNotice.tsx';
+import { Button } from '../../components/ui/Button.tsx';
+import { CheckboxField } from '../../components/ui/CheckboxField.tsx';
+import { Callout } from '../../components/ui/PublicEntrance.tsx';
+import { TextField } from '../../components/ui/TextField.tsx';
 import { IDLE_FORM } from '../../web/form-result.ts';
 import { MARKETING_CONSENT_WORDING } from '../../web/prospect-form.ts';
 import { enterDemoAction } from './actions.ts';
@@ -18,48 +21,57 @@ export function EnterDemoForm() {
   const [state, formAction, pending] = useActionState(enterDemoAction, IDLE_FORM);
 
   return (
-    <form action={formAction} className="stack">
-      <FormNotice result={state} />
+    <form action={formAction} className="flex flex-col gap-ds-4">
+      {state.status === 'error' && (
+        <Callout tone="error" title="The demo did not open">
+          {state.message}
+        </Callout>
+      )}
+      {state.status === 'ok' && (
+        <Callout tone="success" title="Opening the demo">
+          {state.message}
+        </Callout>
+      )}
 
-      <fieldset>
-        <legend>See the demonstration club</legend>
-
-        <div className="field">
-          <label htmlFor="email">Your email address</label>
-          <input id="email" name="email" type="email" autoComplete="email" required />
-          <p className="hint" style={{ margin: '0.3rem 0 0' }}>
-            No password, and no account to create. We use it to know who has looked.
-          </p>
-        </div>
-
-        <div className="field">
-          <label htmlFor="phone">Phone number (optional)</label>
-          <input id="phone" name="phone" type="tel" autoComplete="tel" />
-          <p className="hint" style={{ margin: '0.3rem 0 0' }}>
-            Only if you would rather be called than emailed.
-          </p>
-        </div>
-
-        {/*
-          Unticked in the markup, not merely in the styling: a pre-ticked
-          box is not consent, and `defaultChecked` would make this whole
-          record worthless as evidence (BR93). The text is the same constant
-          the action stores, so what is agreed to and what is recorded
-          cannot drift.
-        */}
-        <div className="field consent-field">
-          <label htmlFor="marketingConsent" className="consent-label">
-            <input id="marketingConsent" name="marketingConsent" type="checkbox" />
-            <span>{MARKETING_CONSENT_WORDING}</span>
-          </label>
-        </div>
-      </fieldset>
-
-      <div>
-        <button type="submit" disabled={pending}>
-          {pending ? 'Opening…' : 'Open the demonstration club'}
-        </button>
+      <div className="flex flex-col gap-ds-3 p-ds-4 rounded-sm border border-border">
+        <TextField
+          id="email"
+          name="email"
+          type="email"
+          label="Email"
+          autoComplete="email"
+          required
+          hint="No password, and no account to create."
+        />
+        <TextField id="phone" name="phone" type="tel" label="Phone · optional" autoComplete="tel" />
       </div>
+
+      {/*
+        Unticked in the markup, not merely in the styling: a pre-ticked box is
+        not consent, and `defaultChecked` would make this whole record
+        worthless as evidence (BR93). The text is the same constant the action
+        stores, so what is agreed to and what is recorded cannot drift.
+      */}
+      <CheckboxField id="marketingConsent" name="marketingConsent" label={MARKETING_CONSENT_WORDING} />
+
+      <p className="m-0 text-[13px] text-muted-foreground">
+        Marketing consent is separately optional and unticked. Phone is optional. Neither is needed to explore the
+        demo.
+      </p>
+
+      <div className="flex flex-wrap items-center gap-ds-4">
+        <Button type="submit" disabled={pending}>
+          {pending ? 'Opening…' : 'Enter read-only demo'}
+        </Button>
+        <a className="min-h-[44px] inline-flex items-center text-[13px] font-semibold text-foreground no-underline hover:underline" href="/">
+          Back
+        </a>
+      </div>
+
+      <Callout tone="info" title="Viewer-only access">
+        Demo visitors cannot create, change, approve, send, upload, delete or move money. Every demo identity and club
+        is fictional.
+      </Callout>
     </form>
   );
 }
