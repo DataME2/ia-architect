@@ -31,6 +31,8 @@ export interface QueueEntry {
   readonly owes: boolean;
   /** An approved hardship (BR164) lets an owing player play until this date. */
   readonly hardshipUntil?: string | null;
+  /** An earlier season at this club still owes (BR79 amended, scope 92): every reader gets it, as `owes`. */
+  readonly owesEarlier?: boolean;
 }
 
 /**
@@ -41,7 +43,7 @@ export interface QueueEntry {
  * Tuesday.
  */
 export function eligibilityOf(entry: QueueEntry): PlayEligibility {
-  return playEligibility(entry.status, entry.outstandingCents, entry.owes, entry.hardshipUntil ?? null);
+  return playEligibility(entry.status, entry.outstandingCents, entry.owes, entry.hardshipUntil ?? null, entry.owesEarlier ?? false);
 }
 
 /**

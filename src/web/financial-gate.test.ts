@@ -70,8 +70,11 @@ describe('the Financial Gate', () => {
   it('names earlier seasons still owing, and says when the report is not the reader’s', () => {
     const owing = financialGate({ ...base, earlier: [{ seasonName: '2025', outstandingCents: 7500 }] });
     assert.equal(line(owing, 'earlier').value, '$75.00');
-    assert.equal(line(owing, 'earlier').tone, 'pending');
+    assert.equal(line(owing, 'earlier').tone, 'blocked');
     assert.match(line(owing, 'earlier').note!, /2025: \$75\.00/);
+    const amended = financialGate({ ...base, earlier: [{ seasonName: '2025', outstandingCents: 7500, amended: true }] });
+    assert.equal(line(amended, 'earlier').tone, 'pending');
+    assert.match(line(amended, 'earlier').note!, /\(amended\)/);
     assert.equal(line(financialGate({ ...base, earlier: null }), 'earlier').value, 'Not shown');
   });
 });

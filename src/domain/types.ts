@@ -139,6 +139,8 @@ export interface Registration {
   readonly owesMoney: boolean;
   /** An approved hardship runs until this date (BR164): BR79 does not block until then. */
   readonly hardshipUntil: string | null;
+  /** An earlier season at this club still owes, unamended (BR79 amended, scope 92). */
+  readonly owesEarlierSeason?: boolean;
 }
 
 /** Age in whole years at `asAt`. */

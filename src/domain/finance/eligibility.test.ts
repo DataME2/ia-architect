@@ -63,6 +63,33 @@ describe('BR79 — no pay, no play', () => {
   });
 });
 
+describe('BR79 amended (scope 92) — an earlier season at this club', () => {
+  test('stops play although this season is paid', () => {
+    const result = playEligibility('COMPLETE', 0, false, null, true);
+    assert.equal(result.mayPlay, false);
+    assert.equal(result.blockedBy, 'owes-money');
+    assert.match(result.reason, /earlier season at this club/);
+  });
+
+  test('names no amount, so a coach learns only "not clear" (BR78)', () => {
+    assert.doesNotMatch(playEligibility('COMPLETE', null, false, null, true).reason, /\$/);
+  });
+
+  test('a committee hardship lets the player take the field until its date (BR164)', () => {
+    const result = playEligibility('COMPLETE', 0, false, '2026-12-01', true);
+    assert.equal(result.mayPlay, true);
+    assert.match(result.reason, /2026-12-01/);
+  });
+
+  test('is counted among the registered players blocked by money', () => {
+    const pile = blockedByMoney([
+      { status: 'COMPLETE' as const, outstandingCents: 0, owes: false, owesEarlier: true },
+      { status: 'COMPLETE' as const, outstandingCents: 0, owes: false, owesEarlier: false },
+    ]);
+    assert.equal(pile.length, 1);
+  });
+});
+
 describe('the pile that looks finished and is not', () => {
   const entries = [
     { status: 'COMPLETE' as const, outstandingCents: 0 },

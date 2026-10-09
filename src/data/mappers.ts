@@ -104,6 +104,7 @@ export function toRegistration(
     outstandingAmountCents: row.outstanding_amount_cents,
     owesMoney: row.owes,
     hardshipUntil: row.hardship_until,
+    owesEarlierSeason: row.owes_earlier ?? false,
   };
 }
 
