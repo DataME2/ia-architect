@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import {
-  bannerPath, chargeBasis, checkBanner, clickThroughRate, clubShareCents, isSponsorLink, owedCents, parseCampaign, showsSponsors,
+  bannerPath, chargeBasis, checkBanner, clickThroughRate, isRotationWeight, pickWeighted, shareOfVoice, clubShareCents, isSponsorLink, owedCents, parseCampaign, showsSponsors,
   partnerBalance, sumTallies,
 } from './sponsor-billing.ts';
 
@@ -91,4 +91,31 @@ describe('partnerBalance — BR172, completed registrations only', () => {
       { earnedCents: 4500, paidCents: 1500, owedCents: 3000, unpaid: 2 }));
   it('never owes a negative amount', () =>
     assert.equal(partnerBalance({ cpaRateCents: 1500, completed: 1, paidAcquisitions: 2, paidCents: 3000 }).owedCents, 0));
+});
+
+describe('share of voice — BR173', () => {
+  const live = [
+    { id: 'a', rotationWeight: 1 },
+    { id: 'b', rotationWeight: 1 },
+    { id: 'p', rotationWeight: 3 },
+  ];
+  it('gives a Premium sponsor three times a Standard one', () =>
+    assert.deepEqual([...shareOfVoice(live)], [['a', 20], ['b', 20], ['p', 60]]));
+  it('picks in proportion to weight', () => {
+    assert.equal(pickWeighted(live, 0.0)?.id, 'a');
+    assert.equal(pickWeighted(live, 0.19)?.id, 'a');
+    assert.equal(pickWeighted(live, 0.2)?.id, 'b');
+    assert.equal(pickWeighted(live, 0.4)?.id, 'p');
+    assert.equal(pickWeighted(live, 0.999)?.id, 'p');
+  });
+  it('lands roughly on the share over many views', () => {
+    let premium = 0;
+    for (let i = 0; i < 1000; i++) if (pickWeighted(live, i / 1000)?.id === 'p') premium++;
+    assert.equal(premium, 600);
+  });
+  it('picks nothing from nothing', () => assert.equal(pickWeighted([], 0.5), null));
+  it('knows the tiers', () => {
+    assert.ok(isRotationWeight(3));
+    assert.ok(!isRotationWeight(4));
+  });
 });

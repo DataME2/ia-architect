@@ -4,9 +4,9 @@ import { revalidatePath } from 'next/cache';
 
 import { loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
-import { attachBanner, createClubCampaign, recordAcquisitions, saveSponsorSettings, setCampaignStatus } from '../../../data/sponsors.ts';
+import { attachBanner, createClubCampaign, recordAcquisitions, saveSponsorSettings, setCampaignStatus, setCampaignWeight } from '../../../data/sponsors.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
-import { bannerPath, checkBanner, parseCampaign } from '../../../web/sponsor-billing.ts';
+import { ROTATION_LABEL, bannerPath, checkBanner, isRotationWeight, parseCampaign } from '../../../web/sponsor-billing.ts';
 import { createPartner, deleteInvoice, issueInvoice, simulatePartnerPayout, simulateSponsorPayment } from '../../../data/sponsor-money.ts';
 import { parsePartner } from '../../../web/utm.ts';
 
@@ -31,6 +31,7 @@ export async function createCampaignAction(_previous: FormResult, formData: Form
     audience: formData.getAll('audience').map(String),
     startsOn: String(formData.get('startsOn') ?? ''),
     endsOn: String(formData.get('endsOn') ?? ''),
+    rotation: String(formData.get('rotation') ?? '1'),
   });
   if (!parsed.ok) return formFailed(parsed.error);
 
@@ -60,6 +61,18 @@ export async function setCampaignStatusAction(_previous: FormResult, formData: F
   const error = await setCampaignStatus(client, tenant.clubId, id, status);
   revalidatePath('/registrar/sponsors');
   return error === null ? formOk(`Campaign ${status}.`) : formFailed(error);
+}
+
+/** BR173: a club campaign's share-of-voice tier. */
+export async function setCampaignWeightAction(_previous: FormResult, formData: FormData): Promise<FormResult> {
+  const id = String(formData.get('id') ?? '');
+  const weight = Number(formData.get('rotation') ?? 0);
+  if (id === '' || !isRotationWeight(weight)) return formFailed('Choose Standard, Featured or Premium.');
+  const { client, tenant } = await requireTenant();
+  const error = await setCampaignWeight(client, tenant.clubId, id, weight);
+  revalidatePath('/registrar/sponsors');
+  revalidatePath('/me');
+  return error === null ? formOk(`Now ${ROTATION_LABEL[weight]}.`) : formFailed(error);
 }
 
 /** CPA: acquisitions the sponsor reports (a promo code redeemed, a sign-up). */

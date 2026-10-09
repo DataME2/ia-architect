@@ -6,7 +6,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { RoleKey } from '../web/role-context.ts';
-import type { PricingModel, Tally } from '../web/sponsor-billing.ts';
+import { pickWeighted, type PricingModel, type RotationWeight, type Tally } from '../web/sponsor-billing.ts';
 import { QueryError } from './queries.ts';
 
 export interface SponsorCampaign {
@@ -25,10 +25,12 @@ export interface SponsorCampaign {
   readonly clubShareBps: number;
   /** A banner in the platform's own public bucket (decision 17), or null for a text card. */
   readonly imagePath: string | null;
+  /** BR173: share-of-voice tier. */
+  readonly rotationWeight: RotationWeight;
 }
 
 const COLUMNS =
-  'id, owner, sponsor_name, headline, body, link_url, pricing_model, rate_cents, audience, starts_on, ends_on, status, club_share_bps, image_path';
+  'id, owner, sponsor_name, headline, body, link_url, pricing_model, rate_cents, audience, starts_on, ends_on, status, club_share_bps, image_path, rotation_weight';
 
 const CREATIVES = 'sponsor-creatives';
 
@@ -48,10 +50,15 @@ function toCampaign(r: Record<string, unknown>): SponsorCampaign {
     status: r.status as SponsorCampaign['status'],
     clubShareBps: Number(r.club_share_bps),
     imagePath: (r.image_path as string | null) ?? null,
+    rotationWeight: (Number(r.rotation_weight) || 1) as RotationWeight,
   };
 }
 
-/** One live campaign for this workspace, rotated, and its impression counted. */
+/**
+ * One live campaign for this workspace, rotated by share of voice (BR173): a
+ * Premium campaign is picked three times as often as a Standard one. The pick
+ * is fresh each view, so nothing about the viewer is remembered (decision 17).
+ */
 export async function pickSponsor(
   client: SupabaseClient,
   clubId: string,
@@ -68,7 +75,8 @@ export async function pickSponsor(
     .contains('audience', [role]);
   const live = ((data ?? []) as Record<string, unknown>[]).map(toCampaign);
   if (live.length === 0) return null;
-  const chosen = live[Math.floor(Math.random() * live.length)]!;
+  const chosen = pickWeighted(live, Math.random());
+  if (chosen === null) return null;
   await client.rpc('app_record_sponsor_event', { p_campaign_id: chosen.id, p_kind: 'impression' });
   return chosen;
 }
@@ -119,6 +127,7 @@ export interface NewCampaign {
   readonly audience: readonly RoleKey[];
   readonly startsOn: string;
   readonly endsOn: string;
+  readonly rotationWeight: RotationWeight;
 }
 
 export async function createClubCampaign(
@@ -139,6 +148,7 @@ export async function createClubCampaign(
     audience: input.audience,
     starts_on: input.startsOn,
     ends_on: input.endsOn,
+    rotation_weight: input.rotationWeight,
     created_by_user_id: userId,
   }).select('id').single();
   if (error === null) return { id: (data as { id: string }).id };
@@ -182,6 +192,23 @@ export async function setCampaignStatus(
     .select('id');
   if (error !== null) return error.message;
   return (data ?? []).length === 0 ? 'A platform campaign is changed by Let’sDataTalk, not the club.' : null;
+}
+
+/** BR173: how often a club campaign appears. The database refuses a platform campaign (0081's policy). */
+export async function setCampaignWeight(
+  client: SupabaseClient,
+  clubId: string,
+  id: string,
+  weight: RotationWeight,
+): Promise<string | null> {
+  const { data, error } = await client
+    .from('sponsor_campaign')
+    .update({ rotation_weight: weight })
+    .eq('club_id', clubId)
+    .eq('id', id)
+    .select('id');
+  if (error !== null) return error.message;
+  return (data ?? []).length === 0 ? 'Only the club’s own campaigns change tier here.' : null;
 }
 
 export async function recordAcquisitions(
