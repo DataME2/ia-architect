@@ -213,3 +213,34 @@ export function blockerSummary(entries: readonly QueueEntry[]): readonly Blocker
     .map(([ruleId, { count, example }]) => ({ ruleId, count, example }))
     .sort((a, b) => b.count - a.count || a.ruleId.localeCompare(b.ruleId));
 }
+
+// ------------------------------------------------- the season queue's views
+
+/** The queue's tabs (Figma "Registrar season queue", 33:2777). */
+export const QUEUE_VIEWS = [
+  { key: 'all', label: 'All registrations' },
+  { key: 'blockers', label: 'Document blockers' },
+  { key: 'external', label: 'External outcomes' },
+  { key: 'eligibility', label: 'Play eligibility' },
+] as const;
+
+export type QueueView = (typeof QUEUE_VIEWS)[number]['key'];
+
+/** An unknown or missing `?view=` is the whole queue. */
+export function parseQueueView(value: string | undefined): QueueView {
+  return QUEUE_VIEWS.some((v) => v.key === value) ? (value as QueueView) : 'all';
+}
+
+/** Registrations whose preferred or legal name contains the search, ignoring case. */
+export function searchQueue(entries: readonly QueueEntry[], query: string | undefined): readonly QueueEntry[] {
+  const q = (query ?? '').trim().toLowerCase();
+  if (q === '') return entries;
+  return entries.filter((e) => e.displayName.toLowerCase().includes(q) || e.legalName.toLowerCase().includes(q));
+}
+
+/** The one line that says what blocks a registration: its failing rules, then any duplicate. */
+export function blockingCheck(entry: QueueEntry): string {
+  const parts = failing(entry).map((o) => `${o.ruleId} · ${o.message}`);
+  if (entry.duplicateCount > 0) parts.push(`BR5 · ${entry.duplicateCount} possible duplicate${entry.duplicateCount === 1 ? '' : 's'}`);
+  return parts.length === 0 ? '—' : parts.join('; ');
+}

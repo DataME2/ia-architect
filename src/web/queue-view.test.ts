@@ -5,6 +5,9 @@ import { fail, pass } from '../domain/rules/types.ts';
 import type { RegistrationStatus } from '../domain/types.ts';
 import {
   blockerSummary,
+  blockingCheck,
+  parseQueueView,
+  searchQueue,
   displayNameFor,
   failing,
   fullLegalName,
@@ -222,4 +225,25 @@ test('eligibility is asked of the entry, not stored on it', () => {
   const owes = entry({ status: 'COMPLETE', outstandingCents: 1 });
   assert.equal(eligibilityOf(paid).mayPlay, true);
   assert.equal(eligibilityOf(owes).mayPlay, false, 'one cent is still owing money');
+});
+
+describe('the season queue views (Figma 33:2777)', () => {
+  test('an unknown view is the whole queue', () => {
+    assert.equal(parseQueueView('blockers'), 'blockers');
+    assert.equal(parseQueueView('nonsense'), 'all');
+    assert.equal(parseQueueView(undefined), 'all');
+  });
+
+  test('search matches the preferred or legal name, ignoring case', () => {
+    const list = [entry(), entry({ registrationId: 'reg-2', displayName: 'Mia Park', legalName: 'Mia Park' })];
+    assert.deepEqual(searchQueue(list, 'alexandra').map((e) => e.registrationId), ['reg-1']);
+    assert.deepEqual(searchQueue(list, '  MIA ').map((e) => e.registrationId), ['reg-2']);
+    assert.equal(searchQueue(list, '').length, 2);
+  });
+
+  test('the blocking check names each failing rule and a duplicate', () => {
+    const e = entry({ outcomes: [fail('BR55', 'Legal name not verified.')], duplicateCount: 1 });
+    assert.equal(blockingCheck(e), 'BR55 · Legal name not verified.; BR5 · 1 possible duplicate');
+    assert.equal(blockingCheck(entry()), '—');
+  });
 });

@@ -33,6 +33,7 @@
    Tailwind utilities, so nothing it already had is restyled by accident. */
 @source './sign-in';
 @source './demo';
+@source './registrar/page.tsx';
 
 @theme {
   /* Surfaces and text */
