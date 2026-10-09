@@ -14,7 +14,10 @@ import { loadVouchers, voucherFileUrl } from '../../../data/vouchers.ts';
 import { voucherSummary } from '../../../domain/finance/voucher.ts';
 import { playEligibility } from '../../../domain/finance/eligibility.ts';
 import { canReadMoney } from '../../../web/money-access.ts';
-import { planState } from '../../../domain/finance/plan.ts';
+import { planState, totalReceived } from '../../../domain/finance/plan.ts';
+import { outstandingBalances } from '../../../data/arrears.ts';
+import { financialGate } from '../../../web/financial-gate.ts';
+import { FinancialGatePanel } from '../../../components/ui/FinancialGatePanel.tsx';
 import { ageAt } from '../../../domain/types.ts';
 import { formatCents } from '../../../web/money.ts';
 import { METHOD_LABEL } from '../../../web/plan-view.ts';
@@ -145,6 +148,25 @@ export default async function RegistrationDetailPage({
   // validation_result is written by admin and registrar only (0002's policy).
   const canRecheck = tenant.roles.includes('admin') || tenant.roles.includes('registrar');
   const blocking = failing(entry);
+  // Scope 91: the Financial Gate. Earlier seasons come from BR79's two-year
+  // arrears function, which refuses a role that may not read it (BR142).
+  // ponytail: reads the club-wide report and keeps this person's rows; a
+  // per-person function when clubs grow past a few hundred debtors.
+  const arrears = readsMoney ? await outstandingBalances(client, tenant.clubId) : null;
+  const gate = financialGate({
+    eligibility,
+    readsMoney,
+    outstandingCents: owed,
+    receivedCents: totalReceived(finance.payments),
+    vouchers: vouchers.map((v) => ({ state: v.state, faceValueCents: v.faceValueCents })),
+    plan: state,
+    earlier:
+      arrears === null || arrears.kind !== 'ready'
+        ? null
+        : arrears.figures
+            .filter((a) => a.personId === person.id && a.seasonId !== seasonId)
+            .map((a) => ({ seasonName: a.seasonName, outstandingCents: a.outstandingCents })),
+  });
   const history = await loadValidationHistory(client, registrationId, 20);
 
   return (
@@ -401,15 +423,19 @@ export default async function RegistrationDetailPage({
       </section>
 
       <section className="card">
-        <h3 style={{ marginTop: 0 }}>May this player take the field?</h3>
-        <p style={{ marginTop: 0 }}>
-          {eligibility.mayPlay ? (
-            <span className="pill pill-ok">Yes &mdash; registered and paid up</span>
-          ) : (
-            <span className="pill pill-stop">No</span>
+        <h3 style={{ marginTop: 0 }}>Financial gate: may this player take the field?</h3>
+        <FinancialGatePanel mayPlay={gate.mayPlay} verdict={gate.verdict} reason={gate.reason} lines={gate.lines}>
+          {canTouchMoney && (
+            <>
+              <a className="button secondary" href="#vouchers">
+                Verify a voucher
+              </a>
+              <a className="button secondary" href="#payment">
+                Record a payment or cash receipt
+              </a>
+            </>
           )}
-        </p>
-        <p className="hint" style={{ marginBottom: 0 }}>{eligibility.reason}</p>
+        </FinancialGatePanel>
         {!eligibility.mayPlay && eligibility.blockedBy === 'owes-money' && (
           <p className="hint">
             The registration is <strong>COMPLETE</strong> and stays that way &mdash; the club
@@ -420,7 +446,7 @@ export default async function RegistrationDetailPage({
         )}
       </section>
 
-      <section className="card">
+      <section className="card" id="vouchers">
         <h3 style={{ marginTop: 0 }}>Vouchers</h3>
         {vouchers.length === 0 ? (
           <p className="hint" style={{ marginTop: 0 }}>
@@ -526,7 +552,7 @@ export default async function RegistrationDetailPage({
         )}
       </section>
 
-      <section className="card">
+      <section className="card" id="payment">
         <h3 style={{ marginTop: 0 }}>Payment (BR3)</h3>
 
         {!readsMoney ? (
