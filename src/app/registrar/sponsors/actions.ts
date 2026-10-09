@@ -7,7 +7,7 @@ import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { attachBanner, createClubCampaign, recordAcquisitions, saveSponsorSettings, setCampaignStatus } from '../../../data/sponsors.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
 import { bannerPath, checkBanner, parseCampaign } from '../../../web/sponsor-billing.ts';
-import { createPartner, issueInvoice, simulatePartnerPayout, simulateSponsorPayment } from '../../../data/sponsor-money.ts';
+import { createPartner, deleteInvoice, issueInvoice, simulatePartnerPayout, simulateSponsorPayment } from '../../../data/sponsor-money.ts';
 import { parsePartner } from '../../../web/utm.ts';
 
 async function requireTenant() {
@@ -111,6 +111,19 @@ export async function recordSponsorPaymentAction(_previous: FormResult, formData
   return 'error' in result
     ? formFailed(result.error)
     : formOk(`Simulated payment recorded (${result.reference}). No money moved.`);
+}
+
+/** An invoice issued in error: deleted, never edited, and only while unpaid (BR171, 0085). */
+export async function deleteInvoiceAction(_previous: FormResult, formData: FormData): Promise<FormResult> {
+  const invoiceId = String(formData.get('invoiceId') ?? '');
+  const reason = String(formData.get('reason') ?? '').trim();
+  if (invoiceId === '') return formFailed('Which invoice?');
+  if (reason.length < 3) return formFailed('Say why the invoice is being deleted.');
+  const { client } = await requireTenant();
+  const result = await deleteInvoice(client, invoiceId, reason);
+  revalidatePath('/registrar/sponsors');
+  revalidatePath('/me');
+  return 'error' in result ? formFailed(result.error) : formOk(`${result.number} deleted. Its period can be invoiced again.`);
 }
 
 // ------------------------------------------------ referral partners (BR172)

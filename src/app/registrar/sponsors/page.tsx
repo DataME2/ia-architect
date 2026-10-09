@@ -7,7 +7,7 @@ import { loadCampaignReports, loadSponsorSettings } from '../../../data/sponsors
 import { MODEL_UNIT, chargeBasis, clickThroughRate, clubShareCents, owedCents, partnerBalance } from '../../../web/sponsor-billing.ts';
 import { CampaignStatusButton, NewCampaignForm, RecordAcquisitionsForm, SponsorSettingsForm } from './SponsorForms.tsx';
 import { loadInvoices, loadPartners } from '../../../data/sponsor-money.ts';
-import { IssueInvoiceForm, NewPartnerForm, PartnerLink, PayPartnerForm, RecordPaymentForm } from './MoneyForms.tsx';
+import { DeleteInvoiceButton, IssueInvoiceForm, NewPartnerForm, PartnerLink, PayPartnerForm, RecordPaymentForm } from './MoneyForms.tsx';
 
 /**
  * Sponsors (scope 84; BR169, BR170): the club's campaigns and the platform's
@@ -119,7 +119,8 @@ export default async function SponsorsPage() {
       <div className="card">
         <h3 style={{ marginTop: 0 }}>Invoices</h3>
         <p className="hint" style={{ marginTop: 0 }}>
-          Invoice a period of a campaign: its counts and amount are frozen, and a period is never invoiced twice. The
+          Invoice a period of a campaign: its counts and amount are frozen, and a period is never invoiced twice. An
+          unpaid invoice issued in error is deleted with the × in its corner, with a reason; the audit keeps it. The
           sponsor pays by PayPal, Google Pay or online bank transfer. That is <b>simulated</b> for now: no provider is
           connected and no money moves. Each payment records the split between the club and Let&rsquo;sDataTalk.{' '}
           <span className="mono" style={{ fontSize: '0.7rem' }}>BR171</span>
@@ -136,7 +137,10 @@ export default async function SponsorsPage() {
               <tbody>
                 {invoices.map((i) => (
                   <tr key={i.id}>
-                    <td className="mono">{i.number}</td>
+                    <td className="mono" style={{ position: 'relative', paddingRight: '1.8rem' }}>
+                      {i.number}
+                      {i.status === 'issued' && <DeleteInvoiceButton invoiceId={i.id} number={i.number} />}
+                    </td>
                     <td>{campaignName.get(i.campaignId) ?? '—'}<br /><span className="hint">{i.periodFrom} → {i.periodTo}</span></td>
                     <td>{formatMoney(i.amountCents)}</td>
                     <td>{formatMoney(i.clubShareCents)}</td>

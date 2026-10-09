@@ -63,6 +63,19 @@ export async function simulateSponsorPayment(
   return error === null ? { reference: String(data) } : { error: error.message };
 }
 
+/**
+ * Delete an unpaid invoice issued in error (BR171, 0085). The period becomes
+ * invoiceable again; the audit keeps the number, amount and reason.
+ */
+export async function deleteInvoice(
+  client: SupabaseClient,
+  invoiceId: string,
+  reason: string,
+): Promise<{ readonly number: string } | { readonly error: string }> {
+  const { data, error } = await client.rpc('app_delete_sponsor_invoice', { p_invoice_id: invoiceId, p_reason: reason });
+  return error === null ? { number: String(data) } : { error: error.message };
+}
+
 // ------------------------------------------------------- referral partners
 
 export interface ReferralPartner {

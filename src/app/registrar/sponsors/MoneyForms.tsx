@@ -5,7 +5,7 @@ import { useActionState, useState } from 'react';
 import { IDLE_FORM } from '../../../web/form-result.ts';
 import { withUtm } from '../../../web/utm.ts';
 import { FormNotice } from '../_components/FormNotice.tsx';
-import { createPartnerAction, issueInvoiceAction, payPartnerAction, recordSponsorPaymentAction } from './actions.ts';
+import { createPartnerAction, deleteInvoiceAction, issueInvoiceAction, payPartnerAction, recordSponsorPaymentAction } from './actions.ts';
 
 const COLLECTION_LABEL = { paypal: 'PayPal', google_pay: 'Google Pay', bank_transfer: 'Online bank transfer' } as const;
 
@@ -42,6 +42,41 @@ export function RecordPaymentForm({ invoiceId }: { readonly invoiceId: string })
         </select>
       </label>
       <button type="submit" className="secondary" disabled={pending}>{pending ? '…' : 'Record payment (simulated)'}</button>
+      <FormNotice result={state} />
+    </form>
+  );
+}
+
+/**
+ * The X in an unpaid invoice's corner (BR171, 0085). The first press asks for
+ * the reason; nothing is deleted until the reason is given and confirmed.
+ */
+export function DeleteInvoiceButton({ invoiceId, number }: { readonly invoiceId: string; readonly number: string }) {
+  const [state, action, pending] = useActionState(deleteInvoiceAction, IDLE_FORM);
+  const [open, setOpen] = useState(false);
+  if (!open) {
+    return (
+      <button
+        type="button"
+        className="invoice-x"
+        aria-label={`Delete invoice ${number}`}
+        title="Delete this invoice (issued in error)"
+        onClick={() => setOpen(true)}
+      >
+        ×
+      </button>
+    );
+  }
+  return (
+    <form action={action} className="stack" style={{ gap: '0.3rem', marginTop: '0.3rem' }}>
+      <input type="hidden" name="invoiceId" value={invoiceId} />
+      <label>
+        Why delete {number}? <input name="reason" required minLength={3} placeholder="Wrong period" />
+      </label>
+      <div className="row" style={{ gap: '0.4rem' }}>
+        <button type="submit" className="secondary" disabled={pending}>{pending ? '…' : 'Delete invoice'}</button>
+        <button type="button" className="secondary" onClick={() => setOpen(false)}>Keep it</button>
+      </div>
       <FormNotice result={state} />
     </form>
   );

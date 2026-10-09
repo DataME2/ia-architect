@@ -2738,3 +2738,27 @@ td {
   color: var(--muted);
   margin-top: 2px;
 }
+
+/* The × on an unpaid sponsor invoice (BR171, 0085): small, in the corner,
+   and red only on hover so it never reads as the row's main action. */
+.invoice-x {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.invoice-x:hover,
+.invoice-x:focus-visible {
+  background: var(--stop-bg);
+  color: var(--stop-text);
+  border-color: var(--stop-dot);
+}
