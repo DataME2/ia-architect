@@ -12,31 +12,54 @@ appointments, conflict checks, and payment), all built around a single
 coach, guardian, committee member) instead of separate, duplicated
 identities per concern.
 
-**Status:** pre-MVP, and further along than that phrase suggests. All five
-[architecture layers](./docs/ea/README.md) are written, and the
-**registration slice works end to end** — identity, capture, deterministic
-validation, submission packs, teams, safeguarding, governance, and the money
-that gates eligibility — under tenant isolation the database enforces. The
-**referee slice** (profile, classification, availability, appointments and
-conflict checks, fee schedules, claims and payment batches) landed in
-September 2026.
+**Status:** pre-MVP, released as pre-release tags for the pilot
+(`v1.0.0`, `v1.1.0`, `v1.2.0`; see
+[GitHub releases](https://github.com/DataME2/ia-architect/releases)). All
+five [architecture layers](./docs/ea/README.md) are written, 88
+[initiatives](./docs/scope/README.md) are scoped, and every one of them is
+enforced by the database under tenant isolation, not by the screens.
 
-Three things are worth saying plainly about the rest. **Nothing sends
-anything** — no email, no SMS, no reminder, no unsubscribe. **Nothing takes
-money** — Square is chosen and unintegrated; a treasurer records what
-arrived. And there is **no production environment yet**: everything points
-at a development Supabase project that nonetheless holds the only copy of
-the data there is.
+What is true today, stated plainly:
+
+- **Email is sent; SMS is not.** Sign-in and invitation links go through
+  Supabase Auth, and club messages through Resend, each with a derived
+  unsubscribe link ([decision 12](./docs/decisions/12_an_unsubscribe_link_is_derived_not_stored.md)).
+  Reserved test addresses (`*.test`) are skipped, never emailed.
+- **No money moves.** Referee payouts, sponsor collections (PayPal, Google
+  Pay, bank transfer) and referral-partner payouts are **simulated**: the
+  platform records the payment with a `SIM-…` reference, and a provider
+  would move it ([decision 16](./docs/decisions/16_the_platform_records_a_payout_a_provider_moves_it.md),
+  [payout providers](./docs/annexes/payout-providers.md)). Registration fees
+  are recorded by the treasurer as they arrive.
+- **There is no production environment yet.** Everything points at a
+  development Supabase project that nonetheless holds the only copy of the
+  data there is. Production gets its own project, and encrypted bank
+  details, when the product is ready.
 
 What exists, what is partial, and what has no code at all is tracked per
 capability in
 [docs/ea/4_application/1_application-services.md](./docs/ea/4_application/1_application-services.md),
 and as a verified requirement list in
-[docs/spec/requirements.md](./docs/spec/requirements.md).
+[docs/spec/requirements.md](./docs/spec/requirements.md). The
+**Architecture Atlas**, a single-page view of all of it, is regenerated
+from these documents as the project moves.
 
 A pilot club has committed at least three years of historical data to
 validate the platform against. **Target for the first live version: before
 the end of Q4 2026.**
+
+## What's built
+
+| Area | What it covers |
+| - | - |
+| **Registration** | One `Person` identity across roles; public registration links; deterministic validation (BR rules) with an append-only history; guardians and consent; documents, which families can upload themselves; duplicates; submission packs |
+| **Finance** | Fees, payment plans, vouchers and arrears; hardship approved by the committee (a debt is never forgiven); the treasurer's workspace |
+| **Match officials** | Profiles and classification, availability, appointments with conflict and card checks, match confirmation, fee schedules, claims, payment runs and simulated online payouts |
+| **Teams and safeguarding** | Teams, coaches, fixtures and appearances; Working with Children Checks enforced at the appointment; under-18 exemptions as the law sets them |
+| **Governance** | Committee terms and positions; officers confirmed by the AGM election and others by the President, Secretary and Treasurer; resolutions recorded by the executive; the Management Committee Hub (SharePoint-ready) |
+| **Workspaces** | `/me` for each role: player, guardian, coach, referee and committee. Each shows what is waiting, and what is not yours is absent rather than refused |
+| **Sponsors** | Sponsor space in adults' workspaces, charged by CPC, CPM or CPA and **counted, never tracked** ([decision 17](./docs/decisions/17_sponsors_are_counted_never_tracked.md)). Weighted rotation (Standard, Featured, Premium); invoices with the club and platform split; the club advertising through partners with UTM links, paid per completed registration |
+| **Platform** | Club provisioning, licences, enquiries, a read-only demo, and an AI assistant that only ever drafts, summarises or flags ([decision 1](./docs/decisions/1_ai-assistant-autonomy-level.md)) |
 
 ## Working method: EA first
 
@@ -56,11 +79,13 @@ full process, actors, and definition of done.
   interpretations still awaiting confirmation from the pilot club or other
   stakeholders.
 - [`docs/annexes/`](./docs/annexes/README.md) — operational artifacts that
-  realise an architecture element rather than describe one (currently the
-  [consent wording](./docs/annexes/consent-wording.md) for BR48/BR55–BR57).
+  realise an architecture element rather than describe one: consent
+  wording, retention schedule, commercial terms, submission-pack
+  instructions, payout providers, SharePoint integration, backup and
+  restore, and more.
 - [`docs/decisions/`](./docs/decisions/README.md) — smaller, consequential
-  calls that don't rise to a full initiative — starting with the AI
-  assistant's autonomy level.
+  calls that don't rise to a full initiative (17 so far), starting with the
+  AI assistant's autonomy level.
 - [`docs/steering/`](./docs/steering/README.md) — standing rules for how
   work is done here: the [git workflow](./docs/steering/1_git-workflow.md)
   and
@@ -105,6 +130,12 @@ matters most is the last: `check_rls.py` proves a policy *exists*;
 `test_rls.sh` applies the real migrations to a throwaway Postgres and proves
 the policies *work*. A policy can be present and wrong, and that failure is
 silent.
+
+**Migrations are applied by hand.** Merging to `main` does **not** apply a
+Supabase migration. A schema change is applied to the development project
+once its pull request's CI (including `test_rls.sh`) is green, and before
+it merges. An applied migration is never edited: a correction is a new
+migration. See the [git workflow](./docs/steering/1_git-workflow.md).
 
 ## Origin of this documentation
 
