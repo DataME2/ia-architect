@@ -28,6 +28,10 @@
 @source '../components/ui';
 /* The Assistant's one surface lives in src/app (scripts/check_assistant.py). */
 @source './_components/AssistantNote.tsx';
+/* The sign-in entrance (Figma 33:4889) composes the library with utilities of
+   its own. Its existing class names (stack, field, process-detail) are not
+   Tailwind utilities, so nothing it already had is restyled by accident. */
+@source './sign-in';
 
 @theme {
   /* Surfaces and text */
