@@ -17,6 +17,22 @@
 -- club. The officer policies are untouched: the coordinator still manages
 -- everybody's.
 
+-- Whether a Person holds a referee record at a club. Security definer
+-- because a policy's own subquery runs as the caller, and an official cannot
+-- read `referee_profile` (0023 admits the club's officers only).
+create or replace function app_holds_referee_record(p_club_id uuid, p_person_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (select 1 from referee_profile where club_id = p_club_id and person_id = p_person_id)
+$$;
+
+revoke all on function app_holds_referee_record(uuid, uuid) from public;
+grant execute on function app_holds_referee_record(uuid, uuid) to authenticated;
+
 create policy referee_availability_select_own on referee_availability
   for select using (person_id in (select app_my_person_ids()));
 
@@ -26,9 +42,7 @@ create policy referee_unavailability_select_own on referee_unavailability
 create policy referee_unavailability_insert_own on referee_unavailability
   for insert with check (
     person_id in (select app_my_person_ids())
-    and exists (select 1 from referee_profile rp
-                 where rp.club_id = referee_unavailability.club_id
-                   and rp.person_id = referee_unavailability.person_id)
+    and app_holds_referee_record(club_id, person_id)
   );
 
 create policy referee_unavailability_delete_own on referee_unavailability
