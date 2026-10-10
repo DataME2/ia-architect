@@ -17,7 +17,7 @@ import {
   type QueueEntry,
 } from '../../web/queue-view.ts';
 import { STATUS_LABEL } from '../../web/household-view.ts';
-import { Marker, QueueTable } from '../../components/ui/QueueTable.tsx';
+import { Marker, MetricTile, NameWithAvatar, QueueTable } from '../../components/ui/QueueTable.tsx';
 import { todayIn } from '../../web/today.ts';
 import { BulkReminders } from './_components/BulkReminders.tsx';
 
@@ -38,10 +38,13 @@ function EligibilityMarker({ entry }: { readonly entry: QueueEntry }) {
 }
 
 function PlayerCell({ entry, seasonId }: { readonly entry: QueueEntry; readonly seasonId: string }) {
+  // The legal name underneath only where it differs from the preferred one (BR55).
   return (
-    <a className="text-foreground" href={`/registrar/${entry.registrationId}?season=${seasonId}`}>
-      {entry.displayName}
-    </a>
+    <NameWithAvatar
+      name={entry.displayName}
+      href={`/registrar/${entry.registrationId}?season=${seasonId}`}
+      {...(entry.legalName !== entry.displayName ? { detail: entry.legalName } : {})}
+    />
   );
 }
 
@@ -153,6 +156,24 @@ export default async function RegistrarPage({
           Rules are evaluated fresh on each load.
         </p>
       </header>
+
+      {/* Figma 2002:461's metric row, with this season's real figures. */}
+      <div className="grid gap-ds-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+        <MetricTile icon="people" label="Registrations" value={String(entries.length)} />
+        <MetricTile
+          icon="alert"
+          label="Need action"
+          value={String(grouped.needsAction.length)}
+          {...(grouped.needsAction.length > 0 ? { chip: { tone: 'pending' as const, text: 'Waiting' } } : { chip: { tone: 'ok' as const, text: 'Clear' } })}
+        />
+        <MetricTile icon="send" label="Sent, not yet registered" value={String(grouped.awaitingFederation.length)} />
+        <MetricTile
+          icon="coins"
+          label={`Owed by ${debtors.length} ${debtors.length === 1 ? 'family' : 'families'}`}
+          value={formatMoney(totalOwed(debtors))}
+          {...(debtors.length > 0 ? { chip: { tone: 'stop' as const, text: 'Blocking play' } } : {})}
+        />
+      </div>
 
       {/* A GET form: the search, season and tab are a URL, so a filtered queue can be shared and reloaded. */}
       <form method="get" className="grid gap-ds-5 grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-end">
