@@ -53,8 +53,9 @@ export const RegistrarShell = React.forwardRef<HTMLDivElement, RegistrarShellPro
 
         <div
           className={cn(
-            'grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_260px] gap-ds-5 items-start',
-            !isNavRight && 'md:grid-cols-[260px_minmax(0,1fr)]'
+            'grid grid-cols-1 gap-ds-5 items-start',
+            // One template, never both: two md:grid-cols classes leave the winner to CSS order.
+            isNavRight ? 'md:grid-cols-[minmax(0,1fr)_260px]' : 'md:grid-cols-[260px_minmax(0,1fr)]'
           )}
         >
           {/* Content. A <div>, not <main>: the page's single <main> landmark is

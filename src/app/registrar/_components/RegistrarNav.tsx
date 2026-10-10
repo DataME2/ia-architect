@@ -24,6 +24,7 @@ export function RegistrarNav() {
       items={REGISTRAR_NAV.map((item) => ({ ...item }))}
       activePathname={pathname}
       seasonId={seasonId}
+      tone="rail"
     />
   );
 }

@@ -47,6 +47,8 @@ export interface RegistrarNavProps extends React.HTMLAttributes<HTMLElement> {
   onNavigate?: (item: RegistrarNavItem, href: string) => void;
   /** Rail title section heading text */
   title?: string;
+  /** `rail`: on the dark identity rail (RegistrarRail), no card of its own. */
+  tone?: 'light' | 'rail';
 }
 
 export function isNavActive(currentPath: string, itemHref: string, allItems: RegistrarNavItem[]): boolean {
@@ -76,6 +78,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
       seasonId,
       onNavigate,
       title = 'Club administration',
+      tone = 'light',
       className,
       ...props
     },
@@ -89,7 +92,8 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
         ref={ref}
         aria-label={title}
         className={cn(
-          'print:hidden w-full md:max-w-[260px] flex flex-col font-sans text-foreground bg-surface border border-border rounded-md shadow-xs p-3',
+          'print:hidden w-full md:max-w-[260px] flex flex-col font-sans',
+          tone === 'rail' ? 'text-rail-foreground' : 'text-foreground bg-surface border border-border rounded-md shadow-xs p-3',
           className
         )}
         {...props}
@@ -126,7 +130,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
 
         {/* Section Heading for Desktop */}
         {title && (
-          <p className="hidden md:block text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground px-2 py-1 mb-1">
+          <p className={cn('hidden md:block text-[11px] font-mono font-semibold uppercase tracking-wider px-2 py-1 mb-1', tone === 'rail' ? 'text-rail-muted' : 'text-muted-foreground')}>
             {title}
           </p>
         )}
@@ -160,9 +164,13 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
                 className={cn(
                   'flex items-center min-h-[44px] px-3 py-2 rounded-sm text-xs font-medium no-underline transition-colors select-none border-l-4',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
-                  isCurrent
-                    ? 'bg-primary-soft text-primary hover:text-primary font-semibold border-primary shadow-xs'
-                    : 'text-foreground hover:bg-surfaceSubtle hover:text-primary border-transparent'
+                  tone === 'rail'
+                    ? isCurrent
+                      ? 'bg-primary text-primary-foreground hover:text-primary-foreground font-semibold border-transparent'
+                      : 'text-rail-muted hover:bg-rail-line hover:text-rail-foreground border-transparent'
+                    : isCurrent
+                      ? 'bg-primary-soft text-primary hover:text-primary font-semibold border-primary shadow-xs'
+                      : 'text-foreground hover:bg-surfaceSubtle hover:text-primary border-transparent'
                 )}
               >
                 {item.label}

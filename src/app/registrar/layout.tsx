@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation';
 import { Suspense, type ReactNode } from 'react';
 
+import { RegistrarRail } from '../../components/ui/RegistrarRail.tsx';
 import { RegistrarShell } from '../../components/ui/RegistrarShell.tsx';
+import { accessLabel } from '../../web/access-view.ts';
 import { loadNotifications } from '../../data/inbox.ts';
 import { loadTenantContext } from '../../data/queries.ts';
 import { syncStaffWaiting } from '../../data/waiting.ts';
@@ -78,10 +80,19 @@ export default async function RegistrarLayout({
       </div>
       {user !== null && tenant !== null ? (
         <RegistrarShell
+          railPosition="left"
           nav={
-            <Suspense fallback={null}>
-              <RegistrarNav />
-            </Suspense>
+            <RegistrarRail
+              clubName={tenant.clubName}
+              roles={tenant.roles.map((role) => ((role as string) === 'viewer' ? 'Viewer — read-only' : accessLabel(role)))}
+              personName={tenant.person === null ? null : (tenant.person.preferredName ?? tenant.person.legalName)}
+              switchHref="/me"
+              nav={
+                <Suspense fallback={null}>
+                  <RegistrarNav />
+                </Suspense>
+              }
+            />
           }
         >
           {children}
