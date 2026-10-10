@@ -38,7 +38,7 @@ const variantClasses: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary:
     'bg-primary text-primary-foreground hover:bg-primary-hover border-transparent shadow-xs',
   secondary:
-    'bg-secondary text-secondary-foreground border-border-strong hover:bg-surfaceSubtle hover:border-primary hover:text-primary shadow-xs',
+    'bg-secondary text-secondary-foreground border-border-strong hover:bg-surfaceSubtle hover:border-teal hover:text-teal-foreground shadow-xs',
   ghost:
     'bg-transparent text-foreground border-transparent hover:bg-primary-soft hover:text-primary shadow-none',
   destructive:

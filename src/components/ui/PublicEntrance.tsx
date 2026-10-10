@@ -71,7 +71,7 @@ export function PublicEntrance({ nav, status = 'Signed out', breadcrumb, eyebrow
                 'flex items-center min-h-[44px] px-ds-3 rounded-sm text-[13px] no-underline transition-colors duration-180',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
                 item.current
-                  ? 'bg-surface text-foreground hover:text-foreground'
+                  ? 'bg-primary text-primary-foreground hover:text-primary-foreground'
                   : 'text-rail-muted hover:bg-rail-line hover:text-rail-foreground',
               )}
             >

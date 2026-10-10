@@ -53,6 +53,9 @@
   --color-primary-soft: var(--accent-soft);
   --color-primary-foreground: var(--accent-text);
   --color-secondary: var(--surface-2);
+  /* Purple & Teal: teal marks secondary actions. */
+  --color-teal: var(--teal);
+  --color-teal-foreground: var(--teal-text);
   --color-secondary-foreground: var(--text);
 
   /* Electric volt — the Assistant's only (DESIGN.md Principle 2) */

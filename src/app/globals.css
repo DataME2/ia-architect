@@ -39,6 +39,16 @@
    nothing is fetched at build time, and there is no runtime dependency on
    a font host. */
 
+/* Purple & Teal Admin (ux-pilot-figma): Plus Jakarta Sans is the UI face,
+   self-hosted like the others (OFL-1.1, @fontsource-variable 5.3.0, latin). */
+@font-face {
+  font-family: 'Plus Jakarta Sans Variable';
+  src: url('/fonts/plus-jakarta-sans-var-latin.woff2') format('woff2-variations');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 @font-face {
   font-family: 'Archivo Variable';
   src: url('/fonts/archivo-var-latin.woff2') format('woff2-variations');
@@ -116,15 +126,18 @@
   --muted: var(--stone);
   --subtle: #475569;
 
-  --accent: var(--reef-600);
-  --accent-hover: var(--reef-700);
-  --accent-soft: var(--reef-50);
+  /* Purple & Teal Admin: violet primary (white text 5.7:1), teal secondary. */
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+  --accent-soft: #f5f3ff;
+  --teal: #14b8a6;
+  --teal-text: #0f766e;
   --accent-text: #ffffff;
-  --link: var(--reef-600);
+  --link: #7c3aed;
   --highlight: var(--desert-500);
   --highlight-hover: #65a30d;
-  --focus: var(--reef-600);
-  --focus-halo: rgb(132 204 22 / 45%);
+  --focus: #7c3aed;
+  --focus-halo: rgb(124 58 237 / 35%);
 
   --ok-bg: var(--euc-100);
   --ok-text: var(--euc-900);
@@ -143,7 +156,7 @@
   --neutral-dot: var(--subtle);
 
   /* The rail. Constant in every role context — see src/web/role-context.ts. */
-  --rail-bg: var(--reef-800);
+  --rail-bg: #0f172a;
   --rail-line: #1e293b;
   --rail-text: #f8fafc;
   --rail-text-2: #94a3b8;
@@ -163,7 +176,7 @@
   --space-7: 3rem;
 
   --radius-sm: 6px;
-  --radius: 10px;
+  --radius: 12px;
   --radius-lg: 16px;
   --radius-full: 999px;
 
@@ -172,7 +185,7 @@
   --shadow-md: 0 4px 12px rgb(15 23 42 / 8%), 0 2px 4px rgb(15 23 42 / 4%);
   --shadow-lg: 0 12px 32px rgb(15 23 42 / 12%), 0 4px 8px rgb(15 23 42 / 6%);
 
-  --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, -apple-system,
+  --font-sans: 'Plus Jakarta Sans Variable', 'Archivo Variable', ui-sans-serif, system-ui, -apple-system,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo,
     Consolas, 'Liberation Mono', monospace;
@@ -205,14 +218,16 @@
     /* The action colour lightens so it can carry dark text — the same
        relationship as the light theme, inverted, rather than the light
        theme's reef floated on a dark ground where it would fail twice. */
-    --accent: #38bdf8;
-    --accent-hover: #7dd3fc;
-    --accent-soft: #0c4a6e;
-    --accent-text: #070b14;
-    --link: #38bdf8;
+    --accent: #a78bfa;
+    --accent-hover: #c4b5fd;
+    --accent-soft: #2e1065;
+    --accent-text: #0b0716;
+    --teal: #2dd4bf;
+    --teal-text: #5eead4;
+    --link: #a78bfa;
     --highlight: #a3e635;
     --highlight-hover: #bef264;
-    --focus: #38bdf8;
+    --focus: #a78bfa;
     --focus-halo: rgb(163 230 53 / 30%);
 
     --ok-bg: #064e3b;
@@ -1003,8 +1018,9 @@ button.secondary,
 button.secondary:hover:not(:disabled),
 .button.secondary:hover {
   background: var(--surface-2);
-  color: var(--accent);
-  border-color: var(--accent);
+  /* Teal: the Purple & Teal secondary (ux-pilot-figma). */
+  color: var(--teal-text);
+  border-color: var(--teal);
 }
 
 button.ghost,
