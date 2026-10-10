@@ -169,20 +169,275 @@ export default async function RegistrationDetailPage({
   });
   const history = await loadValidationHistory(client, registrationId, 20);
 
+  // Figma 2008:226 (treasurer view): the gate, then vouchers and payment side
+  // by side. Money roles see it first; everyone else in its old place.
+  const money = (
+    <>
+          <section className="card">
+            <h3 style={{ marginTop: 0 }}>Financial gate: may this player take the field?</h3>
+            <FinancialGatePanel mayPlay={gate.mayPlay} verdict={gate.verdict} reason={gate.reason} lines={gate.lines}>
+              {canTouchMoney && (
+                <>
+                  <a className="button secondary" href="#vouchers">
+                    Verify a voucher
+                  </a>
+                  <a className="button secondary" href="#payment">
+                    Record a payment or cash receipt
+                  </a>
+                </>
+              )}
+            </FinancialGatePanel>
+            {!eligibility.mayPlay && eligibility.blockedBy === 'owes-money' && (
+              <p className="hint">
+                The registration is <strong>COMPLETE</strong> and stays that way &mdash; the club
+                cannot revoke an eligibility the federation conferred (BR60). Eligibility to play
+                is asked separately, from the status <em>and</em> the balance, every time, so a
+                charge raised after confirmation still stops the player.
+              </p>
+            )}
+          </section>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 26rem), 1fr))',
+          gap: 'var(--space-5)',
+          alignItems: 'start',
+        }}
+      >
+          <section className="card" id="vouchers">
+            <h3 style={{ marginTop: 0 }}>Vouchers</h3>
+            {vouchers.length === 0 ? (
+              <p className="hint" style={{ marginTop: 0 }}>
+                None attached. Most MiniRoos families have one.
+              </p>
+            ) : (
+              <>
+                <p className="notice" style={{ marginTop: 0 }}>{voucherSummary(vouchers)}</p>
+                <div className="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Program</th>
+                        <th>Code</th>
+                        <th>Value</th>
+                        <th>State</th>
+                        <th>Document</th>
+                        {canTouchMoney && <th />}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {vouchers.map((voucher) => (
+                        <tr key={voucher.id}>
+                          <td>{voucher.program}</td>
+                          <td>{voucher.code}</td>
+                          <td>{formatCents(voucher.faceValueCents)}</td>
+                          <td>
+                            {voucher.state === 'ATTACHED' && (
+                              <span className="pill pill-stop">Not yet verified</span>
+                            )}
+                            {voucher.state === 'VERIFIED' && <span className="pill pill-ok">Verified</span>}
+                            {voucher.state === 'CLAIMED' && <span className="pill pill-ok">Claimed</span>}
+                            {voucher.state === 'REJECTED' && (
+                              <span className="pill pill-stop" title={voucher.rejectionReason ?? ''}>
+                                Rejected
+                              </span>
+                            )}
+                          </td>
+                          <td>
+                            {voucherFiles.has(voucher.id) ? (
+                              <a href={voucherFiles.get(voucher.id)} target="_blank" rel="noreferrer">
+                                Open PDF
+                              </a>
+                            ) : (
+                              <span className="hint">None</span>
+                            )}
+                          </td>
+                          {canTouchMoney && (
+                            <td>
+                              {voucher.state === 'ATTACHED' && (
+                                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                                  <form action={verifyVoucherAction}>
+                                    <input type="hidden" name="voucherId" value={voucher.id} />
+                                    <input type="hidden" name="registrationId" value={registrationId} />
+                                    <button
+                                      type="submit"
+                                      style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }}
+                                    >
+                                      Verify
+                                    </button>
+                                  </form>
+                                  <form action={rejectVoucherAction} style={{ display: 'flex', gap: '0.3rem' }}>
+                                    <input type="hidden" name="voucherId" value={voucher.id} />
+                                    <input type="hidden" name="registrationId" value={registrationId} />
+                                    <input
+                                      name="reason"
+                                      placeholder="Why not?"
+                                      aria-label="Rejection reason"
+                                      style={{ width: '9rem' }}
+                                    />
+                                    <button
+                                      type="submit"
+                                      className="secondary"
+                                      style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }}
+                                    >
+                                      Reject
+                                    </button>
+                                  </form>
+                                </div>
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+
+            <h4>Attach a voucher</h4>
+            <AttachVoucherForm
+              registrationId={registrationId}
+              defaultProgram={DEFAULT_VOUCHER_PROGRAM}
+            />
+
+            {!canTouchMoney && vouchers.length > 0 && (
+              <p className="hint">
+                Verifying a voucher applies its value as a payment, so it is an admin or
+                treasurer&rsquo;s act (BR78). You can attach one &mdash; collecting the document is
+                registration work.
+              </p>
+            )}
+          </section>
+
+          <section className="card" id="payment">
+            <h3 style={{ marginTop: 0 }}>Payment (BR3)</h3>
+
+            {!readsMoney ? (
+              <p className="hint" style={{ marginTop: 0 }}>
+                The payment plan, its instalments and receipts are shown only to the admin,
+                treasurer, registrar and IT manager (BR78). Whether this player is clear to play is
+                shown above.
+              </p>
+            ) : (
+              <>
+
+                {state !== null && finance.plan !== null ? (
+                  <>
+                    <PlanSchedule state={state} />
+                    <p className="hint">
+                      BR3 asks whether payment is <strong>in arrears</strong>, not whether a balance
+                      exists. A family three weeks into a five-month plan, having paid everything asked
+                      of them, is up to date — blocking them would have made the plan worthless, since
+                      the club could offer one and the child still could not play.
+                    </p>
+                    {canTouchMoney && (
+                      <form action={cancelPlanAction} style={{ marginTop: '0.75rem' }}>
+                        <input type="hidden" name="planId" value={finance.plan.id} />
+                        <input type="hidden" name="registrationId" value={registrationId} />
+                        <button type="submit" className="secondary">
+                          End this plan
+                        </button>
+                      </form>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <p className="hint" style={{ marginTop: 0 }}>
+                      {owed > 0
+                        ? `${formatCents(owed)} is due in full — no payment plan has been agreed.`
+                        : owed < 0
+                          ? `The club holds a credit of ${formatCents(-owed)}. BR3 does not treat a credit as an obstacle — blocking a child over money the club owes them would be the wrong way round.`
+                          : 'Nothing outstanding.'}
+                    </p>
+                    {canTouchMoney && season !== undefined && owed > 0 && (
+                      <>
+                        <h4>Agree a payment plan</h4>
+                        <NewPlanForm
+                          registrationId={registrationId}
+                          seasonId={seasonId}
+                          suggestedTotalCents={owed}
+                          seasonEndsOn={season.ends_on}
+                        />
+                      </>
+                    )}
+                    <OutstandingForm
+                      registrationId={registrationId}
+                      seasonId={seasonId}
+                      outstandingCents={owed}
+                    />
+                  </>
+                )}
+
+                {canTouchMoney ? (
+                  <>
+                    <h4>Record a payment</h4>
+                    <RecordPaymentForm registrationId={registrationId} />
+                  </>
+                ) : (
+                  <p className="hint">
+                    Recording money is an admin or treasurer&rsquo;s act, not a registrar&rsquo;s —
+                    the BR22 separation between running registration and moving money. The database
+                    enforces it, so this is a hidden button rather than the control.
+                  </p>
+                )}
+
+                {finance.payments.length > 0 && (
+                  <>
+                    <h4>Receipts</h4>
+                    <div className="table-scroll">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Received</th>
+                            <th>Amount</th>
+                            <th>How</th>
+                            <th>Reference</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {finance.payments.map((row) => (
+                            <tr key={row.id}>
+                              <td>{row.receivedOn}</td>
+                              <td>{formatCents(row.amountCents)}</td>
+                              <td>{METHOD_LABEL[row.method]}</td>
+                              <td>{row.reference ?? <span className="hint">&mdash;</span>}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </section>
+      </div>
+
+      <p className="notice" style={{ background: 'var(--info-bg)', color: 'var(--info-text)', borderColor: 'var(--info-dot)' }}>
+        Recording money is the admin or treasurer&rsquo;s act, and the database enforces it (BR22). Only they can
+        verify a voucher or record a cash receipt.
+      </p>
+    </>
+  );
+
   return (
     <>
-      <p style={{ marginBottom: '0.25rem' }}>
-        <a href="/registrar">&larr; Back to the queue</a>
+      <p style={{ marginBottom: 'var(--space-3)' }}>
+        <a href={`/registrar?season=${seasonId}`}>&larr; Back to the queue</a>
       </p>
-      <p style={{ marginBottom: '0.75rem' }}>
+      <p className="eyebrow" style={{ margin: 0, fontFamily: 'var(--font-mono)', fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--subtle)' }}>
+        Registration / {season?.name ?? 'Season'}
+      </p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-3)', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-3)' }}>
+          <h2 style={{ margin: 0, color: 'var(--accent)' }}>{entry.displayName}</h2>
+          <StatusPill status={entry.status} />
+        </div>
         <a className="button secondary" href={`/registrar/players/${registrationId}`}>
           Player record
         </a>
-      </p>
-
-      <div className="card-row">
-        <h2 style={{ marginTop: '0.5rem' }}>{entry.displayName}</h2>
-        <StatusPill status={entry.status} />
       </div>
 
       <p className="lede">
@@ -195,6 +450,8 @@ export default async function RegistrationDetailPage({
           </>
         )}
       </p>
+
+      {canTouchMoney && money}
 
       <section className="card">
         <h3 style={{ marginTop: 0 }}>Rules</h3>
@@ -422,238 +679,7 @@ export default async function RegistrationDetailPage({
         )}
       </section>
 
-      <section className="card">
-        <h3 style={{ marginTop: 0 }}>Financial gate: may this player take the field?</h3>
-        <FinancialGatePanel mayPlay={gate.mayPlay} verdict={gate.verdict} reason={gate.reason} lines={gate.lines}>
-          {canTouchMoney && (
-            <>
-              <a className="button secondary" href="#vouchers">
-                Verify a voucher
-              </a>
-              <a className="button secondary" href="#payment">
-                Record a payment or cash receipt
-              </a>
-            </>
-          )}
-        </FinancialGatePanel>
-        {!eligibility.mayPlay && eligibility.blockedBy === 'owes-money' && (
-          <p className="hint">
-            The registration is <strong>COMPLETE</strong> and stays that way &mdash; the club
-            cannot revoke an eligibility the federation conferred (BR60). Eligibility to play
-            is asked separately, from the status <em>and</em> the balance, every time, so a
-            charge raised after confirmation still stops the player.
-          </p>
-        )}
-      </section>
-
-      <section className="card" id="vouchers">
-        <h3 style={{ marginTop: 0 }}>Vouchers</h3>
-        {vouchers.length === 0 ? (
-          <p className="hint" style={{ marginTop: 0 }}>
-            None attached. Most MiniRoos families have one.
-          </p>
-        ) : (
-          <>
-            <p className="notice" style={{ marginTop: 0 }}>{voucherSummary(vouchers)}</p>
-            <div className="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Program</th>
-                    <th>Code</th>
-                    <th>Value</th>
-                    <th>State</th>
-                    <th>Document</th>
-                    {canTouchMoney && <th />}
-                  </tr>
-                </thead>
-                <tbody>
-                  {vouchers.map((voucher) => (
-                    <tr key={voucher.id}>
-                      <td>{voucher.program}</td>
-                      <td>{voucher.code}</td>
-                      <td>{formatCents(voucher.faceValueCents)}</td>
-                      <td>
-                        {voucher.state === 'ATTACHED' && (
-                          <span className="pill pill-stop">Not yet verified</span>
-                        )}
-                        {voucher.state === 'VERIFIED' && <span className="pill pill-ok">Verified</span>}
-                        {voucher.state === 'CLAIMED' && <span className="pill pill-ok">Claimed</span>}
-                        {voucher.state === 'REJECTED' && (
-                          <span className="pill pill-stop" title={voucher.rejectionReason ?? ''}>
-                            Rejected
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        {voucherFiles.has(voucher.id) ? (
-                          <a href={voucherFiles.get(voucher.id)} target="_blank" rel="noreferrer">
-                            Open PDF
-                          </a>
-                        ) : (
-                          <span className="hint">None</span>
-                        )}
-                      </td>
-                      {canTouchMoney && (
-                        <td>
-                          {voucher.state === 'ATTACHED' && (
-                            <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-                              <form action={verifyVoucherAction}>
-                                <input type="hidden" name="voucherId" value={voucher.id} />
-                                <input type="hidden" name="registrationId" value={registrationId} />
-                                <button
-                                  type="submit"
-                                  style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }}
-                                >
-                                  Verify
-                                </button>
-                              </form>
-                              <form action={rejectVoucherAction} style={{ display: 'flex', gap: '0.3rem' }}>
-                                <input type="hidden" name="voucherId" value={voucher.id} />
-                                <input type="hidden" name="registrationId" value={registrationId} />
-                                <input
-                                  name="reason"
-                                  placeholder="Why not?"
-                                  aria-label="Rejection reason"
-                                  style={{ width: '9rem' }}
-                                />
-                                <button
-                                  type="submit"
-                                  className="secondary"
-                                  style={{ padding: '0.2rem 0.6rem', fontSize: '0.85rem' }}
-                                >
-                                  Reject
-                                </button>
-                              </form>
-                            </div>
-                          )}
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-
-        <h4>Attach a voucher</h4>
-        <AttachVoucherForm
-          registrationId={registrationId}
-          defaultProgram={DEFAULT_VOUCHER_PROGRAM}
-        />
-
-        {!canTouchMoney && vouchers.length > 0 && (
-          <p className="hint">
-            Verifying a voucher applies its value as a payment, so it is an admin or
-            treasurer&rsquo;s act (BR78). You can attach one &mdash; collecting the document is
-            registration work.
-          </p>
-        )}
-      </section>
-
-      <section className="card" id="payment">
-        <h3 style={{ marginTop: 0 }}>Payment (BR3)</h3>
-
-        {!readsMoney ? (
-          <p className="hint" style={{ marginTop: 0 }}>
-            The payment plan, its instalments and receipts are shown only to the admin,
-            treasurer, registrar and IT manager (BR78). Whether this player is clear to play is
-            shown above.
-          </p>
-        ) : (
-          <>
-
-            {state !== null && finance.plan !== null ? (
-              <>
-                <PlanSchedule state={state} />
-                <p className="hint">
-                  BR3 asks whether payment is <strong>in arrears</strong>, not whether a balance
-                  exists. A family three weeks into a five-month plan, having paid everything asked
-                  of them, is up to date — blocking them would have made the plan worthless, since
-                  the club could offer one and the child still could not play.
-                </p>
-                {canTouchMoney && (
-                  <form action={cancelPlanAction} style={{ marginTop: '0.75rem' }}>
-                    <input type="hidden" name="planId" value={finance.plan.id} />
-                    <input type="hidden" name="registrationId" value={registrationId} />
-                    <button type="submit" className="secondary">
-                      End this plan
-                    </button>
-                  </form>
-                )}
-              </>
-            ) : (
-              <>
-                <p className="hint" style={{ marginTop: 0 }}>
-                  {owed > 0
-                    ? `${formatCents(owed)} is due in full — no payment plan has been agreed.`
-                    : owed < 0
-                      ? `The club holds a credit of ${formatCents(-owed)}. BR3 does not treat a credit as an obstacle — blocking a child over money the club owes them would be the wrong way round.`
-                      : 'Nothing outstanding.'}
-                </p>
-                {canTouchMoney && season !== undefined && owed > 0 && (
-                  <>
-                    <h4>Agree a payment plan</h4>
-                    <NewPlanForm
-                      registrationId={registrationId}
-                      seasonId={seasonId}
-                      suggestedTotalCents={owed}
-                      seasonEndsOn={season.ends_on}
-                    />
-                  </>
-                )}
-                <OutstandingForm
-                  registrationId={registrationId}
-                  seasonId={seasonId}
-                  outstandingCents={owed}
-                />
-              </>
-            )}
-
-            {canTouchMoney ? (
-              <>
-                <h4>Record a payment</h4>
-                <RecordPaymentForm registrationId={registrationId} />
-              </>
-            ) : (
-              <p className="hint">
-                Recording money is an admin or treasurer&rsquo;s act, not a registrar&rsquo;s —
-                the BR22 separation between running registration and moving money. The database
-                enforces it, so this is a hidden button rather than the control.
-              </p>
-            )}
-
-            {finance.payments.length > 0 && (
-              <>
-                <h4>Receipts</h4>
-                <div className="table-scroll">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Received</th>
-                        <th>Amount</th>
-                        <th>How</th>
-                        <th>Reference</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {finance.payments.map((row) => (
-                        <tr key={row.id}>
-                          <td>{row.receivedOn}</td>
-                          <td>{formatCents(row.amountCents)}</td>
-                          <td>{METHOD_LABEL[row.method]}</td>
-                          <td>{row.reference ?? <span className="hint">&mdash;</span>}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
-          </>
-        )}
-      </section>
+      {!canTouchMoney && money}
 
       {blocking.length === 0 && entry.duplicateCount === 0 && entry.status !== 'COMPLETE' && (
         <p className="notice">
