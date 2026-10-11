@@ -12,33 +12,39 @@ export interface NavItem {
   readonly href: string;
   readonly label: string;
   readonly seasonScoped: boolean;
+  /** The heading it sits under in the menu; items of a group are adjacent. */
+  readonly group: NavGroup;
 }
 
+/** The menu headings, in order: the season, the match, the money, the club. */
+export const NAV_GROUPS = ['Season', 'Match day', 'Money', 'Club'] as const;
+export type NavGroup = (typeof NAV_GROUPS)[number];
+
 export const REGISTRAR_NAV: readonly NavItem[] = [
-  { href: '/registrar', label: 'Queue', seasonScoped: true },
-  { href: '/registrar/season', label: 'Season requirements', seasonScoped: true },
-  { href: '/registrar/invitations', label: 'Registration links', seasonScoped: true },
-  { href: '/registrar/people', label: 'People', seasonScoped: true },
-  { href: '/registrar/teams', label: 'Teams', seasonScoped: true },
-  { href: '/registrar/fixtures', label: 'Fixtures', seasonScoped: true },
-  { href: '/registrar/referees', label: 'Match officials', seasonScoped: true },
-  { href: '/registrar/designations', label: 'Designations', seasonScoped: true },
-  { href: '/registrar/verification', label: 'Verify a match', seasonScoped: true },
-  { href: '/registrar/referee-payments', label: 'Match official payments', seasonScoped: true },
+  { href: '/registrar', label: 'Queue', seasonScoped: true, group: 'Season' },
+  { href: '/registrar/season', label: 'Season requirements', seasonScoped: true, group: 'Season' },
+  { href: '/registrar/invitations', label: 'Registration links', seasonScoped: true, group: 'Season' },
+  { href: '/registrar/people', label: 'People', seasonScoped: true, group: 'Season' },
+  { href: '/registrar/teams', label: 'Teams', seasonScoped: true, group: 'Season' },
+  { href: '/registrar/duplicates', label: 'Duplicates', seasonScoped: false, group: 'Season' },
+  { href: '/registrar/pack', label: 'Submission pack', seasonScoped: true, group: 'Season' },
+  { href: '/registrar/reports', label: 'Reports', seasonScoped: true, group: 'Season' },
+  { href: '/registrar/fixtures', label: 'Fixtures', seasonScoped: true, group: 'Match day' },
+  { href: '/registrar/referees', label: 'Match officials', seasonScoped: true, group: 'Match day' },
+  { href: '/registrar/designations', label: 'Designations', seasonScoped: true, group: 'Match day' },
+  { href: '/registrar/verification', label: 'Verify a match', seasonScoped: true, group: 'Match day' },
+  { href: '/registrar/carnivals', label: 'Carnivals', seasonScoped: false, group: 'Match day' },
+  { href: '/registrar/referee-payments', label: 'Match official payments', seasonScoped: true, group: 'Money' },
   // Not season-scoped: a fee schedule is dated from a day and runs until
   // the next one supersedes it (BR115), which is not the same shape as a
   // season and does not reset with one.
-  { href: '/registrar/fees', label: 'Match official fees', seasonScoped: false },
-  { href: '/registrar/governance', label: 'Governance', seasonScoped: false },
-  { href: '/registrar/committee-hub', label: 'Committee hub', seasonScoped: false },
-  { href: '/registrar/sponsors', label: 'Sponsors', seasonScoped: false },
-  { href: '/registrar/duplicates', label: 'Duplicates', seasonScoped: false },
-  { href: '/registrar/pack', label: 'Submission pack', seasonScoped: true },
-  { href: '/registrar/reports', label: 'Reports', seasonScoped: true },
-  { href: '/registrar/arrears', label: 'Arrears', seasonScoped: false },
-  { href: '/registrar/carnivals', label: 'Carnivals', seasonScoped: false },
-  { href: '/registrar/privacy', label: 'Privacy', seasonScoped: false },
-  { href: '/registrar/access', label: 'Access', seasonScoped: false },
+  { href: '/registrar/fees', label: 'Match official fees', seasonScoped: false, group: 'Money' },
+  { href: '/registrar/arrears', label: 'Arrears', seasonScoped: false, group: 'Money' },
+  { href: '/registrar/sponsors', label: 'Sponsors', seasonScoped: false, group: 'Money' },
+  { href: '/registrar/governance', label: 'Governance', seasonScoped: false, group: 'Club' },
+  { href: '/registrar/committee-hub', label: 'Committee hub', seasonScoped: false, group: 'Club' },
+  { href: '/registrar/privacy', label: 'Privacy', seasonScoped: false, group: 'Club' },
+  { href: '/registrar/access', label: 'Access', seasonScoped: false, group: 'Club' },
 ];
 
 /**

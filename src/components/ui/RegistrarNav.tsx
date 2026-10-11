@@ -10,6 +10,8 @@ export interface RegistrarNavItem {
   label: string;
   /** Whether navigation link appends active season query param */
   seasonScoped?: boolean;
+  /** Heading this link sits under; a heading is drawn where the group changes */
+  group?: string;
 }
 
 export const DEFAULT_REGISTRAR_NAV: RegistrarNavItem[] = [
@@ -126,7 +128,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
 
         {/* Section Heading for Desktop */}
         {title && (
-          <p className="hidden md:block text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground px-2 py-1 mb-1">
+          <p className="hidden md:block text-sm font-semibold text-foreground px-3 py-1 mb-ds-2">
             {title}
           </p>
         )}
@@ -139,7 +141,8 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
             isOpen ? 'flex mt-2' : 'hidden md:flex'
           )}
         >
-          {items.map((item) => {
+          {items.map((item, i) => {
+            const startsGroup = item.group !== undefined && item.group !== items[i - 1]?.group;
             const isCurrent = isNavActive(activePathname, item.href, items);
             const targetHref = buildNavHref(item, seasonId);
 
@@ -152,21 +155,27 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
             };
 
             return (
-              <a
-                key={item.href}
-                href={targetHref}
-                onClick={handleClick}
-                aria-current={isCurrent ? 'page' : undefined}
-                className={cn(
-                  'flex items-center min-h-[44px] px-3 py-2 rounded-sm text-xs font-medium no-underline transition-colors select-none border-l-4',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
-                  isCurrent
-                    ? 'bg-primary-soft text-primary hover:text-primary font-semibold border-primary shadow-xs'
-                    : 'text-foreground hover:bg-surfaceSubtle hover:text-primary border-transparent'
+              <React.Fragment key={item.href}>
+                {startsGroup && (
+                  <p className={cn('text-xs font-semibold text-muted-foreground px-3 mb-0.5', i > 0 ? 'mt-ds-4' : 'mt-0')}>
+                    {item.group}
+                  </p>
                 )}
-              >
-                {item.label}
-              </a>
+                <a
+                  href={targetHref}
+                  onClick={handleClick}
+                  aria-current={isCurrent ? 'page' : undefined}
+                  className={cn(
+                    'flex items-center min-h-[44px] px-3 py-1.5 rounded-md text-sm no-underline transition-colors select-none',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
+                    isCurrent
+                      ? 'bg-primary-soft text-primary hover:text-primary font-semibold'
+                      : 'text-muted-foreground font-medium hover:bg-surfaceSubtle hover:text-foreground'
+                  )}
+                >
+                  {item.label}
+                </a>
+              </React.Fragment>
             );
           })}
         </div>
