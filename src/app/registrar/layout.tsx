@@ -78,6 +78,8 @@ export default async function RegistrarLayout({
       </div>
       {user !== null && tenant !== null ? (
         <RegistrarShell
+          // Left, as on /me: the rail sits where the eye starts in every workspace.
+          railPosition="left"
           nav={
             <Suspense fallback={null}>
               <RegistrarNav />
