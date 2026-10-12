@@ -3155,3 +3155,29 @@ button.secondary:hover:not(:disabled) {
 .auth-aside .eyebrow {
   color: var(--gold);
 }
+
+/* The club menu's group headings (Season, Match day, Money, Club) read as
+   section graphics: condensed caps over a hairline. */
+nav[aria-label='Club administration'] div > p {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--live-text);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+}
+nav[aria-label='Club administration'] div > p:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* The brand slab carries small text, so it takes a deeper red than the
+   thin on-air markers: white on #c41230 is 5.9:1. */
+.masthead h1 a {
+  background: #c41230;
+}
+.masthead .brand-region {
+  color: #ffffff;
+}
