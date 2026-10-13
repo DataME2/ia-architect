@@ -45,7 +45,8 @@ describe('the acting-as lens on a club screen', () => {
   it('names every club role, since they all apply together', async () => {
     const { clubLens } = await import('./command.ts');
     assert.equal(clubLens(['registrar']), 'Registrar');
-    assert.equal(clubLens(['admin', 'registrar', 'treasurer']), 'Admin, Registrar and Treasurer');
+    assert.equal(clubLens(['admin', 'registrar', 'treasurer']), 'Administrator, Registrar and Treasurer');
+    assert.equal(clubLens(['digital_technology_manager']), 'IT Manager');
     assert.equal(clubLens([]), 'Member');
   });
 });

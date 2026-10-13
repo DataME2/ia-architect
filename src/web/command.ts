@@ -9,6 +9,7 @@
  * screen still sends a non-member to sign in. People search hands the text
  * to `/registrar/people?q=`, which RLS scopes to the searcher's club (P5).
  */
+import { accessLabel } from './access-view.ts';
 import { REGISTRAR_NAV, type NavItem } from './nav.ts';
 
 export type DestinationGroup = 'Go to' | 'Club administration' | 'Search';
@@ -81,23 +82,14 @@ export function peopleSearch(query: string): Destination {
   return { label: `Search people for “${query.trim()}”`, href: `/registrar/people?q=${encodeURIComponent(query.trim())}`, group: 'Search' };
 }
 
-const CLUB_ROLE_LABEL: Readonly<Record<string, string>> = {
-  admin: 'Admin',
-  registrar: 'Registrar',
-  treasurer: 'Treasurer',
-  committee: 'Committee',
-  coach: 'Coach',
-  coordinator: 'Coordinator',
-  viewer: 'Viewer',
-};
 
 /**
  * The acting-as chip's lens on a club screen: every club role the person
  * holds there, because on club screens they all apply at once. "Registrar
- * and Treasurer"; "Admin, Registrar and Treasurer".
+ * and Treasurer"; "Administrator, Registrar and Treasurer".
  */
 export function clubLens(roles: readonly string[]): string {
-  const names = roles.map((r) => CLUB_ROLE_LABEL[r] ?? r);
+  const names = roles.map(accessLabel);
   if (names.length === 0) return 'Member';
   if (names.length === 1) return names[0]!;
   return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;

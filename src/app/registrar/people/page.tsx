@@ -289,7 +289,7 @@ export default async function PeoplePage({
         {SEASON_ROLES.map((role) => (
           <div className="stat" key={role}>
             <span className="n">{summary.byRole.get(role) ?? 0}</span>
-            <span className="label">{ROLE_LABEL[role].toLowerCase()}s</span>
+            <span className="label">{ROLE_LABEL[role].toLowerCase()}{role === 'coach' ? 'es' : 's'}</span>
           </div>
         ))}
       </div>

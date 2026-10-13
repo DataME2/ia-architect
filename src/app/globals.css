@@ -786,17 +786,6 @@ h3 {
   box-shadow: var(--shadow-xs);
 }
 
-/* A gold rail across the top of each figure. It is the one repeated place
-   the second brand colour appears in the working screens, which is what
-   keeps the palette from being a landing-page costume. */
-.summary-grid .stat::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 3px;
-  background: linear-gradient(90deg, var(--ochre-500), var(--reef-500));
-}
-
 .stat .n {
   font-size: 1.9rem;
   font-weight: 680;
@@ -1201,6 +1190,15 @@ td {
 .table-scroll tr:last-child td,
 .table-wrap tr:last-child td {
   border-bottom: 0;
+}
+
+/* A table nobody wrapped still never pushes the page sideways: on a phone
+   it scrolls inside itself (arrears, referees, designations, payments). */
+@media (max-width: 640px) {
+  table:not(.table-scroll > table, .table-wrap > table) {
+    display: block;
+    overflow-x: auto;
+  }
 }
 
 /* --------------------------------------------------------- session strip
