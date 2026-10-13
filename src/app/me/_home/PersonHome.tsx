@@ -1,8 +1,10 @@
+import { AssistantNote } from '../../_components/AssistantNote.tsx';
 import { RoleOverview } from '../../../components/ui/RoleOverview.tsx';
 import { WaitingList } from '../../../components/ui/WaitingList.tsx';
 import { buildHome } from '../../../web/home-view.ts';
 import type { InboxNotification } from '../../../web/inbox-view.ts';
 import { ROLE_HUE } from '../../../web/me-view.ts';
+import { homeNotes } from '../../../web/notes.ts';
 import type { RoleHolding } from '../../../web/role-context.ts';
 
 /**
@@ -18,6 +20,9 @@ export function PersonHome({
   readonly notifications: readonly InboxNotification[];
 }) {
   const home = buildHome(holdings, notifications);
+  // Scope 93: the Assistant restates the list in a sentence and points into
+  // it; the list itself stays the source.
+  const notes = homeNotes({ items: home.items });
   return (
     // Wider than the reading width the other prompts use: this is a dashboard.
     <div className="role-prompt" style={{ maxWidth: 'var(--shell-width)' }}>
@@ -28,7 +33,18 @@ export function PersonHome({
         and no switch merges two roles&rsquo; views.{' '}
         <span className="mono" style={{ fontSize: '0.75rem' }}>BR61 · BR159</span>
       </p>
-      <WaitingList items={home.items} />
+      {notes.length > 0 && (
+        <section className="signal-notes" aria-label="Notes for this screen">
+          {notes.map((n) => (
+            <AssistantNote key={n.id} kind={n.kind} onUse={n.href} useLabel={n.linkLabel}>
+              <p style={{ margin: 0 }}>{n.text}</p>
+            </AssistantNote>
+          ))}
+        </section>
+      )}
+      <div id="waiting">
+        <WaitingList items={home.items} />
+      </div>
       <RoleOverview
         roles={home.roles.map((r) => ({ ...r, hue: ROLE_HUE[r.key] }))}
         style={{ marginTop: 'var(--space-6)' }}

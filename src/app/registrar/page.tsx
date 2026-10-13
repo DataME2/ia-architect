@@ -4,6 +4,8 @@ import { loadQueue, loadSeasons, loadTenantContext } from '../../data/queries.ts
 import { createRequestClient, currentUser } from '../../data/server.ts';
 import { totalOwed } from '../../domain/finance/eligibility.ts';
 import { formatMoney } from '../../domain/finance/money.ts';
+import { queueNotes } from '../../web/notes.ts';
+import { AssistantNote } from '../_components/AssistantNote.tsx';
 import {
   blockerSummary,
   eligibilityOf,
@@ -155,7 +157,17 @@ export default async function RegistrarPage({
   const summary = blockerSummary(entries);
   const unpaid = unpaidButRegistered(entries);
   const debtors = owing(entries);
-
+  // Scope 93: the Assistant restates what the queue already decided, in a
+  // sentence, and points at where a person acts. Amounts only when every
+  // amount is visible to this reader (BR78).
+  const notes = queueNotes({
+    total: entries.length,
+    readyToSubmit: grouped.readyToSubmit.length,
+    unpaidCount: unpaid.length,
+    unpaidCents: unpaid.every((e) => e.outstandingCents !== null) ? totalOwed(unpaid) : null,
+    topBlocker: summary[0] ? { ruleId: summary[0].ruleId, count: summary[0].count } : null,
+    seasonId: season.id,
+  });
   return (
     <>
       <h2>
@@ -209,8 +221,17 @@ export default async function RegistrarPage({
         </div>
       </div>
 
+      {notes.length > 0 && (
+        <section className="signal-notes" aria-label="Notes for this screen">
+          {notes.map((n) => (
+            <AssistantNote key={n.id} kind={n.kind} onUse={n.href} useLabel={n.linkLabel}>
+              <p style={{ margin: 0 }}>{n.text}</p>
+            </AssistantNote>
+          ))}
+        </section>
+      )}
       {unpaid.length > 0 && (
-        <section className="card">
+        <section className="card" id="cannot-play">
           <h3 style={{ marginTop: 0 }}>
             Registered, but cannot play &mdash; {formatMoney(totalOwed(unpaid))} owed (BR79)
           </h3>
@@ -247,7 +268,7 @@ export default async function RegistrarPage({
       )}
 
       {summary.length > 0 && (
-        <section className="card">
+        <section className="card" id="holding">
           <h3 style={{ marginTop: 0 }}>What is holding the season up</h3>
           <p className="hint" style={{ marginTop: 0, marginBottom: '0.75rem' }}>
             Counted per rule. This is the decomposition open question #32 asks for — the club

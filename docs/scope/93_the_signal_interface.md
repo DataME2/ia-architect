@@ -58,6 +58,7 @@ allow. The adaptation table below says what changes and why.
   - `public/fonts/instrument-sans-var-latin.woff2` and `instrument-serif-400*.woff2`.
   - `src/DESIGN.md`: Principle 2 names teal; the colour list and typography sections are updated.
 - **Outcome:** every page and every `src/components/ui` component takes Signal's look through the tokens they already read, with no component edits.
+- **Also delivered:** both brand marks (`src/app/_components/BrandMark.tsx`, `src/components/ui/BrandMark.tsx`) drop their volt ring, since teal may not appear outside the Assistant. The design-system and `PlayerCard` comments that named volt now name teal. The old acting-as banner's CSS, and `.club-chip` (its only user), are removed.
 
 ### WP2 — The top bar: command bar and acting-as chip
 
