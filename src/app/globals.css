@@ -6,18 +6,20 @@
    repaired. See scope 32.
 
    ---------------------------------------------------------------------
-   The palette: LTD - Football Academy (src/DESIGN.md)
+   The palette: Signal (scope 93, src/DESIGN.md)
    ---------------------------------------------------------------------
-   Pitch slate, stadium green, trophy gold, card red and electric volt.
-   The ramp names below (reef, euc, ochre, oxide, desert, sand) predate it
-   and are kept so no rule had to be rewritten; their values are the
-   academy palette's.
+   Porcelain surfaces, ink for everything a person does, stadium green,
+   trophy gold and card red for status, and teal for the Assistant. The
+   ramp names below (reef, euc, ochre, oxide, desert, sand) predate it and
+   are kept so no rule had to be rewritten; their values are Signal's.
+   Scope 93 replaced the academy palette's electric volt with teal when the
+   club chose the Signal concept (DESIGN.md Principle 2).
 
-   **ELECTRIC VOLT IS THE ASSISTANT AND NOTHING ELSE.** Never a status,
-   never a primary button, never an accent of convenience. Gold means
-   waiting, red means blocked, green means ready — and reserving the
-   fourth tone for a single actor is what keeps those three legible as
-   separate meanings.
+   **TEAL IS THE ASSISTANT AND NOTHING ELSE.** Never a status, never a
+   primary button, never a link or a focus ring, never an accent of
+   convenience. Gold means waiting, red means blocked, green means ready,
+   and reserving the fourth tone for a single actor is what keeps those
+   three legible as separate meanings.
 
    The second rule survives from scope 31 and is not negotiable: **no state
    is signalled by hue alone.** Every status pill carries a dot and a word.
@@ -28,9 +30,10 @@
    ---------------------------------------------------------------------
    The type
    ---------------------------------------------------------------------
-   Archivo, variable on both weight and width, is most of the character —
-   expanded and heavy for headlines and scorelines, regular for running
-   text. DM Mono carries rule identifiers and timestamps.
+   Instrument Sans carries the interface: headlines, labels and running
+   text. Instrument Serif is used in one place, a sentence the product
+   speaks (the home's lede), never for a label or a button. DM Mono carries
+   rule identifiers and timestamps. Archivo stays loaded as a fallback.
 
    **Self-hosted, not fetched.** Scope 31 refused `next/font` because a
    typeface is not worth a build that fails when a CDN is unreachable. That
@@ -45,6 +48,30 @@
   font-weight: 400 800;
   font-stretch: 75% 125%;
   font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Instrument Sans Variable';
+  src: url('/fonts/instrument-sans-var-latin.woff2') format('woff2-variations');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('/fonts/instrument-serif-400-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('/fonts/instrument-serif-400i-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
   font-display: swap;
 }
 
@@ -68,12 +95,12 @@
   color-scheme: light;
 
   /* Pitch slate — structure, the rail, every primary action; sky for info. */
-  --reef-50: #f1f5f9;
+  --reef-50: #e9edf2;
   --reef-100: #e0f2fe;
   --reef-500: #0284c7;
-  --reef-600: #0f172a;
-  --reef-700: #1e293b;
-  --reef-800: #090d16;
+  --reef-600: #121821;
+  --reef-700: #2c3440;
+  --reef-800: #0b0f14;
   --reef-900: #02040a;
 
   /* Stadium green — ready, cleared, available. */
@@ -92,39 +119,41 @@
   --oxide-500: #dc2626;
   --oxide-700: #7f1d1d;
 
-  /* Electric volt — the Assistant, exclusively. See the header. */
-  --desert-100: #f7fee7;
-  --desert-500: #84cc16;
-  --desert-700: #3f6212;
+  /* Teal — the Assistant, exclusively. See the header. 700 is the
+     Assistant's fill: white on it is 5.5:1, where 500 managed 3.7:1. */
+  --desert-100: #e6f6f4;
+  --desert-500: #0d9488;
+  --desert-700: #0f766e;
 
-  /* Slate — cool neutrals. */
-  --sand-50: #f8fafc;
-  --sand-100: #f1f5f9;
-  --sand-200: #e2e8f0;
-  --sand-300: #cbd5e1;
-  --stone: #64748b;
-  --ink: #0f172a;
+  /* Porcelain — cool neutrals, and the ink. */
+  --sand-50: #f5f7f9;
+  --sand-100: #eef1f4;
+  --sand-200: #dde2e8;
+  --sand-300: #c3cbd5;
+  --stone: #505a68;
+  --ink: #121821;
 
   /* Semantic aliases. Screens use these; the ramps above are the source. */
-  --bg: var(--sand-50);
-  --bg-sunk: var(--sand-100);
+  --bg: var(--sand-100);
+  --bg-sunk: #e5e9ee;
   --surface: #ffffff;
   --surface-2: var(--sand-50);
   --border: var(--sand-200);
   --border-strong: var(--sand-300);
   --text: var(--ink);
   --muted: var(--stone);
-  --subtle: #475569;
+  --subtle: #2c3440;
 
   --accent: var(--reef-600);
   --accent-hover: var(--reef-700);
   --accent-soft: var(--reef-50);
   --accent-text: #ffffff;
-  --link: var(--reef-600);
-  --highlight: var(--desert-500);
-  --highlight-hover: #65a30d;
-  --focus: var(--reef-600);
-  --focus-halo: rgb(132 204 22 / 45%);
+  /* Links and focus are ink blue: teal is the Assistant's alone. */
+  --link: #1f4f8f;
+  --highlight: var(--desert-700);
+  --highlight-hover: #115e59;
+  --focus: #1f4f8f;
+  --focus-halo: rgb(31 79 143 / 30%);
 
   --ok-bg: var(--euc-100);
   --ok-text: var(--euc-900);
@@ -172,7 +201,8 @@
   --shadow-md: 0 4px 12px rgb(15 23 42 / 8%), 0 2px 4px rgb(15 23 42 / 4%);
   --shadow-lg: 0 12px 32px rgb(15 23 42 / 12%), 0 4px 8px rgb(15 23 42 / 6%);
 
-  --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, -apple-system,
+  --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Instrument Sans Variable', 'Archivo Variable', ui-sans-serif, system-ui, -apple-system,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo,
     Consolas, 'Liberation Mono', monospace;
@@ -210,10 +240,10 @@
     --accent-soft: #0c4a6e;
     --accent-text: #070b14;
     --link: #38bdf8;
-    --highlight: #a3e635;
-    --highlight-hover: #bef264;
+    --highlight: #2dd4bf;
+    --highlight-hover: #5eead4;
     --focus: #38bdf8;
-    --focus-halo: rgb(163 230 53 / 30%);
+    --focus-halo: rgb(96 165 250 / 30%);
 
     --ok-bg: #064e3b;
     --ok-text: #86efac;
@@ -238,8 +268,8 @@
        WCAG AA for the rail's small labels. */
     --rail-text-2: #94a3b8;
 
-    --desert-100: #1a2e05;
-    --desert-700: #bef264;
+    --desert-100: #062a26;
+    --desert-700: #5eead4;
 
     --shadow-xs: 0 1px 2px rgb(0 0 0 / 45%);
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 45%), 0 2px 8px rgb(0 0 0 / 32%);
@@ -264,14 +294,7 @@ body {
   margin: 0;
   min-height: 100dvh;
   background-color: var(--bg);
-  /* Two very faint washes — gold at the top right, green at the top left —
-     so the page has a horizon instead of a flat grey field. Fixed, because
-     a gradient that scrolls away is a gradient nobody sees twice. */
-  background-image:
-    radial-gradient(62rem 30rem at 88% -12%, rgb(132 204 22 / 8%), transparent 66%),
-    radial-gradient(54rem 28rem at -8% -14%, rgb(56 189 248 / 8%), transparent 62%);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+  /* Signal's ground is flat porcelain; the washes went with volt. */
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 16px;
@@ -362,6 +385,21 @@ a:hover {
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg) 82%, transparent);
   backdrop-filter: saturate(150%) blur(10px);
+}
+
+/* Scope 93: the command bar takes the middle of the masthead and, on a
+   phone, wraps to its own full-width row under the brand and links. */
+.masthead > div:has(> input[role='combobox']) {
+  flex: 1 1 320px;
+  max-width: 560px;
+}
+
+@media (max-width: 640px) {
+  .masthead > div:has(> input[role='combobox']) {
+    order: 3;
+    flex-basis: 100%;
+    max-width: none;
+  }
 }
 
 .masthead h1 {
@@ -508,16 +546,14 @@ h3 {
   border-radius: var(--radius-lg);
   padding: clamp(var(--space-5), 4vw, var(--space-7));
   margin-bottom: var(--space-6);
-  background:
-    radial-gradient(40rem 24rem at 100% 0%, rgb(132 204 22 / 20%), transparent 70%),
-    linear-gradient(135deg, var(--reef-700), var(--reef-800) 58%, var(--reef-900));
-  color: #eaf3f6;
-  box-shadow: var(--shadow-lg);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgb(18 24 33 / 5%), 0 8px 24px rgb(18 24 33 / 6%);
 }
 
-/* The pitch markings: a centre circle and halfway line, drawn in gold at
-   the opacity of a memory. Aria-hidden decoration in CSS only, so it costs
-   no markup and disappears in print. */
+/* The pitch markings: a centre circle at the opacity of a memory, in ink.
+   Aria-hidden decoration in CSS only, so it costs no markup and
+   disappears in print. */
 .hero::after {
   content: '';
   position: absolute;
@@ -525,8 +561,7 @@ h3 {
   width: 26rem;
   height: 26rem;
   border-radius: 50%;
-  border: 1.5px solid rgb(132 204 22 / 24%);
-  box-shadow: 0 0 0 6rem rgb(132 204 22 / 4%);
+  border: 1.5px solid rgb(18 24 33 / 8%);
   pointer-events: none;
 }
 
@@ -536,7 +571,7 @@ h3 {
 }
 
 .hero .eyebrow {
-  color: #bef264;
+  color: var(--muted);
 }
 
 .hero h2 {
@@ -544,12 +579,16 @@ h3 {
   font-size: clamp(1.7rem, 1.1rem + 2.4vw, 2.6rem);
   line-height: 1.12;
   letter-spacing: -0.03em;
-  color: #ffffff;
+  color: var(--text);
   max-width: 22ch;
 }
 
+/* The one sentence the product speaks: Signal's serif. */
 .hero .lede {
-  color: rgb(234 243 246 / 84%);
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 1rem + 0.6vw, 1.4rem);
+  line-height: 1.35;
+  color: var(--subtle);
   margin-bottom: var(--space-5);
   max-width: 52ch;
 }
@@ -560,41 +599,18 @@ h3 {
   gap: var(--space-3);
 }
 
-/* On the hero's dark ground the primary button inverts: gold is finally
-   legible here, and it is the one place the brand's second colour gets to
-   be the loudest thing on the screen. */
-/* The hero does not get to borrow the Assistant's orange for a call to
-   action, however well it would look. Sand on reef instead. */
-.hero .button {
-  background: var(--sand-50);
-  color: var(--reef-800);
-  border-color: transparent;
-}
+/* The hero's actions are ordinary ink buttons: an action a person takes
+   never borrows the Assistant's teal, however well it would look. */
 
-.hero .button:hover {
-  background: #ffffff;
-  color: var(--reef-800);
-}
-
-.hero .button.secondary {
-  background: rgb(255 255 255 / 8%);
-  color: #ffffff;
-  border-color: rgb(255 255 255 / 30%);
-}
-
-.hero .button.secondary:hover {
-  background: rgb(255 255 255 / 16%);
-}
-
-/* In the dark theme the page ground is already nearly the hero's green, so
-   the panel would dissolve into it. Lifted a step and given a hairline, it
-   stays a panel rather than becoming the background. */
+/* In the dark theme the card lifts a step with a hairline, so it stays a
+   panel rather than dissolving into the ground. */
 @media (prefers-color-scheme: dark) {
   .hero {
-    background:
-      radial-gradient(40rem 24rem at 100% 0%, rgb(132 204 22 / 15%), transparent 70%),
-      linear-gradient(135deg, #1e293b, #0f172a 58%, #02040a);
-    border: 1px solid rgb(132 204 22 / 14%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .hero::after {
+    border-color: rgb(255 255 255 / 8%);
   }
 }
 
@@ -1893,35 +1909,11 @@ td {
   margin-bottom: var(--space-2);
 }
 
-/* ─────────────────────────────────────────────── acting-as banner */
-.acting-as {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-3);
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-2) var(--space-4);
+/* ─────────────────────────────────────────────── acting-as chip */
+/* Scope 93: Signal's chip (src/components/ui/ActingAs.tsx) replaced the
+   banner. It sits above the workspace on /me and above the club screens. */
+.acting-as-chip {
   margin-bottom: var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow-xs);
-  font-size: 0.87rem;
-  color: var(--muted);
-}
-
-.acting-as b {
-  color: var(--text);
-  font-weight: 700;
-}
-
-.acting-as .swatch {
-  display: inline-block;
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 50%;
-  background: var(--role-hue, var(--accent));
-  margin-right: 0.45rem;
 }
 
 /* The prompt shown when several roles are held and none has been chosen.
@@ -1949,7 +1941,7 @@ td {
 
 @media print {
   .identity-rail,
-  .acting-as {
+  .acting-as-chip {
     display: none !important;
   }
 }
@@ -1996,18 +1988,6 @@ td {
   display: grid;
   gap: var(--space-3);
   align-content: start;
-}
-
-.club-chip {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.05em;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-full);
-  padding: 0.15rem 0.65rem;
-  color: var(--muted);
-  background: var(--surface-2);
-  white-space: nowrap;
 }
 
 /* panels */
@@ -2468,10 +2448,8 @@ td {
 
 .auth-aside {
   position: relative;
-  background:
-    radial-gradient(40rem 24rem at 100% 0%, rgb(132 204 22 / 16%), transparent 70%),
-    linear-gradient(160deg, var(--reef-700), var(--reef-800) 55%, var(--reef-900));
-  color: #eaf3f6;
+  background: var(--reef-600);
+  color: #eef1f4;
   padding: clamp(var(--space-5), 4vw, var(--space-7));
   display: grid;
   gap: var(--space-4);
@@ -2484,7 +2462,7 @@ td {
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #bef264;
+  color: #a9b3c0;
 }
 
 .auth-aside h2 {

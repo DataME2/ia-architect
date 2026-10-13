@@ -49,7 +49,7 @@
   --color-secondary: var(--surface-2);
   --color-secondary-foreground: var(--text);
 
-  /* Electric volt — the Assistant's only (DESIGN.md Principle 2) */
+  /* Teal — the Assistant's only (DESIGN.md Principle 2, scope 93) */
   --color-accent: var(--highlight);
   --color-accent-hover: var(--highlight-hover);
   --color-accent-foreground: var(--accent-text);

@@ -1,27 +1,27 @@
 ---
 colors:
-  background: "#f8fafc"
-  backgroundSunk: "#f1f5f9"
+  background: "#eef1f4"
+  backgroundSunk: "#e5e9ee"
   surface: "#ffffff"
-  surfaceSubtle: "#f8fafc"
-  foreground: "#0f172a"
+  surfaceSubtle: "#f5f7f9"
+  foreground: "#121821"
   muted:
-    DEFAULT: "#64748b"
-    foreground: "#475569"
+    DEFAULT: "#505a68"
+    foreground: "#2c3440"
   border:
-    DEFAULT: "#e2e8f0"
-    strong: "#cbd5e1"
+    DEFAULT: "#dde2e8"
+    strong: "#c3cbd5"
   primary:
-    DEFAULT: "#0f172a"
-    hover: "#1e293b"
-    soft: "#f1f5f9"
+    DEFAULT: "#121821"
+    hover: "#2c3440"
+    soft: "#e9edf2"
     foreground: "#ffffff"
   secondary:
     DEFAULT: "#f1f5f9"
     foreground: "#0f172a"
   accent:
-    DEFAULT: "#84cc16"
-    hover: "#65a30d"
+    DEFAULT: "#0f766e"
+    hover: "#115e59"
     foreground: "#0f172a"
   success:
     DEFAULT: "#dcfce7"
@@ -65,7 +65,7 @@ colorsDark:
     DEFAULT: "#1e293b"
     foreground: "#f8fafc"
   accent:
-    DEFAULT: "#a3e635"
+    DEFAULT: "#2dd4bf"
     foreground: "#070b14"
   success:
     DEFAULT: "#064e3b"
@@ -90,7 +90,7 @@ colorsDark:
     muted: "#94a3b8"
 typography:
   fontFamily:
-    sans: "'Archivo Variable', ui-sans-serif, system-ui, -apple-system, sans-serif"
+    sans: "'Instrument Sans Variable', 'Archivo Variable', ui-sans-serif, system-ui, -apple-system, sans-serif"
     mono: "'DM Mono', ui-monospace, SFMono-Regular, monospace"
   fontSize:
     xs: "0.72rem"
@@ -131,13 +131,13 @@ borderWidth:
 
 # LTD - Football
 
-LTD - Football is a high-density, mission-critical administration design system built for Australian grassroots football. Its academy palette—Pitch Slate, Stadium Green, Trophy Gold, Card Red, and Electric Volt—gives a modern, athletic look while the visual language still prioritizes instant scanning, multi-role identity clarity, high operational speed under matchday pressure, and unequivocal accessibility.
+LTD - Football is a high-density, mission-critical administration design system built for Australian grassroots football. Its Signal palette—porcelain surfaces, ink for every human action, Stadium Green, Trophy Gold and Card Red for status, and teal for the Assistant alone—gives a calm, layered look while the visual language still prioritizes instant scanning, multi-role identity clarity, high operational speed under matchday pressure, and unequivocal accessibility.
 
 ## Principles
 
 1. **No State by Hue Alone:** Every status indicator pairs a visual dot with an explicit textual state label. Never rely solely on color to communicate eligibility, approval, or arrears.
-2. **Electric Volt Belongs to the Assistant:** The high-visibility electric volt palette is reserved strictly for AI assistant suggestions, drafts, and guidance. It is never used for primary actions, warnings, or statuses.
-3. **Identity Rail is Immutable Across Lenses:** A user's core identity remain anchored in the persistent rail while switching operational context lenses across player, guardian, referee, coach, and administrator roles.
+2. **Teal Belongs to the Assistant:** Teal is reserved strictly for the Assistant's suggestions, drafts and guidance, rendered only through `AssistantNote`. It is never used for primary actions, links, focus rings, warnings or statuses. Every action a person takes is ink. (Scope 93 moved this reservation from electric volt to teal.)
+3. **Identity Rail is Immutable Across Lenses:** A user's core identity remains anchored in the persistent rail while switching operational context lenses across player, guardian, referee, coach, and administrator roles. The top bar's acting-as chip mirrors the rail (it names the active lens and offers the rail's own links); it never replaces it.
 4. **Speed Over Decor:** Controls are tuned for touch targets at the ground (minimum 44px) and high-contrast focus rings for fast keyboard traversal on club laptops.
 
 ## Color & Theming
@@ -148,16 +148,18 @@ The system employs a dual-theme architecture (Light Slate & Pitch Night). Surfac
 - **Stadium Green (`success`):** Cleared, ready, available, and verified statuses.
 - **Trophy Gold (`warning`):** Pending approvals, outstanding tasks, and demo tenant markers.
 - **Card Red (`destructive`):** Blocked clearances, expired compliance (WWCC), lapsed clearances, or irreversible actions.
-- **Electric Volt (`accent`):** Assistant notes, draft suggestions, and advisory guidance only.
+- **Ink (`primary`):** Every action a person takes: buttons, active navigation, the command bar's selection.
+- **Teal (`accent`):** Assistant notes, draft suggestions, and advisory guidance only.
 - **Identity Rail (`rail`):** Persistent pitch-black ground anchored across both light and dark operational modes.
 
 ## Typography
 
 Type roles are strictly assigned across two self-hosted font families:
 
-- **Page Titles & Headlines (`typography.fontSize.2xl` / `xl`):** Archivo Variable bold/expanded weights (`typography.fontWeight.bold`).
-- **Section Headers & Card Titles (`typography.fontSize.lg` / `base`):** Archivo Variable semibold (`typography.fontWeight.semibold`).
-- **Body & Running Text (`typography.fontSize.base` / `sm`):** Archivo Variable regular/medium (`typography.fontWeight.normal` / `medium`).
+- **Page Titles & Headlines (`typography.fontSize.2xl` / `xl`):** Instrument Sans bold (`typography.fontWeight.bold`).
+- **Section Headers & Card Titles (`typography.fontSize.lg` / `base`):** Instrument Sans semibold (`typography.fontWeight.semibold`).
+- **Body & Running Text (`typography.fontSize.base` / `sm`):** Instrument Sans regular/medium (`typography.fontWeight.normal` / `medium`).
+- **The product's one spoken sentence (the home's lede):** Instrument Serif regular. Never a label, button or heading.
 - **Data, Rules & Identifiers (`typography.fontFamily.mono`):** DM Mono for business rule tags (e.g. BR1, BR61), timestamps, squad numbers, and financial figures.
 
 ## Spacing, Sizing & Density
@@ -212,11 +214,11 @@ All transitions use standard duration `180ms` (fast `120ms`) with cubic-bezier `
 ## Do's and Don'ts
 
 - **Do** always pair status color pills with an explicit status label and dot indicator.
-- **Do** reserve `accent` (Electric Volt) exclusively for Assistant advice and draft notes.
+- **Do** reserve `accent` (teal) exclusively for Assistant advice and draft notes.
 - **Do** use `font-mono` for all business rule citations (`BR1`, `BR2`) and financial quantities.
 - **Do** ensure interactive controls have minimum 44px touch target height.
 - **Don't** use hue alone to convey status or eligibility.
-- **Don't** use Electric Volt for primary buttons or warning alerts.
+- **Don't** use teal for primary buttons, links, focus rings or warning alerts.
 - **Don't** omit ARIA roles and keyboard event handlers on custom interactive components.
 - **Don't** use raw hex colors or hardcoded pixel spacing when token classes exist.
 
@@ -230,5 +232,6 @@ Operational views prioritize key status chips at the top right of cards, clear s
 
 - **Academy palette (October 2026):** Replaced the Australian landscape palette (sand, reef, eucalyptus, ochre, oxide, desert orange) with Pitch Slate & Electric Volt. `globals.css` carries the same values, so every screen changes with it.
 - **Volt stays the Assistant's only.** The academy brief also proposed volt for calls to action, KPIs and active navigation; that would make the Assistant's colour an ordinary highlight, so Principle 2 is kept until the club decides otherwise.
+- **Signal (October 2026, scope 93):** The club chose the Signal concept from four compared on one prototype. Teal replaces volt as the Assistant's reserved colour (light `#0f766e`, white on it 5.5:1; dark `#2dd4bf` with dark text). Links and focus rings move to ink blue `#1f4f8f` so teal stays the Assistant's alone. Instrument Sans becomes the interface face; Instrument Serif is used for one sentence the product speaks, never a label. The brand mark drops its volt ring.
 - **Dark rail muted text is `#94a3b8`, not the brief's `#64748b`:** that one is 4.3:1 on the dark rail, under WCAG AA for its small labels.
-- **Font Fallbacks:** System UI fallbacks are configured alongside Archivo Variable and DM Mono for self-hosted font safety.
+- **Font Fallbacks:** System UI fallbacks are configured alongside Instrument Sans, Instrument Serif and DM Mono (Archivo remains as a fallback) for self-hosted font safety.

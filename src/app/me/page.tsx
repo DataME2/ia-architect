@@ -5,6 +5,8 @@ import { loadMe, type ClubLink } from '../../data/me.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
 import { syncEverythingWaiting } from '../../data/waiting.ts';
 import type { InboxNotification } from '../../web/inbox-view.ts';
+import { ActingAs } from '../../components/ui/ActingAs.tsx';
+import { roleHref } from '../../web/home-view.ts';
 import { ROLE_HUE } from '../../web/me-view.ts';
 import { ROLE_LABEL, resolveActive, type RoleHolding } from '../../web/role-context.ts';
 import { todayIn } from '../../web/today.ts';
@@ -76,22 +78,25 @@ export default async function MePage({
         </div>
         {active !== null && link !== null ? (
           <>
-            <p className="acting-as" style={{ ['--role-hue' as string]: ROLE_HUE[active.holding.key] }}>
-              <span>
-                <span className="swatch" aria-hidden="true" />
-                You are acting as <b>{ROLE_LABEL[active.holding.key]}</b>
-                {active.holding.scope !== null && ` · ${active.holding.scope}`}
-                {active.how === 'sole' && (
-                  <span className="hint" style={{ display: 'inline', marginLeft: '0.5rem' }}>
-                    — your only role, so nothing was switched
-                  </span>
-                )}
-              </span>
-              <span className="club-chip">
-                {link.clubName.toUpperCase()}
-                {link.season !== null && ` · ${link.season.name.toUpperCase()}`}
-              </span>
-            </p>
+            {/* Scope 93: Signal's acting-as chip. It mirrors the rail beside
+                it (DESIGN.md Principle 3); its links are the rail's own role
+                URLs, so switching stays explicit and a URL (BR61). */}
+            <ActingAs
+              className="acting-as-chip"
+              lens={`${ROLE_LABEL[active.holding.key]}${active.holding.scope !== null ? ` · ${active.holding.scope}` : ''}`}
+              place={`${link.clubName}${link.season !== null ? ` · ${link.season.name}` : ''}`}
+              hue={ROLE_HUE[active.holding.key]}
+              note={active.how === 'sole' ? 'your only role, so nothing was switched' : null}
+              links={me.holdings.length > 1 ? [
+                ...me.holdings.map((h) => ({
+                  href: roleHref(h.key, h.clubId),
+                  label: ROLE_LABEL[h.key],
+                  hint: `${h.clubName}${h.scope !== null ? ` · ${h.scope}` : ''}`,
+                  current: h.key === active.holding.key && h.clubId === active.holding.clubId,
+                })),
+                { href: '/me', label: 'Home', hint: 'Everything waiting, across your roles' },
+              ] : []}
+            />
             <Workspace active={active.holding} link={link} client={client} today={today} childId={params.child ?? null} />
             {/* BR169: sponsors only for an adult; never in a 13-17 person's own workspace. */}
             {showsSponsors({ age: ageAt(link.person.dateOfBirth, today), holdsClubRole: link.membershipRoles.length > 0 }) && (

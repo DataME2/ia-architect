@@ -1,11 +1,13 @@
 import { redirect } from 'next/navigation';
 import { Suspense, type ReactNode } from 'react';
 
+import { ActingAs } from '../../components/ui/ActingAs.tsx';
 import { RegistrarShell } from '../../components/ui/RegistrarShell.tsx';
 import { loadNotifications } from '../../data/inbox.ts';
 import { loadTenantContext } from '../../data/queries.ts';
 import { syncStaffWaiting } from '../../data/waiting.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
+import { clubLens } from '../../web/command.ts';
 import { isDemoClub } from '../../web/nav.ts';
 import { NotificationBell } from './_components/NotificationBell.tsx';
 import { RegistrarNav } from './_components/RegistrarNav.tsx';
@@ -76,6 +78,19 @@ export default async function RegistrarLayout({
         </div>
         {user !== null && tenant !== null && <NotificationBell notifications={notifications} />}
       </div>
+      {/* Scope 93: the acting-as chip. On club screens every club role
+          applies at once, so it names them all and switches nothing; a
+          person's own roles are a link away, on /me (BR61). */}
+      {user !== null && tenant !== null && (
+        <ActingAs
+          className="acting-as-chip"
+          lens={clubLens(tenant.roles)}
+          place={tenant.clubName}
+          note="all of these apply together on club screens"
+          menuLabel="Your other roles"
+          links={[{ href: '/me', label: 'Your roles', hint: 'Player, coach, referee, guardian, committee: one at a time' }]}
+        />
+      )}
       {user !== null && tenant !== null ? (
         <RegistrarShell
           nav={

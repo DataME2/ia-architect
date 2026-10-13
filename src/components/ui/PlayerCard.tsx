@@ -56,7 +56,7 @@ export const PlayerCard = React.forwardRef<HTMLDivElement, PlayerCardProps>(
     return (
       <div
         ref={ref}
-        // Primary, not volt: volt (accent) is the Assistant's only colour
+        // Primary, not teal: teal (accent) is the Assistant's only colour
         // (DESIGN.md Principle 2), so a player card never borrows it.
         className={cn(
           'relative rounded-DEFAULT bg-surface border border-border p-ds-4 shadow-xs hover:border-primary/60 hover:shadow-md transition-all duration-180 group',

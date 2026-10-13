@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 
 import { BrandMark } from './_components/BrandMark.tsx';
+import { MastheadCommand } from './_components/MastheadCommand.tsx';
 import './globals.css';
 // After globals.css: the design system's utilities (src/components/ui) must
 // win over its element rules. See the header of design-system.css.
@@ -51,6 +52,9 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
                 </span>
               </a>
             </h1>
+            {/* Scope 93: find a screen or a person from anywhere. A client
+                island that fetches nothing, so this layout stays static. */}
+            <MastheadCommand />
             {/*
               Two links, and deliberately not a third for signing in. This
               layout is prerendered — it makes no auth call, by design — so a
