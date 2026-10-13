@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import {
+  NAV_GROUPS,
   REGISTRAR_NAV,
   isActive,
   isDemoClub,
@@ -59,4 +60,10 @@ test('a club with no demo marker is never reported as the demo', () => {
   for (const name of ['North Star FC', 'Demolition FC', 'DEMO United']) {
     assert.equal(whereAmI(true, name).kind, 'real', name);
   }
+});
+
+test('the menu groups are contiguous, in heading order, and every one is used', () => {
+  // A group split in two would draw its heading twice.
+  const runs = REGISTRAR_NAV.map((i) => i.group).filter((g, i, all) => g !== all[i - 1]);
+  assert.deepEqual(runs, [...NAV_GROUPS]);
 });
