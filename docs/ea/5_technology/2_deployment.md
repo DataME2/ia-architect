@@ -213,6 +213,16 @@ authenticated by `CRON_SECRET`, using `createAdminClient('scheduled-job')`
 this job used it for the first time, naming BR50, BR51 and BR67 as the
 cases it was reserved for.
 
+**`/api/cron/migration-drift` runs hourly** (scope 94), the same pattern
+and the same `CRON_SECRET`/`createAdminClient('scheduled-job')` pair.
+Twice a migration merged to `main` never reached this project's schema
+cache before anyone noticed — `committee_resolution` (scope 57, found in
+scope 61) and `person_role_select_family` (scope 93) — so this compares
+`schema_migration_log`'s newest row (migration 0090) against the version
+the deployed build expects, and alerts `PLATFORM_ALERT_TO` (BR146's
+address) the moment they disagree, rather than waiting for a registrar or
+a QA pass to hit the gap directly.
+
 ## CI/CD
 
 GitHub Actions runs typecheck, tests, the link check and RLS coverage on

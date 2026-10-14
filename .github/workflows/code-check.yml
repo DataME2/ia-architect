@@ -40,6 +40,12 @@ jobs:
       # cross-tenant leak, so coverage is a build gate rather than a review item.
       - name: RLS policy coverage
         run: python3 scripts/check_rls.py
+      # Scope 94. A migration merged to main is not a migration applied —
+      # that gap has already reached a registrar and a QA pass undetected.
+      # The newest migration must register itself, and the drift detector
+      # must expect exactly it.
+      - name: Migration receipt
+        run: python3 scripts/check_migration_receipt.py
       # Next throws on a bad 'use server' export at request time, not always
       # at build time — a green build is not evidence the page loads.
       - name: Server action exports
