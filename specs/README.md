@@ -2,7 +2,7 @@
 
 _[← Repository README](../README.md) · [Enterprise architecture](../docs/ea/README.md)_
 
-The spec-driven set for Let'sDataTalk, written as **user stories with
+The spec-driven set for PitchPeople, written as **user stories with
 acceptance criteria** and a build queue derived from them.
 
 | File | Answers |

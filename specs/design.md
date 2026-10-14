@@ -1,8 +1,8 @@
-# Let'sDataTalk — Technical Design
+# PitchPeople — Technical Design
 
 _[← specs](./README.md) · [Requirements](./requirements.md) · [Tasks](./tasks.md) · [Technology layer](../docs/ea/5_technology/README.md)_
 
-How Let'sDataTalk is built: the decisions everything else follows from, the
+How PitchPeople is built: the decisions everything else follows from, the
 patterns that implement them, and enough code and schema to build against.
 
 Examples are taken from the working system, not invented for the document.
@@ -22,7 +22,7 @@ flowchart LR
     pub["Public<br>(carnivals)"]
   end
 
-  subgraph LDT["Let'sDataTalk"]
+  subgraph LDT["PitchPeople"]
     web["Next.js App Router<br>server-rendered screens"]
     rules["Rules engine<br>pure, I/O-free"]
     db[("Supabase Postgres<br>RLS on every table")]

@@ -25,6 +25,7 @@ import {
   TERM_STATUS_TONE,
   confirmationStatus,
   enabledProgramNames,
+  governanceAbilities,
   termNote,
 } from '../../../web/governance-view.ts';
 import {
@@ -69,6 +70,7 @@ export default async function GovernancePage() {
     tenant.clubId,
   );
   const governing = governingTerm(terms, today);
+  const can = governanceAbilities(tenant.roles);
   const enabledPrograms = enabledProgramNames(voucherPrograms);
   const voucherResolutions = resolutions
     .filter((r) => r.category === 'voucher_program')
@@ -201,6 +203,7 @@ export default async function GovernancePage() {
                       return (
                         <MemberRow
                           key={member.id}
+                          editable={can.manageCommittee}
                           positionId={member.id}
                           position={member.position}
                           electedOn={member.electedOn}
@@ -257,12 +260,16 @@ export default async function GovernancePage() {
               );
             })()}
 
-            <h4>Add a committee member</h4>
-            <p className="hint" style={{ marginTop: 0 }}>
-              Adults only (BR87). A parent can serve, and so can a life member; a MiniRoos
-              player cannot.
-            </p>
-            <AppointForm termId={term.id} people={assignable} />
+            {can.manageCommittee && (
+              <>
+                <h4>Add a committee member</h4>
+                <p className="hint" style={{ marginTop: 0 }}>
+                  Adults only (BR87). A parent can serve, and so can a life member; a MiniRoos
+                  player cannot.
+                </p>
+                <AppointForm termId={term.id} people={assignable} />
+              </>
+            )}
 
             <h4>Committee resolutions (BR123)</h4>
             {(() => {
@@ -304,7 +311,11 @@ export default async function GovernancePage() {
               Append-only &mdash; a corrected decision is recorded as a new resolution, the same
               way a corrected payment is a new receipt rather than an edited one.
             </p>
-            <RecordResolutionForm termId={term.id} people={assignable} />
+            {can.recordResolution ? (
+              <RecordResolutionForm termId={term.id} people={assignable} />
+            ) : (
+              <p className="hint">An administrator, a committee member, the Secretary or the Treasurer records a resolution.</p>
+            )}
           </section>
         );
       })}
@@ -368,10 +379,12 @@ export default async function GovernancePage() {
         </p>
       </section>
 
-      <section className="card">
-        <h3 style={{ marginTop: 0 }}>Open a governance year</h3>
-        <NewTermForm />
-      </section>
+      {can.manageCommittee && (
+        <section className="card">
+          <h3 style={{ marginTop: 0 }}>Open a governance year</h3>
+          <NewTermForm />
+        </section>
+      )}
 
       <section className="card">
         <h3 style={{ marginTop: 0 }}>Voucher Programs (BR21)</h3>
@@ -397,8 +410,12 @@ export default async function GovernancePage() {
             ? 'A registrar cannot attach a voucher for any program until one is enabled here.'
             : 'Attaching a voucher for any other program is refused (BR21).'}
         </p>
-        <h4>Enable a Voucher Program</h4>
-        <EnableVoucherProgramForm voucherResolutions={voucherResolutions} />
+        {can.enableVoucherProgram && (
+          <>
+            <h4>Enable a Voucher Program</h4>
+            <EnableVoucherProgramForm voucherResolutions={voucherResolutions} />
+          </>
+        )}
       </section>
 
       <p className="hint">

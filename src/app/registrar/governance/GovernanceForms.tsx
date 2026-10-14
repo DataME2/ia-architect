@@ -315,7 +315,10 @@ export function MemberRow({
   person,
   access,
   confirmation,
+  editable,
 }: {
+  /** Admin only (0011): anyone else sees the row without Edit or Resigned. */
+  readonly editable: boolean;
   readonly positionId: string;
   readonly position: CommitteePosition;
   readonly electedOn: string | null;
@@ -362,6 +365,7 @@ export function MemberRow({
       <td>{confirmation}</td>
       <td>{access}</td>
       <td style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+        {editable && (<>
         <button
           type="button"
           className="secondary"
@@ -380,6 +384,7 @@ export function MemberRow({
             Resigned
           </button>
         </form>
+        </>)}
       </td>
     </tr>
   );

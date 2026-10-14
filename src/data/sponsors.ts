@@ -191,7 +191,7 @@ export async function setCampaignStatus(
     .eq('id', id)
     .select('id');
   if (error !== null) return error.message;
-  return (data ?? []).length === 0 ? 'A platform campaign is changed by Let’sDataTalk, not the club.' : null;
+  return (data ?? []).length === 0 ? 'A platform campaign is changed by PitchPeople, not the club.' : null;
 }
 
 /** BR173: how often a club campaign appears. The database refuses a platform campaign (0081's policy). */

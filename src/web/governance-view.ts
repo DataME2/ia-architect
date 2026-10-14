@@ -167,3 +167,27 @@ export function enabledProgramNames(
 ): ReadonlySet<string> {
   return new Set(enablements.map((e) => e.program.trim().toLowerCase()));
 }
+
+/**
+ * What the governance screen offers this viewer — the database's own
+ * policies, restated so the screen never offers a form the database will
+ * refuse (scope 96: a committee member was shown "Add a committee member",
+ * and the insert failed on `committee_position`'s admin-only policy).
+ * Admin only: terms and positions (0011). Admin, committee, secretary or
+ * treasurer: resolutions (0084). Admin or committee: a Voucher Program (BR21).
+ * The database still decides; this only stops the screen promising more.
+ */
+export interface GovernanceAbilities {
+  readonly manageCommittee: boolean;
+  readonly recordResolution: boolean;
+  readonly enableVoucherProgram: boolean;
+}
+
+export function governanceAbilities(roles: readonly string[]): GovernanceAbilities {
+  const holds = (...wanted: string[]) => wanted.some((r) => roles.includes(r));
+  return {
+    manageCommittee: holds('admin'),
+    recordResolution: holds('admin', 'committee', 'secretary', 'treasurer'),
+    enableVoucherProgram: holds('admin', 'committee'),
+  };
+}

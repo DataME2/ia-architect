@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   // Decision 17 extended: the sponsor learns the visit came from this club's
   // campaign (so it can measure CPA in its own analytics), never who made it.
   const response = NextResponse.redirect(
-    withUtm(link, { source: 'letsdatatalk', medium: 'sponsor', campaign: `sponsor-${campaignId.slice(0, 8)}` }),
+    withUtm(link, { source: 'pitchpeople', medium: 'sponsor', campaign: `sponsor-${campaignId.slice(0, 8)}` }),
     302,
   );
   response.headers.set('Referrer-Policy', 'no-referrer');

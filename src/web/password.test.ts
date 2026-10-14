@@ -41,7 +41,7 @@ test('a short local part does not poison every password', () => {
 });
 
 test('the obvious guesses are refused however they are dressed up', () => {
-  for (const bad of ['MyPassword12345', 'letsdatatalk2027', 'football-club-1', 'ChangeMe please']) {
+  for (const bad of ['MyPassword12345', 'letsdatatalk2027', 'PitchPeople2027', 'football-club-1', 'ChangeMe please']) {
     assert.notEqual(passwordProblem(bad, bad, EMAIL), null, bad);
   }
 });

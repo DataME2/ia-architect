@@ -1,3 +1,4 @@
+import { MAKER, PRODUCT_NAME } from '../../web/brand.ts';
 import { safeDestination } from '../../web/safe-destination.ts';
 import { BrandMark } from '../_components/BrandMark.tsx';
 import { ResetForm } from './ResetForm.tsx';
@@ -27,8 +28,8 @@ export default async function SignInPage({
         <div className="auth-brand">
           <BrandMark />
           <span>
-            <span className="brand-name">Let&rsquo;sDataTalk</span>
-            <span className="brand-region">Football &middot; AU &amp; NZ</span>
+            <span className="brand-name">{PRODUCT_NAME}</span>
+            <span className="brand-region">{MAKER}</span>
           </span>
         </div>
         <p className="eyebrow">One sign-in</p>
@@ -59,7 +60,7 @@ export default async function SignInPage({
           Your session decides which club&rsquo;s data you can see &mdash; the database enforces it, not the
           screen.
         </p>
-        <SignInForm next={safeDestination(next)} />
+        <SignInForm next={safeDestination(next) ?? ''} />
         <ResetForm />
         <p className="hint" style={{ marginTop: '1.25rem' }}>
           No account yet? A club administrator links a sign-in to the person it belongs to &mdash; it is

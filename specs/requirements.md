@@ -1,8 +1,8 @@
-# Let'sDataTalk — Requirements
+# PitchPeople — Requirements
 
 _[← specs](./README.md) · [Design](./design.md) · [Tasks](./tasks.md) · [Business rules](../docs/ea/2_business/5_domain-context-and-rules.md)_
 
-**Let'sDataTalk** is a multiclub, multitenant, AI-assisted platform that
+**PitchPeople** is a multiclub, multitenant, AI-assisted platform that
 centralizes player registration, finance, documents, referee management,
 competitions and community carnivals for football clubs in Australia and
 New Zealand — built around **a single `Person` who can be a player,

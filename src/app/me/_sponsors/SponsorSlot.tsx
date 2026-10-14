@@ -25,7 +25,7 @@ export async function SponsorSlot({
   if (campaign === null) return null;
 
   const labelId = `sponsor-label-${campaign.id}`;
-  const label = `Sponsored · ${campaign.sponsorName}${campaign.owner === 'platform' ? ' · via Let’sDataTalk' : ''}`;
+  const label = `Sponsored · ${campaign.sponsorName}${campaign.owner === 'platform' ? ' · via PitchPeople' : ''}`;
   const href = `/sponsor/${campaign.id}`;
 
   if (campaign.imagePath !== null) {

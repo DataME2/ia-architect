@@ -3,7 +3,7 @@
 _[← Spec](./README.md) · [Design](./design.md) · [Tasks](./tasks.md) · [EA home](../ea/README.md)_
 
 **Purpose.** The structured functional and non-functional requirements for
-Let'sDataTalk, **each with a verified status** — checked against the code
+PitchPeople, **each with a verified status** — checked against the code
 and the test suites in September 2026, not against intent.
 
 This document is deliberately not a new source of truth. The requirements

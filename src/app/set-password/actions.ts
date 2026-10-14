@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { createRequestClient, currentUser } from '../../data/server.ts';
 import { formFailed, type FormResult } from '../../web/form-result.ts';
 import { passwordProblem } from '../../web/password.ts';
-import { DEFAULT_DESTINATION } from '../../web/safe-destination.ts';
+import { landingFor } from '../../web/safe-destination.ts';
 
 /**
  * Choose a password, once, on first arrival.
@@ -40,10 +40,8 @@ export async function setPasswordAction(
 
   await client.rpc('record_password_set');
 
-  // A guardian invited under WP4 arrives here with no club_membership
-  // (decision 11) — /registrar would be a queue for a club they administer
-  // nothing at. /me already offers a club officer a link back to it, so
-  // checking costs an officer nothing and saves a guardian a dead end.
-  const { data: membershipRows } = await client.from('club_membership').select('id').limit(1);
-  redirect((membershipRows?.length ?? 0) > 0 ? DEFAULT_DESTINATION : '/me');
+  // Scope 95: everybody lands on /me, except the platform operator, who
+  // has no Person and so nothing there.
+  const { data: isPlatform } = await client.rpc('app_is_platform');
+  redirect(landingFor(null, isPlatform === true));
 }

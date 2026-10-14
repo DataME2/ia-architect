@@ -1,3 +1,5 @@
+import { MAKER, PRODUCT_NAME, TAGLINE } from '../web/brand.ts';
+
 /**
  * The landing page.
  *
@@ -12,13 +14,15 @@ export default function HomePage() {
   return (
     <>
       <section className="hero">
-        <p className="eyebrow">Football club operations · Australia &amp; New Zealand</p>
-        <h2>Registration, collected once</h2>
+        <p className="eyebrow">{PRODUCT_NAME} · Football clubs in Australia &amp; New Zealand</p>
+        <h2>{TAGLINE}</h2>
         <p className="lede">
-          A family enters a player&rsquo;s details one time. Deterministic rules say immediately
-          what is missing. The club hands the governing body a complete submission instead of a
-          guess that errors and comes back weeks later.
+          Registration, money, documents and match officials, around one Person who can play,
+          coach, referee, look after a child and sit on the committee &mdash; with one sign-in.
+          A family enters a player&rsquo;s details one time, and the club hands the governing body a
+          complete submission instead of a guess that comes back weeks later.
         </p>
+        <p className="hint">{MAKER}</p>
         <div className="hero-actions">
           <a className="button" href="/sign-in?next=/me">
             Sign in to your roles

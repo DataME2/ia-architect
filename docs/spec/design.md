@@ -41,7 +41,7 @@ other technology choice is downstream of it:
 and policy all sit with one provider. The mitigation is that it is Postgres
 underneath, so the data and schema are portable even where the platform is
 not — which is what keeps BR68 (the club owns its data) honest for
-Let'sDataTalk itself.
+PitchPeople itself.
 
 ---
 

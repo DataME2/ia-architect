@@ -16,6 +16,7 @@ import { loadAssociations, loadCompetitions, loadLevels } from '../../data/compe
 import { loadEnquiries } from '../../data/enquiries.ts';
 import { EnquiryList } from './EnquiryList.tsx';
 import { SponsorPlacementForm } from './SponsorPlacementForm.tsx';
+import { SessionStrip } from '../registrar/_components/SessionStrip.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,6 +53,7 @@ export default async function PlatformPage() {
   if (error !== null) {
     return (
       <>
+        <SessionStrip user={user} tenant={null} platform />
         <h2>Platform</h2>
         <div className="errors">
           <strong>Could not read the club list: {error.message}</strong>
@@ -127,6 +129,10 @@ export default async function PlatformPage() {
 
   return (
     <>
+      {/* Scope 95: the operator had no way out of this page but clearing
+          cookies. The strip the club screens use already knows the
+          platform identity, which has no club and is not missing one. */}
+      <SessionStrip user={user} tenant={null} platform />
       <h2>Every club we support</h2>
       <p className="lede">
         Signed in as <strong>{user.email}</strong> &mdash; the platform owner, which is why this

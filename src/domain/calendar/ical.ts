@@ -182,7 +182,7 @@ export function buildFeed(events: readonly FeedEvent[], options: FeedOptions): s
   const lines: string[] = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    `PRODID:-//Let'sDataTalk//Match officials//EN`,
+    `PRODID:-//PitchPeople//Match officials//EN`,
     'CALSCALE:GREGORIAN',
     // Hints a subscribing client reads; harmless where it does not.
     'METHOD:PUBLISH',

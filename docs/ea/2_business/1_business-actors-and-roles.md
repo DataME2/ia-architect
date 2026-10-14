@@ -16,7 +16,7 @@ Referee across both, simultaneously or over time.
 
 | Actor | Kind | Role | Concern |
 | ----- | ---- | ---- | ------- |
-| Let'sDataTalk operator | Human | **Super Admin** | Central, cross-tenant administration: provisioning clubs, platform-wide configuration, support |
+| PitchPeople operator | Human | **Super Admin** | Central, cross-tenant administration: provisioning clubs, platform-wide configuration, support |
 
 ## Club governance and administration actors
 
@@ -131,7 +131,7 @@ process clubs must comply with.
 
 Read-only, like every other external source in
 [5_domain-context-and-rules.md](./5_domain-context-and-rules.md#system-context)
-(Principle P2) — Let'sDataTalk consumes published competition/calendar data,
+(Principle P2) — PitchPeople consumes published competition/calendar data,
 Playing Formats, Competition Regulations, and ITC outcomes; it does not
 write back into an association's systems.
 
@@ -150,7 +150,7 @@ write back into an association's systems.
 ## Public actor
 
 Not a role a `Person` holds and not authenticated — anyone visiting a
-published carnival's public view, with no Let'sDataTalk account.
+published carnival's public view, with no PitchPeople account.
 
 | Actor | Kind | Role | Concern |
 | ----- | ---- | ---- | ------- |
@@ -287,7 +287,7 @@ The template's change process defines three roles — **Requester**,
 **Agent**, and **Reviewer** (see [CONTRIBUTING.md](../../../CONTRIBUTING.md)).
 These are roles in how *this repository* is developed, distinct from the
 business actors above (who are roles in the football administration domain
-the software serves): a Requester (e.g. the pilot club, or Let'sDataTalk
+the software serves): a Requester (e.g. the pilot club, or Let's Data Talk
 product ownership) states a requirement, an Agent (human contributor or AI
 coding agent) walks the EA layers and implements, and a Reviewer approves
 and merges.

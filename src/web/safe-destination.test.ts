@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { test, describe } from 'node:test';
 
 import {
-  DEFAULT_DESTINATION,
   landingFor,
   NO_CREDENTIAL_DESTINATION,
   safeDestination,
@@ -17,25 +16,25 @@ describe('safeDestination', () => {
   test('refuses a protocol-relative URL', () => {
     // The bug this exists for: `//evil.example` passes a `startsWith('/')`
     // check and sends the browser to another host, straight after sign-in.
-    assert.equal(safeDestination('//evil.example'), DEFAULT_DESTINATION);
-    assert.equal(safeDestination('//evil.example/registrar'), DEFAULT_DESTINATION);
+    assert.equal(safeDestination('//evil.example'), null);
+    assert.equal(safeDestination('//evil.example/registrar'), null);
   });
 
   test('refuses an absolute URL', () => {
-    assert.equal(safeDestination('https://evil.example'), DEFAULT_DESTINATION);
-    assert.equal(safeDestination('http://evil.example/registrar'), DEFAULT_DESTINATION);
+    assert.equal(safeDestination('https://evil.example'), null);
+    assert.equal(safeDestination('http://evil.example/registrar'), null);
   });
 
   test('refuses a path we do not publish, however innocent', () => {
-    assert.equal(safeDestination('/registrar/../../etc'), DEFAULT_DESTINATION);
-    assert.equal(safeDestination('/admin'), DEFAULT_DESTINATION);
-    assert.equal(safeDestination('/registrar?x=1'), DEFAULT_DESTINATION);
+    assert.equal(safeDestination('/registrar/../../etc'), null);
+    assert.equal(safeDestination('/admin'), null);
+    assert.equal(safeDestination('/registrar?x=1'), null);
   });
 
-  test('falls back when there is nothing to fall back from', () => {
-    assert.equal(safeDestination(undefined), DEFAULT_DESTINATION);
-    assert.equal(safeDestination(null), DEFAULT_DESTINATION);
-    assert.equal(safeDestination(''), DEFAULT_DESTINATION);
+  test('names no destination when none was asked for', () => {
+    assert.equal(safeDestination(undefined), null);
+    assert.equal(safeDestination(null), null);
+    assert.equal(safeDestination(''), null);
   });
 });
 
@@ -48,8 +47,9 @@ test('landingFor', async (t) => {
     assert.equal(landingFor('', true), '/platform');
   });
 
-  await t.test('sends everybody else to the queue', () => {
-    assert.equal(landingFor(null, false), '/registrar');
+  await t.test('sends everybody else to their own workspace (scope 95)', () => {
+    assert.equal(landingFor(null, false), '/me');
+    assert.equal(landingFor('', false), '/me');
   });
 
   await t.test('an asked-for destination still wins, for either', () => {
@@ -62,7 +62,7 @@ test('landingFor', async (t) => {
 
   await t.test('an unpublished destination is still refused, for either', () => {
     assert.equal(landingFor('//evil.example', true), '/platform');
-    assert.equal(landingFor('/admin', false), '/registrar');
+    assert.equal(landingFor('/admin', false), '/me');
   });
 });
 

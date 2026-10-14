@@ -1,4 +1,4 @@
-# Enterprise Architecture — Let'sDataTalk
+# Enterprise Architecture — PitchPeople
 
 _[← Repository README](../../README.md) · [Scope documents](../scope/README.md)_
 
