@@ -20,8 +20,12 @@
  * tables already answer.
  */
 
-/** The five lenses a Person can operate the product through. */
-export type RoleKey = 'player' | 'coach' | 'referee' | 'guardian' | 'committee';
+/**
+ * The lenses a Person can operate the product through. `technical` is the
+ * Technical Director (scope 98, BR176): an appointed club function, held
+ * through its access level rather than a season role.
+ */
+export type RoleKey = 'player' | 'coach' | 'technical' | 'referee' | 'guardian' | 'committee';
 
 /**
  * Presentation order, fixed. The rail must not reorder itself between
@@ -30,6 +34,7 @@ export type RoleKey = 'player' | 'coach' | 'referee' | 'guardian' | 'committee';
 export const ROLE_ORDER: readonly RoleKey[] = [
   'player',
   'coach',
+  'technical',
   'referee',
   'guardian',
   'committee',
@@ -38,6 +43,7 @@ export const ROLE_ORDER: readonly RoleKey[] = [
 export const ROLE_LABEL: Readonly<Record<RoleKey, string>> = {
   player: 'Player',
   coach: 'Coach',
+  technical: 'Technical Director',
   referee: 'Referee',
   guardian: 'Guardian',
   committee: 'Committee',

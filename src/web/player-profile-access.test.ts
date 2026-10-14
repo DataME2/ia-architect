@@ -83,3 +83,13 @@ describe('recorderLabel', () => {
     );
   });
 });
+
+describe('canCorrectAppearance (BR177)', () => {
+  it('adds the Technical Director to everyone who records appearances', async () => {
+    const { canCorrectAppearance } = await import('./player-profile-access.ts');
+    assert.equal(canCorrectAppearance(['technical_director'], false), true);
+    assert.equal(canCorrectAppearance(['registrar'], false), true);
+    assert.equal(canCorrectAppearance([], true), true);
+    assert.equal(canCorrectAppearance(['committee', 'treasurer'], false), false);
+  });
+});

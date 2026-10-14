@@ -57,8 +57,11 @@ decides, so they travel together.
 
 ### WP4 — Alignment
 
-- **Deliverables:** fixes in `src/app/globals.css` for the misalignments found in a signed-in pass, listed in the PR.
-- **Outcome:** headers, strips and cards line up at desktop and phone width.
+- **Deliverables:** in `src/app/globals.css`:
+  - **The bell on `/me`.** It no longer takes a row of its own above the workspace, which pushed the workspace below the identity rail's top edge; it now sits on the acting-as line.
+  - **The figure tiles (`.figs`).** Four figures in three columns showed the grey ground as a hole; each tile now draws its own edge, so a spare cell is surface.
+  - Checked at 390px wide: the home page, `/me`, sign-in, registration, interest and the previews do not scroll sideways.
+- **Outcome:** the workspace starts level with the rail, and a row of figures never shows a hole.
 
 ## In scope / out of scope
 

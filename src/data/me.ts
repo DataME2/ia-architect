@@ -276,9 +276,25 @@ export async function loadMe(client: SupabaseClient, userId: string, today: stri
       }
     }
 
+    // BR176: the Technical Director's lens comes from the access an
+    // appointment carries (BR153), not a season role. Its count is the
+    // player-record corrections waiting on the club's confirmers (BR149).
+    let technicalPending = 0;
+    // `MembershipRole` predates the named roles (0051), so widen to read it.
+    if ((membershipRoles as readonly string[]).includes('technical_director')) {
+      roleKeys.add('technical');
+      const { count } = await client
+        .from('player_record_correction')
+        .select('id', { count: 'exact', head: true })
+        .eq('club_id', link.club_id)
+        .eq('state', 'pending');
+      technicalPending = count ?? 0;
+    }
+
     const scopeFor: Record<RoleKey, string | null> = {
       player: playerTeam?.team.name ?? null,
       coach: coachTeam?.team.name ?? null,
+      technical: 'Every squad',
       referee: null,
       guardian: guardianScope(childNames),
       committee: committeeScope,
@@ -286,6 +302,7 @@ export async function loadMe(client: SupabaseClient, userId: string, today: stri
     const pendingFor: Record<RoleKey, number> = {
       player: 0,
       coach: 0,
+      technical: technicalPending,
       referee: 0,
       guardian: guardianPending,
       committee: committeePending,

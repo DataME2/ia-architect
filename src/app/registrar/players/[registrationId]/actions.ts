@@ -6,6 +6,7 @@ import { createRequestClient, currentUser } from '../../../../data/server.ts';
 import { loadTenantContext } from '../../../../data/queries.ts';
 import { reviewCorrection } from '../../../../data/player-record-correction.ts';
 import { formFailed, formOk, type FormResult } from '../../../../web/form-result.ts';
+import { checkCorrectionSource } from '../../../../web/technical-director.ts';
 
 const POSITIONS = ['goalkeeper', 'defender', 'midfielder', 'forward', 'utility'];
 const FEET = ['left', 'right', 'both'];
@@ -126,7 +127,7 @@ export async function recordAppearanceAction(
   if (error !== null) {
     return formFailed(
       error.message.includes('appearance_fixture_id_person_id_key')
-        ? 'This player is already recorded in that fixture. Edit the existing entry instead.'
+        ? 'This player is already recorded in that fixture. Use Correct on that row instead, naming the source (BR177).'
         : error.message,
     );
   }
@@ -162,4 +163,49 @@ export async function reviewPlayerRecordCorrectionAction(
   revalidatePath(`/registrar/players/${registrationId}`);
   if ('error' in result) return formFailed(result.error);
   return formOk(result.outcome === 'confirmed' ? 'Confirmed and applied.' : 'Declined.');
+}
+
+/**
+ * Correct an appearance — record it late, change it, or remove it — with
+ * the source the figure comes from (BR177). The database decides who may
+ * and keeps the correction append-only (`app_correct_appearance`, 0093);
+ * this parses the form and says what went wrong in words.
+ */
+export async function correctAppearanceAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const registrationId = String(formData.get('registrationId') ?? '');
+  const fixtureId = String(formData.get('fixtureId') ?? '');
+  if (registrationId === '' || fixtureId === '') return formFailed('Choose a fixture.');
+
+  const source = checkCorrectionSource(String(formData.get('source') ?? ''));
+  if (!source.ok) return formFailed(source.error);
+
+  const remove = formData.get('remove') === 'on';
+  const minutes = optionalNumber(String(formData.get('minutes') ?? '0'), 'Minutes', 0, 200);
+  if (!minutes.ok) return formFailed(minutes.error);
+  const goals = optionalNumber(String(formData.get('goals') ?? '0'), 'Goals', 0, 99);
+  if (!goals.ok) return formFailed(goals.error);
+  const assists = optionalNumber(String(formData.get('assists') ?? '0'), 'Assists', 0, 99);
+  if (!assists.ok) return formFailed(assists.error);
+
+  const client = await createRequestClient();
+  const user = await currentUser(client);
+  if (user === null) return formFailed('Not signed in.');
+
+  const { error } = await client.rpc('app_correct_appearance', {
+    p_registration_id: registrationId,
+    p_fixture_id: fixtureId,
+    p_minutes: minutes.value ?? 0,
+    p_started: formData.get('started') === 'on',
+    p_goals: goals.value ?? 0,
+    p_assists: assists.value ?? 0,
+    p_source: source.source,
+    p_remove: remove,
+  });
+  if (error !== null) return formFailed(error.message);
+
+  revalidatePath(`/registrar/players/${registrationId}`);
+  return formOk(remove ? 'Appearance removed, with its source kept.' : 'Appearance corrected, with its source kept.');
 }

@@ -188,18 +188,22 @@ export async function removeTeamMember(
   memberId: string,
   actorUserId: string,
 ): Promise<void> {
-  const { error } = await client
+  const { data, error } = await client
     .from('team_member')
     .delete()
     .eq('id', memberId)
-    .eq('club_id', clubId);
+    .eq('club_id', clubId)
+    .select('person_id, team_id');
   if (error !== null) throw new QueryError('team_member', error.message);
 
+  // The row is gone once deleted, so the audit names who left which team
+  // itself; the Technical Director's activity (BR176) reads it from here.
+  const removed = (data ?? [])[0] as { person_id: string; team_id: string } | undefined;
   await recordAudit(client, clubId, actorUserId, {
     action: 'team_member_removed',
     entity: 'team_member',
     entityId: memberId,
-    detail: {},
+    detail: removed === undefined ? {} : { personId: removed.person_id, teamId: removed.team_id },
   });
 }
 

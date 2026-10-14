@@ -1,11 +1,14 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+import { loadClubCalendar } from '../../../data/competition-calendar.ts';
+import { loadDugout } from '../../../data/dugout.ts';
 import { loadMyTeams, loadRoster, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
-import { loadFixtureParticipationResponses } from '../../../data/participation.ts';
+import { fixtureLabel } from '../../../web/dugout.ts';
 import { nextFixture } from '../../../web/me-view.ts';
-import { participationBanner } from '../../../web/participation-answer.ts';
 import { displayNameFor } from '../../../web/queue-view.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
+import { CompetitionCalendar } from '../../_components/CompetitionCalendar.tsx';
+import { TeamDugout } from '../../_components/TeamDugout.tsx';
 import { FixtureCard, Panel, WorkspaceHead } from './shared.tsx';
 
 /** The squad, and who cannot be picked. */
@@ -26,9 +29,12 @@ export async function CoachWorkspace({
   const fixtures =
     season === null || mine === null ? [] : await loadTeamFixtures(client, link.clubId, season.id, mine.team.id);
   const next = nextFixture(fixtures, today);
-  const responses = next === null
-    ? new Map<string, { readonly status: 'available' | 'not_available'; readonly reason: string | null }>()
-    : await loadFixtureParticipationResponses(client, link.clubId, next.id);
+  const dugout =
+    season === null || mine === null
+      ? null
+      : await loadDugout(client, link.clubId, season.id, mine.team.id, next?.id ?? null, today);
+  // Scope 99: the team's own year, from the club's calendar.
+  const calendar = mine === null ? null : await loadClubCalendar(client, link.clubId);
 
   // BR79: registered with the federation, and still cannot take the field.
   // The coach is told that money is owed, never how much (BR78, #73).
@@ -44,57 +50,20 @@ export async function CoachWorkspace({
         The squad, and who cannot be picked. Decline reasons, when they exist, are visible to you as the
         responsible coach and to nobody else in the squad.
       </WorkspaceHead>
+      {dugout !== null && mine !== null ? (
+        <TeamDugout
+          teamName={mine.team.name}
+          players={dugout.players}
+          officials={dugout.officials}
+          fixtureLabel={fixtureLabel(next)}
+        />
+      ) : (
+        <p className="empty">
+          {mine === null ? 'You are not named as a team official this season.' : 'No players on this sheet yet.'}
+        </p>
+      )}
       <div className="cols">
         <div className="stack">
-          <Panel title="Squad" meta={`${players.length} PLAYERS`}>
-            {players.length === 0 ? (
-              <p className="empty" style={{ margin: 0 }}>
-                {mine === null ? 'You are not named as a team official this season.' : 'No players on this sheet yet.'}
-              </p>
-            ) : (
-              <ul className="roster">
-                {players.map((p) => (
-                  <li key={p.person.id}>
-                    <span>
-                      <span className="who">{displayNameFor(p.person)}</span>
-                    </span>
-                    {p.registration === null ? (
-                      <span className="pill pill-stop">Not registered</span>
-                    ) : p.registration.owes && p.registration.hardship_until === null ? (
-                      <span className="pill pill-stop">Not clear to play</span>
-                    ) : p.registration.status === 'COMPLETE' ? (
-                      <span className="pill pill-ok">Registered</span>
-                    ) : (
-                      <span className="pill pill-warn">Awaiting</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Panel>
-          {next !== null && (
-            <Panel title="Available for Saturday" meta={next.opponent.toUpperCase()}>
-              {players.length === 0 ? (
-                <p className="empty" style={{ margin: 0 }}>
-                  No players on this sheet yet.
-                </p>
-              ) : (
-                <ul className="roster">
-                  {players.map((p) => {
-                    const banner = participationBanner(responses.get(p.person.id) ?? null);
-                    return (
-                      <li key={p.person.id}>
-                        <span>
-                          <span className="who">{displayNameFor(p.person)}</span>
-                        </span>
-                        <span className={banner.className}>{banner.label}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </Panel>
-          )}
           <AssistantNote kind="explaining">
             A decline&rsquo;s reason is visible to you as the responsible coach and to nobody else in the
             squad (BR62).
@@ -138,6 +107,15 @@ export async function CoachWorkspace({
           </Panel>
         </div>
       </div>
+      {calendar !== null && mine !== null && (
+        <CompetitionCalendar
+          clubName={link.clubName}
+          fixtures={calendar.fixtures.filter((f) => f.teamId === mine.team.id)}
+          teams={calendar.teams.filter((t) => t.id === mine.team.id)}
+          today={today}
+          fixedTeamId={mine.team.id}
+        />
+      )}
     </>
   );
 }

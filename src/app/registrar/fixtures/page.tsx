@@ -7,6 +7,9 @@ import { FixtureForm } from './FixtureForm.tsx';
 import { loadClubCompetitions } from '../../../data/competitions.ts';
 import { EditFixtureForm } from './EditFixtureForm.tsx';
 import { RecordResultForm } from './RecordResultForm.tsx';
+import { loadClubCalendar } from '../../../data/competition-calendar.ts';
+import { todayIn } from '../../../web/today.ts';
+import { CompetitionCalendar } from '../../_components/CompetitionCalendar.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +50,8 @@ export default async function FixturesPage({
   // The club's competitions this season (scope 38), so the form selects
   // rather than types. Empty is ordinary — a club may catalogue none.
   const competitions = await loadClubCompetitions(client, tenant.clubId, season.id);
+  // Scope 99: every season's fixtures, for the calendar-year view above.
+  const calendar = await loadClubCalendar(client, tenant.clubId);
 
   // Prefer the catalogue; fall back to the text a club recorded before it
   // existed (scope 38 does not rewrite history).
@@ -60,6 +65,13 @@ export default async function FixturesPage({
         The games the club played. Nothing else in the platform records that a match happened, so
         every appearance and every goal on a player&rsquo;s record hangs off a row here.
       </p>
+
+      <CompetitionCalendar
+        clubName={tenant.clubName}
+        fixtures={calendar.fixtures}
+        teams={calendar.teams}
+        today={todayIn()}
+      />
 
       <div className="card">
         <h3 style={{ marginTop: 0 }}>{fixtures.length} recorded</h3>

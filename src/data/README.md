@@ -48,6 +48,8 @@ something that happens by accident, and that is the design.
 | `mappers.ts` | Rows in, domain values out. Pure — the only module that knows both shapes, which is what keeps the domain free of `snake_case` and of the database's idea of null |
 | `queries.ts` | The registration slice's reads and writes |
 | `finance.ts`, `vouchers.ts`, `teams.ts`, `officiating.ts`, `performance.ts`, `packs.ts`, `invitations.ts`, `photos.ts`, `me.ts`, `family.ts`, `household.ts` | One module per slice |
+| `dugout.ts` | One team's squad as the Team Dugout draws it (scope 99): the roster, each player's position and squad number, Saturday's answers, and the club's current Technical Directors. A read a role may not make comes back empty rather than failing the page |
+| `technical-director.ts` | The Technical Director's player activity, through `app_player_activity` (BR176, 0093), which decides who reads it and leaves money out |
 | `governance.ts` | Who governs a club and until when (BR85–BR88), and what it has decided (BR123) — a dated resolution, append-only the same absence that makes `payment` one. `enableVoucherProgram` is BR21's approval made real: the database's own trigger on `registration_voucher` refuses any program the resolution cited did not name, matched trimmed and case-insensitive the way `rateFor` matches a competition |
 | `messaging.ts` | The unsubscribe token (a server secret, so it cannot live in `src/domain/`), the transport interface, and the send path that checks suppression **before** the provider is reached |
 | `calendar.ts` | The feed and the subscription behind it. The token is `messaging.ts`'s derivation reused, because rotation and durability are the same construction seen from two sides |

@@ -30,6 +30,7 @@ const FIVE: readonly RoleHolding[] = [
   holding({ key: 'guardian', clubId: 'club-redlands', clubName: 'Redlands United', scope: 'for Tané', pending: 3 }),
   holding({ key: 'player', scope: 'Women’s Div 3', pending: 1 }),
   holding({ key: 'referee', scope: 'Junior panel', pending: 2 }),
+  holding({ key: 'technical', pending: 1 }),
 ];
 
 describe('buildContexts', () => {

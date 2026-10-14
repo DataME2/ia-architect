@@ -83,6 +83,7 @@ export function initialsOf(name: string): string {
 export const ROLE_HUE: Readonly<Record<RoleKey, string>> = {
   player: '#7fb08c',
   coach: '#e0b071',
+  technical: '#a3b2c9',
   referee: '#8fc7dd',
   guardian: '#d9a08a',
   committee: '#b0a4c9',

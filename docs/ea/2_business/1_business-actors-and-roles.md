@@ -33,7 +33,7 @@ Referee across both, simultaneously or over time.
 | Football operations lead | Human | **Head of Performance** | Player and team performance programs across football operations |
 | Football operations lead | Human | **Head of Community Football** | Community-level (grassroots/non-elite) football program structure |
 | Football operations lead | Human | **Head of Women's Football** | Women's program structure and oversight |
-| Football operations lead | Human | **Technical Director** | Coaching pathway and playing-technical standards across all programs |
+| Football operations lead | Human | **Technical Director** | Coaching pathway and playing-technical standards across all programs. **Works in their own workspace on `/me`** (scope 98, BR176): every squad, the corrections waiting on them (BR149), and every change to a player in the last 30 days, with no money. **Decides:** squads and team sheets, player physique and positions (BR125), confirming a player's own correction (BR149), and correcting a recorded appearance — apps, minutes, goals, assists — **only with a stated source**, kept append-only (BR177). The full list, with where each is enforced, is `TD_PERMISSIONS` in `src/web/technical-director.ts` |
 | Committee member | Human | **Committee Member** | Club governance decisions |
 | Committee member | Human | **Subcommittee Member** | Delegated governance within a subcommittee |
 | Committee member | Human | **Grants Committee Member** | Reviews and decides grant funding applications |
