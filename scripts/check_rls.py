@@ -56,6 +56,12 @@ TENANTLESS_ALLOWED: set[str] = {
     # policy that denies everything, written only by a security definer
     # function that takes the user from auth.uid() rather than an argument.
     "user_password_set",
+    # This repository's own receipt that a migration ran (scope 94, 0090) —
+    # about a deployment, not a club, so a club_id would be meaningless.
+    # Isolated the same way: RLS on with a policy that denies everything;
+    # only the migration that inserts its own row, and the service-role
+    # client that reads the latest one, ever touch it.
+    "schema_migration_log",
     # --- The competition catalogue (decision 15, migration 0032) ---------
     #
     # These three are the only entries here that are *readable* by every
