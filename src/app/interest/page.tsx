@@ -17,7 +17,7 @@ import { InterestForm } from './InterestForm.tsx';
  * isn't one rather than concluding the product is half-built.
  */
 export const metadata = {
-  title: 'Talk to us about your club · Let’sDataTalk',
+  title: 'Talk to us about your club · PitchPeople',
   description:
     'Tell us about your club and we will reply directly. No account, and nothing to set up.',
 };

@@ -39,7 +39,7 @@ with users and real data.
 - **Vendor concentration.** Database, auth, storage, and access policy all
   sit with one provider. The mitigation is that it is **Postgres
   underneath** — the data and the schema are portable even if the platform
-  is not, which keeps BR68 honest for Let'sDataTalk itself.
+  is not, which keeps BR68 honest for PitchPeople itself.
 - **RLS is a discipline, not a magic shield.** Policies have to be written
   and tested per table. A table shipped without a policy is open. The
   application layer records this as a build-time check rather than a hope.

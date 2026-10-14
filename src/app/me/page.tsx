@@ -16,6 +16,7 @@ import { CommitteeWorkspace } from './_workspaces/CommitteeWorkspace.tsx';
 import { GuardianWorkspace } from './_workspaces/GuardianWorkspace.tsx';
 import { PlayerWorkspace } from './_workspaces/PlayerWorkspace.tsx';
 import { RefereeWorkspace } from './_workspaces/RefereeWorkspace.tsx';
+import { TechnicalDirectorWorkspace } from './_workspaces/TechnicalDirectorWorkspace.tsx';
 import { SponsorSlot } from './_sponsors/SponsorSlot.tsx';
 import { PersonHome } from './_home/PersonHome.tsx';
 import { ageAt } from '../../domain/types.ts';
@@ -124,6 +125,8 @@ async function Workspace({
       return <PlayerWorkspace client={client} link={link} today={today} />;
     case 'coach':
       return <CoachWorkspace client={client} link={link} today={today} />;
+    case 'technical':
+      return <TechnicalDirectorWorkspace client={client} link={link} today={today} />;
     case 'referee':
       return <RefereeWorkspace client={client} link={link} today={today} />;
     case 'guardian':

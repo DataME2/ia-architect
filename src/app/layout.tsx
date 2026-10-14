@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 
+import { MAKER, PRODUCT_NAME, TAGLINE } from '../web/brand.ts';
 import { BrandMark } from './_components/BrandMark.tsx';
 import './globals.css';
 // After globals.css: the design system's utilities (src/components/ui) must
@@ -9,10 +10,10 @@ import './design-system.css';
 
 export const metadata: Metadata = {
   title: {
-    default: "Let'sDataTalk — Registration",
-    template: "%s · Let'sDataTalk",
+    default: `${PRODUCT_NAME} — ${TAGLINE}`,
+    template: `%s · ${PRODUCT_NAME}`,
   },
-  description: 'Club registration, collected once and submitted right first time.',
+  description: `${TAGLINE} ${MAKER}.`,
 };
 
 /**
@@ -46,19 +47,20 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
               <a href="/">
                 <BrandMark />
                 <span>
-                  <span className="brand-name">Let&rsquo;sDataTalk</span>
-                  <span className="brand-region">Football · AU &amp; NZ</span>
+                  <span className="brand-name">{PRODUCT_NAME}</span>
+                  <span className="brand-region">{MAKER}</span>
                 </span>
               </a>
             </h1>
             {/*
-              Two links, and deliberately not a third for signing in. This
+              Three links, and deliberately not a fourth for signing in. This
               layout is prerendered — it makes no auth call, by design — so a
               "Sign in" here would still be offering it to somebody already
               signed in. `/registrar` sends whoever needs it to the sign-in
               screen with their destination attached.
             */}
             <nav aria-label="Primary">
+              <a href="/me">Your workspace</a>
               <a href="/registrar">Club administration</a>
               <a href="/register">New registration</a>
             </nav>
@@ -67,9 +69,9 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
         </div>
         <footer className="site-footer">
           <span>
-            Let&rsquo;sDataTalk — one <strong>Person</strong>, every role, one club record.
+            <strong>{PRODUCT_NAME}</strong> — {TAGLINE}
           </span>
-          <span>Hosted in Sydney. Tenant isolation is enforced by the database.</span>
+          <span>{MAKER}. Hosted in Sydney; tenant isolation is enforced by the database.</span>
         </footer>
       </body>
     </html>

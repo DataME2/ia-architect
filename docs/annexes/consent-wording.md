@@ -184,7 +184,7 @@ structural reason **§3 can be refused without affecting the registration**
 
 Different in kind from §1–§3, and worth saying why it lives in the same
 annex. Those three are **a club collecting information about its players**.
-This one is **Let'sDataTalk collecting information about a club**: the data
+This one is **Let's Data Talk collecting information about a club**: the data
 subject is an adult acting for an organisation, the collecting entity is
 the platform rather than a tenant, and no child is involved anywhere.
 
@@ -192,7 +192,7 @@ What it shares with §3 is the shape, and the shape is the point. It is
 separate, explicitly granted, refusable without losing the thing the person
 came for, and recorded with the words that were shown (**BR93**).
 
-> ☐ **Send me occasional emails about Let'sDataTalk** — product news,
+> ☐ **Send me occasional emails about PitchPeople** — product news,
 > pricing, and availability.
 >
 > Optional. You will see the demonstration club either way, and leaving

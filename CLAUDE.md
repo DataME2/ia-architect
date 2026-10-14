@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Let'sDataTalk is a multiclub, multitenant, AI-assisted platform centralizing
+PitchPeople is a multiclub, multitenant, AI-assisted platform centralizing
 player registration, finance, documents, and match-official management for
 football clubs in Australia and New Zealand, built around a single `Person`
 identity. It is pre-MVP: all five architecture layers are started

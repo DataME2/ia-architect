@@ -315,7 +315,7 @@ issues a private, unguessable feed URL they paste into whichever calendar
 they already use; Google/Gmail, Outlook/Microsoft 365, and Apple Calendar
 all subscribe to the same standards-based iCalendar feed, and every
 subsequent appointment flows through it without repeating the setup.
-**The calendar client pulls; Let'sDataTalk never holds a credential for, or
+**The calendar client pulls; PitchPeople never holds a credential for, or
 writes into, anyone's personal calendar account** — so Principle P2 holds
 with no exception (decision
 [4](../../decisions/4_calendar-distribution-by-feed-not-account-access.md)).

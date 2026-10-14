@@ -4,7 +4,7 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
 
 **ArchiMate elements:** Value, Meaning.
 
-The externally-facing statements of what Let'sDataTalk is and what it is
+The externally-facing statements of what PitchPeople is and what it is
 worth — the *Meaning* the architecture carries to a reader outside it.
 Recorded here so that pitch language and architecture stay answerable to
 each other: every claim below should be traceable to a Goal, Capability,
@@ -13,7 +13,7 @@ says so rather than letting the gap be discovered in a sales conversation.
 
 ## Positioning statement (pitch)
 
-> Let'sDataTalk is a multiclub, multitenant, AI-assisted football
+> PitchPeople is a multiclub, multitenant, AI-assisted football
 > operations platform that unifies registrations, finance, documents,
 > referee management, competitions, and community events around a single
 > `Person` identity — allowing one individual to seamlessly participate as
@@ -22,7 +22,7 @@ says so rather than letting the gap be discovered in a sales conversation.
 
 ## Commercial statement (for clubs)
 
-> Let'sDataTalk is a next-generation SaaS platform for grassroots football
+> PitchPeople is a next-generation SaaS platform for grassroots football
 > clubs that replaces disconnected spreadsheets, registration systems,
 > payment tools, and communication channels with one intelligent operating
 > platform. Built around a single `Person` model, it gives clubs a
@@ -31,7 +31,7 @@ says so rather than letting the gap be discovered in a sales conversation.
 
 The commercial statement's "**replaces**" is deliberate and consistent
 with [decision 5](../../decisions/5_replace-the-incumbent-rather-than-integrate.md):
-Let'sDataTalk competes for the incumbent's market rather than
+PitchPeople competes for the incumbent's market rather than
 complementing it.
 
 ## Traceability
@@ -60,7 +60,7 @@ needs to have already read.
   cannot.** Football Queensland confirmed in writing (31 July 2026) that
   affiliated clubs are *required* to use Squadi for competition
   administration, and BR43 makes Squadi registration an eligibility gate on
-  taking the field. What Let'sDataTalk replaces is **Majestri,
+  taking the field. What PitchPeople replaces is **Majestri,
   spreadsheets, forms, and the disconnected tooling around** registration —
   it makes the club's side of registration coherent and submits into Squadi
   correctly, rather than removing Squadi from the club's life. A club that

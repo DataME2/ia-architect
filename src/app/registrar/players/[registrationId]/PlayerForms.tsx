@@ -5,7 +5,7 @@ import { useActionState } from 'react';
 import { IDLE_FORM } from '../../../../web/form-result.ts';
 import type { PlayerProfile } from '../../../../domain/performance/types.ts';
 import { FormNotice } from '../../_components/FormNotice.tsx';
-import { recordAppearanceAction, savePlayerProfileAction } from './actions.ts';
+import { correctAppearanceAction, recordAppearanceAction, savePlayerProfileAction } from './actions.ts';
 
 const POSITIONS = [
   ['', '—'],
@@ -180,5 +180,86 @@ export function AppearanceForm({
         </div>
       </form>
     </details>
+  );
+}
+
+/**
+ * BR177: correct one appearance, or record a missing one, naming the
+ * source. With `fixtures` it records a missing appearance (choose the
+ * fixture); without, it corrects the one it is given and can remove it.
+ */
+export function CorrectAppearanceForm({
+  registrationId,
+  fixtureId,
+  fixtures,
+  current,
+}: {
+  readonly registrationId: string;
+  readonly fixtureId?: string;
+  readonly fixtures?: readonly { readonly id: string; readonly label: string }[];
+  readonly current?: { readonly minutes: number; readonly goals: number; readonly assists: number; readonly started: boolean };
+}) {
+  const [state, formAction, pending] = useActionState(correctAppearanceAction, IDLE_FORM);
+  const id = fixtureId ?? 'missing';
+  return (
+    <form action={formAction} className="stack" style={{ marginTop: '0.5rem' }}>
+      <FormNotice result={state} />
+      <input type="hidden" name="registrationId" value={registrationId} />
+      {fixtures === undefined ? (
+        <input type="hidden" name="fixtureId" value={fixtureId} />
+      ) : (
+        <div className="field">
+          <label htmlFor="missing-fixture">Fixture</label>
+          <select id="missing-fixture" name="fixtureId" required>
+            {fixtures.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'end' }}>
+        <div className="field" style={{ flex: '0 1 6rem' }}>
+          <label htmlFor={`min-${id}`}>Minutes</label>
+          <input id={`min-${id}`} name="minutes" inputMode="numeric" defaultValue={String(current?.minutes ?? 0)} />
+        </div>
+        <div className="field" style={{ flex: '0 1 5rem' }}>
+          <label htmlFor={`g-${id}`}>Goals</label>
+          <input id={`g-${id}`} name="goals" inputMode="numeric" defaultValue={String(current?.goals ?? 0)} />
+        </div>
+        <div className="field" style={{ flex: '0 1 5rem' }}>
+          <label htmlFor={`a-${id}`}>Assists</label>
+          <input id={`a-${id}`} name="assists" inputMode="numeric" defaultValue={String(current?.assists ?? 0)} />
+        </div>
+        <label style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', minHeight: '44px' }}>
+          <input type="checkbox" name="started" defaultChecked={current?.started ?? false} /> Started
+        </label>
+        {fixtures === undefined && (
+          <label style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', minHeight: '44px' }}>
+            <input type="checkbox" name="remove" /> Did not play (remove)
+          </label>
+        )}
+      </div>
+      <div className="field">
+        <label htmlFor={`src-${id}`}>Source</label>
+        <input
+          id={`src-${id}`}
+          name="source"
+          required
+          minLength={8}
+          maxLength={500}
+          placeholder="Referee’s match report, 2 May — or a link to the result sheet or video"
+        />
+        <p className="hint" style={{ margin: 0 }}>
+          Kept with the correction for good, with your name and the time (BR177).
+        </p>
+      </div>
+      <div>
+        <button type="submit" disabled={pending}>
+          {pending ? 'Saving…' : fixtures === undefined ? 'Save correction' : 'Record with source'}
+        </button>
+      </div>
+    </form>
   );
 }

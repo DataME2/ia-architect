@@ -27,7 +27,7 @@ Uploading in the hub and having the file land in SharePoint automatically is
 a Microsoft Graph integration. It needs these from the club's tenant:
 
 1. **An app registration** in Microsoft Entra ID (Azure AD), named for
-   Let'sDataTalk.
+   PitchPeople.
 2. **The `Sites.Selected` application permission** on Microsoft Graph,
    granted by the tenant administrator, and then **scoped to the one
    Committee site**. Under `Sites.Selected`, the app reaches no other site in

@@ -307,7 +307,7 @@ export async function retryAlertsAction(
 }
 
 /**
- * Place a Let'sDataTalk campaign into a club that opted in (scope 84, BR170).
+ * Place a PitchPeople campaign into a club that opted in (scope 84, BR170).
  * `app_platform_place_campaign` checks the platform and the opt-in, and
  * records the club's share at placement.
  */

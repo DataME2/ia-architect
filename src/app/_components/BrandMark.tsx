@@ -15,7 +15,7 @@ export function BrandMark() {
       className="brand-mark"
       viewBox="0 0 32 32"
       role="img"
-      aria-label="Let'sDataTalk"
+      aria-label="PitchPeople"
       focusable="false"
     >
       <defs>

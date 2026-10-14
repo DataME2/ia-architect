@@ -1,4 +1,4 @@
-# Let'sDataTalk — Implementation Tasks
+# PitchPeople — Implementation Tasks
 
 _[← specs](./README.md) · [Requirements](./requirements.md) · [Design](./design.md)_
 

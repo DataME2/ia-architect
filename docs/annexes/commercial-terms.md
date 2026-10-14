@@ -73,7 +73,7 @@ predicted ([#48](../scope/open-questions.md)).
 
 Restating **BR68** in the terms a club signs:
 
-- **The club owns its data.** Let'sDataTalk holds it as a processor on the
+- **The club owns its data.** Let's Data Talk holds it as a processor on the
   club's behalf and never as owner. Under the Australian Privacy Principles
   the club remains the entity accountable to its members for their personal
   information.
@@ -82,7 +82,7 @@ Restating **BR68** in the terms a club signs:
   not a termination right — it applies during the relationship, not only at
   the end of it.
 - **Deletion on exit.** When the relationship ends the club may require
-  deletion of its data, subject only to records Let'sDataTalk must retain
+  deletion of its data, subject only to records Let's Data Talk must retain
   under law.
 - **No hostage clauses.** No fee, delay, or contractual condition attaches
   to leaving. The product is sold on displacing an incumbent
@@ -95,7 +95,7 @@ Restating **BR68** in the terms a club signs:
   the relationship with families, and answers to them. The consent wording
   it uses is its own — the platform supplies a
   [draft](./consent-wording.md), not an obligation.
-- **Let'sDataTalk** processes that information only on the club's
+- **Let's Data Talk** processes that information only on the club's
   instructions and only for the purposes of providing the service. It does
   not sell, share, or use one club's data for another's benefit — Principle
   **P5** is the architectural form of that promise.

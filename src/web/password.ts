@@ -12,6 +12,7 @@ export const MINIMUM_LENGTH = 12;
 const OBVIOUS = [
   'password',
   'letsdatatalk',
+  'pitchpeople',
   'football',
   '123456',
   'qwerty',

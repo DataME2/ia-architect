@@ -66,13 +66,6 @@ export async function GET(request: NextRequest) {
   // becoming an open redirect on the one route that hands out sessions:
   // anything not on the published list is discarded rather than followed.
   const { data: isPlatform } = await client.rpc('app_is_platform');
-  // A guardian holds no club_membership (decision 11) — checked directly
-  // rather than assumed, so a genuine officer's landing page is unaffected.
-  const { data: membershipRows } = await client.from('club_membership').select('id').limit(1);
-  const next = landingFor(
-    request.nextUrl.searchParams.get('next'),
-    isPlatform === true,
-    (membershipRows?.length ?? 0) > 0,
-  );
+  const next = landingFor(request.nextUrl.searchParams.get('next'), isPlatform === true);
   return NextResponse.redirect(`${origin}${next}`);
 }

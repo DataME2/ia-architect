@@ -105,3 +105,31 @@ describe('confirmationStatus — BR166, BR167', () => {
     assert.equal(confirmationStatus('registrar', '2026-06-02T00:00:00Z', ['president', 'treasurer', 'secretary']).confirmed, true);
   });
 });
+
+it('governanceAbilities offers only what the database allows (scope 96)', async () => {
+  const { governanceAbilities } = await import('./governance-view.ts');
+  assert.deepEqual(governanceAbilities(['committee']), {
+    manageCommittee: false,
+    recordResolution: true,
+    enableVoucherProgram: true,
+  });
+  assert.deepEqual(governanceAbilities(['admin']), {
+    manageCommittee: true,
+    recordResolution: true,
+    enableVoucherProgram: true,
+  });
+  assert.deepEqual(governanceAbilities(['technical_director']), {
+    manageCommittee: false,
+    recordResolution: false,
+    enableVoucherProgram: false,
+  });
+});
+
+it('parseSubcommittee: a sub-committee is named, a management office never is (BR175)', async () => {
+  const { parseSubcommittee } = await import('./governance-view.ts');
+  assert.deepEqual(parseSubcommittee('management', 'Fundraising', 'Lead'), { ok: true, subcommittee: null, roleTitle: null });
+  assert.deepEqual(parseSubcommittee('subcommittee', ' Junior football ', ' Coordinator '), { ok: true, subcommittee: 'Junior football', roleTitle: 'Coordinator' });
+  assert.deepEqual(parseSubcommittee('subcommittee', 'Referees', ''), { ok: true, subcommittee: 'Referees', roleTitle: null });
+  assert.equal(parseSubcommittee('subcommittee', '', 'Lead').ok, false);
+  assert.equal(parseSubcommittee('subcommittee', 'Fundraising', 'X').ok, false);
+});

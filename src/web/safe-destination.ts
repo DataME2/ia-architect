@@ -23,7 +23,12 @@ export const SAFE_DESTINATIONS = [
 
 export type SafeDestination = (typeof SAFE_DESTINATIONS)[number];
 
-export const DEFAULT_DESTINATION: SafeDestination = '/registrar';
+/**
+ * Scope 95: every sign-in lands on `/me`, the person's own workspace, which
+ * already links a club officer on to the club screens. It used to be the
+ * club queue, which suited a registrar and nobody else.
+ */
+export const DEFAULT_DESTINATION: SafeDestination = '/me';
 
 /**
  * Where somebody holding no working credential is sent.
@@ -41,11 +46,15 @@ export const DEFAULT_DESTINATION: SafeDestination = '/registrar';
  */
 export const NO_CREDENTIAL_DESTINATION: SafeDestination = '/set-password';
 
-/** The requested destination if it is one we publish, otherwise the default. */
-export function safeDestination(value: string | undefined | null): SafeDestination {
-  if (typeof value !== 'string') return DEFAULT_DESTINATION;
-  const match = SAFE_DESTINATIONS.find((route) => route === value);
-  return match ?? DEFAULT_DESTINATION;
+/**
+ * The requested destination if it is one we publish, otherwise none — so
+ * the sign-in form carries no destination nobody asked for, and
+ * `landingFor` decides (it used to carry the default, which meant the
+ * platform operator was sent to the club queue too).
+ */
+export function safeDestination(value: string | undefined | null): SafeDestination | null {
+  if (typeof value !== 'string') return null;
+  return SAFE_DESTINATIONS.find((route) => route === value) ?? null;
 }
 
 /**
@@ -62,23 +71,17 @@ export function safeDestination(value: string | undefined | null): SafeDestinati
  * an operator who asks for the queue is entitled to see the same empty
  * answer anybody else would.
  *
- * **A guardian holds no club membership either** (decision 11), and `/registrar`
- * is exactly as wrong an answer for them as it is for the platform identity
- * — a queue for a club they administer nothing at. `hasMembership` (default
- * `true`, so every existing caller keeps its answer unless it says
- * otherwise) sends anybody without one to `/me` instead, which already
- * offers a club officer a link back to `/registrar` — so this never costs a
- * staff sign-in anything, and never sends a guardian looking for a queue
- * that was never theirs.
+ * Everybody else lands on `/me` (scope 95): a guardian, a player, a coach
+ * and a registrar alike. A club officer's workspace links on to the club
+ * screens, so nobody loses a route, and nobody is sent to a queue that was
+ * never theirs.
  */
 export function landingFor(
   requested: string | undefined | null,
   isPlatform: boolean,
-  hasMembership = true,
 ): SafeDestination {
   if (typeof requested === 'string' && SAFE_DESTINATIONS.includes(requested as SafeDestination)) {
     return requested as SafeDestination;
   }
-  if (isPlatform) return '/platform';
-  return hasMembership ? DEFAULT_DESTINATION : '/me';
+  return isPlatform ? '/platform' : DEFAULT_DESTINATION;
 }

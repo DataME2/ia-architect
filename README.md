@@ -1,8 +1,10 @@
-# Let'sDataTalk
+# PitchPeople
+
+**One identity. Every role. Connected football.** By Let’s Data Talk.
 
 _[← CONTRIBUTING](./CONTRIBUTING.md) · [Enterprise architecture](./docs/ea/README.md) · [Scope documents](./docs/scope/README.md)_
 
-**Let'sDataTalk** is a multiclub, multitenant, AI-assisted platform that
+**PitchPeople** is a multiclub, multitenant, AI-assisted platform that
 centralizes the operational, registration, financial, and documentary
 administration of football clubs and academies in Australia and New
 Zealand — player registrations, guardians, documents, fees and payment

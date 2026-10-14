@@ -42,6 +42,16 @@ export function canRecordAppearance(roles: readonly string[], coachesThePlayer: 
 }
 
 /**
+ * BR177: who may correct an appearance — record one late, change its
+ * figures, or remove it — always with a source. Everyone who records them
+ * (BR158), and the Technical Director. `app_correct_appearance` (0093) is
+ * the authority; this only decides whether the screen offers the form.
+ */
+export function canCorrectAppearance(roles: readonly string[], coachesThePlayer: boolean): boolean {
+  return canRecordAppearance(roles, coachesThePlayer) || roles.includes('technical_director');
+}
+
+/**
  * Who recorded an appearance and when (BR101), as the table shows it. An
  * account linked to no Person is named as such, never guessed at, and a row
  * from before the database kept the recorder (null) says that instead. The day is

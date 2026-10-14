@@ -26,7 +26,7 @@
  * to (BR93).
  */
 export const ENQUIRY_CONSENT_WORDING =
-  'Send me occasional emails about Let’sDataTalk — product news, pricing, and ' +
+  'Send me occasional emails about PitchPeople — product news, pricing, and ' +
   'availability. Optional: we will reply to this enquiry either way. We handle your ' +
   'details under the Australian Privacy Principles (Privacy Act 1988) and, for New Zealand ' +
   'clubs, the Privacy Act 2020. We will not sell them, and we will not pass them to a ' +

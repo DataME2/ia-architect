@@ -13,7 +13,7 @@ export interface BrandMarkProps extends React.SVGProps<SVGSVGElement> {
   size?: 'sm' | 'md' | 'lg' | number;
   /**
    * Accessible text label for screen readers.
-   * @default "Let'sDataTalk"
+   * @default "PitchPeople"
    */
   label?: string;
 }
@@ -25,7 +25,7 @@ const sizeMap = {
 };
 
 export const BrandMark = React.forwardRef<SVGSVGElement, BrandMarkProps>(
-  ({ size = 'md', label = "Let'sDataTalk", className, ...props }, ref) => {
+  ({ size = 'md', label = "PitchPeople", className, ...props }, ref) => {
     const dimension = typeof size === 'number' ? size : sizeMap[size] || 32;
 
     return (

@@ -23,6 +23,7 @@ import {
   weightLabel,
 } from '../../../../web/player-view.ts';
 import {
+  canCorrectAppearance,
   canRecordAppearance,
   canUploadPhotograph,
   canWritePlayerProfile,
@@ -32,7 +33,7 @@ import { todayIn } from '../../../../web/today.ts';
 import { StatusPill } from '../../../_components/rules.tsx';
 import { CorrectionReview } from './CorrectionReview.tsx';
 import { PhotoCropper } from './PhotoCropper.tsx';
-import { AppearanceForm, PlayerProfileForm } from './PlayerForms.tsx';
+import { AppearanceForm, CorrectAppearanceForm, PlayerProfileForm } from './PlayerForms.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,14 +76,28 @@ export default async function PlayerPage({
   );
   if (detail === null) notFound();
 
-  const [profile, appearances, fixtures, photoUrl, pendingCorrection, coachesThePlayer] = await Promise.all([
+  const [profile, appearances, fixtures, photoUrl, pendingCorrection, coachesThePlayer, correctionRows] = await Promise.all([
     loadPlayerProfile(client, registrationId),
     loadAppearances(client, registrationId),
     loadFixtures(client, tenant.clubId, season.id),
     photographUrl(client, detail.person.photoPath),
     loadPendingCorrection(client, registrationId),
     loadCoachesRegistration(client, registrationId),
+    // BR177: every correction, newest first, with the source it named.
+    client
+      .from('appearance_correction')
+      .select('fixture_id, action, source, corrected_at')
+      .eq('registration_id', registrationId)
+      .order('corrected_at', { ascending: false }),
   ]);
+  const corrections = (correctionRows.data ?? []) as {
+    fixture_id: string;
+    action: 'recorded' | 'corrected' | 'removed';
+    source: string;
+    corrected_at: string;
+  }[];
+  const lastCorrection = new Map<string, (typeof corrections)[number]>();
+  for (const c of corrections) if (!lastCorrection.has(c.fixture_id)) lastCorrection.set(c.fixture_id, c);
   const recorders = await loadRecorderNames(
     client,
     tenant.clubId,
@@ -95,6 +110,8 @@ export default async function PlayerPage({
   // A photograph on file that this viewer may not see is not "no photo" (BR157).
   // BR158: the admin, registrar, coordinator, or the player's own coach.
   const recordsAppearances = canRecordAppearance(tenant.roles, coachesThePlayer);
+  // BR177: the same people, and the Technical Director, correct one — with a source.
+  const correctsAppearances = canCorrectAppearance(tenant.roles, coachesThePlayer);
   const photoWithheld = detail.person.photoPath !== null && photoUrl === null;
 
   const record = seasonRecord(appearances);
@@ -222,6 +239,12 @@ export default async function PlayerPage({
           fixtures={fixtureOptions}
         />
       )}
+      {correctsAppearances && !recordsAppearances && fixtureOptions.length > 0 && (
+        <details className="process-detail">
+          <summary>Record a missing appearance, with its source</summary>
+          <CorrectAppearanceForm registrationId={registrationId} fixtures={fixtureOptions} />
+        </details>
+      )}
 
       <h3>Appearances</h3>
       {recent.length === 0 ? (
@@ -240,6 +263,7 @@ export default async function PlayerPage({
                 <th>G</th>
                 <th>A</th>
                 <th>Recorded</th>
+                {correctsAppearances && <th>Correct</th>}
               </tr>
             </thead>
             <tbody>
@@ -260,12 +284,46 @@ export default async function PlayerPage({
                       a.recordedBy === null ? null : recorders.get(a.recordedBy),
                       a.recordedAt,
                     )}
+                    {lastCorrection.get(a.fixtureId) !== undefined && (
+                      <>
+                        <br />
+                        Corrected {lastCorrection.get(a.fixtureId)!.corrected_at.slice(0, 10)}: &ldquo;
+                        {lastCorrection.get(a.fixtureId)!.source}&rdquo;
+                      </>
+                    )}
                   </td>
+                  {correctsAppearances && (
+                    <td>
+                      <details>
+                        <summary>Correct</summary>
+                        <CorrectAppearanceForm
+                          registrationId={registrationId}
+                          fixtureId={a.fixtureId}
+                          current={{ minutes: a.minutesPlayed, goals: a.goals, assists: a.assists, started: a.started }}
+                        />
+                      </details>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {corrections.some((c) => c.action === 'removed') && (
+        <>
+          <h4>Removed appearances</h4>
+          <ul className="hint">
+            {corrections
+              .filter((c) => c.action === 'removed')
+              .map((c) => (
+                <li key={`${c.fixture_id}-${c.corrected_at}`}>
+                  {c.corrected_at.slice(0, 10)}: &ldquo;{c.source}&rdquo;
+                </li>
+              ))}
+          </ul>
+        </>
       )}
 
       <p className="hint">
