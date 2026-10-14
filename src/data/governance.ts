@@ -185,6 +185,8 @@ export async function appointMember(
   position: CommitteePosition,
   electedOn: IsoDate | null,
   actorUserId: string,
+  /** BR175: null for a management office. */
+  place: { readonly subcommittee: string | null; readonly roleTitle: string | null } = { subcommittee: null, roleTitle: null },
 ): Promise<GovernanceResult> {
   const { error } = await client.from('committee_position').insert({
     club_id: clubId,
@@ -192,6 +194,8 @@ export async function appointMember(
     person_id: personId,
     position,
     elected_on: electedOn,
+    subcommittee: place.subcommittee,
+    role_title: place.roleTitle,
   });
   if (error !== null) {
     return error.message.includes('committee_position_term_id_person_id_position_key')
@@ -203,7 +207,7 @@ export async function appointMember(
     action: 'committee_member_appointed',
     entity: 'committee_position',
     entityId: personId,
-    detail: { termId, position, electedOn, rule: 'BR85' },
+    detail: { termId, position, electedOn, subcommittee: place.subcommittee, roleTitle: place.roleTitle, rules: ['BR85', 'BR175'] },
   });
   return { ok: true };
 }
@@ -221,10 +225,11 @@ export async function editPosition(
   position: CommitteePosition,
   electedOn: IsoDate | null,
   actorUserId: string,
+  place: { readonly subcommittee: string | null; readonly roleTitle: string | null } = { subcommittee: null, roleTitle: null },
 ): Promise<GovernanceResult> {
   const { error } = await client
     .from('committee_position')
-    .update({ position, elected_on: electedOn })
+    .update({ position, elected_on: electedOn, subcommittee: place.subcommittee, role_title: place.roleTitle })
     .eq('id', positionId)
     .eq('club_id', clubId);
   if (error !== null) {
@@ -237,7 +242,7 @@ export async function editPosition(
     action: 'committee_member_corrected',
     entity: 'committee_position',
     entityId: positionId,
-    detail: { position, electedOn, rule: 'BR85' },
+    detail: { position, electedOn, subcommittee: place.subcommittee, roleTitle: place.roleTitle, rules: ['BR85', 'BR175'] },
   });
   return { ok: true };
 }

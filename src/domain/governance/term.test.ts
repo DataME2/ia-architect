@@ -188,3 +188,49 @@ describe('BR87 — a committee is adults', () => {
     assert.equal(mayHoldCommitteePosition(aged('1900-01-01'), TERM_START), true);
   });
 });
+
+describe('BR175 — the Management Committee and its sub-committees', () => {
+  const m = (id: string, position: CommitteeMember['position'], subcommittee: string | null = null, roleTitle: string | null = null): CommitteeMember => ({
+    id, termId: 't', personId: id, position, electedOn: null, resignedOn: null, confirmedAt: null, subcommittee, roleTitle,
+  });
+
+  test('the five offices are the Management Committee; everything else is a sub-committee', async () => {
+    const { committeeBody } = await import('./term.ts');
+    for (const p of ['president', 'secretary', 'treasurer', 'it-manager', 'registrar'] as const) {
+      assert.equal(committeeBody(p), 'management', p);
+    }
+    for (const p of ['vice-president', 'committee-member', 'subcommittee-member'] as const) {
+      assert.equal(committeeBody(p), 'subcommittee', p);
+    }
+  });
+
+  test('the Management Committee reads in office order', async () => {
+    const { managementCommittee } = await import('./term.ts');
+    const ordered = managementCommittee([m('a', 'treasurer'), m('b', 'committee-member', 'Fundraising'), m('c', 'president'), m('d', 'registrar')]);
+    assert.deepEqual(ordered.map((x) => x.position), ['president', 'treasurer', 'registrar']);
+  });
+
+  test('sub-committees group by name ignoring case and space, unnamed last', async () => {
+    const { subcommitteeGroups } = await import('./term.ts');
+    const groups = subcommitteeGroups([
+      m('a', 'committee-member', 'Junior football', 'Coordinator'),
+      m('b', 'subcommittee-member', ' junior FOOTBALL'),
+      m('c', 'vice-president'),
+      m('d', 'committee-member', 'Fundraising'),
+      m('e', 'president'),
+    ]);
+    assert.deepEqual(groups.map((g) => [g.name, g.members.map((x) => x.id)]), [
+      ['Fundraising', ['d']],
+      ['Junior football', ['a', 'b']],
+      [null, ['c']],
+    ]);
+  });
+
+  test('a position reads as its office, or as sub-committee and role', async () => {
+    const { positionLine } = await import('./term.ts');
+    assert.equal(positionLine(m('a', 'secretary'), 'Secretary'), 'Secretary');
+    assert.equal(positionLine(m('b', 'committee-member', 'Junior football', 'Coordinator'), 'Committee member'), 'Junior football · Coordinator');
+    assert.equal(positionLine(m('c', 'subcommittee-member', 'Referees'), 'Subcommittee member'), 'Referees · Subcommittee member');
+    assert.equal(positionLine(m('d', 'vice-president'), 'Vice-president'), 'Vice-president');
+  });
+});

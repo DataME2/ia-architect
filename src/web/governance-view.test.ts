@@ -124,3 +124,12 @@ it('governanceAbilities offers only what the database allows (scope 96)', async 
     enableVoucherProgram: false,
   });
 });
+
+it('parseSubcommittee: a sub-committee is named, a management office never is (BR175)', async () => {
+  const { parseSubcommittee } = await import('./governance-view.ts');
+  assert.deepEqual(parseSubcommittee('management', 'Fundraising', 'Lead'), { ok: true, subcommittee: null, roleTitle: null });
+  assert.deepEqual(parseSubcommittee('subcommittee', ' Junior football ', ' Coordinator '), { ok: true, subcommittee: 'Junior football', roleTitle: 'Coordinator' });
+  assert.deepEqual(parseSubcommittee('subcommittee', 'Referees', ''), { ok: true, subcommittee: 'Referees', roleTitle: null });
+  assert.equal(parseSubcommittee('subcommittee', '', 'Lead').ok, false);
+  assert.equal(parseSubcommittee('subcommittee', 'Fundraising', 'X').ok, false);
+});

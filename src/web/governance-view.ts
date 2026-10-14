@@ -191,3 +191,25 @@ export function governanceAbilities(roles: readonly string[]): GovernanceAbiliti
     enableVoucherProgram: holds('admin', 'committee'),
   };
 }
+
+/**
+ * BR175: a sub-committee position names its sub-committee, and may name the
+ * member's role in it; a management office names neither, whatever was
+ * typed (0092 refuses it). Mirrors 0092's 2–60 characters.
+ */
+export function parseSubcommittee(
+  body: 'management' | 'subcommittee',
+  subcommitteeRaw: string,
+  roleRaw: string,
+): { readonly ok: true; readonly subcommittee: string | null; readonly roleTitle: string | null } | { readonly ok: false; readonly error: string } {
+  if (body === 'management') return { ok: true, subcommittee: null, roleTitle: null };
+  const subcommittee = subcommitteeRaw.trim();
+  const roleTitle = roleRaw.trim();
+  if (subcommittee.length < 2 || subcommittee.length > 60) {
+    return { ok: false, error: 'Name the sub-committee (2 to 60 characters), for example "Junior football".' };
+  }
+  if (roleTitle !== '' && (roleTitle.length < 2 || roleTitle.length > 60)) {
+    return { ok: false, error: 'A role is 2 to 60 characters, for example "Coordinator".' };
+  }
+  return { ok: true, subcommittee, roleTitle: roleTitle === '' ? null : roleTitle };
+}

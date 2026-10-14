@@ -63,7 +63,10 @@ export default async function CommitteeHubPage() {
             ; each document is filed here as a link.
           </>
         ) : (
-          <>Files are held privately by Let&rsquo;sDataTalk.</>
+          <>
+            Files are held privately in PitchPeople storage (Supabase), the default. A club on Microsoft 365
+            can keep them in its own SharePoint or OneDrive for Business instead; the IT Manager chooses below.
+          </>
         )}{' '}
         <span className="mono" style={{ fontSize: '0.7rem' }}>BR168</span>
       </p>

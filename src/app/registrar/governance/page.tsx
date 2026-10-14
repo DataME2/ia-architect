@@ -13,7 +13,9 @@ import { createRequestClient, currentUser } from '../../../data/server.ts';
 import {
   daysUntilAgm,
   governingTerm,
+  managementCommittee,
   serving,
+  subcommitteeGroups,
   termStatus,
   vacantOffices,
 } from '../../../domain/governance/term.ts';
@@ -149,6 +151,62 @@ export default async function GovernancePage() {
         );
         const vacant = vacantOffices(members.filter((m) => m.termId === term.id), today);
         const isGoverning = governing?.id === term.id;
+        const management = managementCommittee(termMembers);
+        const groups = subcommitteeGroups(termMembers);
+        const subcommitteeNames = groups.flatMap((g) => (g.name === null ? [] : [g.name]));
+        const memberTable = (rows: readonly (typeof termMembers)[number][]) => (
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Position</th>
+                  <th>Person</th>
+                  <th>Elected</th>
+                  <th>Confirmed</th>
+                  <th>Access it carries</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((member) => {
+                  const person = people.get(member.personId);
+                  return (
+                    <MemberRow
+                      key={member.id}
+                      editable={can.manageCommittee}
+                      subcommittee={member.subcommittee ?? null}
+                      roleTitle={member.roleTitle ?? null}
+                      subcommittees={subcommitteeNames}
+                      positionId={member.id}
+                      position={member.position}
+                      electedOn={member.electedOn}
+                      person={person}
+                      confirmation={(() => {
+                        const st = confirmationStatus(member.position, member.confirmedAt, confirmations.get(member.id) ?? []);
+                        const canConfirm = st.awaiting.some((o) => myExecutive(term.id).includes(o));
+                        return (
+                          <>
+                            <span className={st.confirmed ? 'pill pill-ok' : 'pill pill-warn'}>{st.label}</span>
+                            {canConfirm && <ConfirmPositionButton positionId={member.id} />}
+                          </>
+                        );
+                      })()}
+                      access={
+                        <AccessCell
+                          target={{ positionId: member.id }}
+                          state={accessState(accessByPosition.get(member.id))}
+                          accessRole={accessFor(accessMap, 'office', member.position)}
+                          mayConfirm={mayConfirm}
+                          current={isGoverning}
+                        />
+                      }
+                    />
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        );
 
         return (
           <section className="card" key={term.id}>
@@ -185,54 +243,36 @@ export default async function GovernancePage() {
             {termMembers.length === 0 ? (
               <p className="empty">Nobody recorded in this term yet.</p>
             ) : (
-              <div className="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Position</th>
-                      <th>Person</th>
-                      <th>Elected</th>
-                      <th>Confirmed</th>
-                      <th>Access it carries</th>
-                      <th />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {termMembers.map((member) => {
-                      const person = people.get(member.personId);
-                      return (
-                        <MemberRow
-                          key={member.id}
-                          editable={can.manageCommittee}
-                          positionId={member.id}
-                          position={member.position}
-                          electedOn={member.electedOn}
-                          person={person}
-                          confirmation={(() => {
-                            const st = confirmationStatus(member.position, member.confirmedAt, confirmations.get(member.id) ?? []);
-                            const canConfirm = st.awaiting.some((o) => myExecutive(term.id).includes(o));
-                            return (
-                              <>
-                                <span className={st.confirmed ? 'pill pill-ok' : 'pill pill-warn'}>{st.label}</span>
-                                {canConfirm && <ConfirmPositionButton positionId={member.id} />}
-                              </>
-                            );
-                          })()}
-                          access={
-                            <AccessCell
-                              target={{ positionId: member.id }}
-                              state={accessState(accessByPosition.get(member.id))}
-                              accessRole={accessFor(accessMap, 'office', member.position)}
-                              mayConfirm={mayConfirm}
-                              current={isGoverning}
-                            />
-                          }
-                        />
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <>
+                {/* BR175: the body that governs, then the sub-committees that do the work. */}
+                <h4>Management Committee</h4>
+                <p className="hint" style={{ marginTop: 0 }}>
+                  President, Secretary and Treasurer, with the IT Manager and the Registrar where the club
+                  holds those offices.
+                </p>
+                {management.length === 0 ? (
+                  <p className="empty">No officer recorded in this term yet.</p>
+                ) : (
+                  memberTable(management)
+                )}
+                <h4>Sub-committees</h4>
+                {groups.length === 0 ? (
+                  <p className="empty">No sub-committee recorded in this term yet.</p>
+                ) : (
+                  groups.map((group) => (
+                    <div key={group.name ?? '—'}>
+                      <h5 style={{ margin: '0.9rem 0 0.4rem' }}>
+                        {group.name ?? 'Not yet assigned to a sub-committee'}
+                        <span className="hint" style={{ fontWeight: 400 }}>
+                          {' '}
+                          &middot; {group.members.length} {group.members.length === 1 ? 'member' : 'members'}
+                        </span>
+                      </h5>
+                      {memberTable(group.members)}
+                    </div>
+                  ))
+                )}
+              </>
             )}
 
             {(() => {
@@ -267,7 +307,7 @@ export default async function GovernancePage() {
                   Adults only (BR87). A parent can serve, and so can a life member; a MiniRoos
                   player cannot.
                 </p>
-                <AppointForm termId={term.id} people={assignable} />
+                <AppointForm termId={term.id} people={assignable} subcommittees={subcommitteeNames} />
               </>
             )}
 

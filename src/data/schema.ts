@@ -339,6 +339,9 @@ export interface CommitteePositionRow {
   elected_on: DateString | null;
   resigned_on: DateString | null;
   confirmed_at?: InstantString | null;
+  /** BR175 (0092). */
+  subcommittee?: string | null;
+  role_title?: string | null;
   created_at: InstantString;
 }
 

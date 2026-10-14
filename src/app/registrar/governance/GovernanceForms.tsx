@@ -5,7 +5,7 @@ import { useActionState, useState, type ReactNode } from 'react';
 import { IDLE_FORM, type FormResult } from '../../../web/form-result.ts';
 import { FormNotice } from '../_components/FormNotice.tsx';
 
-import { COMMITTEE_POSITIONS, type CommitteePosition } from '../../../domain/governance/term.ts';
+import { COMMITTEE_POSITIONS, committeeBody, type CommitteePosition } from '../../../domain/governance/term.ts';
 import { accessLabel } from '../../../web/access-view.ts';
 import { FUNCTION_KINDS, FUNCTION_LABEL, type AccessState } from '../../../web/appointment-view.ts';
 import { POSITION_LABEL, RESOLUTION_CATEGORY_LABEL } from '../../../web/governance-view.ts';
@@ -70,14 +70,18 @@ export function NewTermForm() {
 export function AppointForm({
   termId,
   people,
+  subcommittees,
 }: {
   readonly termId: string;
   readonly people: readonly { readonly id: string; readonly label: string }[];
+  /** BR175: the sub-committees already named this term, offered as suggestions. */
+  readonly subcommittees: readonly string[];
 }) {
   const [result, formAction, pending] = useActionState<FormResult, FormData>(
     appointMemberAction,
     IDLE_FORM,
   );
+  const [position, setPosition] = useState<CommitteePosition>('committee-member');
 
   return (
     <>
@@ -102,14 +106,15 @@ export function AppointForm({
         </div>
         <div style={{ flex: '1 1 9rem' }}>
           <label htmlFor={`position-${termId}`}>Position</label>
-          <select id={`position-${termId}`} name="position" defaultValue="committee-member">
-            {COMMITTEE_POSITIONS.map((position) => (
-              <option key={position} value={position}>
-                {POSITION_LABEL[position]}
-              </option>
-            ))}
-          </select>
+          <PositionSelect
+            id={`position-${termId}`}
+            value={position}
+            onChange={setPosition}
+          />
         </div>
+        {committeeBody(position) === 'subcommittee' && (
+          <SubcommitteeFields idPrefix={`appoint-${termId}`} names={subcommittees} />
+        )}
         <div style={{ flex: '1 1 8rem' }}>
           <label htmlFor={`elected-${termId}`}>Elected</label>
           <input id={`elected-${termId}`} name="electedOn" type="date" />
@@ -129,19 +134,26 @@ export function AppointForm({
  */
 export function EditPositionForm({
   positionId,
-  position,
+  position: recorded,
   electedOn,
+  subcommittee,
+  roleTitle,
+  subcommittees,
   onDone,
 }: {
   readonly positionId: string;
   readonly position: CommitteePosition;
   readonly electedOn: string | null;
+  readonly subcommittee: string | null;
+  readonly roleTitle: string | null;
+  readonly subcommittees: readonly string[];
   readonly onDone: () => void;
 }) {
   const [result, formAction, pending] = useActionState<FormResult, FormData>(
     editMemberAction,
     IDLE_FORM,
   );
+  const [position, setPosition] = useState<CommitteePosition>(recorded);
 
   return (
     <form
@@ -151,14 +163,16 @@ export function EditPositionForm({
       <input type="hidden" name="positionId" value={positionId} />
       <div style={{ flex: '1 1 9rem' }}>
         <label htmlFor={`edit-position-${positionId}`}>Position</label>
-        <select id={`edit-position-${positionId}`} name="position" defaultValue={position}>
-          {COMMITTEE_POSITIONS.map((p) => (
-            <option key={p} value={p}>
-              {POSITION_LABEL[p]}
-            </option>
-          ))}
-        </select>
+        <PositionSelect id={`edit-position-${positionId}`} value={position} onChange={setPosition} />
       </div>
+      {committeeBody(position) === 'subcommittee' && (
+        <SubcommitteeFields
+          idPrefix={`edit-${positionId}`}
+          names={subcommittees}
+          defaultSubcommittee={subcommittee}
+          defaultRole={roleTitle}
+        />
+      )}
       <div style={{ flex: '1 1 8rem' }}>
         <label htmlFor={`edit-elected-${positionId}`}>Elected</label>
         <input
@@ -316,9 +330,15 @@ export function MemberRow({
   access,
   confirmation,
   editable,
+  subcommittee = null,
+  roleTitle = null,
+  subcommittees = [],
 }: {
   /** Admin only (0011): anyone else sees the row without Edit or Resigned. */
   readonly editable: boolean;
+  readonly subcommittee?: string | null;
+  readonly roleTitle?: string | null;
+  readonly subcommittees?: readonly string[];
   readonly positionId: string;
   readonly position: CommitteePosition;
   readonly electedOn: string | null;
@@ -337,6 +357,9 @@ export function MemberRow({
             positionId={positionId}
             position={position}
             electedOn={electedOn}
+            subcommittee={subcommittee}
+            roleTitle={roleTitle}
+            subcommittees={subcommittees}
             onDone={() => setEditing(false)}
           />
         </td>
@@ -346,7 +369,10 @@ export function MemberRow({
 
   return (
     <tr>
-      <td>{POSITION_LABEL[position]}</td>
+      <td>
+        {roleTitle ?? POSITION_LABEL[position]}
+        {roleTitle !== null && <span className="hint"> &middot; {POSITION_LABEL[position]}</span>}
+      </td>
       <td>
         {person === undefined ? (
           <span className="hint">Unknown person</span>
@@ -531,5 +557,84 @@ export function ConfirmPositionButton({ positionId }: { readonly positionId: str
       </button>
       <FormNotice result={state} />
     </form>
+  );
+}
+
+/**
+ * BR175: the positions, grouped by the body they belong to, so choosing one
+ * says which body it is.
+ */
+function PositionSelect({
+  id,
+  value,
+  onChange,
+}: {
+  readonly id: string;
+  readonly value: CommitteePosition;
+  readonly onChange: (position: CommitteePosition) => void;
+}) {
+  return (
+    <select id={id} name="position" aria-label="Position" value={value} onChange={(e) => onChange(e.target.value as CommitteePosition)}>
+      <optgroup label="Management Committee">
+        {COMMITTEE_POSITIONS.filter((p) => committeeBody(p) === 'management').map((p) => (
+          <option key={p} value={p}>
+            {POSITION_LABEL[p]}
+          </option>
+        ))}
+      </optgroup>
+      <optgroup label="Sub-committee">
+        {COMMITTEE_POSITIONS.filter((p) => committeeBody(p) === 'subcommittee').map((p) => (
+          <option key={p} value={p}>
+            {POSITION_LABEL[p]}
+          </option>
+        ))}
+      </optgroup>
+    </select>
+  );
+}
+
+/** BR175: which sub-committee, and the member's role in it. */
+function SubcommitteeFields({
+  idPrefix,
+  names,
+  defaultSubcommittee = null,
+  defaultRole = null,
+}: {
+  readonly idPrefix: string;
+  readonly names: readonly string[];
+  readonly defaultSubcommittee?: string | null;
+  readonly defaultRole?: string | null;
+}) {
+  return (
+    <>
+      <div style={{ flex: '1 1 10rem' }}>
+        <label htmlFor={`${idPrefix}-subcommittee`}>Sub-committee</label>
+        <input
+          id={`${idPrefix}-subcommittee`}
+          name="subcommittee"
+          list={`${idPrefix}-subcommittees`}
+          defaultValue={defaultSubcommittee ?? ''}
+          placeholder="Junior football"
+          required
+          minLength={2}
+          maxLength={60}
+        />
+        <datalist id={`${idPrefix}-subcommittees`}>
+          {names.map((n) => (
+            <option key={n} value={n} />
+          ))}
+        </datalist>
+      </div>
+      <div style={{ flex: '1 1 9rem' }}>
+        <label htmlFor={`${idPrefix}-role`}>Role in it</label>
+        <input
+          id={`${idPrefix}-role`}
+          name="roleTitle"
+          defaultValue={defaultRole ?? ''}
+          placeholder="Coordinator"
+          maxLength={60}
+        />
+      </div>
+    </>
   );
 }

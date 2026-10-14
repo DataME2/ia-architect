@@ -33,3 +33,10 @@ describe('isHubKind', () => {
     assert.equal(isHubKind('memo'), false);
   });
 });
+
+it('a OneDrive for Business link is the club’s own Microsoft 365; a personal OneDrive is not (scope 97)', async () => {
+  const { isSharePointUrl } = await import('./committee-hub.ts');
+  assert.equal(isSharePointUrl('https://northstarfc-my.sharepoint.com/personal/secretary/Documents/minutes.pdf'), true);
+  assert.equal(isSharePointUrl('https://onedrive.live.com/?id=123'), false);
+  assert.equal(isSharePointUrl('https://1drv.ms/b/s!abc'), false);
+});

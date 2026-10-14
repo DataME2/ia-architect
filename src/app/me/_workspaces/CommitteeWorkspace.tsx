@@ -1,9 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import {
+  committeeBody,
   daysUntilAgm,
   governingTerm,
+  managementCommittee,
+  positionLine,
   serving,
+  subcommitteeGroups,
   termStatus,
   vacantOffices,
 } from '../../../domain/governance/term.ts';
@@ -256,13 +260,18 @@ export async function CommitteeWorkspace({
                       : `AGM due ${term.nextAgmDueOn}`}
                 </span>
                 <ul className="roster">
-                  {members.map((m) => {
+                  {/* BR175: the Management Committee first, then each sub-committee. */}
+                  {[...managementCommittee(members), ...subcommitteeGroups(members).flatMap((g) => g.members)].map((m) => {
                     const person = governance.people.get(m.personId);
                     return (
                       <li key={m.id}>
                         <span>
                           <span className="who">{person === undefined ? 'Unknown' : displayNameFor(person)}</span>
-                          <span className="why">{titleCase(m.position)}</span>
+                          <span className="why">
+                            {committeeBody(m.position) === 'management'
+                              ? `Management Committee · ${POSITION_LABEL[m.position]}`
+                              : positionLine(m, POSITION_LABEL[m.position])}
+                          </span>
                         </span>
                         {m.personId === link.personId && <span className="pill pill-info">You</span>}
                       </li>

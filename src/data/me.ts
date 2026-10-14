@@ -14,11 +14,16 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import {
+  committeeBody,
   governingTerm,
+  managementCommittee,
+  positionLine,
   serving,
   termStatus,
+  type CommitteeMember,
   type CommitteeTerm,
 } from '../domain/governance/term.ts';
+import { POSITION_LABEL } from '../web/governance-view.ts';
 import type { Person } from '../domain/types.ts';
 import { guardianScope, holdsCommitteeRole, type FixtureLike } from '../web/me-view.ts';
 import type { OwnCredential } from '../web/officials-own-view.ts';
@@ -185,15 +190,16 @@ export async function loadMe(client: SupabaseClient, userId: string, today: stri
 
     let term: CommitteeTerm | null = null;
     let myPositions: string[] = [];
+    let myMembers: CommitteeMember[] = [];
 
     if (myPositionRows.length > 0) {
       const governance = await loadGovernanceOrEmpty(client, link.club_id);
       term = governingTerm(governance.terms, today);
       if (term !== null) {
         const governing = term;
-        myPositions = serving(governance.members, today)
-          .filter((m) => m.termId === governing.id && m.personId === link.person_id)
-          .map((m) => m.position);
+        myMembers = serving(governance.members, today)
+          .filter((m) => m.termId === governing.id && m.personId === link.person_id);
+        myPositions = myMembers.map((m) => m.position);
       }
     }
 
@@ -256,7 +262,16 @@ export async function loadMe(client: SupabaseClient, userId: string, today: stri
         // The office names the workspace where there is one. Somebody
         // admitted by an access role holds no office, and the rail says
         // "Governance" rather than inventing a position for them.
-        committeeScope = myPositions[0] === undefined ? null : titleCase(myPositions[0]);
+        // BR175: an officer reads "Management Committee · Secretary"; a
+        // sub-committee member reads "Junior football · Coordinator". An
+        // office leads when somebody holds both.
+        const first = managementCommittee(myMembers)[0] ?? myMembers[0];
+        committeeScope =
+          first === undefined
+            ? null
+            : committeeBody(first.position) === 'management'
+              ? `Management Committee · ${POSITION_LABEL[first.position]}`
+              : positionLine(first, POSITION_LABEL[first.position]);
         committeePending = termStatus(governingNow, today) === 'overdue' ? 1 : 0;
       }
     }
@@ -298,9 +313,6 @@ export async function loadMe(client: SupabaseClient, userId: string, today: stri
   };
 }
 
-function titleCase(value: string): string {
-  return value.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-}
 
 /* ─────────────────────────────── per-workspace reads ─────────────────── */
 

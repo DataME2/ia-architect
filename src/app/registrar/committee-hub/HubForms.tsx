@@ -58,7 +58,7 @@ export function FileDocumentForm({
       </label>
       {sharepoint ? (
         <label>
-          SharePoint link <input name="url" placeholder="https://your-club.sharepoint.com/…" />
+          Microsoft 365 link (SharePoint or OneDrive for Business) <input name="url" placeholder="https://your-club.sharepoint.com/…" />
         </label>
       ) : (
         <label>
@@ -109,12 +109,12 @@ export function HubSettingsForm({
         <legend>Where the committee&rsquo;s documents live</legend>
         <label>
           <input type="radio" name="storage" value="platform" checked={mode === 'platform'} onChange={() => setMode('platform')} />{' '}
-          In Let&rsquo;sDataTalk (private, committee only)
+          PitchPeople storage &mdash; the default: held privately in Supabase, committee only
         </label>
         <br />
         <label>
           <input type="radio" name="storage" value="sharepoint" checked={mode === 'sharepoint'} onChange={() => setMode('sharepoint')} />{' '}
-          In the club&rsquo;s Microsoft 365 SharePoint
+          The club&rsquo;s Microsoft 365 &mdash; a SharePoint library or OneDrive for Business; each document is filed here as a link
         </label>
       </fieldset>
       {mode === 'sharepoint' && (

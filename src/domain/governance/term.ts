@@ -45,6 +45,10 @@ export interface CommitteeMember {
   readonly resignedOn: IsoDate | null;
   /** BR166/BR167: when the position was confirmed, or null while it is not. */
   readonly confirmedAt: string | null;
+  /** BR175: the sub-committee a non-management position belongs to. */
+  readonly subcommittee?: string | null;
+  /** BR175: the member's role within that sub-committee. */
+  readonly roleTitle?: string | null;
 }
 
 /**
@@ -187,3 +191,65 @@ export const CLEARANCE_EXPECTED_OF = [
   'team official',
   'match official',
 ] as const;
+
+/**
+ * BR175 — the Management Committee: the three officers, with the IT Manager
+ * and the Registrar where the club holds those offices. Every other position
+ * belongs to a sub-committee. Whether the Vice-president belongs here is
+ * open question 83 (adopted: no); 0092's check names the same five.
+ */
+export const MANAGEMENT_OFFICES: readonly CommitteePosition[] = [
+  'president',
+  'secretary',
+  'treasurer',
+  'it-manager',
+  'registrar',
+];
+
+export type CommitteeBody = 'management' | 'subcommittee';
+
+export function committeeBody(position: CommitteePosition): CommitteeBody {
+  return MANAGEMENT_OFFICES.includes(position) ? 'management' : 'subcommittee';
+}
+
+/** The Management Committee's members, in office order. */
+export function managementCommittee(members: readonly CommitteeMember[]): readonly CommitteeMember[] {
+  return members
+    .filter((m) => committeeBody(m.position) === 'management')
+    .sort((a, b) => MANAGEMENT_OFFICES.indexOf(a.position) - MANAGEMENT_OFFICES.indexOf(b.position));
+}
+
+export interface SubcommitteeGroup {
+  /** As first written; null for positions recorded before 0092 named one. */
+  readonly name: string | null;
+  readonly members: readonly CommitteeMember[];
+}
+
+/**
+ * Sub-committee members grouped by sub-committee, alphabetically, with the
+ * unnamed ones last. Names compare ignoring case and surrounding space, as
+ * 0092's unique key does, so "Junior football" and "junior Football " are
+ * one group rather than two.
+ */
+export function subcommitteeGroups(members: readonly CommitteeMember[]): readonly SubcommitteeGroup[] {
+  const groups = new Map<string, { name: string | null; members: CommitteeMember[] }>();
+  for (const m of members) {
+    if (committeeBody(m.position) !== 'subcommittee') continue;
+    const name = m.subcommittee?.trim() || null;
+    const key = name === null ? '' : name.toLowerCase();
+    const group = groups.get(key) ?? { name, members: [] };
+    group.members.push(m);
+    groups.set(key, group);
+  }
+  return [...groups.entries()]
+    .sort(([a], [b]) => (a === '' ? 1 : b === '' ? -1 : a.localeCompare(b)))
+    .map(([, g]) => g);
+}
+
+/** How a position reads in one line: "Secretary", or "Junior football · Coordinator". */
+export function positionLine(member: Pick<CommitteeMember, 'position' | 'subcommittee' | 'roleTitle'>, label: string): string {
+  if (committeeBody(member.position) === 'management') return label;
+  const sub = member.subcommittee?.trim();
+  const role = member.roleTitle?.trim() || label;
+  return sub ? `${sub} · ${role}` : role;
+}

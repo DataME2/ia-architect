@@ -15,11 +15,11 @@ import {
 import { appointFunction, confirmAppointmentAccess, endFunction } from '../../../data/appointments.ts';
 import { loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
-import { COMMITTEE_POSITIONS, type CommitteePosition } from '../../../domain/governance/term.ts';
+import { COMMITTEE_POSITIONS, committeeBody, type CommitteePosition } from '../../../domain/governance/term.ts';
 import { accessLabel } from '../../../web/access-view.ts';
 import { FUNCTION_LABEL, isFunctionKind } from '../../../web/appointment-view.ts';
 import { parseDueDate } from '../../../web/plan-view.ts';
-import { parseEnablement, parseResolution } from '../../../web/governance-view.ts';
+import { parseEnablement, parseResolution, parseSubcommittee } from '../../../web/governance-view.ts';
 import { todayIn } from '../../../web/today.ts';
 import { testAddressNote } from '../../../web/test-address.ts';
 import { sendWorkspaceMagicLink } from '../actions.ts';
@@ -101,6 +101,13 @@ export async function appointMemberAction(
     return formFailed('Enter the election date as a real calendar date.');
   }
 
+  const place = parseSubcommittee(
+    committeeBody(position),
+    String(formData.get('subcommittee') ?? ''),
+    String(formData.get('roleTitle') ?? ''),
+  );
+  if (!place.ok) return formFailed(place.error);
+
   const { client, user, tenant } = await requireTenant();
   const result = await appointMember(
     client,
@@ -110,6 +117,7 @@ export async function appointMemberAction(
     position,
     electedOn,
     user.id,
+    place,
   );
   if (!result.ok) return formFailed(result.error);
 
@@ -135,8 +143,15 @@ export async function editMemberAction(
     return formFailed('Enter the election date as a real calendar date.');
   }
 
+  const place = parseSubcommittee(
+    committeeBody(position),
+    String(formData.get('subcommittee') ?? ''),
+    String(formData.get('roleTitle') ?? ''),
+  );
+  if (!place.ok) return formFailed(place.error);
+
   const { client, user, tenant } = await requireTenant();
-  const result = await editPosition(client, tenant.clubId, positionId, position, electedOn, user.id);
+  const result = await editPosition(client, tenant.clubId, positionId, position, electedOn, user.id, place);
   if (!result.ok) return formFailed(result.error);
 
   revalidatePath('/registrar/governance');
