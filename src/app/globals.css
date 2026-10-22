@@ -719,6 +719,15 @@ h3 {
   background: var(--stop-dot);
 }
 
+.pill-info {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
+.pill-info::before {
+  background: var(--info-dot);
+}
+
 /* --------------------------------------------------------- rule list */
 
 .rules {
@@ -4434,4 +4443,902 @@ nav[aria-label='Club administration'] div > p:first-child {
   font-family: var(--font-mono);
   font-size: 0.8rem;
   color: var(--muted);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   THE FRONT DOOR — scope 100
+
+   The landing page tells one idea, one Person in every role, as a scroll.
+   Panels inside the shell rather than full-bleed bands: breaking out needs
+   100vw, which counts the scrollbar and scrolls the page sideways.
+
+   **All the scroll-linked motion is CSS** (scroll-driven animations), inside
+   @supports and no-preference. A browser without them, or a reader who
+   asks for reduced motion, gets every section finished — the timeline full,
+   the shirts on the pitch. The hero's load-time motion (the markings
+   drawing, the tagline rising) is ordinary animation, which the global
+   reduced-motion rule above runs to its end at once.
+   ══════════════════════════════════════════════════════════════════════ */
+.home {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.home-hero,
+.home-dark {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  padding: clamp(var(--space-5), 4vw, var(--space-7));
+  background: var(--rail-bg);
+  color: var(--rail-text);
+  box-shadow: var(--shadow-lg);
+}
+
+.home-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: clamp(var(--space-5), 4vw, var(--space-7));
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.home-sunk {
+  background: var(--bg-sunk);
+}
+
+.home .eyebrow {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.home-hero .eyebrow,
+.home-dark .eyebrow {
+  color: var(--rail-text-2);
+}
+
+.home-hero .lede,
+.home-dark .lede {
+  color: rgb(248 250 252 / 80%);
+  max-width: 54ch;
+}
+
+.home-heading {
+  margin: 0 0 var(--space-3);
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+/* On the dark panels the primary action is white and the secondary an
+   outline: the same two weights as everywhere else, inverted. */
+.home-hero .button,
+.home-dark .button {
+  border-radius: var(--radius-full);
+  padding: 0.8rem 1.6rem;
+  background: #ffffff;
+  color: var(--reef-600);
+  border: 2px solid #ffffff;
+}
+
+.home-hero .button:hover,
+.home-dark .button:hover {
+  background: var(--sand-100);
+  color: var(--reef-600);
+}
+
+.home-hero .button.secondary,
+.home-dark .button.secondary {
+  background: transparent;
+  color: #ffffff;
+  border-color: var(--reef-700);
+}
+
+.home-hero .button.secondary:hover,
+.home-dark .button.secondary:hover {
+  border-color: var(--stone);
+}
+
+/* -------------------------------------------------------------- hero */
+
+.home-pitch {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: #1e293b;
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+/* pathLength=1 on every mark, so one dash the length of the whole line
+   draws each of them, whatever its real length. */
+.home-pitch > * {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: home-draw 2.2s var(--ease) forwards;
+}
+
+.home-pitch > :nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.home-pitch > :nth-child(n + 3) {
+  animation-delay: 0.6s;
+}
+
+.home-hero-grid {
+  position: relative;
+  display: grid;
+  gap: var(--space-7);
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .home-hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.home-title {
+  margin: 0 0 var(--space-5);
+  font-size: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: #ffffff;
+}
+
+.home-title span {
+  display: block;
+  animation: home-rise 600ms var(--ease) both;
+}
+
+.home-title span:nth-child(2) {
+  color: var(--euc-500);
+  animation-delay: 140ms;
+}
+
+.home-title span:nth-child(3) {
+  animation-delay: 280ms;
+}
+
+.home-maker {
+  margin: var(--space-4) 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rail-text-2);
+}
+
+/* The lens: the card stays still and the ring of roles turns around it.
+   A phone is too narrow for the ring, so its roles become chips under the
+   card; so does a reader who asked for no motion, since a still ring can
+   choose nothing. */
+.lens-wrap {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+}
+
+.lens {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.lens-ring {
+  display: none;
+}
+
+.lens-chip {
+  position: absolute;
+  translate: -50% -50%;
+}
+
+.lens-chip > span {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 4px 10px;
+  border: 1px solid #1e293b;
+  border-radius: var(--radius-full);
+  background: var(--rail-bg);
+  color: #e2e8f0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.lens-chip-0 { left: 50%; top: 0; }
+.lens-chip-1 { left: 100%; top: 50%; }
+.lens-chip-2 { left: 50%; top: 100%; }
+.lens-chip-3 { left: 0; top: 50%; }
+.lens-chip-4 { left: 14.6%; top: 14.6%; }
+
+@media (min-width: 640px) and (prefers-reduced-motion: no-preference) {
+  .lens {
+    width: 420px;
+    height: 420px;
+    place-content: center;
+    margin: var(--space-5) 0;
+  }
+
+  .lens-ring {
+    display: block;
+    position: absolute;
+    inset: 0;
+    animation: home-spin 20s linear infinite;
+  }
+
+  /* Counter-turned, so every label reads level all the way round. */
+  .lens-chip > span {
+    animation: home-spin 20s linear infinite reverse;
+  }
+
+  /* .lens-picks' own display comes later in this sheet; the extra class
+     outranks it. */
+  .lens .lens-picks {
+    display: none;
+  }
+}
+
+.lens-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 16rem);
+  padding: var(--space-5);
+  border: 1px solid #1e293b;
+  border-radius: var(--radius-lg);
+  background: var(--reef-600);
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.lens-avatar {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto var(--space-3);
+  border-radius: 50%;
+  border: 1px solid rgb(22 163 74 / 40%);
+  background: rgb(22 163 74 / 20%);
+  color: var(--euc-500);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.lens-name {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.lens-since {
+  margin: 0 0 var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid #1e293b;
+  font-size: 0.78rem;
+  color: var(--rail-text-2);
+}
+
+.lens-role {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rail-text-2);
+}
+
+.lens-picks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 var(--space-1);
+}
+
+/* Each chip is a 44px target; the visible pill is the span inside it. */
+.lens-picks button,
+.lens-picks button:hover:not(:disabled) {
+  min-height: 44px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+}
+
+.lens-picks span {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 4px 10px;
+  border: 1px solid #1e293b;
+  border-radius: var(--radius-full);
+  background: var(--rail-bg);
+  color: #cbd5e1;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lens-picks button[aria-pressed="true"] span {
+  border-color: var(--euc-500);
+  background: rgb(22 163 74 / 15%);
+  color: #ffffff;
+}
+
+.lens-note {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--rail-text-2);
+  text-align: center;
+}
+
+/* ------------------------------------------------------ how it works */
+
+.home-journey {
+  position: relative;
+  margin-top: var(--space-6);
+}
+
+.home-journey ol {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 2.5rem;
+  display: grid;
+  gap: var(--space-5);
+}
+
+.home-journey li {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  column-gap: var(--space-3);
+  row-gap: var(--space-1);
+  align-items: start;
+}
+
+.home-journey h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.home-journey .pill {
+  justify-self: start;
+}
+
+.home-step {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-sunk);
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.home-journey li:last-child .home-step {
+  border-color: var(--euc-500);
+  background: var(--euc-500);
+  color: #ffffff;
+}
+
+/* The track runs down beside the steps on a phone, across above them from
+   768px. Finished by default; scroll fills it where the browser can. */
+.home-track {
+  position: absolute;
+  left: 0.6rem;
+  top: 1.25rem;
+  bottom: 1.25rem;
+  width: 4px;
+  border-radius: var(--radius-full);
+  background: var(--border);
+}
+
+/* Sized, not inset: the scroll animation grows width or height from 0, and
+   an inset-derived `auto` size cannot be interpolated to. */
+.home-track-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--euc-500);
+}
+
+.home-track-token {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 24px;
+  height: 24px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  border: 4px solid var(--surface);
+  background: var(--euc-500);
+  box-shadow: var(--shadow-md);
+}
+
+@media (min-width: 768px) {
+  .home-journey ol {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-4);
+    padding: 2.75rem 0 0;
+    text-align: center;
+  }
+
+  .home-journey li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .home-journey .pill {
+    align-self: center;
+  }
+
+  .home-track {
+    left: 10%;
+    right: 10%;
+    top: 0.6rem;
+    bottom: auto;
+    width: auto;
+    height: 4px;
+  }
+
+  .home-track-token {
+    left: 100%;
+    top: 50%;
+  }
+}
+
+/* The finished pack, with two more sheets stacked behind it. */
+.home-pack {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  max-width: 28rem;
+  margin: var(--space-6) auto 0;
+  padding: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow:
+    4px 4px 0 -1px var(--bg-sunk),
+    4px 4px 0 0 var(--border),
+    8px 8px 0 -1px var(--bg-sunk),
+    8px 8px 0 0 var(--border);
+}
+
+.home-pack p {
+  margin: 0;
+}
+
+.home-pack-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.home-pack-what {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------- roles */
+
+.roles-split {
+  display: grid;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+/* A swipeable strip on a phone; a column beside the sticky phone from 768px. */
+.roles-list {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: var(--space-2);
+}
+
+.home .roles-item,
+.home .roles-item:hover:not(:disabled) {
+  flex: 0 0 15rem;
+  scroll-snap-align: start;
+  display: grid;
+  align-content: start;
+  justify-content: stretch;
+  justify-items: start;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+  border: 0;
+  border-left: 4px solid transparent;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  font-weight: 400;
+  box-shadow: none;
+}
+
+.home .roles-item[aria-pressed="true"] {
+  border-left-color: var(--euc-500);
+  box-shadow: var(--shadow-sm);
+}
+
+.roles-item strong {
+  font-size: 1.1rem;
+}
+
+.roles-item span {
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.roles-phone {
+  width: min(100%, 300px);
+  margin: 0 auto;
+  padding: 0.75rem;
+  border: 1px solid #1e293b;
+  border-radius: 2rem;
+  background: var(--reef-800);
+  box-shadow: var(--shadow-lg);
+}
+
+.roles-screen {
+  position: relative;
+  height: 520px;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background: var(--surface);
+}
+
+.roles-view {
+  position: absolute;
+  inset: 0;
+  padding: var(--space-5) var(--space-4);
+  opacity: 0;
+  transition: opacity 400ms var(--ease);
+}
+
+.roles-view[data-on="true"] {
+  opacity: 1;
+}
+
+.roles-view-role {
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.roles-view-heading {
+  margin: 0 0 var(--space-4);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.roles-view ul {
+  list-style: none;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.roles-view li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  background: var(--bg-sunk);
+  font-size: 0.85rem;
+  font-weight: 550;
+}
+
+.roles-view-aside {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.roles-view-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+/* A picture of the action, not a control: the phone is an illustration. */
+.roles-view-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .roles-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-7);
+    align-items: start;
+  }
+
+  .roles-list {
+    display: grid;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .roles-phone-wrap {
+    position: sticky;
+    top: 6rem;
+  }
+
+  .roles-screen {
+    height: 560px;
+  }
+}
+
+/* ---------------------------------------------------------- matchday */
+
+.matchday {
+  display: grid;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+@media (min-width: 1024px) {
+  .matchday {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.matchday-field {
+  position: relative;
+}
+
+.matchday-pitch {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border: 1px solid #1e293b;
+  border-radius: var(--radius-lg);
+  background: var(--reef-600);
+}
+
+.matchday-pitch svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: #1e293b;
+  stroke-width: 2;
+}
+
+.matchday-shirt {
+  position: absolute;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--euc-500);
+  color: var(--reef-800);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.matchday-referee {
+  background: var(--ochre-500);
+}
+
+.matchday-sub {
+  position: static;
+  translate: none;
+  background: #475569;
+}
+
+/* On a phone the labels sit under the pitch, where they cover no shirt. */
+.matchday-labels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.matchday-bench {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+@media (min-width: 640px) {
+  .matchday-labels {
+    margin: 0;
+  }
+
+  .matchday-bench {
+    position: absolute;
+    left: var(--space-3);
+    bottom: var(--space-3);
+  }
+
+  .matchday-official {
+    position: absolute;
+    right: var(--space-3);
+    top: var(--space-3);
+  }
+}
+
+.matchday-fixtures {
+  padding: var(--space-4);
+  border: 1px solid #1e293b;
+  border-radius: var(--radius-lg);
+  background: var(--reef-600);
+}
+
+.matchday-fixtures ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .matchday-fixtures ul {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.matchday-fixtures li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  background: var(--rail-bg);
+}
+
+.matchday-fixtures li > span:first-child {
+  display: grid;
+}
+
+.matchday-fixtures strong {
+  font-size: 0.9rem;
+}
+
+.matchday-fixtures li > span:first-child span {
+  font-size: 0.78rem;
+  color: var(--rail-text-2);
+}
+
+/* ---------------------------------------------------------- for clubs */
+
+.home-close {
+  text-align: center;
+}
+
+.home-close .lede {
+  margin-inline: auto;
+}
+
+.home-close .hero-actions {
+  justify-content: center;
+}
+
+/* ---------------------------------------------------- scroll-linked */
+
+@keyframes home-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes home-rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes home-spin {
+  to { rotate: 360deg; }
+}
+
+@keyframes home-pop {
+  from { opacity: 0; scale: 0.4; }
+}
+
+@keyframes home-fill-down {
+  from { height: 0; }
+}
+
+@keyframes home-token-down {
+  from { top: 0; }
+}
+
+@keyframes home-fill-across {
+  from { width: 0; }
+}
+
+@keyframes home-token-across {
+  from { left: 0; }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home-reveal {
+      animation: home-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+
+    .home-journey {
+      view-timeline: --journey block;
+    }
+
+    .home-track-fill,
+    .home-track-token {
+      animation: home-fill-down linear both;
+      animation-timeline: --journey;
+      animation-range: cover 20% cover 60%;
+    }
+
+    .home-track-token {
+      animation-name: home-token-down;
+    }
+
+    .matchday {
+      view-timeline: --pitch block;
+    }
+
+    /* Each shirt's --at (set in page.tsx) staggers it after the last. */
+    .matchday-shirt {
+      animation: home-pop linear both;
+      animation-timeline: --pitch;
+      animation-range: entry calc(30% + var(--at, 0%)) entry calc(60% + var(--at, 0%));
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+    .home-track-fill {
+      animation-name: home-fill-across;
+    }
+
+    .home-track-token {
+      animation-name: home-token-across;
+    }
+  }
 }
