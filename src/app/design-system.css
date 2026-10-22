@@ -68,6 +68,19 @@
   --color-info-foreground: var(--info-text);
   --color-info-indicator: var(--info-dot);
 
+  /* The ground that stays dark in either mode, and the text on it */
+  --color-night: var(--night);
+  --color-night-3: var(--night-3);
+  --color-on-night: var(--on-night);
+  --color-on-night-muted: var(--on-night-muted);
+  --color-on-night-accent: var(--on-night-accent);
+  --color-live: var(--live);
+
+  /* The hero slab: pastel clay in light mode, plum in dark */
+  --color-hero-text: var(--hero-text);
+  --color-hero-muted: var(--hero-muted);
+  --color-hero-accent: var(--hero-accent);
+
   /* The identity rail */
   --color-rail: var(--rail-bg);
   --color-rail-line: var(--rail-line);
@@ -85,12 +98,16 @@
   --spacing-ds-6: var(--space-6);
   --spacing-ds-7: var(--space-7);
 
-  /* rounded / rounded-DEFAULT are the card radius (10px) */
+  /* rounded / rounded-DEFAULT are the card radius (24px) */
   --radius-DEFAULT: var(--radius);
 
   /* Shadows are inlined by Tailwind, so they are stated here (DESIGN.md) */
-  --shadow-xs: 0 1px 2px rgb(15 23 42 / 5%);
-  --shadow-sm: 0 1px 3px rgb(15 23 42 / 8%), 0 1px 2px rgb(15 23 42 / 4%);
-  --shadow-md: 0 4px 12px rgb(15 23 42 / 8%), 0 2px 4px rgb(15 23 42 / 4%);
-  --shadow-lg: 0 12px 32px rgb(15 23 42 / 12%), 0 4px 8px rgb(15 23 42 / 6%);
+  --shadow-xs: 0 1px 2px rgb(31 26 61 / 6%);
+  --shadow-sm: 0 2px 4px rgb(31 26 61 / 6%), 0 6px 16px rgb(76 29 149 / 7%);
+  --shadow-md: 0 8px 20px rgb(31 26 61 / 9%), 0 2px 6px rgb(76 29 149 / 6%);
+  --shadow-lg: 0 20px 44px rgb(31 26 61 / 14%), 0 6px 14px rgb(76 29 149 / 8%);
+  /* Clay is a three-part shadow that changes with the mode, so these read
+     the globals.css tokens instead of being stated. */
+  --shadow-clay: var(--shadow-clay);
+  --shadow-clay-hover: var(--shadow-clay-hover);
 }

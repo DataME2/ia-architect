@@ -90,7 +90,7 @@ export function WaitingList({ items, headingId = 'waiting-heading', className, .
             <li
               key={item.id}
               className={cn(
-                'flex flex-col sm:flex-row sm:items-center gap-ds-3 p-ds-4 rounded-md border border-border bg-surface shadow-xs border-l-4',
+                'flex flex-col sm:flex-row sm:items-center gap-ds-3 p-ds-4 rounded-md border border-border bg-surface shadow-clay border-l-4',
                 item.tone === 'blocked' ? 'border-l-destructive-indicator' : 'border-l-warning-indicator',
               )}
             >

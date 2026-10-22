@@ -17,15 +17,15 @@ export const metadata: Metadata = {
 };
 
 /**
- * The theme colour is the deep eucalyptus of the masthead, so a phone's
- * browser chrome continues the page rather than framing it in grey. Two
- * values, because the dark theme's ground is nearly black and the light
- * theme's green would sit on it as a bright band.
+ * The theme colour is the page ground (--bg), so a phone's browser chrome
+ * continues the page rather than framing it in grey. Literal values, not
+ * tokens, because a meta tag cannot read CSS; keep them equal to --bg in
+ * globals.css. Two, one per mode.
  */
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f1f5f2' },
-    { media: '(prefers-color-scheme: dark)', color: '#0a1310' },
+    { media: '(prefers-color-scheme: light)', color: '#f4f0ff' },
+    { media: '(prefers-color-scheme: dark)', color: '#15112b' },
   ],
 };
 

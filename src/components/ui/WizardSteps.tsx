@@ -56,7 +56,7 @@ export function WizardSteps({ steps, current, reached, errorSteps = [], onSelect
                   aria-hidden="true"
                   className={cn(
                     'shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-full font-mono text-[10px]',
-                    isCurrent ? 'bg-primary-foreground text-primary' : done ? 'bg-success-indicator text-white' : 'bg-secondary text-muted',
+                    isCurrent ? 'bg-primary-foreground text-primary' : done ? 'bg-success text-success-foreground' : 'bg-secondary text-muted',
                   )}
                 >
                   {done && !hasError ? '✓' : i + 1}

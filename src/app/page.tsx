@@ -8,7 +8,7 @@ import { MAKER, PRODUCT_NAME, TAGLINE } from '../web/brand.ts';
  * wants to see the thing work before talking to anyone. The hero separates
  * the first two before either has to read a menu; the cards below carry the
  * rest, each saying what the screen behind it actually does rather than
- * naming it.
+ * naming it. Each card is a pastel of clay (`.landing-cards`, scope 100).
  */
 export default function HomePage() {
   return (
@@ -33,14 +33,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      <div className="card-grid">
+      <div className="card-grid landing-cards">
         <article className="card card-link">
-          <h3 style={{ marginTop: 0 }}>Your roles</h3>
+          <h3>Your roles</h3>
           <p className="hint">
             Player, coach, referee, guardian, committee &mdash; one sign-in, one record. Switch role in the
             rail; the person never changes, only the lens does.
           </p>
-          <p style={{ marginBottom: 0 }}>
+          <p>
             <a className="button secondary" href="/me">
               Open your roles
             </a>
@@ -48,12 +48,12 @@ export default function HomePage() {
         </article>
 
         <article className="card card-link">
-          <h3 style={{ marginTop: 0 }}>Registrar</h3>
+          <h3>Registrar</h3>
           <p className="hint">
             The season queue: who is ready, who is blocked, and which rule is holding up the most
             registrations.
           </p>
-          <p style={{ marginBottom: 0 }}>
+          <p>
             <a className="button secondary" href="/registrar">
               Open the queue
             </a>
@@ -61,12 +61,12 @@ export default function HomePage() {
         </article>
 
         <article className="card card-link">
-          <h3 style={{ marginTop: 0 }}>New registration</h3>
+          <h3>New registration</h3>
           <p className="hint">
             The family form &mdash; legal name and preferred name kept apart, guardian required for
             a minor, and the three consents recorded separately.
           </p>
-          <p style={{ marginBottom: 0 }}>
+          <p>
             <a className="button secondary" href="/register">
               Start a registration
             </a>
@@ -74,13 +74,13 @@ export default function HomePage() {
         </article>
 
         <article className="card card-link">
-          <h3 style={{ marginTop: 0 }}>For clubs</h3>
+          <h3>For clubs</h3>
           <p className="hint">
             Not using this yet? Tell us about your club and we will reply directly. No account,
             nothing to set up, and no free trial &mdash; an empty system is worth nothing to a
             club.
           </p>
-          <p style={{ marginBottom: 0 }}>
+          <p>
             <a className="button secondary" href="/interest">
               Talk to us about your club
             </a>
@@ -88,12 +88,12 @@ export default function HomePage() {
         </article>
 
         <article className="card card-link">
-          <h3 style={{ marginTop: 0 }}>Demonstration club</h3>
+          <h3>Demonstration club</h3>
           <p className="hint">
             Which club the current session is in, and whether what it shows is fictional or a real
             club&rsquo;s real records. Worth checking before reading anything.
           </p>
-          <p style={{ marginBottom: 0 }}>
+          <p>
             <a className="button secondary" href="/demo">
               Which club am I in?
             </a>

@@ -1,24 +1,25 @@
 ---
 colors:
-  background: "#f8fafc"
-  backgroundSunk: "#f1f5f9"
+  background: "#f4f0ff"
+  backgroundSunk: "#ebe5fb"
   surface: "#ffffff"
-  surfaceSubtle: "#f8fafc"
-  foreground: "#0f172a"
+  surfaceSubtle: "#faf8ff"
+  foreground: "#1f1a3d"
   muted:
-    DEFAULT: "#64748b"
-    foreground: "#475569"
+    DEFAULT: "#5a5478"
+    foreground: "#3d3760"
   border:
-    DEFAULT: "#e2e8f0"
-    strong: "#cbd5e1"
+    DEFAULT: "#e9e2fb"
+    strong: "#d3c8f3"
+    control: "#8a7bcc"
   primary:
-    DEFAULT: "#0f172a"
-    hover: "#1e293b"
-    soft: "#f1f5f9"
+    DEFAULT: "#6a35e8"
+    hover: "#5521d4"
+    soft: "#f3eeff"
     foreground: "#ffffff"
   secondary:
-    DEFAULT: "#f1f5f9"
-    foreground: "#0f172a"
+    DEFAULT: "#faf8ff"
+    foreground: "#1f1a3d"
   accent:
     DEFAULT: "#84cc16"
     hover: "#65a30d"
@@ -36,37 +37,45 @@ colors:
     foreground: "#7f1d1d"
     indicator: "#dc2626"
   info:
-    DEFAULT: "#e0f2fe"
-    foreground: "#0c4a6e"
-    indicator: "#0284c7"
+    DEFAULT: "#ede7ff"
+    foreground: "#4c1d95"
+    indicator: "#8b5cf6"
   rail:
-    DEFAULT: "#090d16"
-    line: "#1e293b"
-    foreground: "#f8fafc"
-    muted: "#94a3b8"
+    DEFAULT: "#241a52"
+    line: "#3b2c80"
+    foreground: "#f6f3ff"
+    muted: "#c3b9ec"
+  clay:
+    lilac: "#ede7ff"
+    sky: "#dff1ff"
+    pink: "#ffe4f1"
+    aqua: "#d9f8fb"
+    periwinkle: "#e3e8ff"
+    pop: "#ec4899"
 colorsDark:
-  background: "#070b14"
-  backgroundSunk: "#02040a"
-  surface: "#0f172a"
-  surfaceSubtle: "#1e293b"
-  foreground: "#f8fafc"
+  background: "#15112b"
+  backgroundSunk: "#0f0c20"
+  surface: "#221c42"
+  surfaceSubtle: "#2a2350"
+  foreground: "#f6f3ff"
   muted:
-    DEFAULT: "#94a3b8"
-    foreground: "#cbd5e1"
+    DEFAULT: "#b9b2dd"
+    foreground: "#dcd6f5"
   border:
-    DEFAULT: "#1e293b"
-    strong: "#334155"
+    DEFAULT: "#362e63"
+    strong: "#4a4080"
+    control: "#7a6eb8"
   primary:
-    DEFAULT: "#38bdf8"
-    hover: "#7dd3fc"
-    soft: "#0c4a6e"
-    foreground: "#070b14"
+    DEFAULT: "#b9a2ff"
+    hover: "#cfbfff"
+    soft: "#332a5f"
+    foreground: "#15112b"
   secondary:
-    DEFAULT: "#1e293b"
-    foreground: "#f8fafc"
+    DEFAULT: "#2a2350"
+    foreground: "#f6f3ff"
   accent:
     DEFAULT: "#a3e635"
-    foreground: "#070b14"
+    foreground: "#15112b"
   success:
     DEFAULT: "#064e3b"
     foreground: "#86efac"
@@ -80,17 +89,25 @@ colorsDark:
     foreground: "#fca5a5"
     indicator: "#f87171"
   info:
-    DEFAULT: "#0c4a6e"
-    foreground: "#7dd3fc"
-    indicator: "#38bdf8"
+    DEFAULT: "#2b2352"
+    foreground: "#c4b5fd"
+    indicator: "#a78bfa"
   rail:
-    DEFAULT: "#02040a"
-    line: "#0f172a"
-    foreground: "#f8fafc"
-    muted: "#94a3b8"
+    DEFAULT: "#0f0c20"
+    line: "#2a2350"
+    foreground: "#f6f3ff"
+    muted: "#c3b9ec"
+  clay:
+    lilac: "#2b2352"
+    sky: "#1d2b4f"
+    pink: "#3a2046"
+    aqua: "#173646"
+    periwinkle: "#252b5c"
+    pop: "#f472b6"
 typography:
   fontFamily:
-    sans: "'Archivo Variable', ui-sans-serif, system-ui, -apple-system, sans-serif"
+    display: "'Fredoka Variable', 'Nunito Variable', ui-rounded, system-ui, sans-serif"
+    sans: "'Nunito Variable', ui-rounded, ui-sans-serif, system-ui, -apple-system, sans-serif"
     mono: "'DM Mono', ui-monospace, SFMono-Regular, monospace"
   fontSize:
     xs: "0.72rem"
@@ -116,15 +133,17 @@ spacing:
   6: "2rem"
   7: "3rem"
 rounded:
-  sm: "6px"
-  DEFAULT: "10px"
-  lg: "16px"
+  sm: "12px"
+  md: "18px"
+  DEFAULT: "24px"
+  lg: "32px"
   full: "999px"
 shadows:
-  xs: "0 1px 2px rgba(15, 23, 42, 0.05)"
-  sm: "0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04)"
-  md: "0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.04)"
-  lg: "0 12px 32px rgba(15, 23, 42, 0.12), 0 4px 8px rgba(15, 23, 42, 0.06)"
+  xs: "0 1px 2px rgba(31, 26, 61, 0.06)"
+  sm: "0 2px 4px rgba(31, 26, 61, 0.06), 0 6px 16px rgba(76, 29, 149, 0.07)"
+  md: "0 8px 20px rgba(31, 26, 61, 0.09), 0 2px 6px rgba(76, 29, 149, 0.06)"
+  lg: "0 20px 44px rgba(31, 26, 61, 0.14), 0 6px 14px rgba(76, 29, 149, 0.08)"
+  clay: "0 14px 28px -10px rgba(76, 29, 149, 0.28), 0 2px 4px rgba(76, 29, 149, 0.06), inset 0 -6px 14px rgba(76, 29, 149, 0.09), inset 0 6px 12px rgba(255, 255, 255, 0.9)"
 borderWidth:
   DEFAULT: "1px"
 ---
@@ -142,22 +161,25 @@ LTD - Football is a high-density, mission-critical administration design system 
 
 ## Color & Theming
 
-The system employs a dual-theme architecture (Light Slate & Pitch Night). Surface layers stack systematically: page background (`background`), sunken containers (`backgroundSunk`), default cards (`surface`), and elevated panels (`surfaceSubtle`).
+The system uses the **Clay** theme (scope 100): playful, soft and toy-like, in two modes (lilac day, and plum night), following `prefers-color-scheme`. Surface layers stack in order: the page background (`background`, under a faint, static wash of pink and sky), sunken containers (`backgroundSunk`), default cards (`surface`, in clay: `shadows.clay`), and elevated panels (`surfaceSubtle`).
 
-- **Pitch Slate (`primary`):** Structure, primary navigation, brand identity, and primary call-to-actions.
+- **Grape (`primary`):** Structure, primary navigation, brand identity, and primary calls to action. A page's own primary button is a Fredoka pill running grape into purple (`--gradient-action`), sitting on a 4px lip of its own colour that it sinks into when pressed. The component library's `Button` stays solid.
+- **Clay pastels (`clay.lilac`, `sky`, `pink`, `aqua`, `periwinkle`):** Decoration only: the landing page's cards, one each, in order. They sit between the status families, so a tinted card never reads as ready, waiting or blocked. Text on every tint holds 5.8:1 or better.
+- **Bubblegum (`clay.pop`, `--live`):** "You are here" (the current page and the current role) and the hero's clay toys, never a status.
+- **The hero slab (`--hero-bg`, `--hero-text`, `--hero-muted`, `--hero-accent`):** Pastel clay in light mode, plum in dark, shared by the landing hero and the sign-in panel.
 - **Stadium Green (`success`):** Cleared, ready, available, and verified statuses.
 - **Trophy Gold (`warning`):** Pending approvals, outstanding tasks, and demo tenant markers.
 - **Card Red (`destructive`):** Blocked clearances, expired compliance (WWCC), lapsed clearances, or irreversible actions.
 - **Electric Volt (`accent`):** Assistant notes, draft suggestions, and advisory guidance only.
-- **Identity Rail (`rail`):** Persistent pitch-black ground anchored across both light and dark operational modes.
+- **Identity Rail (`rail`):** A persistent deep grape ground, dark in both modes.
 
 ## Typography
 
 Type roles are strictly assigned across two self-hosted font families:
 
-- **Page Titles & Headlines (`typography.fontSize.2xl` / `xl`):** Archivo Variable bold/expanded weights (`typography.fontWeight.bold`).
-- **Section Headers & Card Titles (`typography.fontSize.lg` / `base`):** Archivo Variable semibold (`typography.fontWeight.semibold`).
-- **Body & Running Text (`typography.fontSize.base` / `sm`):** Archivo Variable regular/medium (`typography.fontWeight.normal` / `medium`).
+- **Page Titles, Headlines, Card Titles & Buttons (`typography.fontFamily.display`):** Fredoka Variable semibold, rounded and friendly.
+- **Body & Running Text (`typography.fontSize.base` / `sm`):** Nunito Variable regular/medium (`typography.fontWeight.normal` / `medium`).
+- Both are OFL-1.1, from @fontsource-variable 5.x, latin subset, and self-hosted in `public/fonts/` (69 KB together), so nothing is fetched at build or run time.
 - **Data, Rules & Identifiers (`typography.fontFamily.mono`):** DM Mono for business rule tags (e.g. BR1, BR61), timestamps, squad numbers, and financial figures.
 
 ## Spacing, Sizing & Density
@@ -172,29 +194,30 @@ Interactive controls maintain a minimum height of `2.75rem` (44px) for field acc
 ## Shape & Elevation
 
 Surfaces rely on structured borders (`border.DEFAULT`) paired with purposeful elevation:
-- `rounded.sm` (6px): Inputs, buttons, status pills, and small badges.
-- `rounded.DEFAULT` (10px): Cards, table wrappers, panels, and forms.
-- `rounded.lg` (16px): Hero section, modal shells, and the identity rail.
+- `rounded.sm` (12px): Inputs, status pills, and small badges. Page buttons are full pills.
+- `rounded.md` (18px): List rows, such as the home page's waiting list.
+- `rounded.DEFAULT` (24px): Cards, table wrappers, panels, and forms.
+- `rounded.lg` (32px): Hero section, modal shells, and the identity rail.
 - `rounded.full` (999px): Avatar, filter chips, and pill badges.
 
-Shadows range from `shadows.xs` for quiet inline elements to `shadows.lg` for floating overlays and hero cards.
+Surfaces are clay rather than paper: `shadows.clay` is a soft drop outside plus a highlight and a shade inside, and `--shadow-clay-hover` lifts a card that links somewhere. Form fields are pressed into the clay (`--shadow-clay-inset`) and edged with `border.control`, which holds 3:1 as a control boundary (WCAG 1.4.11). The other shadows range from `shadows.xs` for quiet inline elements to `shadows.lg` for floating overlays.
 
 ## States & Interaction
 
 - **Hover:** Surface controls shift to `surfaceSubtle` or primary hover tones with smooth transition (`120ms` ease).
-- **Focus Visible:** Loud double focus treatment—2px solid primary outline with a 5px soft halo for immediate keyboard navigation visibility.
+- **Focus Visible:** Loud double focus treatment: a 2px solid grape outline with a 5px bubblegum halo (pink-300 in dark mode). It shows on every control, page buttons included, whose clay lip it sits beside rather than replaces.
 - **Disabled:** Muted background (`backgroundSunk`) and subdued text (`muted.foreground`) with `cursor-not-allowed`.
 - **Selected / Active:** Active navigation links receive left accent border accents (`border-primary`) and soft primary background (`primary.soft`).
 
 ## Motion
 
-All transitions use standard duration `180ms` (fast `120ms`) with cubic-bezier `cubic-bezier(0.2, 0.6, 0.3, 1)`. All motion strictly respects `prefers-reduced-motion: reduce` by setting durations to `0.01ms`.
+All transitions use the standard duration `180ms` (fast `120ms`) with `cubic-bezier(0.2, 0.6, 0.3, 1)`. A press or a card's lift uses the soft bounce, `200ms` with `cubic-bezier(0.34, 1.56, 0.64, 1)`. The hero's two clay toys bob on a `6s` float that only appears at 64rem and wider. All motion respects `prefers-reduced-motion: reduce`, which sets durations to `0.01ms`.
 
 ## Responsive & Accessibility
 
 - **Breakpoints:** Mobile layout collapses at `40rem` (640px) and `55rem` (880px) for navigation rails into toggle panels.
 - **Touch Targets:** All clickable areas maintain a minimum target of 44x44px.
-- **High Contrast:** Text and background pairs meet at least WCAG AA (4.5:1) in both Light Slate and Pitch Night modes; most reach AAA.
+- **High Contrast:** Text and background pairs meet at least WCAG AA (4.5:1) in both modes, and most reach AAA (scope 100 has the computed table).
 
 ## Component Conventions
 
@@ -231,4 +254,4 @@ Operational views prioritize key status chips at the top right of cards, clear s
 - **Academy palette (October 2026):** Replaced the Australian landscape palette (sand, reef, eucalyptus, ochre, oxide, desert orange) with Pitch Slate & Electric Volt. `globals.css` carries the same values, so every screen changes with it.
 - **Volt stays the Assistant's only.** The academy brief also proposed volt for calls to action, KPIs and active navigation; that would make the Assistant's colour an ordinary highlight, so Principle 2 is kept until the club decides otherwise.
 - **Dark rail muted text is `#94a3b8`, not the brief's `#64748b`:** that one is 4.3:1 on the dark rail, under WCAG AA for its small labels.
-- **Font Fallbacks:** System UI fallbacks are configured alongside Archivo Variable and DM Mono for self-hosted font safety.
+- **Font Fallbacks:** System UI fallbacks (`ui-rounded` first) are configured alongside Fredoka, Nunito and DM Mono for self-hosted font safety.

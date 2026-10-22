@@ -64,17 +64,34 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Fredoka Variable';
+  src: url('/fonts/fredoka-var-latin.woff2') format('woff2-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Nunito Variable';
+  src: url('/fonts/nunito-var-latin.woff2') format('woff2-variations');
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
 
-  /* Pitch slate — structure, the rail, every primary action; sky for info. */
-  --reef-50: #f1f5f9;
-  --reef-100: #e0f2fe;
-  --reef-500: #0284c7;
-  --reef-600: #0f172a;
-  --reef-700: #1e293b;
-  --reef-800: #090d16;
-  --reef-900: #02040a;
+  /* Grape — structure, the rail, every primary action; info.
+     (Was pitch slate; the ramp name is kept so no rule had to change.) */
+  --reef-50: #f3eeff;
+  --reef-100: #ede7ff;
+  --reef-500: #8b5cf6;
+  --reef-600: #6a35e8;
+  --reef-700: #5521d4;
+  --reef-800: #241a52;
+  --reef-900: #15112b;
 
   /* Stadium green — ready, cleared, available. */
   --euc-100: #dcfce7;
@@ -97,24 +114,27 @@
   --desert-500: #84cc16;
   --desert-700: #3f6212;
 
-  /* Slate — cool neutrals. */
-  --sand-50: #f8fafc;
-  --sand-100: #f1f5f9;
-  --sand-200: #e2e8f0;
-  --sand-300: #cbd5e1;
-  --stone: #64748b;
-  --ink: #0f172a;
+  /* Lilac cream — the neutrals, warmed toward the clay. */
+  --sand-50: #faf8ff;
+  --sand-100: #f4f0ff;
+  --sand-200: #e9e2fb;
+  --sand-300: #d3c8f3;
+  --stone: #5a5478;
+  --ink: #1f1a3d;
 
   /* Semantic aliases. Screens use these; the ramps above are the source. */
-  --bg: var(--sand-50);
-  --bg-sunk: var(--sand-100);
+  --bg: var(--sand-100);
+  --bg-sunk: #ebe5fb;
   --surface: #ffffff;
   --surface-2: var(--sand-50);
   --border: var(--sand-200);
   --border-strong: var(--sand-300);
+  /* A form field's edge is a control boundary (WCAG 1.4.11): 3.6:1 on
+     white, where the decorative --border-strong is 2:1. */
+  --border-control: #8a7bcc;
   --text: var(--ink);
   --muted: var(--stone);
-  --subtle: #475569;
+  --subtle: #3d3760;
 
   --accent: var(--reef-600);
   --accent-hover: var(--reef-700);
@@ -124,7 +144,71 @@
   --highlight: var(--desert-500);
   --highlight-hover: #65a30d;
   --focus: var(--reef-600);
-  --focus-halo: rgb(132 204 22 / 45%);
+  --focus-halo: rgb(236 72 153 / 40%);
+
+  /* ---- Clay (scope 100). Soft, toy-like surfaces: pastel tints, a big
+     radius, and a shadow in three parts (a soft drop outside, a highlight
+     and a shade inside) instead of a hard border. The tints sit between
+     the status families (lilac, sky, pink, aqua, periwinkle), so a tinted
+     card is never read as ready, waiting or blocked, and volt stays the
+     Assistant's. Text on every tint holds 5.8:1 or better. */
+  --clay-lilac: #ede7ff;
+  --clay-sky: #dff1ff;
+  --clay-pink: #ffe4f1;
+  --clay-aqua: #d9f8fb;
+  --clay-periwinkle: #e3e8ff;
+  /* The pop colour: bubblegum, for decoration and "you are here". */
+  --clay-pop: #ec4899;
+
+  --shadow-clay:
+    0 14px 28px -10px rgb(76 29 149 / 28%),
+    0 2px 4px rgb(76 29 149 / 6%),
+    inset 0 -6px 14px rgb(76 29 149 / 9%),
+    inset 0 6px 12px rgb(255 255 255 / 90%);
+  --shadow-clay-hover:
+    0 22px 40px -12px rgb(76 29 149 / 34%),
+    0 3px 6px rgb(76 29 149 / 8%),
+    inset 0 -6px 14px rgb(76 29 149 / 9%),
+    inset 0 6px 12px rgb(255 255 255 / 90%);
+  /* Pressed into the clay: a field, a sunken well. */
+  --shadow-clay-inset: inset 0 2px 5px rgb(76 29 149 / 10%);
+  /* A chunky button sits on a lip of its own colour, and sinks into it. */
+  --button-lip: 0 4px 0 var(--accent-hover);
+  --button-lip-pressed: 0 1px 0 var(--accent-hover);
+  --button-lip-soft: 0 4px 0 var(--border-strong);
+
+  /* The primary action: grape into purple, white text 6.4:1 → 5.4:1. */
+  --gradient-action: linear-gradient(135deg, var(--accent), #9333ea);
+
+  /* The hero and the sign-in panel: a pastel slab of clay in light mode,
+     a plum one in dark. */
+  --hero-bg: linear-gradient(135deg, #ece4ff 0%, #f3e8ff 45%, #ffe3f1 100%);
+  --hero-text: var(--text);
+  --hero-muted: var(--muted);
+  --hero-accent: #a21caf;
+
+  /* The page ground's faint confetti of colour. */
+  --page-wash:
+    radial-gradient(48rem 26rem at 96% -10%, rgb(236 72 153 / 9%), transparent 64%),
+    radial-gradient(44rem 26rem at -6% -8%, rgb(56 189 248 / 10%), transparent 62%);
+
+  /* The dark ground that stays dark in either mode — the rail's shirts,
+     the Dugout — and the text that sits on it. */
+  --night: #241a52;
+  --night-2: #2e2266;
+  --night-3: #3b2c80;
+  --flood: #f6f3ff;
+  --gold: #fbbf24;
+  --on-night: #ffffff;
+  --on-night-muted: #ddd6f7;
+  --on-night-accent: #f9a8d4;
+  --night-fill: rgb(255 255 255 / 8%);
+  --night-fill-strong: rgb(255 255 255 / 14%);
+  --night-line: rgb(255 255 255 / 26%);
+
+  /* "You are here": the current page and role. Bubblegum, never a status. */
+  --live: var(--clay-pop);
+  --live-text: #be185d;
 
   --ok-bg: var(--euc-100);
   --ok-text: var(--euc-900);
@@ -136,7 +220,7 @@
   --stop-text: var(--oxide-700);
   --stop-dot: var(--oxide-500);
   --info-bg: var(--reef-100);
-  --info-text: var(--reef-700);
+  --info-text: #4c1d95;
   --info-dot: var(--reef-500);
   --neutral-bg: var(--sand-200);
   --neutral-text: var(--stone);
@@ -144,9 +228,9 @@
 
   /* The rail. Constant in every role context — see src/web/role-context.ts. */
   --rail-bg: var(--reef-800);
-  --rail-line: #1e293b;
-  --rail-text: #f8fafc;
-  --rail-text-2: #94a3b8;
+  --rail-line: #3b2c80;
+  --rail-text: #f6f3ff;
+  --rail-text-2: #c3b9ec;
 
   /* Reserved for commissioned artwork. Empty by design — scope 32 WP6 and
      open question 66. A club crest lands in the first; a licensed motif
@@ -162,17 +246,21 @@
   --space-6: 2rem;
   --space-7: 3rem;
 
-  --radius-sm: 6px;
-  --radius: 10px;
-  --radius-lg: 16px;
+  /* Clay is round: fields and buttons 12px, list rows 18px (the library's
+     rounded-md), cards 24px, slabs 32px. */
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius: 24px;
+  --radius-lg: 32px;
   --radius-full: 999px;
 
-  --shadow-xs: 0 1px 2px rgb(15 23 42 / 5%);
-  --shadow-sm: 0 1px 3px rgb(15 23 42 / 8%), 0 1px 2px rgb(15 23 42 / 4%);
-  --shadow-md: 0 4px 12px rgb(15 23 42 / 8%), 0 2px 4px rgb(15 23 42 / 4%);
-  --shadow-lg: 0 12px 32px rgb(15 23 42 / 12%), 0 4px 8px rgb(15 23 42 / 6%);
+  --shadow-xs: 0 1px 2px rgb(31 26 61 / 6%);
+  --shadow-sm: 0 2px 4px rgb(31 26 61 / 6%), 0 6px 16px rgb(76 29 149 / 7%);
+  --shadow-md: 0 8px 20px rgb(31 26 61 / 9%), 0 2px 6px rgb(76 29 149 / 6%);
+  --shadow-lg: 0 20px 44px rgb(31 26 61 / 14%), 0 6px 14px rgb(76 29 149 / 8%);
 
-  --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, -apple-system,
+  --font-display: 'Fredoka Variable', 'Nunito Variable', ui-rounded, system-ui, sans-serif;
+  --font-sans: 'Nunito Variable', ui-rounded, ui-sans-serif, system-ui, -apple-system,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo,
     Consolas, 'Liberation Mono', monospace;
@@ -180,6 +268,9 @@
   --dur-fast: 120ms;
   --dur: 180ms;
   --ease: cubic-bezier(0.2, 0.6, 0.3, 1);
+  /* The soft press: a little overshoot, as clay springs back. */
+  --dur-press: 200ms;
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   --shell-width: 78rem;
   --reading-width: 46rem;
@@ -192,28 +283,55 @@
   :root {
     color-scheme: dark;
 
-    --bg: #070b14;
-    --bg-sunk: #02040a;
-    --surface: #0f172a;
-    --surface-2: #1e293b;
-    --border: #1e293b;
-    --border-strong: #334155;
-    --text: #f8fafc;
-    --muted: #94a3b8;
-    --subtle: #cbd5e1;
+    --bg: #15112b;
+    --bg-sunk: #0f0c20;
+    --surface: #221c42;
+    --surface-2: #2a2350;
+    --border: #362e63;
+    --border-strong: #4a4080;
+    --border-control: #7a6eb8;
+    --text: #f6f3ff;
+    --muted: #b9b2dd;
+    --subtle: #dcd6f5;
 
     /* The action colour lightens so it can carry dark text — the same
-       relationship as the light theme, inverted, rather than the light
-       theme's reef floated on a dark ground where it would fail twice. */
-    --accent: #38bdf8;
-    --accent-hover: #7dd3fc;
-    --accent-soft: #0c4a6e;
-    --accent-text: #070b14;
-    --link: #38bdf8;
+       relationship as the light theme, inverted. */
+    --accent: #b9a2ff;
+    --accent-hover: #cfbfff;
+    --accent-soft: #332a5f;
+    --accent-text: #15112b;
+    --link: #f9a8d4;
     --highlight: #a3e635;
     --highlight-hover: #bef264;
-    --focus: #38bdf8;
-    --focus-halo: rgb(163 230 53 / 30%);
+    --focus: #f9a8d4;
+    --focus-halo: rgb(249 168 212 / 30%);
+    --live: #f472b6;
+    --live-text: #f9a8d4;
+
+    --clay-lilac: #2b2352;
+    --clay-sky: #1d2b4f;
+    --clay-pink: #3a2046;
+    --clay-aqua: #173646;
+    --clay-periwinkle: #252b5c;
+    --shadow-clay:
+      0 16px 30px -10px rgb(0 0 0 / 60%),
+      0 2px 4px rgb(0 0 0 / 30%),
+      inset 0 -6px 14px rgb(0 0 0 / 28%),
+      inset 0 6px 12px rgb(255 255 255 / 7%);
+    --shadow-clay-hover:
+      0 24px 42px -12px rgb(0 0 0 / 66%),
+      0 3px 6px rgb(0 0 0 / 34%),
+      inset 0 -6px 14px rgb(0 0 0 / 28%),
+      inset 0 6px 12px rgb(255 255 255 / 9%);
+    --shadow-clay-inset: inset 0 2px 5px rgb(0 0 0 / 30%);
+    --button-lip: 0 4px 0 #7d63d9;
+    --button-lip-pressed: 0 1px 0 #7d63d9;
+    --gradient-action: linear-gradient(135deg, var(--accent), #e0a3ff);
+    --hero-bg: linear-gradient(135deg, #2e2560 0%, #33225a 50%, #3d2150 100%);
+    --hero-accent: #f0abfc;
+    --page-wash:
+      radial-gradient(48rem 26rem at 96% -10%, rgb(236 72 153 / 12%), transparent 64%),
+      radial-gradient(44rem 26rem at -6% -8%, rgb(56 189 248 / 10%), transparent 62%);
 
     --ok-bg: #064e3b;
     --ok-text: #86efac;
@@ -224,19 +342,18 @@
     --stop-bg: #450a0a;
     --stop-text: #fca5a5;
     --stop-dot: #f87171;
-    --info-bg: #0c4a6e;
-    --info-text: #7dd3fc;
-    --info-dot: #38bdf8;
-    --neutral-bg: #1e293b;
+    --info-bg: #2b2352;
+    --info-text: #c4b5fd;
+    --info-dot: #a78bfa;
+    --neutral-bg: #2a2350;
     --neutral-text: var(--muted);
     --neutral-dot: var(--subtle);
 
-    --rail-bg: #02040a;
-    --rail-line: #0f172a;
-    --rail-text: #f8fafc;
-    /* #94a3b8, not DESIGN.md's #64748b: that is 4.3:1 on this rail, under
-       WCAG AA for the rail's small labels. */
-    --rail-text-2: #94a3b8;
+    --rail-bg: #0f0c20;
+    --rail-line: #2a2350;
+    --rail-text: #f6f3ff;
+    /* 10.5:1 on this rail; the rail's labels are small. */
+    --rail-text-2: #c3b9ec;
 
     --desert-100: #1a2e05;
     --desert-700: #bef264;
@@ -264,12 +381,11 @@ body {
   margin: 0;
   min-height: 100dvh;
   background-color: var(--bg);
-  /* Two very faint washes — gold at the top right, green at the top left —
-     so the page has a horizon instead of a flat grey field. Fixed, because
-     a gradient that scrolls away is a gradient nobody sees twice. */
-  background-image:
-    radial-gradient(62rem 30rem at 88% -12%, rgb(132 204 22 / 8%), transparent 66%),
-    radial-gradient(54rem 28rem at -8% -14%, rgb(56 189 248 / 8%), transparent 62%);
+  /* A faint wash of pink and sky, so the page has a horizon instead of a
+     flat field. Fixed, because a gradient that scrolls away is a gradient
+     nobody sees twice; static, because a moving page ground is motion
+     behind every word. */
+  background-image: var(--page-wash);
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: var(--text);
@@ -290,8 +406,8 @@ a:hover {
 }
 
 ::selection {
-  background: var(--ochre-100);
-  color: var(--ink);
+  background: color-mix(in srgb, var(--clay-pop) 24%, transparent);
+  color: var(--text);
 }
 
 /* One focus treatment for everything, and it is deliberately loud. These
@@ -508,26 +624,64 @@ h3 {
   border-radius: var(--radius-lg);
   padding: clamp(var(--space-5), 4vw, var(--space-7));
   margin-bottom: var(--space-6);
-  background:
-    radial-gradient(40rem 24rem at 100% 0%, rgb(132 204 22 / 20%), transparent 70%),
-    linear-gradient(135deg, var(--reef-700), var(--reef-800) 58%, var(--reef-900));
-  color: #eaf3f6;
-  box-shadow: var(--shadow-lg);
+  background: var(--hero-bg);
+  color: var(--hero-muted);
+  box-shadow: var(--shadow-clay);
+  isolation: isolate;
 }
 
-/* The pitch markings: a centre circle and halfway line, drawn in gold at
-   the opacity of a memory. Aria-hidden decoration in CSS only, so it costs
-   no markup and disappears in print. */
+/* Two toys of clay: a bubblegum ball and a sky-blue capsule, bobbing on a
+   slow 6s float. CSS only and aria-hidden by nature, so they cost no
+   markup, vanish in print, stand still under reduced motion, and only
+   appear where the hero is wide enough that they never sit under text. */
+.hero::before,
 .hero::after {
   content: '';
   position: absolute;
-  inset: auto -6rem -14rem auto;
-  width: 26rem;
-  height: 26rem;
-  border-radius: 50%;
-  border: 1.5px solid rgb(132 204 22 / 24%);
-  box-shadow: 0 0 0 6rem rgb(132 204 22 / 4%);
+  z-index: 0;
+  display: none;
   pointer-events: none;
+  animation: clay-float 6s var(--ease) infinite alternate;
+}
+
+.hero::before {
+  width: 11rem;
+  height: 11rem;
+  right: 9%;
+  top: 14%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 30%, rgb(255 255 255 / 80%) 0 7%, transparent 26%),
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--clay-pop) 70%, white), var(--clay-pop) 72%);
+  box-shadow: var(--shadow-clay);
+}
+
+.hero::after {
+  width: 9rem;
+  height: 4.5rem;
+  right: 24%;
+  bottom: 14%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(160deg, var(--clay-sky), color-mix(in srgb, var(--clay-sky) 70%, var(--reef-500)));
+  box-shadow: var(--shadow-clay);
+  rotate: -18deg;
+  animation-delay: -3s;
+}
+
+@media (min-width: 64rem) {
+  .hero::before,
+  .hero::after {
+    display: block;
+  }
+}
+
+@keyframes clay-float {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-14px);
+  }
 }
 
 .hero > * {
@@ -536,20 +690,21 @@ h3 {
 }
 
 .hero .eyebrow {
-  color: #bef264;
+  color: var(--hero-accent);
 }
 
 .hero h2 {
   margin: 0 0 var(--space-3);
   font-size: clamp(1.7rem, 1.1rem + 2.4vw, 2.6rem);
   line-height: 1.12;
-  letter-spacing: -0.03em;
-  color: #ffffff;
+  letter-spacing: -0.01em;
+  color: var(--hero-text);
   max-width: 22ch;
 }
 
-.hero .lede {
-  color: rgb(234 243 246 / 84%);
+.hero .lede,
+.hero .hint {
+  color: var(--hero-muted);
   margin-bottom: var(--space-5);
   max-width: 52ch;
 }
@@ -558,44 +713,6 @@ h3 {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
-}
-
-/* On the hero's dark ground the primary button inverts: gold is finally
-   legible here, and it is the one place the brand's second colour gets to
-   be the loudest thing on the screen. */
-/* The hero does not get to borrow the Assistant's orange for a call to
-   action, however well it would look. Sand on reef instead. */
-.hero .button {
-  background: var(--sand-50);
-  color: var(--reef-800);
-  border-color: transparent;
-}
-
-.hero .button:hover {
-  background: #ffffff;
-  color: var(--reef-800);
-}
-
-.hero .button.secondary {
-  background: rgb(255 255 255 / 8%);
-  color: #ffffff;
-  border-color: rgb(255 255 255 / 30%);
-}
-
-.hero .button.secondary:hover {
-  background: rgb(255 255 255 / 16%);
-}
-
-/* In the dark theme the page ground is already nearly the hero's green, so
-   the panel would dissolve into it. Lifted a step and given a hairline, it
-   stays a panel rather than becoming the background. */
-@media (prefers-color-scheme: dark) {
-  .hero {
-    background:
-      radial-gradient(40rem 24rem at 100% 0%, rgb(132 204 22 / 15%), transparent 70%),
-      linear-gradient(135deg, #1e293b, #0f172a 58%, #02040a);
-    border: 1px solid rgb(132 204 22 / 14%);
-  }
 }
 
 /* ------------------------------------------------------------ cards */
@@ -860,9 +977,10 @@ textarea {
      forms get filled in on a phone at a ground as often as on a desk. */
   min-height: 2.75rem;
   padding: 0.6rem 0.75rem;
-  border: 1px solid var(--border-strong);
+  border: 2px solid var(--border-control);
   border-radius: var(--radius-sm);
   background: var(--surface);
+  box-shadow: var(--shadow-clay-inset);
   color: var(--text);
   font: inherit;
   font-size: 0.96rem;
@@ -967,22 +1085,59 @@ button,
   line-height: 1.2;
   cursor: pointer;
   text-decoration: none;
-  box-shadow: var(--shadow-xs);
+  /* Each state reads a variable with the old value as its fallback, so
+     only a button that opts in (the clay rule below) changes shape. */
+  box-shadow: var(--btn-shadow, var(--shadow-xs));
   transition: background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease),
-    transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+    transform var(--dur-press) var(--ease-bounce), border-color var(--dur-fast) var(--ease);
 }
 
 button:hover:not(:disabled),
 .button:hover {
   background: var(--accent-hover);
   color: var(--accent-text);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--btn-shadow-hover, var(--shadow-sm));
+  transform: translateY(var(--btn-lift, 0));
+}
+
+/* The clay button (scope 100): a pill of Fredoka sitting on a lip of its
+   own colour, grape into purple at rest, that rises a little under the
+   cursor and sinks into its lip when pressed. Specificity is held at the
+   base rule's own, so every rule that styles a button — disabled, the
+   Dugout's bench and toggles, any component's own — still wins by setting
+   its property. Class-less buttons and .button only: the Tailwind
+   library's buttons never match. */
+button:where(:not([class]), .secondary),
+.button:where(:not(.ghost, .destructive)) {
+  --btn-shadow: var(--button-lip);
+  --btn-shadow-hover: var(--button-lip), var(--shadow-md);
+  --btn-shadow-active: var(--button-lip-pressed);
+  --btn-lift: -1px;
+  --btn-press: 3px;
+  border-radius: var(--radius-full);
+  padding-inline: 1.35rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.005em;
+}
+
+button:where(:not([class])),
+.button:where(:not(.secondary, .ghost, .destructive)) {
+  background-image: var(--gradient-action);
+}
+
+/* Setting variables cannot leak: only the base rules read them. */
+button.secondary,
+.button.secondary {
+  --btn-shadow: var(--button-lip-soft);
+  --btn-shadow-hover: var(--button-lip-soft), var(--shadow-md);
+  --btn-shadow-active: 0 1px 0 var(--border-strong);
 }
 
 button:active:not(:disabled),
 .button:active {
-  transform: translateY(1px);
-  box-shadow: none;
+  transform: translateY(var(--btn-press, 1px));
+  box-shadow: var(--btn-shadow-active, none);
 }
 
 button:disabled,
@@ -1508,7 +1663,7 @@ td {
   padding: 0 0.35rem;
   border-radius: var(--radius-sm);
   background: var(--reef-700);
-  color: #ffffff;
+  color: var(--on-night);
   font-variant-numeric: tabular-nums;
   font-weight: 660;
   text-align: center;
@@ -1637,6 +1792,7 @@ td {
   .session-strip,
   .skip-link,
   .site-footer,
+  .hero::before,
   .hero::after {
     display: none !important;
   }
@@ -1706,9 +1862,10 @@ td {
   height: 3rem;
   flex: 0 0 auto;
   border-radius: 50%;
-  background: linear-gradient(150deg, var(--euc-500), var(--reef-700));
-  border: 2px solid rgb(255 255 255 / 18%);
-  color: #fff;
+  /* Grape into night: white initials hold 6.4:1 or better across the tile. */
+  background: linear-gradient(150deg, var(--reef-600), var(--night-3));
+  border: 2px solid var(--night-line);
+  color: var(--on-night);
   display: grid;
   place-items: center;
   font-weight: 700;
@@ -1789,7 +1946,7 @@ td {
 }
 
 .rail-ledger .is-zero b {
-  color: #4ade80;
+  color: var(--ok-dot);
 }
 
 .rail-label {
@@ -1821,7 +1978,7 @@ td {
 }
 
 .role-item:hover {
-  background: rgb(255 255 255 / 7%);
+  background: var(--night-fill);
   color: var(--rail-text);
 }
 
@@ -1843,7 +2000,7 @@ td {
 .role-item-count {
   font-family: var(--font-mono);
   font-size: 0.66rem;
-  background: rgb(255 255 255 / 12%);
+  background: var(--night-fill-strong);
   border-radius: var(--radius-full);
   padding: 0.1rem 0.45rem;
   min-width: 1.4rem;
@@ -1852,7 +2009,7 @@ td {
 }
 
 .role-item.is-current {
-  background: rgb(255 255 255 / 11%);
+  background: var(--night-fill-strong);
   border-color: var(--role-hue, var(--rail-text-2));
   box-shadow: inset 3px 0 0 var(--role-hue, var(--rail-text-2));
 }
@@ -2448,7 +2605,7 @@ td {
 }
 
 .rail-link:hover {
-  color: #ffffff;
+  color: var(--on-night);
   text-decoration: underline;
 }
 
@@ -2463,7 +2620,7 @@ td {
 }
 
 .rail-signout:hover:not(:disabled) {
-  background: rgb(255 255 255 / 8%);
+  background: var(--night-fill);
   color: var(--rail-text);
 }
 
@@ -2482,10 +2639,10 @@ td {
 
 .auth-aside {
   position: relative;
-  background:
-    radial-gradient(40rem 24rem at 100% 0%, rgb(132 204 22 / 16%), transparent 70%),
-    linear-gradient(160deg, var(--reef-700), var(--reef-800) 55%, var(--reef-900));
-  color: #eaf3f6;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--hero-bg);
+  color: var(--hero-muted);
   padding: clamp(var(--space-5), 4vw, var(--space-7));
   display: grid;
   gap: var(--space-4);
@@ -2498,12 +2655,12 @@ td {
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #bef264;
+  color: var(--hero-accent);
 }
 
 .auth-aside h2 {
   margin: 0;
-  color: #ffffff;
+  color: var(--hero-text);
   font-size: clamp(1.4rem, 1rem + 1.6vw, 2rem);
   font-weight: 800;
   font-variation-settings: 'wdth' 108;
@@ -2514,7 +2671,7 @@ td {
 
 .auth-aside p {
   margin: 0;
-  color: rgb(234 243 246 / 82%);
+  color: var(--hero-muted);
   max-width: 44ch;
   font-size: 0.95rem;
 }
@@ -2527,12 +2684,12 @@ td {
 }
 
 .auth-brand .brand-name {
-  color: #ffffff;
+  color: var(--hero-text);
   font-weight: 700;
 }
 
 .auth-brand .brand-region {
-  color: rgb(234 243 246 / 60%);
+  color: var(--hero-muted);
 }
 
 .auth-ledger {
@@ -2548,10 +2705,10 @@ td {
   grid-template-columns: 3.2rem 1fr;
   gap: var(--space-3);
   align-items: baseline;
-  border-top: 1px solid rgb(255 255 255 / 14%);
+  border-top: 1px solid color-mix(in srgb, var(--hero-text) 14%, transparent);
   padding-top: 0.6rem;
   font-size: 0.88rem;
-  color: rgb(234 243 246 / 82%);
+  color: var(--hero-muted);
 }
 
 .auth-ledger b {
@@ -2559,7 +2716,7 @@ td {
   font-weight: 800;
   font-variation-settings: 'wdth' 112;
   letter-spacing: -0.03em;
-  color: #ffffff;
+  color: var(--hero-text);
   font-variant-numeric: tabular-nums;
 }
 
@@ -2618,9 +2775,9 @@ td {
   cursor: pointer;
 }
 .chip[aria-pressed='true'] {
-  background: var(--reef-800);
-  border-color: var(--reef-800);
-  color: #ffffff;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
 }
 .chip .chip-count {
   margin-left: 0.35em;
@@ -2778,181 +2935,35 @@ td {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   Broadcast theme (ux-pilot-broadcast). The federation as a live match
-   centre: condensed uppercase type from TV graphics, floodlit navy, a red
-   "on air" marker for where you are, square lower-third panels. Chosen
-   from the Four Kits exploration.
+   Clay chrome — scope 100. Replaces the Broadcast theme (scope 95).
 
-   Tokens and chrome only: every page style and every component in
-   src/components/ui reads these tokens, so no component or behaviour
-   changes. Kept as they were, because they carry meaning: the status
-   families (always a dot plus a word), each role's hue on /me, and the
-   Assistant's volt. Light is "studio" (white panels, navy ink); dark is
-   "night" (the kit itself).
-
-   Saira Condensed and Saira: OFL-1.1, @fontsource 5.3.0, latin,
-   self-hosted like Archivo and DM Mono.
+   The tokens at the top of this file carry the palette; this block is the
+   handful of chrome rules a token cannot express: rounded display type,
+   the floating masthead, clay surfaces, the chunky button that sinks when
+   pressed, and the landing page's pastel cards. Kept from Broadcast
+   because they carry meaning, not style: the status families (always a
+   dot plus a word), each role's hue on /me, the Assistant's volt, the
+   "you are here" marker, tabular figures, and the club menu's group
+   headings.
    ══════════════════════════════════════════════════════════════════════ */
-@font-face {
-  font-family: 'Saira Condensed';
-  src: url('/fonts/saira-condensed-600-latin.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Saira Condensed';
-  src: url('/fonts/saira-condensed-700-latin.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Saira Condensed';
-  src: url('/fonts/saira-condensed-800-latin.woff2') format('woff2');
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Saira Variable';
-  src: url('/fonts/saira-var-latin.woff2') format('woff2-variations');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
 
-:root {
-  --font-display: 'Saira Condensed', 'Arial Narrow', sans-serif;
-  --font-sans: 'Saira Variable', 'Archivo Variable', ui-sans-serif, system-ui, -apple-system,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-
-  /* The broadcast palette. --live marks "you are here" and the brand slab;
-     it is never a status (blocked stays the stop family, dot plus word). */
-  --night: #070c1a;
-  --night-2: #101831;
-  --night-3: #172246;
-  --flood: #f4f6ff;
-  --live: #e8324a;
-  --live-text: #b8162e; /* red as text on white: 6.3:1 */
-  --gold: #ffc145;
-
-  /* Studio (light). */
-  --bg: #eef1f8;
-  --bg-sunk: #e3e8f3;
-  --surface: #ffffff;
-  --surface-2: #f5f7fc;
-  --border: #d9dfec;
-  --border-strong: #b8c2d9;
-  --text: #070c1a;
-  --muted: #3f4a6b; /* 8.9:1 on white */
-  --subtle: #2b3554;
-
-  --accent: var(--night-2);
-  --accent-hover: var(--night-3);
-  --accent-soft: #e6eaf6;
-  --accent-text: #ffffff;
-  --link: #1d3fa8;
-  --focus: #1d3fa8;
-
-  --info-bg: #e3e9fb;
-  --info-text: #1d3fa8;
-  --info-dot: #4f74e3;
-
-  --rail-bg: var(--night);
-  --rail-line: var(--night-3);
-  --rail-text: var(--flood);
-  --rail-text-2: #a9b3d6; /* 8.4:1 on the rail */
-
-  /* Square panels: a lower-third has corners, not curves. Pills stay round. */
-  --radius-sm: 2px;
-  --radius-md: 2px;
-  --radius: 3px;
-  --radius-lg: 4px;
-  --shadow-xs: 0 1px 2px rgb(7 12 26 / 6%);
-  --shadow-sm: 0 2px 8px rgb(7 12 26 / 8%);
-  --shadow-md: 0 10px 24px rgb(7 12 26 / 14%);
-  --shadow-lg: 0 18px 40px rgb(7 12 26 / 22%);
-}
-
-/* Night (dark): the kit itself. Primary action turns floodlight white with
-   navy text, as the score bug does. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: var(--night);
-    --bg-sunk: #04070f;
-    --surface: var(--night-2);
-    --surface-2: var(--night-3);
-    --border: #26325c;
-    --border-strong: #34437a;
-    --text: var(--flood);
-    --muted: #a9b3d6;
-    --subtle: #c9d0ea;
-
-    --accent: var(--flood);
-    --accent-hover: #ffffff;
-    --accent-soft: var(--night-3);
-    --accent-text: var(--night);
-    --link: var(--gold);
-    --focus: var(--gold);
-    --live-text: #ff7a8c;
-
-    --info-bg: #14234f;
-    --info-text: #a9c2ff;
-    --info-dot: #6ea8ff;
-
-    --rail-bg: #04070f;
-    --rail-line: var(--night-3);
-  }
-}
-
-body {
-  background-image: none;
-}
-
-/* ── Type: condensed uppercase for anything that names a thing ── */
+/* ── Type: Fredoka names things, Nunito carries the reading ── */
 h1,
 h2,
 h3,
-.work-head h2,
-.brand-name {
+h4,
+.brand-name,
+.stat .n {
   font-family: var(--font-display);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
+  font-weight: 600;
   font-variation-settings: normal;
-  font-stretch: normal;
-  line-height: 1;
+  letter-spacing: -0.005em;
 }
-h3 {
-  font-weight: 700;
-  letter-spacing: 0.03em;
-}
-.work-head h2 {
-  font-size: clamp(2rem, 1.4rem + 2vw, 2.8rem);
-}
-/* Labels read like on-screen graphics: tracked, condensed, upper. */
-.eyebrow,
-.panel-head h3,
-th,
-.stat .label,
-.brand-region,
-.rail-label {
-  font-family: var(--font-display);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-}
+
 .eyebrow {
   color: var(--live-text);
 }
-.stat .n {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 2.6rem;
-  letter-spacing: 0;
-  line-height: 1;
-}
+
 td,
 .stat .n,
 .money,
@@ -2960,240 +2971,123 @@ time {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── The top bar: a navy broadcast strip, full width, the brand on a red slab ── */
+/* ── The masthead: a clay bar floating over the page ── */
 .masthead {
-  background: var(--night);
-  color: var(--flood);
-  border-bottom: 0;
-  margin-bottom: var(--space-6);
-  padding: 0;
-  min-height: 56px;
-  box-shadow: 0 0 0 100vmax var(--night);
-  clip-path: inset(0 -100vmax);
-  backdrop-filter: none;
-}
-.masthead h1 a {
-  align-self: stretch;
-  background: var(--live);
-  color: #ffffff;
-  padding: var(--space-2) var(--space-6) var(--space-2) var(--space-4);
-  margin-left: calc(var(--space-4) * -1);
-  clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
-}
-.masthead h1 .brand-name {
-  font-size: 1.3rem;
-  color: #ffffff;
-}
-.masthead .brand-region {
-  color: rgb(255 255 255 / 85%);
-}
-.masthead .brand-mark {
-  box-shadow: none;
-}
-.masthead nav a {
-  color: var(--flood);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border-radius: 0;
-  position: relative;
-}
-.masthead nav a:hover {
-  background: transparent;
-  color: #ffffff;
-  box-shadow: none;
-}
-.masthead nav a:hover::after,
-.masthead nav a[aria-current='page']::after {
-  content: '';
-  position: absolute;
-  left: var(--space-3);
-  right: var(--space-3);
-  bottom: 4px;
-  height: 3px;
-  background: var(--live);
-  transform: skewX(-20deg);
+  top: var(--space-3);
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-4);
+  border: 0;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow: var(--shadow-clay);
+  backdrop-filter: saturate(150%) blur(10px);
 }
 
-/* ── Surfaces: square lower-thirds; the red top edge marks a panel ── */
+.masthead nav a:hover {
+  background: var(--accent-soft);
+  box-shadow: none;
+}
+
+/* ── Surfaces: clay, not paper ── */
 .card,
 .panel,
 .stat {
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-clay);
 }
-.panel,
-.stat {
-  border-top: 3px solid var(--live);
+
+.card:hover {
+  box-shadow: var(--shadow-clay);
 }
+
+/* A destination springs up a little; a record does not (see .card-link). */
+.card-link {
+  transition:
+    transform var(--dur-press) var(--ease-bounce),
+    box-shadow var(--dur) var(--ease);
+}
+
 .card-link:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   border-color: var(--border-strong);
-  box-shadow: inset 0 3px 0 var(--live), var(--shadow-md);
+  box-shadow: var(--shadow-clay-hover);
 }
-.panel-head {
-  background: var(--surface);
-}
+
 .summary-grid .stat::before {
   display: none;
 }
 
-/* ── The hero: floodlit night, whatever the theme ── */
-.hero {
-  background:
-    radial-gradient(22rem 26rem at 18% -10%, rgb(244 246 255 / 22%), transparent 70%),
-    radial-gradient(22rem 26rem at 82% -10%, rgb(244 246 255 / 18%), transparent 70%),
-    linear-gradient(180deg, #172246, var(--night));
-  color: var(--flood);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-lg);
+/* ── The landing page's cards: one pastel each, in order ── */
+.landing-cards > .card:nth-child(5n + 1) {
+  background: var(--clay-lilac);
 }
-.hero::after {
-  inset: auto 0 0 0;
-  width: auto;
-  height: 6px;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  background: linear-gradient(90deg, var(--live) 0 30%, var(--gold) 30% 34%, transparent 34%);
+.landing-cards > .card:nth-child(5n + 2) {
+  background: var(--clay-sky);
 }
-.hero .eyebrow {
-  color: var(--gold);
+.landing-cards > .card:nth-child(5n + 3) {
+  background: var(--clay-pink);
 }
-.hero h2 {
-  font-size: clamp(2.4rem, 1.4rem + 4vw, 4.4rem);
-  line-height: 0.92;
-  max-width: 16ch;
-  color: #ffffff;
+.landing-cards > .card:nth-child(5n + 4) {
+  background: var(--clay-aqua);
 }
-.hero .lede {
-  color: #c9d0ea;
+.landing-cards > .card:nth-child(5n + 5) {
+  background: var(--clay-periwinkle);
 }
-.hero .button {
-  background: var(--flood);
-  color: var(--night);
-}
-.hero .button:hover {
-  background: #ffffff;
-  color: var(--night);
-}
-.hero .button.secondary {
-  background: var(--night-3);
-  color: var(--flood);
+
+.landing-cards > .card {
   border-color: transparent;
 }
 
-/* ── Buttons: graphics-package slant, condensed caps. Only the page's own
-   buttons; the component library's Tailwind buttons keep their shape so
-   grids, bells and icon buttons are untouched. ── */
-.button,
-button:not([class]),
-button.secondary,
-button.ghost,
-button.destructive {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-radius: 0;
-  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
-  padding-inline: 1.4rem;
-  box-shadow: none;
-}
-/* A clip-path also clips the focus ring, so the ring is drawn inside. */
-.button:focus-visible,
-button:not([class]):focus-visible,
-button.secondary:focus-visible,
-button.ghost:focus-visible,
-button.destructive:focus-visible {
-  outline-offset: -4px;
+.landing-cards > .card > h3:first-child {
+  margin-top: 0;
 }
 
-/* ── Where you are: the on-air marker ── */
+.landing-cards > .card > :last-child {
+  margin-bottom: 0;
+}
+
+/* The tint is the card's; the text stays the page's (5.8:1 or better). */
+.landing-cards .hint {
+  color: var(--muted);
+}
+
+/* ── Focus: the page's own buttons keep their lip AND get the halo. Their
+   box-shadow outranks the shared focus rule, so on main the halo never
+   showed on a .button at all; it is restated here, after the lip. ── */
+button:not([class]):focus-visible,
+button.secondary:focus-visible,
+.button:focus-visible {
+  box-shadow: var(--btn-shadow, var(--shadow-xs)), 0 0 0 5px var(--focus-halo);
+}
+
+/* ── Where you are: the marker, in bubblegum ── */
 nav[aria-label] a[aria-current='page'] {
   box-shadow: inset 4px 0 0 var(--live);
   border-left-color: transparent !important;
 }
+
 .role-item.is-current {
   box-shadow: inset 4px 0 0 var(--role-hue, var(--live));
 }
-.identity-rail {
-  border-radius: var(--radius-sm);
-  border-top: 3px solid var(--live);
-}
 
-/* ── Tables: the results graphic ── */
-th {
-  font-size: 0.78rem;
-  color: var(--muted);
-}
+/* ── Tables ── */
 tbody tr:hover td {
   background: var(--surface-2);
 }
 
-@media (max-width: 640px) {
-  .masthead h1 a {
-    padding-right: var(--space-5);
-  }
-  .masthead nav a {
-    font-size: 0.9rem;
-    letter-spacing: 0.06em;
-  }
-}
-
-/* A slanted button cannot keep a full border (the slant clips its sides),
-   so the secondary action is a tinted fill instead of an outline. */
-.button.secondary,
-button.secondary {
-  background: var(--accent-soft);
-  color: var(--text);
-  border-color: transparent;
-}
-.button.secondary:hover,
-button.secondary:hover:not(:disabled) {
-  background: var(--border);
-  color: var(--text);
-  border-color: transparent;
-}
-
-/* The sign-in panel: the same floodlit night as the hero. */
-.auth-aside {
-  background:
-    radial-gradient(18rem 22rem at 20% -10%, rgb(244 246 255 / 20%), transparent 70%),
-    linear-gradient(180deg, #172246, var(--night));
-  border-top: 6px solid var(--live);
-}
-.auth-aside .eyebrow {
-  color: var(--gold);
-}
-
-/* The club menu's group headings (Season, Match day, Money, Club) read as
-   section graphics: condensed caps over a hairline. */
+/* The club menu's group headings (Season, Match day, Money, Club): small
+   tracked caps over a hairline. */
 nav[aria-label='Club administration'] div > p {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.78rem;
+  font-weight: 800;
+  font-size: 0.74rem;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   color: var(--live-text);
   border-top: 1px solid var(--border);
   padding-top: var(--space-3);
 }
+
 nav[aria-label='Club administration'] div > p:first-child {
   border-top: 0;
   padding-top: 0;
-}
-
-/* The brand slab carries small text, so it takes a deeper red than the
-   thin on-air markers: white on #c41230 is 5.9:1. */
-.masthead h1 a {
-  background: #c41230;
-}
-.masthead .brand-region {
-  color: #ffffff;
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -3312,7 +3206,7 @@ nav[aria-label='Club administration'] div > p:first-child {
   padding: 0;
   border: 0;
   background: transparent;
-  color: #fff;
+  color: var(--on-night);
   box-shadow: none;
   cursor: pointer;
   animation: dugout-run-out 700ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--delay, 0ms) both;
@@ -3335,16 +3229,16 @@ nav[aria-label='Club administration'] div > p:first-child {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--night-2, #101831);
-  border: 2px solid #fff;
+  background: var(--night-2);
+  border: 2px solid var(--on-night);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   box-shadow: 0 3px 8px rgb(0 0 0 / 35%);
 }
 
 .dugout-shirt.is-goalkeeper .num {
-  background: var(--gold, #ffc145);
-  color: #101831;
+  background: var(--gold);
+  color: var(--night-2);
 }
 
 .dugout-shirt.is-unanswered .num {
@@ -3357,18 +3251,18 @@ nav[aria-label='Club administration'] div > p:first-child {
   line-height: 1.1;
   padding: 1px 5px;
   border-radius: var(--radius-sm);
-  background: rgb(7 12 26 / 70%);
+  background: color-mix(in srgb, var(--night) 70%, transparent);
   white-space: nowrap;
 }
 
 .dugout-shirt:hover .num,
 .dugout-shirt.is-selected .num {
-  outline: 3px solid var(--live, #e8324a);
+  outline: 3px solid var(--live);
   outline-offset: 2px;
 }
 
 .dugout-shirt:focus-visible {
-  outline: 3px solid #fff;
+  outline: 3px solid var(--on-night);
   outline-offset: 2px;
 }
 

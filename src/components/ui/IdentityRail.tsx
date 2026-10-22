@@ -109,7 +109,7 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
 
           {/* User Avatar */}
           <div
-            className="w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-success-indicator to-primary border-2 border-white/20 text-white font-bold text-sm grid place-items-center shadow-xs overflow-hidden"
+            className="w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-(--aurora-violet) to-night-3 border-2 border-(--night-line) text-on-night font-bold text-sm grid place-items-center shadow-xs overflow-hidden"
             aria-hidden="true"
           >
             {avatarUrl ? (
@@ -220,7 +220,7 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
               href={officerHref}
               // Rail text, not primary-foreground: that turns near-black in dark
               // mode, on a rail that stays dark in both.
-              className="text-rail-foreground hover:text-white no-underline font-medium text-xs transition-colors flex items-center justify-between min-h-[44px] px-2 rounded-sm hover:bg-rail-line/50"
+              className="text-rail-foreground hover:text-on-night no-underline font-medium text-xs transition-colors flex items-center justify-between min-h-[44px] px-2 rounded-sm hover:bg-rail-line/50"
             >
               <span>{officerLabel}</span>
             </a>

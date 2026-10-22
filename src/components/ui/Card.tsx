@@ -37,8 +37,8 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const variantStyles: Record<NonNullable<CardProps['variant']>, string> = {
-  default: 'bg-surface border-border shadow-xs',
-  subtle: 'bg-surfaceSubtle border-border shadow-xs',
+  default: 'bg-surface border-border shadow-clay',
+  subtle: 'bg-surfaceSubtle border-border shadow-clay',
   sunken: 'bg-backgroundSunk border-border/80 shadow-none',
   outline: 'bg-transparent border-border-strong shadow-none',
 };
@@ -89,7 +89,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
           variantStyles[variant],
           paddingStyles[padding],
           isInteractive &&
-            'cursor-pointer hover:-translate-y-0.5 hover:shadow-md hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+            'cursor-pointer hover:-translate-y-1 hover:shadow-clay-hover hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
           className
         )}
         {...(props as any)}
