@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
               </a>
             </h1>
             {/*
-              Three links, and deliberately not a fourth for signing in. This
+              Four links, and deliberately not a fifth for signing in. This
               layout is prerendered — it makes no auth call, by design — so a
               "Sign in" here would still be offering it to somebody already
               signed in. `/registrar` sends whoever needs it to the sign-in
@@ -63,6 +63,7 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
               <a href="/me">Your workspace</a>
               <a href="/registrar">Club administration</a>
               <a href="/register">New registration</a>
+              <a href="/seasons">Season calendars</a>
             </nav>
           </header>
           <main id="main">{children}</main>

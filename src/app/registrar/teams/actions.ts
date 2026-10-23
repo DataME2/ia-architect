@@ -13,6 +13,8 @@ import { loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { parseDueDate } from '../../../web/plan-view.ts';
 import { parseTeamRole } from '../../../web/team-view.ts';
+import { describeCompetition, parseCompetitionChoice } from '../../../web/team-competitions.ts';
+import { enterTeamCompetition, withdrawTeamCompetition } from '../../../data/team-competitions.ts';
 
 async function requireTenant() {
   const client = await createRequestClient();
@@ -150,4 +152,41 @@ export async function recordClearanceAction(
       ? `Clearance recorded and verified against the portal, covering to ${expiresOn}.`
       : 'Clearance recorded, but NOT verified. Until somebody checks this number against the state portal it clears nobody, and they still cannot be added as an official (BR19).',
   );
+}
+
+/**
+ * Enter a team in a competition of the published calendar (BR179).
+ *
+ * The choice is checked against the calendar here and its shape again by
+ * the database; who may do it is the database's answer (0094), and the
+ * history line is written there too, so nothing here can skip it.
+ */
+export async function enterCompetitionAction(
+  _previous: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const teamId = String(formData.get('teamId') ?? '');
+  if (teamId === '') throw new Error('Missing identifiers.');
+  const choice = parseCompetitionChoice(formData.get('competition'));
+  if (choice === null) return formFailed('Choose a competition from the season calendar.');
+
+  const { client, tenant } = await requireTenant();
+  const result = await enterTeamCompetition(client, tenant.clubId, teamId, choice.calendarId, choice.competitionRef);
+  if (!result.ok) return formFailed(result.error);
+
+  revalidatePath('/registrar/teams');
+  return formOk(`Entered in ${describeCompetition(choice.calendarId, choice.competitionRef).name}.`);
+}
+
+/** Withdraw a team from a competition (BR179); the history records who and when. */
+export async function withdrawCompetitionAction(formData: FormData): Promise<void> {
+  const teamId = String(formData.get('teamId') ?? '');
+  const calendarId = String(formData.get('calendarId') ?? '');
+  const competitionRef = String(formData.get('competitionRef') ?? '');
+  if (teamId === '' || calendarId === '' || competitionRef === '') throw new Error('Missing identifiers.');
+
+  const { client, tenant } = await requireTenant();
+  await withdrawTeamCompetition(client, tenant.clubId, teamId, calendarId, competitionRef);
+
+  revalidatePath('/registrar/teams');
 }

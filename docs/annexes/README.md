@@ -25,6 +25,7 @@ through `ea-first-change` like anything else.
 | [sharepoint-integration.md](./sharepoint-integration.md) | BR168 | The Committee Hub's two SharePoint modes: link mode (built — the IT Manager pastes the library address) and a full Microsoft Graph sync (not built — needs a Sites.Selected app registration the club's Microsoft 365 administrator approves) |
 | [preliminary-technical-spec-en.pdf](./preliminary-technical-spec-en.pdf) | The architecture as a whole | Preliminary technical specification for reading effort — scope, roles, data model, integrations, risks, relative complexity, and volumetry. English |
 | [preliminary-technical-spec-es.pdf](./preliminary-technical-spec-es.pdf) | The architecture as a whole | Spanish rendering of the same document, kept because the originating discovery material was Spanish |
+| [2610003-General-2027-Season-Calendars-V1_AM.pdf](./2610003-General-2027-Season-Calendars-V1_AM.pdf) | BR178 | Football Queensland's published 2027 season calendar for the SEQ Conference — Advanced & Metro (version 1), the source `src/web/season-calendar-fq-2027.ts` transcribes ([scope 101](../scope/101_the_season_calendar_by_region.md)) |
 
 ## A note on these two PDFs
 

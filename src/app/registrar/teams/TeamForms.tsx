@@ -7,7 +7,8 @@ import { FormNotice } from '../_components/FormNotice.tsx';
 
 import { TEAM_ROLES } from '../../../domain/teams/types.ts';
 import { TEAM_ROLE_LABEL } from '../../../web/team-view.ts';
-import { addMemberAction, createTeamAction, recordClearanceAction } from './actions.ts';
+import type { CompetitionOptionGroup } from '../../../web/team-competitions.ts';
+import { addMemberAction, createTeamAction, enterCompetitionAction, recordClearanceAction } from './actions.ts';
 
 interface PersonOption {
   readonly id: string;
@@ -176,6 +177,52 @@ export function RecordClearanceForm({ people }: { readonly people: readonly Pers
             {pending ? 'Recording…' : 'Record clearance'}
           </button>
         </div>
+      </form>
+    </>
+  );
+}
+
+/** Enter a team in a competition, chosen from the season calendar (BR179). */
+export function EnterCompetitionForm({
+  teamId,
+  groups,
+}: {
+  readonly teamId: string;
+  readonly groups: readonly CompetitionOptionGroup[];
+}) {
+  const [result, formAction, pending] = useActionState<FormResult, FormData>(
+    enterCompetitionAction,
+    IDLE_FORM,
+  );
+
+  return (
+    <>
+      <FormNotice result={result} />
+      <form
+        action={formAction}
+        style={{ display: 'flex', gap: '0.6rem', alignItems: 'end', flexWrap: 'wrap' }}
+      >
+        <input type="hidden" name="teamId" value={teamId} />
+        <div style={{ flex: '2 1 16rem' }}>
+          <label htmlFor={`competition-${teamId}`}>Competition</label>
+          <select id={`competition-${teamId}`} name="competition" defaultValue="">
+            <option value="" disabled>
+              Choose…
+            </option>
+            {groups.map((g) => (
+              <optgroup key={g.label} label={g.label}>
+                {g.options.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
+        <button type="submit" className="secondary" disabled={pending}>
+          {pending ? 'Entering…' : 'Enter team'}
+        </button>
       </form>
     </>
   );
