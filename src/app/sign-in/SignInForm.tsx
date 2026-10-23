@@ -15,32 +15,21 @@ export function SignInForm({ next }: { readonly next: string }) {
         </div>
       )}
 
-      <fieldset>
-        <legend>Email and password</legend>
-        <input type="hidden" name="next" value={next} />
+      <input type="hidden" name="next" value={next} />
 
-        <div className="field">
-          <label htmlFor="email">Email</label>
-          <input id="email" name="email" type="email" autoComplete="email" required />
-        </div>
-
-        <div className="field">
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-          />
-        </div>
-      </fieldset>
-
-      <div>
-        <button type="submit" disabled={pending}>
-          {pending ? 'Signing in…' : 'Sign in'}
-        </button>
+      <div className="field">
+        <label htmlFor="email">Email address</label>
+        <input id="email" name="email" type="email" autoComplete="email" required />
       </div>
+
+      <div className="field">
+        <label htmlFor="password">Password</label>
+        <input id="password" name="password" type="password" autoComplete="current-password" required />
+      </div>
+
+      <button type="submit" className="auth-submit" disabled={pending}>
+        {pending ? 'Signing in…' : 'Sign in'}
+      </button>
     </form>
   );
 }

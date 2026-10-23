@@ -67,14 +67,16 @@
 :root {
   color-scheme: light;
 
-  /* Pitch slate — structure, the rail, every primary action; sky for info. */
+  /* Pitch blue — structure, the rail, every primary action; sky for info.
+     The Superdesign v7 palette (scope 105): #1A3A52 is the pitch, #112636
+     the rail, #234A66 the line between them. */
   --reef-50: #f1f5f9;
   --reef-100: #e0f2fe;
   --reef-500: #0284c7;
-  --reef-600: #0f172a;
-  --reef-700: #1e293b;
-  --reef-800: #090d16;
-  --reef-900: #02040a;
+  --reef-600: #1a3a52;
+  --reef-700: #234a66;
+  --reef-800: #112636;
+  --reef-900: #0b1b27;
 
   /* Stadium green — ready, cleared, available. */
   --euc-100: #dcfce7;
@@ -103,7 +105,7 @@
   --sand-200: #e2e8f0;
   --sand-300: #cbd5e1;
   --stone: #64748b;
-  --ink: #0f172a;
+  --ink: #1a3a52;
 
   /* Semantic aliases. Screens use these; the ramps above are the source. */
   --bg: var(--sand-50);
@@ -144,7 +146,7 @@
 
   /* The rail. Constant in every role context — see src/web/role-context.ts. */
   --rail-bg: var(--reef-800);
-  --rail-line: #1e293b;
+  --rail-line: var(--reef-700);
   --rail-text: #f8fafc;
   --rail-text-2: #94a3b8;
 
@@ -192,12 +194,12 @@
   :root {
     color-scheme: dark;
 
-    --bg: #070b14;
-    --bg-sunk: #02040a;
-    --surface: #0f172a;
-    --surface-2: #1e293b;
-    --border: #1e293b;
-    --border-strong: #334155;
+    --bg: #0b1b27;
+    --bg-sunk: #07131c;
+    --surface: #112636;
+    --surface-2: #1a3a52;
+    --border: #234a66;
+    --border-strong: #2f5d7e;
     --text: #f8fafc;
     --muted: #94a3b8;
     --subtle: #cbd5e1;
@@ -208,7 +210,7 @@
     --accent: #38bdf8;
     --accent-hover: #7dd3fc;
     --accent-soft: #0c4a6e;
-    --accent-text: #070b14;
+    --accent-text: #0b1b27;
     --link: #38bdf8;
     --highlight: #a3e635;
     --highlight-hover: #bef264;
@@ -227,12 +229,12 @@
     --info-bg: #0c4a6e;
     --info-text: #7dd3fc;
     --info-dot: #38bdf8;
-    --neutral-bg: #1e293b;
+    --neutral-bg: #1a3a52;
     --neutral-text: var(--muted);
     --neutral-dot: var(--subtle);
 
-    --rail-bg: #02040a;
-    --rail-line: #0f172a;
+    --rail-bg: #07131c;
+    --rail-line: #1a3a52;
     --rail-text: #f8fafc;
     /* #94a3b8, not DESIGN.md's #64748b: that is 4.3:1 on this rail, under
        WCAG AA for the rail's small labels. */
@@ -348,26 +350,9 @@ a:hover {
 
 /* ------------------------------------------- top bar and footer
 
-   Scope 104: the Superdesign front door's chrome, on every screen. Its own
-   colours rather than theme tokens, because the design draws the bar and
-   the footer in pitch slate in both schemes. The same scope carries the
-   design's type and shape into the front door (.home), and resets there
-   what the Broadcast overlay further down would otherwise impose. */
-.topbar,
-.site-footer,
-.home {
-  --pp-rail: #112636;
-  --pp-pitch: #1a3a52;
-  --pp-line: #234a66;
-  --pp-text-2: #94a3b8; /* 6:1 on the rail */
-  --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
-  --font-display: var(--font-sans);
-  --radius-sm: 6px;
-  --radius: 10px;
-  --radius-lg: 16px;
-  font-family: var(--font-sans);
-}
+   Scope 104: the Superdesign front door's chrome, on every screen. The
+   ramp's own colours rather than the theme's surfaces, because the design
+   draws the bar and the footer in pitch blue in both schemes. */
 
 /* The default ring is navy, which vanishes on pitch slate. */
 .topbar,
@@ -383,7 +368,7 @@ a:hover {
   position: sticky;
   top: 0;
   z-index: 20;
-  border-bottom: 1px solid var(--pp-line);
+  border-bottom: 1px solid var(--reef-700);
   background: rgb(17 38 54 / 95%);
   backdrop-filter: blur(12px);
   color: #ffffff;
@@ -415,14 +400,6 @@ a:hover {
   min-height: 2.75rem;
   color: #ffffff;
   text-decoration: none;
-}
-
-/* Broadcast sets the name in condensed capitals; the design does not. */
-.topbar-brand,
-.topbar .brand-name,
-.site-footer .brand-name {
-  font-family: var(--font-sans);
-  text-transform: none;
 }
 
 .topbar-links {
@@ -467,7 +444,7 @@ a:hover {
   padding: 0 1.25rem;
   border-radius: var(--radius-full);
   background: #ffffff;
-  color: var(--pp-pitch);
+  color: var(--reef-600);
   font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
@@ -475,7 +452,7 @@ a:hover {
 
 .topbar-register:hover {
   background: #f1f5f9;
-  color: var(--pp-pitch);
+  color: var(--reef-600);
 }
 
 .topbar-menu {
@@ -487,7 +464,7 @@ a:hover {
   place-items: center;
   width: 2.75rem;
   height: 2.75rem;
-  border: 1px solid var(--pp-line);
+  border: 1px solid var(--reef-700);
   border-radius: var(--radius-sm);
   color: #e2e8f0;
   list-style: none;
@@ -514,9 +491,9 @@ a:hover {
   display: grid;
   width: 15rem;
   padding: var(--space-2);
-  border: 1px solid var(--pp-line);
+  border: 1px solid var(--reef-700);
   border-radius: var(--radius);
-  background: var(--pp-rail);
+  background: var(--reef-800);
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 50%);
 }
 
@@ -532,14 +509,14 @@ a:hover {
 }
 
 .topbar-menu nav a:hover {
-  background: var(--pp-pitch);
+  background: var(--reef-600);
   color: #ffffff;
 }
 
 /* On a phone Your workspace is in the menu, under a rule. */
 .topbar-menu-workspace {
   margin-top: var(--space-2);
-  border-top: 1px solid var(--pp-line);
+  border-top: 1px solid var(--reef-700);
 }
 
 @media (min-width: 640px) {
@@ -614,20 +591,11 @@ a:hover {
   font-weight: 700;
 }
 
-.brand-region {
-  display: block;
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--subtle);
-}
-
 .site-footer {
   margin-top: var(--space-7);
-  border-top: 1px solid var(--pp-line);
-  background: var(--pp-rail);
-  color: var(--pp-text-2);
+  border-top: 1px solid var(--reef-700);
+  background: var(--reef-800);
+  color: var(--rail-text-2);
   font-size: 0.95rem;
 }
 
@@ -694,7 +662,7 @@ a:hover {
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
-  color: var(--pp-text-2);
+  color: var(--rail-text-2);
   text-decoration: none;
   transition: color var(--dur-fast) var(--ease);
 }
@@ -709,7 +677,7 @@ a:hover {
   justify-content: space-between;
   gap: var(--space-2) var(--space-5);
   padding-block: var(--space-5) var(--space-6);
-  border-top: 1px solid var(--pp-line);
+  border-top: 1px solid var(--reef-700);
   font-size: 0.85rem;
 }
 
@@ -777,11 +745,12 @@ h3 {
 }
 
 .eyebrow {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--subtle);
+  color: var(--muted);
   margin: 0 0 var(--space-2);
 }
 
@@ -797,16 +766,15 @@ h3 {
   border-radius: var(--radius-lg);
   padding: clamp(var(--space-5), 4vw, var(--space-7));
   margin-bottom: var(--space-6);
-  background:
-    radial-gradient(40rem 24rem at 100% 0%, rgb(132 204 22 / 20%), transparent 70%),
-    linear-gradient(135deg, var(--reef-700), var(--reef-800) 58%, var(--reef-900));
-  color: #eaf3f6;
+  background: linear-gradient(135deg, var(--reef-600), var(--reef-800));
+  color: #ffffff;
   box-shadow: var(--shadow-lg);
 }
 
-/* The pitch markings: a centre circle and halfway line, drawn in gold at
-   the opacity of a memory. Aria-hidden decoration in CSS only, so it costs
-   no markup and disappears in print. */
+/* A centre circle in the front door's markings: white, 3px. Aria-hidden
+   decoration in CSS only, so it costs no markup and disappears in print.
+   Fainter than the front door's 35%, because here it sits behind a page's
+   own heading rather than beside it. */
 .hero::after {
   content: '';
   position: absolute;
@@ -814,8 +782,7 @@ h3 {
   width: 26rem;
   height: 26rem;
   border-radius: 50%;
-  border: 1.5px solid rgb(132 204 22 / 24%);
-  box-shadow: 0 0 0 6rem rgb(132 204 22 / 4%);
+  border: 3px solid rgb(255 255 255 / 20%);
   pointer-events: none;
 }
 
@@ -825,12 +792,13 @@ h3 {
 }
 
 .hero .eyebrow {
-  color: #bef264;
+  color: var(--rail-text-2);
 }
 
 .hero h2 {
   margin: 0 0 var(--space-3);
   font-size: clamp(1.7rem, 1.1rem + 2.4vw, 2.6rem);
+  font-weight: 800;
   line-height: 1.12;
   letter-spacing: -0.03em;
   color: #ffffff;
@@ -838,7 +806,7 @@ h3 {
 }
 
 .hero .lede {
-  color: rgb(234 243 246 / 84%);
+  color: rgb(248 250 252 / 80%);
   margin-bottom: var(--space-5);
   max-width: 52ch;
 }
@@ -849,41 +817,35 @@ h3 {
   gap: var(--space-3);
 }
 
-/* On the hero's dark ground the primary button inverts: gold is finally
-   legible here, and it is the one place the brand's second colour gets to
-   be the loudest thing on the screen. */
-/* The hero does not get to borrow the Assistant's orange for a call to
-   action, however well it would look. Sand on reef instead. */
+/* On the dark ground the primary action is white and the secondary an
+   outline, as on the front door. */
 .hero .button {
-  background: var(--sand-50);
-  color: var(--reef-800);
-  border-color: transparent;
+  background: #ffffff;
+  color: var(--reef-600);
+  border-color: #ffffff;
 }
 
 .hero .button:hover {
-  background: #ffffff;
-  color: var(--reef-800);
+  background: var(--sand-100);
+  color: var(--reef-600);
 }
 
 .hero .button.secondary {
-  background: rgb(255 255 255 / 8%);
+  background: transparent;
   color: #ffffff;
-  border-color: rgb(255 255 255 / 30%);
+  border-color: var(--reef-700);
 }
 
 .hero .button.secondary:hover {
-  background: rgb(255 255 255 / 16%);
+  background: transparent;
+  border-color: var(--stone);
 }
 
-/* In the dark theme the page ground is already nearly the hero's green, so
-   the panel would dissolve into it. Lifted a step and given a hairline, it
-   stays a panel rather than becoming the background. */
+/* In the dark theme the page ground is already nearly the hero's blue, so
+   a hairline keeps it a panel rather than the background. */
 @media (prefers-color-scheme: dark) {
   .hero {
-    background:
-      radial-gradient(40rem 24rem at 100% 0%, rgb(132 204 22 / 15%), transparent 70%),
-      linear-gradient(135deg, #1e293b, #0f172a 58%, #02040a);
-    border: 1px solid rgb(132 204 22 / 14%);
+    border: 1px solid var(--reef-700);
   }
 }
 
@@ -1268,6 +1230,17 @@ button,
   box-shadow: var(--shadow-xs);
   transition: background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease),
     transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+
+/* The front door's pill, on every page's own buttons (scope 105). Not on
+   every <button>: a grid cell, a chip or an icon button that styles itself
+   keeps its own shape. */
+.button,
+button:not([class]),
+button.secondary,
+button.ghost,
+button.destructive {
+  border-radius: var(--radius-full);
 }
 
 button:hover:not(:disabled),
@@ -2762,79 +2735,284 @@ td {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   Sign-in — two halves
+   Sign-in — scope 105, after the Superdesign login draft
+
+   The form first, then a rich-blue panel of what one sign-in enforces. On a
+   phone the panel follows the form, so the form is never scrolled to.
    ══════════════════════════════════════════════════════════════════════ */
 .auth-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-  border: 1px solid var(--border-strong);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--surface);
   box-shadow: var(--shadow-lg);
 }
 
-.auth-aside {
-  position: relative;
-  background:
-    radial-gradient(40rem 24rem at 100% 0%, rgb(132 204 22 / 16%), transparent 70%),
-    linear-gradient(160deg, var(--reef-700), var(--reef-800) 55%, var(--reef-900));
-  color: #eaf3f6;
-  padding: clamp(var(--space-5), 4vw, var(--space-7));
+.auth-main {
   display: grid;
-  gap: var(--space-4);
-  align-content: start;
+  align-content: center;
+  padding: clamp(var(--space-5), 5vw, 4rem);
 }
 
-.auth-aside .eyebrow {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #bef264;
-}
-
-.auth-aside h2 {
-  margin: 0;
-  color: #ffffff;
-  font-size: clamp(1.4rem, 1rem + 1.6vw, 2rem);
-  font-weight: 800;
-  font-variation-settings: 'wdth' 108;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  max-width: 18ch;
-}
-
-.auth-aside p {
-  margin: 0;
-  color: rgb(234 243 246 / 82%);
-  max-width: 44ch;
-  font-size: 0.95rem;
+.auth-form {
+  width: 100%;
+  max-width: 28rem;
+  margin-inline: auto;
 }
 
 .auth-brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-6);
 }
 
 .auth-brand .brand-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.auth-main h2 {
+  margin: 0 0 var(--space-2);
+  font-size: clamp(1.75rem, 1.4rem + 1vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.auth-main .lede {
+  margin-bottom: var(--space-6);
+}
+
+/* The providers are coming, not here: disabled, and saying so in words. */
+.auth-providers {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.auth-provider,
+.auth-provider:disabled {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-1) var(--space-3);
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  /* The name and its badge each stay whole; on a narrow phone the badge
+     drops below the name rather than both breaking. */
+  white-space: nowrap;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--subtle);
+  font-weight: 500;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.auth-provider svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+}
+
+.auth-soon {
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--neutral-bg);
+  color: var(--neutral-text);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-5);
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--border);
+}
+
+.auth-main form.stack {
+  max-width: none;
+}
+
+.auth-main input {
+  min-height: 3rem;
+  border-radius: var(--radius);
+}
+
+/* Stadium green, deepened until white text on it passes: 5:1. */
+.auth-submit {
+  width: 100%;
+  min-height: 3.25rem;
+  border-radius: var(--radius);
+  background: var(--euc-700);
   color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 10px 15px -3px rgb(22 163 74 / 20%);
+}
+
+.auth-submit:hover:not(:disabled) {
+  background: var(--euc-900);
+  color: #ffffff;
+}
+
+.auth-note {
+  margin: var(--space-5) 0 0;
+  color: var(--subtle);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* ── The panel ── */
+.auth-aside {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: var(--space-6);
+  align-content: center;
+  padding: clamp(var(--space-5), 5vw, 4rem);
+  background: linear-gradient(135deg, var(--reef-600) 0%, #0f2438 100%);
+  color: #ffffff;
+}
+
+/* The draft's trophy watermark, as a pitch's centre circle instead. */
+.auth-aside::after {
+  content: '';
+  position: absolute;
+  right: -8rem;
+  bottom: -10rem;
+  width: 24rem;
+  height: 24rem;
+  border-radius: 50%;
+  border: 3px solid rgb(255 255 255 / 8%);
+  pointer-events: none;
+}
+
+.auth-aside > * {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-aside svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.auth-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-self: start;
+  margin: 0;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: var(--radius-sm);
+  background: rgb(255 255 255 / 10%);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.auth-badge svg {
+  width: 1rem;
+  height: 1rem;
+  color: #4ade80;
+}
+
+.auth-benefits {
+  display: grid;
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.auth-benefits li {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.auth-benefit-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgb(22 163 74 / 20%);
+  color: #4ade80;
+}
+
+.auth-benefit-icon.is-gold {
+  background: rgb(217 119 6 / 20%);
+  color: #fbbf24;
+}
+
+.auth-benefits h3 {
+  margin: 0 0 var(--space-1);
+  color: #ffffff;
+  font-size: 1.15rem;
   font-weight: 700;
 }
 
-.auth-brand .brand-region {
-  color: rgb(234 243 246 / 60%);
+.auth-benefits p {
+  margin: 0;
+  color: var(--rail-text-2);
+}
+
+.auth-card {
+  margin: 0;
+  padding: var(--space-6);
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: var(--radius-lg);
+  background: rgb(255 255 255 / 5%);
+  backdrop-filter: blur(16px);
+}
+
+.auth-card .eyebrow {
+  color: #4ade80;
+}
+
+.auth-card .auth-card-title {
+  margin: 0 0 var(--space-2);
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.auth-card p {
+  color: rgb(248 250 252 / 80%);
 }
 
 .auth-ledger {
-  list-style: none;
-  margin: var(--space-2) 0 0;
-  padding: 0;
   display: grid;
   gap: 0.6rem;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
 }
 
 .auth-ledger li {
@@ -2842,31 +3020,18 @@ td {
   grid-template-columns: 3.2rem 1fr;
   gap: var(--space-3);
   align-items: baseline;
-  border-top: 1px solid rgb(255 255 255 / 14%);
   padding-top: 0.6rem;
+  border-top: 1px solid rgb(255 255 255 / 14%);
+  color: rgb(248 250 252 / 80%);
   font-size: 0.88rem;
-  color: rgb(234 243 246 / 82%);
 }
 
 .auth-ledger b {
+  color: #ffffff;
   font-size: 1.5rem;
   font-weight: 800;
-  font-variation-settings: 'wdth' 112;
   letter-spacing: -0.03em;
-  color: #ffffff;
   font-variant-numeric: tabular-nums;
-}
-
-.auth-main {
-  padding: clamp(var(--space-5), 4vw, var(--space-7));
-}
-
-.auth-main h2 {
-  margin: 0 0 var(--space-2);
-}
-
-.auth-main form.stack {
-  max-width: none;
 }
 
 @media (max-width: 52rem) {
@@ -3072,349 +3237,6 @@ td {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   Broadcast theme (ux-pilot-broadcast). The federation as a live match
-   centre: condensed uppercase type from TV graphics, floodlit navy, a red
-   "on air" marker for where you are, square lower-third panels. Chosen
-   from the Four Kits exploration.
-
-   Tokens and chrome only: every page style and every component in
-   src/components/ui reads these tokens, so no component or behaviour
-   changes. Kept as they were, because they carry meaning: the status
-   families (always a dot plus a word), each role's hue on /me, and the
-   Assistant's volt. Light is "studio" (white panels, navy ink); dark is
-   "night" (the kit itself).
-
-   Saira Condensed and Saira: OFL-1.1, @fontsource 5.3.0, latin,
-   self-hosted like Archivo and DM Mono.
-   ══════════════════════════════════════════════════════════════════════ */
-@font-face {
-  font-family: 'Saira Condensed';
-  src: url('/fonts/saira-condensed-600-latin.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Saira Condensed';
-  src: url('/fonts/saira-condensed-700-latin.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Saira Condensed';
-  src: url('/fonts/saira-condensed-800-latin.woff2') format('woff2');
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Saira Variable';
-  src: url('/fonts/saira-var-latin.woff2') format('woff2-variations');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-:root {
-  --font-display: 'Saira Condensed', 'Arial Narrow', sans-serif;
-  --font-sans: 'Saira Variable', 'Archivo Variable', ui-sans-serif, system-ui, -apple-system,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-
-  /* The broadcast palette. --live marks "you are here" and the brand slab;
-     it is never a status (blocked stays the stop family, dot plus word). */
-  --night: #070c1a;
-  --night-2: #101831;
-  --night-3: #172246;
-  --flood: #f4f6ff;
-  --live: #e8324a;
-  --live-text: #b8162e; /* red as text on white: 6.3:1 */
-  --gold: #ffc145;
-
-  /* Studio (light). */
-  --bg: #eef1f8;
-  --bg-sunk: #e3e8f3;
-  --surface: #ffffff;
-  --surface-2: #f5f7fc;
-  --border: #d9dfec;
-  --border-strong: #b8c2d9;
-  --text: #070c1a;
-  --muted: #3f4a6b; /* 8.9:1 on white */
-  --subtle: #2b3554;
-
-  --accent: var(--night-2);
-  --accent-hover: var(--night-3);
-  --accent-soft: #e6eaf6;
-  --accent-text: #ffffff;
-  --link: #1d3fa8;
-  --focus: #1d3fa8;
-
-  --info-bg: #e3e9fb;
-  --info-text: #1d3fa8;
-  --info-dot: #4f74e3;
-
-  --rail-bg: var(--night);
-  --rail-line: var(--night-3);
-  --rail-text: var(--flood);
-  --rail-text-2: #a9b3d6; /* 8.4:1 on the rail */
-
-  /* Square panels: a lower-third has corners, not curves. Pills stay round. */
-  --radius-sm: 2px;
-  --radius-md: 2px;
-  --radius: 3px;
-  --radius-lg: 4px;
-  --shadow-xs: 0 1px 2px rgb(7 12 26 / 6%);
-  --shadow-sm: 0 2px 8px rgb(7 12 26 / 8%);
-  --shadow-md: 0 10px 24px rgb(7 12 26 / 14%);
-  --shadow-lg: 0 18px 40px rgb(7 12 26 / 22%);
-}
-
-/* Night (dark): the kit itself. Primary action turns floodlight white with
-   navy text, as the score bug does. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: var(--night);
-    --bg-sunk: #04070f;
-    --surface: var(--night-2);
-    --surface-2: var(--night-3);
-    --border: #26325c;
-    --border-strong: #34437a;
-    --text: var(--flood);
-    --muted: #a9b3d6;
-    --subtle: #c9d0ea;
-
-    --accent: var(--flood);
-    --accent-hover: #ffffff;
-    --accent-soft: var(--night-3);
-    --accent-text: var(--night);
-    --link: var(--gold);
-    --focus: var(--gold);
-    --live-text: #ff7a8c;
-
-    --info-bg: #14234f;
-    --info-text: #a9c2ff;
-    --info-dot: #6ea8ff;
-
-    --rail-bg: #04070f;
-    --rail-line: var(--night-3);
-  }
-}
-
-body {
-  background-image: none;
-}
-
-/* ── Type: condensed uppercase for anything that names a thing ── */
-h1,
-h2,
-h3,
-.work-head h2,
-.brand-name {
-  font-family: var(--font-display);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
-  font-variation-settings: normal;
-  font-stretch: normal;
-  line-height: 1;
-}
-h3 {
-  font-weight: 700;
-  letter-spacing: 0.03em;
-}
-.work-head h2 {
-  font-size: clamp(2rem, 1.4rem + 2vw, 2.8rem);
-}
-/* Labels read like on-screen graphics: tracked, condensed, upper. */
-.eyebrow,
-.panel-head h3,
-th,
-.stat .label,
-.brand-region,
-.rail-label {
-  font-family: var(--font-display);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-}
-.eyebrow {
-  color: var(--live-text);
-}
-.stat .n {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 2.6rem;
-  letter-spacing: 0;
-  line-height: 1;
-}
-td,
-.stat .n,
-.money,
-time {
-  font-variant-numeric: tabular-nums;
-}
-
-/* ── Surfaces: square lower-thirds; the red top edge marks a panel ── */
-.card,
-.panel,
-.stat {
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-xs);
-}
-.panel,
-.stat {
-  border-top: 3px solid var(--live);
-}
-.card-link:hover {
-  transform: translateY(-2px);
-  border-color: var(--border-strong);
-  box-shadow: inset 0 3px 0 var(--live), var(--shadow-md);
-}
-.panel-head {
-  background: var(--surface);
-}
-.summary-grid .stat::before {
-  display: none;
-}
-
-/* ── The hero: floodlit night, whatever the theme ── */
-.hero {
-  background:
-    radial-gradient(22rem 26rem at 18% -10%, rgb(244 246 255 / 22%), transparent 70%),
-    radial-gradient(22rem 26rem at 82% -10%, rgb(244 246 255 / 18%), transparent 70%),
-    linear-gradient(180deg, #172246, var(--night));
-  color: var(--flood);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-lg);
-}
-.hero::after {
-  inset: auto 0 0 0;
-  width: auto;
-  height: 6px;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  background: linear-gradient(90deg, var(--live) 0 30%, var(--gold) 30% 34%, transparent 34%);
-}
-.hero .eyebrow {
-  color: var(--gold);
-}
-.hero h2 {
-  font-size: clamp(2.4rem, 1.4rem + 4vw, 4.4rem);
-  line-height: 0.92;
-  max-width: 16ch;
-  color: #ffffff;
-}
-.hero .lede {
-  color: #c9d0ea;
-}
-.hero .button {
-  background: var(--flood);
-  color: var(--night);
-}
-.hero .button:hover {
-  background: #ffffff;
-  color: var(--night);
-}
-.hero .button.secondary {
-  background: var(--night-3);
-  color: var(--flood);
-  border-color: transparent;
-}
-
-/* ── Buttons: graphics-package slant, condensed caps. Only the page's own
-   buttons; the component library's Tailwind buttons keep their shape so
-   grids, bells and icon buttons are untouched. ── */
-.button,
-button:not([class]),
-button.secondary,
-button.ghost,
-button.destructive {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-radius: 0;
-  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
-  padding-inline: 1.4rem;
-  box-shadow: none;
-}
-/* A clip-path also clips the focus ring, so the ring is drawn inside. */
-.button:focus-visible,
-button:not([class]):focus-visible,
-button.secondary:focus-visible,
-button.ghost:focus-visible,
-button.destructive:focus-visible {
-  outline-offset: -4px;
-}
-
-/* ── Where you are: the on-air marker ── */
-nav[aria-label] a[aria-current='page'] {
-  box-shadow: inset 4px 0 0 var(--live);
-  border-left-color: transparent !important;
-}
-.role-item.is-current {
-  box-shadow: inset 4px 0 0 var(--role-hue, var(--live));
-}
-.identity-rail {
-  border-radius: var(--radius-sm);
-  border-top: 3px solid var(--live);
-}
-
-/* ── Tables: the results graphic ── */
-th {
-  font-size: 0.78rem;
-  color: var(--muted);
-}
-tbody tr:hover td {
-  background: var(--surface-2);
-}
-
-/* A slanted button cannot keep a full border (the slant clips its sides),
-   so the secondary action is a tinted fill instead of an outline. */
-.button.secondary,
-button.secondary {
-  background: var(--accent-soft);
-  color: var(--text);
-  border-color: transparent;
-}
-.button.secondary:hover,
-button.secondary:hover:not(:disabled) {
-  background: var(--border);
-  color: var(--text);
-  border-color: transparent;
-}
-
-/* The sign-in panel: the same floodlit night as the hero. */
-.auth-aside {
-  background:
-    radial-gradient(18rem 22rem at 20% -10%, rgb(244 246 255 / 20%), transparent 70%),
-    linear-gradient(180deg, #172246, var(--night));
-  border-top: 6px solid var(--live);
-}
-.auth-aside .eyebrow {
-  color: var(--gold);
-}
-
-/* The club menu's group headings (Season, Match day, Money, Club) read as
-   section graphics: condensed caps over a hairline. */
-nav[aria-label='Club administration'] div > p {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--live-text);
-  border-top: 1px solid var(--border);
-  padding-top: var(--space-3);
-}
-nav[aria-label='Club administration'] div > p:first-child {
-  border-top: 0;
-  padding-top: 0;
-}
-
-/* ══════════════════════════════════════════════════════════════════════
    THE TEAM DUGOUT — scope 99
 
    The squad on a pitch, the bench and the technical area beside it. The
@@ -3426,7 +3248,7 @@ nav[aria-label='Club administration'] div > p:first-child {
 .dugout {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-top: 3px solid var(--live, var(--accent));
+  border-top: 3px solid var(--accent);
   border-radius: var(--radius);
   box-shadow: var(--shadow-xs);
   padding: var(--space-4);
@@ -3553,7 +3375,7 @@ nav[aria-label='Club administration'] div > p:first-child {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--night-2, #101831);
+  background: var(--reef-600);
   border: 2px solid #fff;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -3561,8 +3383,8 @@ nav[aria-label='Club administration'] div > p:first-child {
 }
 
 .dugout-shirt.is-goalkeeper .num {
-  background: var(--gold, #ffc145);
-  color: #101831;
+  background: #ffc145;
+  color: var(--reef-800);
 }
 
 .dugout-shirt.is-unanswered .num {
@@ -3575,13 +3397,13 @@ nav[aria-label='Club administration'] div > p:first-child {
   line-height: 1.1;
   padding: 1px 5px;
   border-radius: var(--radius-sm);
-  background: rgb(7 12 26 / 70%);
+  background: rgb(17 38 54 / 75%);
   white-space: nowrap;
 }
 
 .dugout-shirt:hover .num,
 .dugout-shirt.is-selected .num {
-  outline: 3px solid var(--live, #e8324a);
+  outline: 3px solid #ffffff;
   outline-offset: 2px;
 }
 
@@ -3671,7 +3493,7 @@ nav[aria-label='Club administration'] div > p:first-child {
 }
 
 .dugout-bench button[aria-pressed='true'] {
-  border-color: var(--live, var(--accent));
+  border-color: var(--accent);
 }
 
 .dugout-bench .num {
@@ -3870,7 +3692,7 @@ nav[aria-label='Club administration'] div > p:first-child {
 }
 
 .comp-cal-grid td.is-today {
-  box-shadow: inset 0 0 0 2px var(--live, var(--accent));
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 
 .comp-cal-grid .day {
@@ -4072,7 +3894,6 @@ nav[aria-label='Club administration'] div > p:first-child {
 
 .season-facts dd {
   margin: 0;
-  font-family: var(--font-display, inherit);
   font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
   font-weight: 800;
   line-height: 1.1;
@@ -4093,8 +3914,8 @@ nav[aria-label='Club administration'] div > p:first-child {
 /* --- the pulse ------------------------------------------------- */
 
 .season-pulse {
-  background: var(--night, #070c1a);
-  color: var(--flood, #f4f6ff);
+  background: var(--rail-bg);
+  color: var(--rail-text);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
 }
@@ -4133,7 +3954,7 @@ nav[aria-label='Club administration'] div > p:first-child {
 
 .season .season-pulse-month[aria-pressed='true'] {
   background: rgb(255 255 255 / 12%);
-  border-color: var(--gold, #ffc145);
+  border-color: var(--euc-500);
 }
 
 .season-bars {
@@ -4662,8 +4483,8 @@ nav[aria-label='Club administration'] div > p:first-child {
    (#112636 rail, #1A3A52 pitch), with the markings in white at 35%. Each
    band paints its colour to the window's edges with a spread shadow,
    clipped to the band's own height. Breaking out with 100vw would count the
-   scrollbar and scroll the page sideways. The tokens are set where the top
-   bar's are, in the chrome section.
+   scrollbar and scroll the page sideways. The colours are the base ramp's
+   (scope 105).
 
    **All the scroll-linked motion is CSS** (scroll-driven animations), inside
    @supports and no-preference. A browser without them, or a reader who
@@ -4688,7 +4509,7 @@ nav[aria-label='Club administration'] div > p:first-child {
 
 .home-hero,
 .home-dark {
-  --band: var(--pp-rail);
+  --band: var(--reef-800);
   color: #ffffff;
 }
 
@@ -4714,20 +4535,6 @@ html:has(.home) {
   --band: var(--bg-sunk);
 }
 
-/* Broadcast sets headings in condensed capitals; the design does not. */
-.home :is(h2, h3) {
-  text-transform: none;
-}
-
-.home .eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
 @media (max-width: 40rem) {
   .home {
     margin: calc(var(--space-4) * -1) 0 calc(var(--space-6) * -1);
@@ -4736,7 +4543,7 @@ html:has(.home) {
 
 .home-hero .eyebrow,
 .home-dark .eyebrow {
-  color: var(--pp-text-2);
+  color: var(--rail-text-2);
 }
 
 .home-hero .lede,
@@ -4761,31 +4568,23 @@ html:has(.home) {
   border-radius: var(--radius-full);
   padding: 0.8rem 1.6rem;
   background: #ffffff;
-  color: var(--pp-pitch);
+  color: var(--reef-600);
   border: 2px solid #ffffff;
-  clip-path: none;
-  font-family: var(--font-sans);
   font-size: 1rem;
   font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.home .button:focus-visible {
-  outline-offset: 2px;
 }
 
 .home-hero .button:hover,
 .home-dark .button:hover {
   background: #f1f5f9;
-  color: var(--pp-pitch);
+  color: var(--reef-600);
 }
 
 .home-hero .button.secondary,
 .home-dark .button.secondary {
   background: transparent;
   color: #ffffff;
-  border-color: var(--pp-line);
+  border-color: var(--reef-700);
 }
 
 .home-hero .button.secondary:hover,
@@ -4869,7 +4668,7 @@ html:has(.home) {
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--pp-text-2);
+  color: var(--rail-text-2);
 }
 
 /* The lens: the card stays still and the ring of roles turns around it.
@@ -4904,9 +4703,9 @@ html:has(.home) {
   align-items: center;
   height: 24px;
   padding: 4px 10px;
-  border: 1px solid var(--pp-line);
+  border: 1px solid var(--reef-700);
   border-radius: var(--radius-full);
-  background: var(--pp-rail);
+  background: var(--reef-800);
   color: #e2e8f0;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -4953,9 +4752,9 @@ html:has(.home) {
   z-index: 1;
   width: min(100%, 16rem);
   padding: var(--space-5);
-  border: 1px solid var(--pp-line);
+  border: 1px solid var(--reef-700);
   border-radius: var(--radius-lg);
-  background: var(--pp-pitch);
+  background: var(--reef-600);
   text-align: center;
   box-shadow: var(--shadow-lg);
 }
@@ -4984,9 +4783,9 @@ html:has(.home) {
 .lens-since {
   margin: 0 0 var(--space-3);
   padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--pp-line);
+  border-bottom: 1px solid var(--reef-700);
   font-size: 0.78rem;
-  color: var(--pp-text-2);
+  color: var(--rail-text-2);
 }
 
 .lens-role {
@@ -4995,7 +4794,7 @@ html:has(.home) {
   font-size: 0.7rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--pp-text-2);
+  color: var(--rail-text-2);
 }
 
 .lens-picks {
@@ -5021,9 +4820,9 @@ html:has(.home) {
   align-items: center;
   height: 24px;
   padding: 4px 10px;
-  border: 1px solid var(--pp-line);
+  border: 1px solid var(--reef-700);
   border-radius: var(--radius-full);
-  background: var(--pp-rail);
+  background: var(--reef-800);
   color: #cbd5e1;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -5041,7 +4840,7 @@ html:has(.home) {
 .lens-note {
   margin: 0;
   font-size: 0.75rem;
-  color: var(--pp-text-2);
+  color: var(--rail-text-2);
   text-align: center;
 }
 
@@ -5258,9 +5057,9 @@ html:has(.home) {
   width: min(100%, 300px);
   margin: 0 auto;
   padding: 0.75rem;
-  border: 1px solid var(--pp-line);
+  border: 1px solid var(--reef-700);
   border-radius: 2rem;
-  background: var(--pp-rail);
+  background: var(--reef-800);
   box-shadow: var(--shadow-lg);
 }
 
@@ -5390,9 +5189,9 @@ html:has(.home) {
   position: relative;
   aspect-ratio: 3 / 2;
   overflow: hidden;
-  border: 1px solid var(--pp-line);
+  border: 1px solid var(--reef-700);
   border-radius: var(--radius-lg);
-  background: var(--pp-pitch);
+  background: var(--reef-600);
 }
 
 .matchday-pitch svg {
@@ -5414,7 +5213,7 @@ html:has(.home) {
   height: 28px;
   border-radius: 50%;
   background: var(--euc-500);
-  color: var(--pp-rail);
+  color: var(--reef-800);
   font-size: 10px;
   font-weight: 700;
 }
@@ -5464,9 +5263,9 @@ html:has(.home) {
 
 .matchday-fixtures {
   padding: var(--space-4);
-  border: 1px solid var(--pp-line);
+  border: 1px solid var(--reef-700);
   border-radius: var(--radius-lg);
-  background: var(--pp-pitch);
+  background: var(--reef-600);
 }
 
 .matchday-fixtures ul {
@@ -5490,7 +5289,7 @@ html:has(.home) {
   gap: var(--space-2);
   padding: var(--space-3);
   border-radius: var(--radius);
-  background: var(--pp-rail);
+  background: var(--reef-800);
 }
 
 .matchday-fixtures li > span:first-child {
@@ -5503,13 +5302,13 @@ html:has(.home) {
 
 .matchday-fixtures li > span:first-child span {
   font-size: 0.78rem;
-  color: var(--pp-text-2);
+  color: var(--rail-text-2);
 }
 
 /* ---------------------------------------------------------- for clubs */
 
 .home-close {
-  --band: var(--pp-pitch);
+  --band: var(--reef-600);
   text-align: center;
 }
 

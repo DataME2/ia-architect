@@ -1,13 +1,14 @@
 /**
- * The mark: a football on pitch slate.
+ * The mark: a football on pitch blue.
  *
- * Recoloured with the academy palette (scope 69). The seam ring is the one
+ * Recoloured with the academy palette (scope 69), then with the v7 pitch
+ * blues (scope 105). The seam ring is the one
  * place outside the Assistant where electric volt is permitted — a mark is
  * not a status, so it cannot be confused for one.
  *
  * Drawn inline rather than fetched: it is smaller than the request that
  * would collect it, it needs no build step, and there is no state in which
- * the masthead renders without its mark.
+ * the top bar renders without its mark.
  */
 export function BrandMark() {
   return (
@@ -20,8 +21,8 @@ export function BrandMark() {
     >
       <defs>
         <linearGradient id="ldt-mark" x1="0" y1="0" x2="32" y2="32">
-          <stop offset="0" stopColor="#1e293b" />
-          <stop offset="1" stopColor="#02040a" />
+          <stop offset="0" stopColor="#234a66" />
+          <stop offset="1" stopColor="#0b1b27" />
         </linearGradient>
       </defs>
       <rect width="32" height="32" rx="9" fill="url(#ldt-mark)" />
@@ -30,7 +31,7 @@ export function BrandMark() {
           and at the 30px this renders at they collapse into a five-pointed
           star — the mark stopped reading as a ball and started reading as a
           flag. A single centred pentagon survives the size. */}
-      <path d="M16 10.1 21.61 14.18 19.47 20.77h-6.94L10.39 14.18Z" fill="#0f172a" />
+      <path d="M16 10.1 21.61 14.18 19.47 20.77h-6.94L10.39 14.18Z" fill="#112636" />
     </svg>
   );
 }
