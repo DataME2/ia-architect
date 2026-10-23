@@ -9,6 +9,7 @@ import {
   mayEditCompetitions,
   parseCompetitionChoice,
 } from './team-competitions.ts';
+import { CALENDARS } from './season-calendars.ts';
 
 const CAL = 'fq-2027-seq-advanced-metro';
 
@@ -20,16 +21,17 @@ describe('a team plays in a competition (scope 102, BR179)', () => {
   });
 
   it('offers the calendars a season covers, and none it does not', () => {
-    assert.equal(calendarsForSeason('2027-01-01', '2027-12-31').length, 2);
-    assert.equal(calendarsForSeason('2026-10-01', '2027-09-30').length, 2);
+    assert.equal(calendarsForSeason('2027-01-01', '2027-12-31').length, 10);
+    assert.equal(calendarsForSeason('2026-10-01', '2027-09-30').length, 10);
     assert.equal(calendarsForSeason('2026-01-01', '2026-12-31').length, 0);
   });
 
   it('offers every competition once, grouped as the calendar groups them', () => {
     const groups = competitionOptions(calendarsForSeason('2027-01-01', '2027-12-31'));
     const values = groups.flatMap((g) => g.options.map((o) => o.value));
-    assert.equal(values.length, 38 + 15);
-    assert.equal(new Set(values).size, 38 + 15);
+    const all = CALENDARS.reduce((n, c) => n + c.competitions.length, 0);
+    assert.equal(values.length, all);
+    assert.equal(new Set(values).size, all);
     // Two regions both have a Queensland Cup Men: the region tells them apart.
     assert.equal(groups[0]?.label, 'SEQ Conference — Advanced & Metro — Seniors');
     assert.ok(groups.some((g) => g.label === 'SEQ Conference — South Coast — Community Seniors'));

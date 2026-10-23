@@ -56,7 +56,8 @@ export interface SeasonWindow {
 }
 
 export interface SeasonEvent extends SeasonWindow {
-  readonly level: 'Regional' | 'State' | 'National';
+  /** `Local`: a region's own table of local events and club carnivals (scope 103). */
+  readonly level: 'Local' | 'Regional' | 'State' | 'National';
   readonly place?: string;
 }
 

@@ -233,7 +233,7 @@ export function SeasonPanel({ calendar: cal }: { readonly calendar: SeasonCalend
                   </div>
                 )}
                 {w.noGames ? (
-                  <p className="hint">Nothing is scheduled: the whole state rests for {w.noGames}.</p>
+                  <p className="hint">Nothing is scheduled: no games for {w.noGames}.</p>
                 ) : weekend.length === 0 ? (
                   <p className="hint">No competition games this weekend.</p>
                 ) : (

@@ -1,7 +1,8 @@
-import { FEDERATIONS } from '../../web/season-calendars.ts';
+import { FEDERATIONS, byConference } from '../../web/season-calendars.ts';
 
 /**
- * Every season calendar we hold, by federation and region (scope 101).
+ * Every season calendar we hold, by federation, conference and region
+ * (scopes 101, 103).
  *
  * Static and public, like `/`: a published calendar is the governing body's
  * own public document, so there is nothing here a stranger may not read and
@@ -34,21 +35,26 @@ export default function SeasonsPage() {
             {f.regions.length === 0 ? (
               <p className="hint">No regional calendars yet.</p>
             ) : (
-              <ul>
-                {f.regions.map((r) => (
-                  <li key={r.name}>
-                    {r.calendar ? (
-                      <a href={`/seasons/${r.calendar}`}>
-                        {r.name} <span className="seasons-live">2027 · open</span>
-                      </a>
-                    ) : (
-                      <span>
-                        {r.name} <span className="seasons-soon">coming</span>
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              byConference(f.regions).map((g) => (
+                <div key={g.conference ?? f.name} className="seasons-conference">
+                  {g.conference && <h4>{g.conference}</h4>}
+                  <ul>
+                    {g.regions.map((r) => (
+                      <li key={r.name}>
+                        {r.calendar ? (
+                          <a href={`/seasons/${r.calendar}`}>
+                            {r.name} <span className="seasons-live">2027 · open</span>
+                          </a>
+                        ) : (
+                          <span>
+                            {r.name} <span className="seasons-soon">coming</span>
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
             )}
           </section>
         ))}

@@ -3778,6 +3778,15 @@ nav[aria-label='Club administration'] div > p:first-child {
   grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
 }
 
+.seasons-conference + .seasons-conference {
+  margin-top: var(--space-4);
+}
+
+.seasons-conference h4 {
+  margin: 0 0 var(--space-2);
+  font-size: 0.95rem;
+}
+
 .seasons-fed li > a,
 .seasons-fed li > span {
   display: flex;
@@ -4301,6 +4310,11 @@ nav[aria-label='Club administration'] div > p:first-child {
   justify-self: start;
   padding: 0.15rem 0.5rem;
   border-radius: var(--radius-full);
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
+.season-level.is-local {
   background: var(--info-bg);
   color: var(--info-text);
 }

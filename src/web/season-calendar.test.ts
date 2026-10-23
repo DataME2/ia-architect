@@ -14,7 +14,7 @@ import {
   weekendLabel,
   weekendsOf,
 } from './season-calendar.ts';
-import { CALENDARS, FEDERATIONS, calendarById } from './season-calendars.ts';
+import { CALENDARS, FEDERATIONS, byConference, calendarById } from './season-calendars.ts';
 
 const byId = (id: string) => {
   const c = cal.competitions.find((x) => x.id === id);
@@ -127,6 +127,84 @@ describe('the FQ 2027 South Coast transcription matches the PDF (scope 103)', ()
   it('shares FQ’s statewide carnivals with the SEQ calendar, and prints no registration windows', () => {
     assert.equal(soc.events, cal.events);
     assert.equal(soc.windows.length, 0);
+  });
+});
+
+describe('every FQ 2027 region, transcribed as printed (scope 103)', () => {
+  // Rows whose own notes disagree with their grid, kept as printed (open questions #92, #93, #97).
+  const CONTRADICTED = new Set([
+    'fq-2027-seq-south-coast/juniors-5-6-teams',
+    'fq-2027-seq-south-coast/juniors-7-8-teams',
+    'fq-2027-seq-south-coast/seniors-11-12-teams',
+    'fq-2027-seq-darling-downs/seniors-11-12-teams',
+    'fq-2027-seq-darling-downs/miniroos-u6-u12',
+    'fq-2027-seq-sunshine-coast/miniroos-sunshine-coast',
+    'fq-2027-seq-sunshine-coast/community-juniors-u12',
+    'fq-2027-central-wide-bay/community-juniors-9-10-teams',
+    'fq-2027-central-wide-bay/community-juniors-7-8-teams',
+    'fq-2027-central-central-coast/jpl-juniors-9-10-teams',
+    'fq-2027-central-central-coast/jpl-juniors-5-6-teams',
+    'fq-2027-central-central-coast/jpl-juniors-7-8-teams',
+    'fq-2027-northern-northern/miniroos',
+    'fq-2027-northern-northern/community-juniors-u12',
+    'fq-2027-northern-far-north/miniroos-tablelands',
+    'fq-2027-northern-far-north/miniroos-johnstone-river',
+  ]);
+
+  it('gives every Queensland region its calendar, named by its conference', () => {
+    const fq = FEDERATIONS.find((f) => f.state === 'QLD');
+    assert.equal(fq?.regions.length, 10);
+    for (const r of fq?.regions ?? []) assert.ok(r.calendar && calendarById(r.calendar), r.name);
+    for (const c of CALENDARS) assert.match(c.region, /^(SEQ|Central|Northern) Conference — /, c.id);
+    assert.deepEqual(byConference(fq?.regions ?? []).map((g) => [g.conference, g.regions.length]), [
+      ['SEQ Conference', 4], ['Central Conference', 2], ['Northern Conference', 4],
+    ]);
+    assert.deepEqual(byConference(FEDERATIONS[1]?.regions ?? []), []);
+  });
+
+  it('puts every cell on one of the calendar’s Fridays, and reads every one', () => {
+    for (const c of CALENDARS) {
+      const fridays = new Set(weekendsOf(c).map((w) => w.friday));
+      for (const comp of c.competitions) {
+        assert.equal(new Set(c.competitions.map((x) => x.id)).size, c.competitions.length, c.id);
+        for (const [f, raw] of Object.entries(comp.plan)) {
+          assert.ok(fridays.has(f), `${c.id} ${comp.id} ${f}`);
+          assert.ok(readCell(raw).length > 0, `${c.id} ${comp.id} ${raw}`);
+        }
+      }
+    }
+  });
+
+  it('plays what each row’s notes promise, except the rows the PDF contradicts', () => {
+    const found: string[] = [];
+    for (const c of CALENDARS) {
+      for (const comp of c.competitions) {
+        const promised = /(\d+) Rounds/.exec(comp.notes ?? '');
+        if (promised && journeyOf(comp).rounds !== Number(promised[1])) found.push(`${c.id}/${comp.id}`);
+      }
+    }
+    assert.deepEqual(found.sort(), [...CONTRADICTED].sort());
+  });
+
+  it('plays no fixture on a weekend the calendar rests', () => {
+    const played = new Set(['round', 'catch-up', 'finals', 'play-off']);
+    for (const c of CALENDARS) {
+      for (const f of Object.keys(c.noGames)) {
+        const { weekend, midweek } = slotsOn(c, f, null);
+        assert.deepEqual([...weekend, ...midweek].filter((s) => played.has(s.entry.kind)).map((s) => s.competition.id), [], `${c.id} ${f}`);
+      }
+    }
+  });
+
+  it('runs the Gulf to Christmas, and fills a label printed across several weeks', () => {
+    const gulf = calendarById('fq-2027-northern-gulf');
+    assert.equal(gulf?.weekendCount, 52);
+    assert.equal(gulf?.competitions.find((x) => x.id === 'futsal')?.plan['2027-12-10'], 'GF');
+    assert.equal(gulf?.noGames['2027-08-06'], 'Mount Isa Rodeo');
+    const girls = calendarById('fq-2027-northern-northern')?.competitions.find((x) => x.id === 'girls-united');
+    assert.equal(Object.values(girls?.plan ?? {}).filter((v) => v === 'Term 2 League').length, 10);
+    const rep = calendarById('fq-2027-central-central-coast')?.competitions.find((x) => x.id === 'representative-carnivals-matches');
+    assert.deepEqual([rep?.plan['2027-06-25'], rep?.plan['2027-07-02'], rep?.plan['2027-07-09']], ['Sunny', 'Moreton Bay', 'Moreton Bay']);
   });
 });
 
