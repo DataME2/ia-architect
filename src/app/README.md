@@ -50,6 +50,7 @@ stack; Vercel serves it.
 | `registrar/reports/` | The three summaries a committee acts on. A report the reader's role may not have says so in a sentence naming the role; it never renders as zero |
 | `unsubscribe/[token]/` | Stopping the email (BR128). No session, and **nothing read before the person acts** — the page does not say whose address it is, which club sent the message, or whether the link is valid, because confirming an address is on a list is itself a disclosure |
 | `demo/` | The demonstration door — an email address, read-only rights, marketing consent asked separately and never as a condition (BR91–BR93) |
+| `seasons/`, `seasons/[calendar]/` | Governing bodies' season calendars by federation and region (scope 101) — static and public, prerendered for each calendar held; an unknown id is a 404. Shown as published (BR178) |
 | `interest/` | A club's expression of interest — static, no session lookup, and **nothing granted** (BR145). It says why there is no free trial, because the absence of a button is not an explanation |
 
 An `actions.ts` beside a page holds that page's server actions; a
