@@ -4358,3 +4358,53 @@ nav[aria-label='Club administration'] div > p:first-child {
     transform: translateY(12px);
   }
 }
+
+/* --- a team's competitions (scope 102, BR179) -------------------- */
+
+.team-competitions {
+  margin: var(--space-3) 0 var(--space-4);
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  background: var(--bg-sunk);
+}
+
+.team-competitions h4 {
+  margin: 0 0 var(--space-2);
+}
+
+.team-competitions ul {
+  list-style: none;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.team-competitions li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.team-competitions li a {
+  font-weight: 700;
+}
+
+.team-competitions li form {
+  margin-left: auto;
+}
+
+.team-competition-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.team-competition-history time {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+}

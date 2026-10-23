@@ -11,8 +11,22 @@ import {
   type RosterEntry,
 } from '../../../web/team-view.ts';
 import { todayIn } from '../../../web/today.ts';
-import { AddMemberForm, NewTeamForm, RecordClearanceForm } from './TeamForms.tsx';
-import { removeMemberAction } from './actions.ts';
+import {
+  calendarsForSeason,
+  changeSentence,
+  competitionOptions,
+  describeCompetition,
+  mayEditCompetitions,
+  type CompetitionOptionGroup,
+} from '../../../web/team-competitions.ts';
+import { stamp } from '../../../web/inbox-view.ts';
+import {
+  loadCompetitionHistory,
+  loadTeamCompetitions,
+  type TeamCompetition,
+} from '../../../data/team-competitions.ts';
+import { AddMemberForm, EnterCompetitionForm, NewTeamForm, RecordClearanceForm } from './TeamForms.tsx';
+import { removeMemberAction, withdrawCompetitionAction } from './actions.ts';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,12 +69,75 @@ function MemberRow({ entry }: { readonly entry: RosterEntry }) {
   );
 }
 
+/**
+ * Where this team plays (BR179): each competition links to its season
+ * calendar, following it. Any member reads it; only the four editor roles
+ * see the controls — and the database refuses anyone else regardless.
+ */
+function TeamCompetitions({
+  teamId,
+  entered,
+  groups,
+  canEdit,
+}: {
+  readonly teamId: string;
+  readonly entered: readonly TeamCompetition[];
+  readonly groups: readonly CompetitionOptionGroup[];
+  readonly canEdit: boolean;
+}) {
+  return (
+    <div className="team-competitions">
+      <h4>Competitions this season</h4>
+      {entered.length === 0 ? (
+        <p className="hint">Not entered in a competition yet.</p>
+      ) : (
+        <ul>
+          {entered.map((c) => {
+            const d = describeCompetition(c.calendarId, c.competitionRef);
+            return (
+              <li key={`${c.calendarId}/${c.competitionRef}`}>
+                {d.href ? <a href={d.href}>{d.name}</a> : <span>{d.name}</span>}
+                <span className="hint"> · {d.region}</span>
+                {canEdit && (
+                  <form action={withdrawCompetitionAction}>
+                    <input type="hidden" name="teamId" value={teamId} />
+                    <input type="hidden" name="calendarId" value={c.calendarId} />
+                    <input type="hidden" name="competitionRef" value={c.competitionRef} />
+                    <button type="submit" className="secondary" aria-label={`Withdraw from ${d.name}`}>
+                      Withdraw
+                    </button>
+                  </form>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {canEdit &&
+        (groups.length === 0 ? (
+          <p className="hint">
+            No published season calendar covers this season yet, so there is nothing to choose
+            from. See <a href="/seasons">season calendars</a>.
+          </p>
+        ) : (
+          <EnterCompetitionForm teamId={teamId} groups={groups} />
+        ))}
+    </div>
+  );
+}
+
 function TeamCard({
   entry,
   people,
+  competitions,
+  groups,
+  canEdit,
 }: {
   readonly entry: TeamWithRoster;
   readonly people: readonly { readonly id: string; readonly label: string }[];
+  readonly competitions: readonly TeamCompetition[];
+  readonly groups: readonly CompetitionOptionGroup[];
+  readonly canEdit: boolean;
 }) {
   const uncleared = unclearedOfficials(entry.roster);
   const everyone = [...entry.roster.officials, ...entry.roster.players];
@@ -93,6 +170,13 @@ function TeamCard({
           {uncleared.map((o) => `${o.displayName}: ${o.clearance.ok ? '' : o.clearance.note}`).join(' ')}
         </p>
       )}
+
+      <TeamCompetitions
+        teamId={entry.team.id}
+        entered={competitions.filter((c) => c.teamId === entry.team.id)}
+        groups={groups}
+        canEdit={canEdit}
+      />
 
       {everyone.length === 0 ? (
         <p className="empty">Nobody in this team yet.</p>
@@ -169,6 +253,12 @@ export default async function TeamsPage({
     await loadAssignablePeople(client, tenant.clubId, { adultsOnly: true, asAt: todayIn() })
   ).map(toOption);
 
+  // BR179: where each team plays, offered from the calendars this season covers.
+  const canEdit = mayEditCompetitions(tenant.roles);
+  const competitions = await loadTeamCompetitions(client, tenant.clubId, teams.map((t) => t.team.id));
+  const groups = competitionOptions(calendarsForSeason(season.starts_on, season.ends_on));
+  const history = canEdit ? await loadCompetitionHistory(client, tenant.clubId) : [];
+
   const totalPlayers = teams.reduce((n, t) => n + t.roster.players.length, 0);
   const totalUncleared = teams.reduce((n, t) => n + unclearedOfficials(t.roster).length, 0);
 
@@ -223,7 +313,41 @@ export default async function TeamsPage({
       {teams.length === 0 ? (
         <p className="empty">No teams yet for {season.name}.</p>
       ) : (
-        teams.map((entry) => <TeamCard key={entry.team.id} entry={entry} people={people} />)
+        teams.map((entry) => (
+          <TeamCard
+            key={entry.team.id}
+            entry={entry}
+            people={people}
+            competitions={competitions}
+            groups={groups}
+            canEdit={canEdit}
+          />
+        ))
+      )}
+
+      {canEdit && (
+        <section className="card">
+          <h3 style={{ marginTop: 0 }}>Competition changes</h3>
+          <p className="hint" style={{ marginTop: 0 }}>
+            Every team entered in or withdrawn from a competition, by whom and when (times in
+            UTC). Written by the database itself, and never edited or removed (BR179).
+          </p>
+          {history.length === 0 ? (
+            <p className="empty">No changes yet.</p>
+          ) : (
+            <ol className="team-competition-history">
+              {history.map((h, i) => (
+                <li key={`${h.changedAt}-${i}`}>
+                  <time dateTime={h.changedAt}>{stamp(h.changedAt)}</time>{' '}
+                  <span className={h.action === 'entered' ? 'pill pill-ok' : 'pill pill-warn'}>
+                    {h.action === 'entered' ? 'Entered' : 'Withdrawn'}
+                  </span>{' '}
+                  {changeSentence(h)}
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
       )}
 
       <section className="card">

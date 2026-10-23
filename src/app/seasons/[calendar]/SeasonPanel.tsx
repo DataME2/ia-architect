@@ -47,11 +47,23 @@ export function SeasonPanel({ calendar: cal }: { readonly calendar: SeasonCalend
   const [follow, setFollow] = useState('');
 
   // Open on this month while the season is on; on its first month otherwise.
+  // `?follow=` arrives from a team's competition on the teams screen (BR179).
+  // Read after hydration: the page is prerendered, so the query string is
+  // the browser's to know, not the server's.
   useEffect(() => {
+    const wanted = new URLSearchParams(window.location.search).get('follow');
+    const comp = cal.competitions.find((c) => c.id === wanted);
+    if (comp) {
+      setFollow(comp.id);
+      const first = journeyOf(comp).firstRound;
+      const i = first ? months.findIndex((m) => m.weekends.some((w) => w.friday === first)) : -1;
+      if (i >= 0) setAt(i);
+    }
+
     const now = new Date();
     const i = months.findIndex((m) => m.month0 === now.getMonth());
     if (now.getFullYear() === cal.season && i >= 0) setAt(i);
-  }, [cal.season, months]);
+  }, [cal.competitions, cal.season, months]);
 
   const beat = useMemo(() => pulse(cal, groups), [cal, groups]);
   const peak = Math.max(1, ...beat);
