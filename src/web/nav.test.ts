@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { test } from 'node:test';
 
 import {
+  FOOTER_NAV,
   NAV_GROUPS,
+  REGISTER_LINK,
   REGISTRAR_NAV,
+  SITE_NAV,
+  WORKSPACE_LINK,
   isActive,
   isDemoClub,
   navHref,
@@ -66,4 +71,11 @@ test('the menu groups are contiguous, in heading order, and every one is used', 
   // A group split in two would draw its heading twice.
   const runs = REGISTRAR_NAV.map((i) => i.group).filter((g, i, all) => g !== all[i - 1]);
   assert.deepEqual(runs, [...NAV_GROUPS]);
+});
+
+test('every link in the bar, the footer and the club menu names a page that exists', () => {
+  const links = [...REGISTRAR_NAV, ...SITE_NAV, WORKSPACE_LINK, REGISTER_LINK, ...FOOTER_NAV.flatMap((c) => c.links)];
+  for (const { href } of links) {
+    assert.ok(existsSync(new URL(`../app${href}/page.tsx`, import.meta.url)), href);
+  }
 });

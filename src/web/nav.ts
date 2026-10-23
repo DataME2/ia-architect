@@ -110,3 +110,50 @@ export function whereAmI(signedIn: boolean, clubName: string | null): WhereAmI {
   if (clubName === null) return { kind: 'no-membership' };
   return isDemoClub(clubName) ? { kind: 'demo', clubName } : { kind: 'real', clubName };
 }
+
+/** A link in the site's top bar or footer (scope 104). */
+export interface SiteLink {
+  readonly href: string;
+  readonly label: string;
+}
+
+/**
+ * The top bar's destinations: only screens that exist. The bar is on every
+ * screen, so the design's links to sections of the landing page would mean
+ * nothing anywhere else.
+ */
+export const SITE_NAV: readonly SiteLink[] = [
+  { href: '/seasons', label: 'Season calendars' },
+  { href: '/registrar', label: 'Club administration' },
+  { href: '/demo', label: 'Demonstration club' },
+  { href: '/interest', label: 'For clubs' },
+];
+
+/**
+ * Where the design put Sign in. The layout is prerendered and makes no auth
+ * call, so a Sign in link would be offered to people already signed in;
+ * `/me` sends whoever is signed out to sign-in, and everyone else to their
+ * roles.
+ */
+export const WORKSPACE_LINK: SiteLink = { href: '/me', label: 'Your workspace' };
+export const REGISTER_LINK: SiteLink = { href: '/register', label: 'Register' };
+
+/** No Legal column: there is no privacy or terms page yet (scope 104). */
+export const FOOTER_NAV: readonly { readonly heading: string; readonly links: readonly SiteLink[] }[] = [
+  {
+    heading: 'Product',
+    links: [
+      { href: '/seasons', label: 'Season calendars' },
+      { href: '/register', label: 'Start a registration' },
+      { href: '/me', label: 'Your workspace' },
+    ],
+  },
+  {
+    heading: 'Clubs',
+    links: [
+      { href: '/interest', label: 'Talk to us' },
+      { href: '/demo', label: 'Demonstration club' },
+      { href: '/registrar', label: 'Club administration' },
+    ],
+  },
+];

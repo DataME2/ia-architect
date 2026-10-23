@@ -9,4 +9,5 @@
  */
 export const PRODUCT_NAME = 'PitchPeople';
 export const TAGLINE = 'One identity. Every role. Connected football.';
-export const MAKER = 'By Let’s Data Talk';
+export const COMPANY = 'Let’s Data Talk';
+export const MAKER = `By ${COMPANY}`;
