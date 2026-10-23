@@ -26,6 +26,7 @@ through `ea-first-change` like anything else.
 | [preliminary-technical-spec-en.pdf](./preliminary-technical-spec-en.pdf) | The architecture as a whole | Preliminary technical specification for reading effort — scope, roles, data model, integrations, risks, relative complexity, and volumetry. English |
 | [preliminary-technical-spec-es.pdf](./preliminary-technical-spec-es.pdf) | The architecture as a whole | Spanish rendering of the same document, kept because the originating discovery material was Spanish |
 | [2610003-General-2027-Season-Calendars-V1_AM.pdf](./2610003-General-2027-Season-Calendars-V1_AM.pdf) | BR178 | Football Queensland's published 2027 season calendar for the SEQ Conference — Advanced & Metro (version 1), the source `src/web/season-calendar-fq-2027.ts` transcribes ([scope 101](../scope/101_the_season_calendar_by_region.md)) |
+| [2610003-General-2027-Season-Calendars-V1_SOC.pdf](./2610003-General-2027-Season-Calendars-V1_SOC.pdf) | BR178 | Football Queensland's published 2027 season calendar for the SEQ Conference — South Coast (version 1), the source `src/web/season-calendar-fq-2027-south-coast.ts` transcribes ([scope 103](../scope/103_the_south_coast_season_calendar.md)) |
 
 ## A note on these two PDFs
 

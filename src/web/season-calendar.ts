@@ -39,6 +39,13 @@ export interface SeasonCompetition {
   readonly notes?: string;
   /** Friday (ISO date) → the cell as printed. */
   readonly plan: Readonly<Record<string, string>>;
+  /**
+   * Played on this weekday of the week, not on the weekend: South Coast's
+   * community seniors are printed "Commencing Wednesday", under the
+   * Wednesday before each Friday column (scope 103). The plan stays keyed by
+   * the Friday, so the grid lines up; `playDate` gives the printed day.
+   */
+  readonly playedOn?: 'Wednesday';
 }
 
 export interface SeasonWindow {
@@ -64,6 +71,8 @@ export interface SeasonCalendar {
   readonly firstFriday: string;
   readonly weekendCount: number;
   readonly schoolHolidays: readonly string[];
+  /** Another state's school holidays, where the publisher prints them (South Coast prints NSW's). */
+  readonly otherHolidays?: { readonly name: string; readonly fridays: readonly string[] };
   /** Friday → why nothing is played that weekend. */
   readonly noGames: Readonly<Record<string, string>>;
   readonly windows: readonly SeasonWindow[];
@@ -118,8 +127,13 @@ export function readCell(raw: string): readonly Entry[] {
   const bare = cell.replace(/\s*\(MW\)\s*/g, ' ').trim();
   const stage = STAGES[bare];
   if (stage) return [{ kind: stage[0], text: stage[1], short: bare.length > 4 ? stage[1] : bare, midweek }];
-  const foundation = /^Foundation (\d)$/.exec(bare);
-  if (foundation) return [{ kind: 'pre-season', text: `Foundation round ${foundation[1]}`, short: `F${foundation[1]}`, midweek: false }];
+  const foundation = /^Foundation (\d)(?:&(\d))?$/.exec(bare);
+  if (foundation) {
+    const [, a, b] = foundation;
+    return [b
+      ? { kind: 'pre-season', text: `Foundation rounds ${a} & ${b}`, short: `F${a}–${b}`, midweek: false }
+      : { kind: 'pre-season', text: `Foundation round ${a}`, short: `F${a}`, midweek: false }];
+  }
 
   // Rounds: "7", "7&8", "4 & 5", "3 & 4 (MW)", "20(MW)&21".
   const parts = cell.split('&').map((p) => ({ n: Number(p.replace(/\(MW\)/, '').trim()), mw: /\(MW\)/.test(p) }));
@@ -179,11 +193,14 @@ export interface Weekend {
   readonly month0: number;
   readonly label: string;
   readonly schoolHoliday: boolean;
+  /** "NSW school holidays", when the calendar prints another state's and this weekend is in them. */
+  readonly otherHoliday: string | null;
   readonly noGames: string | null;
 }
 
 export function weekendsOf(cal: SeasonCalendar): readonly Weekend[] {
   const holidays = new Set(cal.schoolHolidays);
+  const other = new Set(cal.otherHolidays?.fridays ?? []);
   return Array.from({ length: cal.weekendCount }, (_, i) => {
     const friday = addDays(cal.firstFriday, i * 7);
     return {
@@ -191,6 +208,7 @@ export function weekendsOf(cal: SeasonCalendar): readonly Weekend[] {
       month0: Number(friday.slice(5, 7)) - 1,
       label: weekendLabel(friday),
       schoolHoliday: holidays.has(friday),
+      otherHoliday: other.has(friday) ? (cal.otherHolidays?.name ?? null) : null,
       noGames: cal.noGames[friday] ?? null,
     };
   });
@@ -210,6 +228,11 @@ export function monthsOf(cal: SeasonCalendar): readonly Month[] {
     else months.push({ month0: w.month0, label: monthLabel(w.month0), weekends: [w] });
   }
   return months;
+}
+
+/** The day a competition plays a column: the Friday that keys it, or the Wednesday before it. */
+export function playDate(c: SeasonCompetition, friday: string): string {
+  return c.playedOn === 'Wednesday' ? addDays(friday, -2) : friday;
 }
 
 export interface Slot {

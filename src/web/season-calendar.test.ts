@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { FQ_2027_SEQ as cal } from './season-calendar-fq-2027.ts';
+import { FQ_2027_SOUTH_COAST as soc } from './season-calendar-fq-2027-south-coast.ts';
 import {
   journeyOf,
   keyDatesIn,
   monthsOf,
+  playDate,
   pulse,
   readCell,
   slotsOn,
@@ -32,6 +34,7 @@ describe('reading a printed cell (scope 101)', () => {
     assert.equal(readCell('SF (MW)')[0]?.midweek, true);
     assert.equal(readCell('CU')[0]?.kind, 'catch-up');
     assert.equal(readCell('Foundation 3')[0]?.text, 'Foundation round 3');
+    assert.deepEqual(readCell('Foundation 1&2').map((e) => [e.text, e.short]), [['Foundation rounds 1 & 2', 'F1–2']]);
     assert.equal(readCell('NOMS CLOSE')[0]?.text, 'Nominations close');
   });
 });
@@ -67,6 +70,63 @@ describe('the FQ 2027 SEQ transcription matches the PDF', () => {
     assert.equal(j.firstRound, '2027-02-19');
     assert.equal(j.grandFinal, '2027-09-10');
     assert.equal(j.catchUps, 4);
+  });
+});
+
+describe('the FQ 2027 South Coast transcription matches the PDF (scope 103)', () => {
+  const comp = (id: string) => {
+    const c = soc.competitions.find((x) => x.id === id);
+    assert.ok(c, id);
+    return c;
+  };
+  const fridays = new Set(weekendsOf(soc).map((w) => w.friday));
+
+  it('puts every cell on one of the 44 Fridays, and reads every one', () => {
+    for (const c of soc.competitions) {
+      for (const [f, raw] of Object.entries(c.plan)) {
+        assert.ok(fridays.has(f), `${c.id} ${f}`);
+        assert.ok(readCell(raw).length > 0, `${c.id} ${f} ${raw}`);
+      }
+    }
+    assert.equal(soc.competitions.length, 15);
+  });
+
+  it('plays the rounds its notes promise, except where the PDF contradicts itself (#92, #93)', () => {
+    const contradicted = new Set(['juniors-5-6-teams', 'juniors-7-8-teams', 'seniors-11-12-teams']);
+    for (const c of soc.competitions) {
+      const promised = /(\d+) Rounds/.exec(c.notes ?? '');
+      if (promised && !contradicted.has(c.id)) assert.equal(journeyOf(c).rounds, Number(promised[1]), c.id);
+    }
+    // The names are right and the notes column is not: 15 and 14, as named.
+    assert.equal(journeyOf(comp('juniors-5-6-teams')).rounds, 15);
+    assert.equal(journeyOf(comp('juniors-7-8-teams')).rounds, 14);
+    // Round 11, a catch-up, then round 13: no round 12, as printed.
+    assert.equal(journeyOf(comp('seniors-11-12-teams')).rounds, 21);
+    assert.equal(comp('seniors-11-12-teams').plan['2027-06-11'], '13');
+    assert.equal(journeyOf(comp('miniroos-u6-u12')).rounds, 18);
+  });
+
+  it('dates the community seniors to the Wednesday printed above them', () => {
+    const s = comp('seniors-5-6-teams');
+    assert.equal(s.playedOn, 'Wednesday');
+    assert.equal(journeyOf(s).firstRound, '2027-03-05');
+    assert.equal(playDate(s, '2027-03-05'), '2027-03-03');
+    assert.equal(playDate(s, '2027-01-15'), '2027-01-13');
+    assert.equal(playDate(comp('qpl-7-8-teams'), '2027-03-05'), '2027-03-05');
+  });
+
+  it('rests at Easter, and marks the NSW school holidays beside Queensland’s', () => {
+    const easter = slotsOn(soc, '2027-03-26', null);
+    assert.equal(easter.weekend.length + easter.midweek.length, 0);
+    const april = weekendsOf(soc).filter((w) => w.friday.startsWith('2027-04'));
+    assert.deepEqual(april.filter((w) => w.otherHoliday).map((w) => w.friday), ['2027-04-09', '2027-04-16', '2027-04-23']);
+    assert.ok(april.find((w) => w.friday === '2027-04-09')?.schoolHoliday);
+    assert.equal(weekendsOf(cal).find((w) => w.friday === '2027-04-16')?.otherHoliday, null);
+  });
+
+  it('shares FQ’s statewide carnivals with the SEQ calendar, and prints no registration windows', () => {
+    assert.equal(soc.events, cal.events);
+    assert.equal(soc.windows.length, 0);
   });
 });
 

@@ -4150,6 +4150,11 @@ nav[aria-label='Club administration'] div > p:first-child {
   color: var(--warn-text);
 }
 
+.season-tag.is-other {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
 .season-tag.is-off {
   background: var(--stop-bg);
   color: var(--stop-text);
@@ -4169,7 +4174,8 @@ nav[aria-label='Club administration'] div > p:first-child {
 }
 
 .season-slot-group > p,
-.season-midweek > p {
+.season-midweek > p,
+.season-weekday > p {
   margin: 0 0 var(--space-1);
   font-size: 0.72rem;
   font-weight: 700;
@@ -4185,6 +4191,13 @@ nav[aria-label='Club administration'] div > p:first-child {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
+}
+
+/* A weekday league's games, above the weekend's (scope 103). */
+.season-weekday {
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px dashed var(--border-strong);
 }
 
 .season-midweek {

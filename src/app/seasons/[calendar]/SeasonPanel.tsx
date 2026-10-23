@@ -8,6 +8,7 @@ import {
   journeyOf,
   keyDatesIn,
   monthsOf,
+  playDate,
   pulse,
   readCell,
   shortDate,
@@ -65,6 +66,8 @@ export function SeasonPanel({ calendar: cal }: { readonly calendar: SeasonCalend
     if (now.getFullYear() === cal.season && i >= 0) setAt(i);
   }, [cal.competitions, cal.season, months]);
 
+  // Only the groups this calendar has: South Coast has no Advanced Juniors.
+  const present = useMemo(() => GROUPS.filter((g) => cal.competitions.some((c) => c.group === g.id)), [cal]);
   const beat = useMemo(() => pulse(cal, groups), [cal, groups]);
   const peak = Math.max(1, ...beat);
   const followed = cal.competitions.find((c) => c.id === follow) ?? null;
@@ -85,7 +88,7 @@ export function SeasonPanel({ calendar: cal }: { readonly calendar: SeasonCalend
     const next = new Set(groups ?? []);
     if (next.has(g)) next.delete(g);
     else next.add(g);
-    setGroups(next.size === 0 || next.size === GROUPS.length ? null : next);
+    setGroups(next.size === 0 || next.size === present.length ? null : next);
   };
 
   return (
@@ -144,7 +147,7 @@ export function SeasonPanel({ calendar: cal }: { readonly calendar: SeasonCalend
           <button type="button" aria-pressed={groups === null} onClick={() => setGroups(null)}>
             All
           </button>
-          {GROUPS.map((g) => (
+          {present.map((g) => (
             <button key={g.id} type="button" aria-pressed={groups?.has(g.id) ?? false} onClick={() => toggle(g.id)}>
               {g.label}
             </button>
@@ -154,7 +157,7 @@ export function SeasonPanel({ calendar: cal }: { readonly calendar: SeasonCalend
           <span>Follow a competition</span>
           <select value={follow} onChange={(e) => setFollow(e.target.value)}>
             <option value="">None</option>
-            {GROUPS.map((g) => (
+            {present.map((g) => (
               <optgroup key={g.id} label={g.label}>
                 {cal.competitions
                   .filter((c) => c.group === g.id)
@@ -199,19 +202,35 @@ export function SeasonPanel({ calendar: cal }: { readonly calendar: SeasonCalend
 
         <ol className="season-weekends" key={`${month.month0}-${follow}-${groups ? [...groups].join() : 'all'}`}>
           {month.weekends.map((w, wi) => {
-            const { weekend, midweek } = slotsOn(cal, w.friday, groups);
+            const { weekend: all, midweek } = slotsOn(cal, w.friday, groups);
+            // South Coast's community seniors play the Wednesday before this
+            // weekend (scope 103), so they get their own block, dated, first.
+            const weekday = all.filter((s) => s.competition.playedOn);
+            const weekend = all.filter((s) => !s.competition.playedOn);
+            const firstWeekday = weekday[0]?.competition;
             const mine = followed ? readCell(followed.plan[w.friday] ?? '') : [];
             return (
               <li key={w.friday} className={`season-weekend${w.noGames ? ' is-off' : ''}`} style={{ ['--i' as string]: wi }}>
                 <header>
                   <h4>{w.label}</h4>
                   {w.schoolHoliday && <span className="season-tag is-holiday">School holidays</span>}
+                  {w.otherHoliday && <span className="season-tag is-other">{w.otherHoliday}</span>}
                   {w.noGames && <span className="season-tag is-off">{w.noGames} · no games</span>}
                 </header>
                 {followed && mine.length > 0 && (
                   <p className="season-mine">
                     <b>{followed.name}</b> {mine.map((e) => `${e.text}${e.midweek ? ' (midweek)' : ''}`).join(', ')}
+                    {followed.playedOn && `, ${followed.playedOn} ${shortDate(playDate(followed, w.friday))}`}
                   </p>
+                )}
+                {firstWeekday && (
+                  <div className="season-weekday">
+                    <p>
+                      Commencing {firstWeekday.playedOn} {shortDate(playDate(firstWeekday, w.friday))} · Monday rounds are
+                      played prior
+                    </p>
+                    <Slots slots={weekday} cal={cal} follow={follow} />
+                  </div>
                 )}
                 {w.noGames ? (
                   <p className="hint">Nothing is scheduled: the whole state rests for {w.noGames}.</p>
@@ -316,8 +335,8 @@ function FollowCard({
         <h3>{competitionLabel(c, cal.competitions)}</h3>
         <p className="season-month-sum">
           {j.rounds} rounds{j.catchUps > 0 && ` · ${j.catchUps} catch-up weekends`}
-          {j.firstRound && ` · first round ${shortDate(j.firstRound)}`}
-          {j.grandFinal && ` · grand final ${shortDate(j.grandFinal)}`}
+          {j.firstRound && ` · first round ${shortDate(playDate(c, j.firstRound))}`}
+          {j.grandFinal && ` · grand final ${shortDate(playDate(c, j.grandFinal))}`}
         </p>
       </div>
       <ol className="season-strip" aria-hidden="true">

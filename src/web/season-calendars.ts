@@ -11,9 +11,10 @@
  */
 
 import { FQ_2027_SEQ } from './season-calendar-fq-2027.ts';
+import { FQ_2027_SOUTH_COAST } from './season-calendar-fq-2027-south-coast.ts';
 import type { SeasonCalendar } from './season-calendar.ts';
 
-export const CALENDARS: readonly SeasonCalendar[] = [FQ_2027_SEQ];
+export const CALENDARS: readonly SeasonCalendar[] = [FQ_2027_SEQ, FQ_2027_SOUTH_COAST];
 
 export function calendarById(id: string): SeasonCalendar | null {
   return CALENDARS.find((c) => c.id === id) ?? null;
@@ -37,7 +38,7 @@ export const FEDERATIONS: readonly Federation[] = [
     state: 'QLD',
     regions: [
       { name: 'SEQ Conference — Advanced & Metro', calendar: FQ_2027_SEQ.id },
-      { name: 'South Coast' },
+      { name: 'South Coast', calendar: FQ_2027_SOUTH_COAST.id },
       { name: 'Darling Downs' },
       { name: 'Sunshine Coast' },
       { name: 'Wide Bay' },

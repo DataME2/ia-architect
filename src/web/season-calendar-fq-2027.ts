@@ -18,6 +18,41 @@
 
 import type { SeasonCalendar } from './season-calendar.ts';
 
+/**
+ * Queensland's school holidays, the same in every FQ 2027 calendar: the
+ * weekends printed as school-holiday weekends, by their Friday.
+ */
+export const FQ_2027_QLD_SCHOOL_HOLIDAYS: readonly string[] = [
+  '2027-01-01', '2027-01-08', '2027-01-15', '2027-01-22',
+  '2027-03-26', '2027-04-02', '2027-04-09',
+  '2027-06-25', '2027-07-02', '2027-07-09',
+  '2027-09-17', '2027-09-24', '2027-10-01',
+];
+
+/**
+ * FQ's statewide carnival list, printed identically under every region's
+ * 2027 grid (the Advanced & Metro and South Coast PDFs agree line for line).
+ */
+export const FQ_2027_EVENTS: SeasonCalendar['events'] = [
+  { name: 'National Futsal Championships', level: 'National', from: '2027-01-12', to: '2027-01-16', place: 'GC Sports & Leisure and Carrara Indoor Sports, Gold Coast' },
+  { name: 'FQ Academy U9–U13 Central Conference Carnival', level: 'Regional', from: '2027-02-27', to: '2027-02-28', place: 'Fraser Coast Sports Precinct, Hervey Bay' },
+  { name: 'FQ Academy U9–U16 Inter-Conference Carnival', level: 'Regional', from: '2027-03-29', to: '2027-04-01', place: 'Mackay Football Park, Mackay' },
+  { name: 'Emerging Socceroos National Youth Championships', level: 'National', from: '2027-04-01', to: '2027-04-30', tbc: true },
+  { name: 'Emerging Matildas National Youth Championships', level: 'National', from: '2027-04-01', to: '2027-04-30', tbc: true },
+  { name: 'FQ Academy Northern Conference Carnival', level: 'Regional', from: '2027-05-01', to: '2027-05-02', place: 'Paradise Park, Townsville' },
+  { name: 'FQ Academy U14–U16 Central Conference Carnival', level: 'Regional', from: '2027-05-02', to: '2027-05-02', place: 'Martens Oval, Bundaberg' },
+  { name: 'WinterFest — U9 Boys, U9/10 Girls', level: 'State', from: '2027-06-26', to: '2027-06-27', place: 'Sunshine Coast' },
+  { name: 'WinterFest — U10, U11 Boys & U11 Girls', level: 'State', from: '2027-06-28', to: '2027-06-30', place: 'Sunshine Coast' },
+  { name: 'Junior Cup — U12–U13 Boys & Girls', level: 'State', from: '2027-07-01', to: '2027-07-03', place: 'Sunshine Coast' },
+  { name: 'QLD State Championships — U13 (Metro select only) & U14 Boys & Girls', level: 'State', from: '2027-07-06', to: '2027-07-08', place: 'Moreton Bay Region' },
+  { name: 'QLD State Championships — U15 & U16 Boys & Girls', level: 'State', from: '2027-07-09', to: '2027-07-11', place: 'Moreton Bay Region' },
+  { name: 'Mitre Festival of Football', level: 'State', from: '2027-09-01', to: '2027-09-30', tbc: true },
+  { name: 'Pacific Championships — MiniRoos U8/9 Boys & Girls', level: 'State', from: '2027-09-28', to: '2027-09-30', place: 'Sunshine Coast' },
+  { name: 'Pacific Championships — Junior U10–U13 Boys & Girls', level: 'State', from: '2027-09-28', to: '2027-09-30', place: 'Sunshine Coast' },
+  { name: 'Pacific Championships — Youth U14–U16 Boys & Girls', level: 'State', from: '2027-10-01', to: '2027-10-03', place: 'Sunshine Coast' },
+  { name: 'Futsal State Titles', level: 'State', from: '2027-10-01', to: '2027-10-03', place: 'Nissan Arena' },
+];
+
 export const FQ_2027_SEQ: SeasonCalendar = {
   id: 'fq-2027-seq-advanced-metro',
   season: 2027,
@@ -28,12 +63,7 @@ export const FQ_2027_SEQ: SeasonCalendar = {
   caveat: '2027 competition calendars are subject to change.',
   firstFriday: '2027-01-01',
   weekendCount: 44,
-  schoolHolidays: [
-    '2027-01-01', '2027-01-08', '2027-01-15', '2027-01-22',
-    '2027-03-26', '2027-04-02', '2027-04-09',
-    '2027-06-25', '2027-07-02', '2027-07-09',
-    '2027-09-17', '2027-09-24', '2027-10-01',
-  ],
+  schoolHolidays: FQ_2027_QLD_SCHOOL_HOLIDAYS,
   noGames: { '2027-03-26': 'Easter' },
   windows: [
     { name: 'Women’s professional registration window', from: '2026-12-01', to: '2026-12-21' },
@@ -41,25 +71,7 @@ export const FQ_2027_SEQ: SeasonCalendar = {
     { name: 'Women’s professional registration window', from: '2027-04-29', to: '2027-05-26' },
     { name: 'Men’s professional registration window', from: '2027-06-18', to: '2027-07-04', tbc: true },
   ],
-  events: [
-    { name: 'National Futsal Championships', level: 'National', from: '2027-01-12', to: '2027-01-16', place: 'GC Sports & Leisure and Carrara Indoor Sports, Gold Coast' },
-    { name: 'FQ Academy U9–U13 Central Conference Carnival', level: 'Regional', from: '2027-02-27', to: '2027-02-28', place: 'Fraser Coast Sports Precinct, Hervey Bay' },
-    { name: 'FQ Academy U9–U16 Inter-Conference Carnival', level: 'Regional', from: '2027-03-29', to: '2027-04-01', place: 'Mackay Football Park, Mackay' },
-    { name: 'Emerging Socceroos National Youth Championships', level: 'National', from: '2027-04-01', to: '2027-04-30', tbc: true },
-    { name: 'Emerging Matildas National Youth Championships', level: 'National', from: '2027-04-01', to: '2027-04-30', tbc: true },
-    { name: 'FQ Academy Northern Conference Carnival', level: 'Regional', from: '2027-05-01', to: '2027-05-02', place: 'Paradise Park, Townsville' },
-    { name: 'FQ Academy U14–U16 Central Conference Carnival', level: 'Regional', from: '2027-05-02', to: '2027-05-02', place: 'Martens Oval, Bundaberg' },
-    { name: 'WinterFest — U9 Boys, U9/10 Girls', level: 'State', from: '2027-06-26', to: '2027-06-27', place: 'Sunshine Coast' },
-    { name: 'WinterFest — U10, U11 Boys & U11 Girls', level: 'State', from: '2027-06-28', to: '2027-06-30', place: 'Sunshine Coast' },
-    { name: 'Junior Cup — U12–U13 Boys & Girls', level: 'State', from: '2027-07-01', to: '2027-07-03', place: 'Sunshine Coast' },
-    { name: 'QLD State Championships — U13 (Metro select only) & U14 Boys & Girls', level: 'State', from: '2027-07-06', to: '2027-07-08', place: 'Moreton Bay Region' },
-    { name: 'QLD State Championships — U15 & U16 Boys & Girls', level: 'State', from: '2027-07-09', to: '2027-07-11', place: 'Moreton Bay Region' },
-    { name: 'Mitre Festival of Football', level: 'State', from: '2027-09-01', to: '2027-09-30', tbc: true },
-    { name: 'Pacific Championships — MiniRoos U8/9 Boys & Girls', level: 'State', from: '2027-09-28', to: '2027-09-30', place: 'Sunshine Coast' },
-    { name: 'Pacific Championships — Junior U10–U13 Boys & Girls', level: 'State', from: '2027-09-28', to: '2027-09-30', place: 'Sunshine Coast' },
-    { name: 'Pacific Championships — Youth U14–U16 Boys & Girls', level: 'State', from: '2027-10-01', to: '2027-10-03', place: 'Sunshine Coast' },
-    { name: 'Futsal State Titles', level: 'State', from: '2027-10-01', to: '2027-10-03', place: 'Nissan Arena' },
-  ],
+  events: FQ_2027_EVENTS,
   competitions: [
     {
       id: 'queensland-cup-men',
