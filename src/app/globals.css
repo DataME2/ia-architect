@@ -3778,6 +3778,15 @@ nav[aria-label='Club administration'] div > p:first-child {
   grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
 }
 
+.seasons-conference + .seasons-conference {
+  margin-top: var(--space-4);
+}
+
+.seasons-conference h4 {
+  margin: 0 0 var(--space-2);
+  font-size: 0.95rem;
+}
+
 .seasons-fed li > a,
 .seasons-fed li > span {
   display: flex;
@@ -4150,6 +4159,11 @@ nav[aria-label='Club administration'] div > p:first-child {
   color: var(--warn-text);
 }
 
+.season-tag.is-other {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
 .season-tag.is-off {
   background: var(--stop-bg);
   color: var(--stop-text);
@@ -4169,7 +4183,8 @@ nav[aria-label='Club administration'] div > p:first-child {
 }
 
 .season-slot-group > p,
-.season-midweek > p {
+.season-midweek > p,
+.season-weekday > p {
   margin: 0 0 var(--space-1);
   font-size: 0.72rem;
   font-weight: 700;
@@ -4185,6 +4200,13 @@ nav[aria-label='Club administration'] div > p:first-child {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
+}
+
+/* A weekday league's games, above the weekend's (scope 103). */
+.season-weekday {
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px dashed var(--border-strong);
 }
 
 .season-midweek {
@@ -4288,6 +4310,11 @@ nav[aria-label='Club administration'] div > p:first-child {
   justify-self: start;
   padding: 0.15rem 0.5rem;
   border-radius: var(--radius-full);
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
+.season-level.is-local {
   background: var(--info-bg);
   color: var(--info-text);
 }

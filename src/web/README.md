@@ -63,7 +63,7 @@ it:
 | `fixture-change.ts` | What changed about a fixture, in the words a participant reads (BR64) — computed from before and after, so a submit that changed nothing announces nothing |
 | `privacy-view.ts` | Grouping retention proposals so the **irreversible** group is the only one with an action beside it — a life member listed like a lapsed player is how a club deletes its own history |
 | `unsubscribe.ts` | Reading an unsubscribe link out of an inbox — mail clients wrap URLs and append punctuation, so what counts as a readable link is the part worth testing |
-| `season-calendar.ts`, `season-calendars.ts`, `season-calendar-fq-2027.ts` | A governing body's season calendar (scope 101): how a printed cell reads, weekends by month, the season's pulse, a competition's journey — and the transcription itself, keyed by the Friday that opens each weekend, tested against the round counts the PDF promises |
+| `season-calendar.ts`, `season-calendars.ts`, `season-calendar-fq-2027*.ts` (one per Queensland region) | A governing body's season calendar (scopes 101, 103): how a printed cell reads, weekends by month, the season's pulse, a competition's journey — and the transcription itself, keyed by the Friday that opens each weekend, tested against the round counts the PDF promises |
 | `team-competitions.ts` | Which competition each team plays in (BR179): the four editor roles, the calendars a season covers, the options a form offers, accepting only a choice the calendar knows, and a history line as one sentence |
 | `nav.ts`, `safe-destination.ts`, `password.ts`, `today.ts` | Cross-cutting: the club menu, where a redirect may legitimately go, password rules, and a timezone-correct "today" |
 
