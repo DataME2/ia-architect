@@ -7,13 +7,14 @@ import { RoleWorkspaces } from './_components/RoleWorkspaces.tsx';
 
 /**
  * The landing page (scope 100): the product's one idea — one Person, every
- * role — told as a scroll from the front door to matchday.
+ * role — told as a scroll from the front door to matchday. Laid out as
+ * draft v7's full-bleed bands since scope 104.
  *
  * Three audiences arrive here: a family with a child to register, a club
  * officer starting a shift, and a prospect. The hero's two actions separate
  * the first two before either reads further; For clubs closes for the third.
  *
- * **Still prerendered, still no auth call** — which is why the masthead has
+ * **Still prerendered, still no auth call** — which is why the top bar has
  * no Sign in. The motion is CSS: the timeline, the reveals and the line-up
  * are scroll-driven animations, so no script runs on scroll, and a browser
  * without them, or a reader who asks for reduced motion, gets every section

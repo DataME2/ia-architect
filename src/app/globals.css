@@ -346,62 +346,257 @@ a:hover {
   padding: var(--space-5) var(--space-5) var(--space-7);
 }
 
-/* The masthead sticks. Which club you are in and the way out are the two
-   facts most worth not scrolling away from. */
-.masthead {
+/* ------------------------------------------- top bar and footer
+
+   Scope 104: the Superdesign front door's chrome, on every screen. Its own
+   colours rather than theme tokens, because the design draws the bar and
+   the footer in pitch slate in both schemes. The same scope carries the
+   design's type and shape into the front door (.home), and resets there
+   what the Broadcast overlay further down would otherwise impose. */
+.topbar,
+.site-footer,
+.home {
+  --pp-rail: #112636;
+  --pp-pitch: #1a3a52;
+  --pp-line: #234a66;
+  --pp-text-2: #94a3b8; /* 6:1 on the rail */
+  --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-display: var(--font-sans);
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+  font-family: var(--font-sans);
+}
+
+/* The default ring is navy, which vanishes on pitch slate. */
+.topbar,
+.site-footer,
+.home-hero,
+.home-dark {
+  --focus: #4ade80;
+}
+
+/* The bar sticks. Which club you are in and the way out are the two facts
+   most worth not scrolling away from. */
+.topbar {
   position: sticky;
   top: 0;
   z-index: 20;
+  border-bottom: 1px solid var(--pp-line);
+  background: rgb(17 38 54 / 95%);
+  backdrop-filter: blur(12px);
+  color: #ffffff;
+}
+
+.topbar-inner {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3) var(--space-5);
   align-items: center;
   justify-content: space-between;
-  margin: 0 0 var(--space-6);
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter: saturate(150%) blur(10px);
+  gap: var(--space-3);
+  max-width: var(--shell-width);
+  min-height: 5rem;
+  margin: 0 auto;
+  padding: 0 var(--space-5);
 }
 
-.masthead h1 {
-  font-size: 1.05rem;
+.topbar-brand {
   margin: 0;
-  letter-spacing: -0.015em;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 
-.masthead h1 a {
+.topbar-brand a {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  color: inherit;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  color: #ffffff;
   text-decoration: none;
 }
 
-.masthead nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  font-size: 0.9rem;
+/* Broadcast sets the name in condensed capitals; the design does not. */
+.topbar-brand,
+.topbar .brand-name,
+.site-footer .brand-name {
+  font-family: var(--font-sans);
+  text-transform: none;
 }
 
-.masthead nav a {
-  /* 44px touch target (DESIGN.md); the padding alone made 38px. */
+.topbar-links {
+  display: none;
+  gap: var(--space-5);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* 44px touch targets throughout (DESIGN.md). */
+.topbar-links a,
+.topbar-workspace {
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-full);
-  color: var(--muted);
+  padding: 0 var(--space-2);
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  font-weight: 500;
   text-decoration: none;
-  font-weight: 550;
-  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease);
 }
 
-.masthead nav a:hover {
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow-xs);
+.topbar-links a:hover,
+.topbar-workspace:hover {
+  color: #ffffff;
+}
+
+.topbar-workspace {
+  display: none;
+}
+
+.topbar-register {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  border-radius: var(--radius-full);
+  background: #ffffff;
+  color: var(--pp-pitch);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.topbar-register:hover {
+  background: #f1f5f9;
+  color: var(--pp-pitch);
+}
+
+.topbar-menu {
+  position: relative;
+}
+
+.topbar-menu summary {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--pp-line);
+  border-radius: var(--radius-sm);
+  color: #e2e8f0;
+  list-style: none;
+  cursor: pointer;
+}
+
+.topbar-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.topbar-menu summary svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.topbar-menu nav {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  right: 0;
+  display: grid;
+  width: 15rem;
+  padding: var(--space-2);
+  border: 1px solid var(--pp-line);
+  border-radius: var(--radius);
+  background: var(--pp-rail);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 50%);
+}
+
+.topbar-menu nav a {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  color: #e2e8f0;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.topbar-menu nav a:hover {
+  background: var(--pp-pitch);
+  color: #ffffff;
+}
+
+/* On a phone Your workspace is in the menu, under a rule. */
+.topbar-menu-workspace {
+  margin-top: var(--space-2);
+  border-top: 1px solid var(--pp-line);
+}
+
+@media (min-width: 640px) {
+  .topbar-workspace {
+    display: inline-flex;
+  }
+
+  .topbar-menu nav .topbar-menu-workspace {
+    display: none;
+  }
+}
+
+/* All six fit on one line from 1,200px; below that the four fold away. */
+@media (min-width: 75rem) {
+  .topbar-links {
+    display: flex;
+  }
+
+  .topbar-menu {
+    display: none;
+  }
+}
+
+/* At 360px, with a desktop scrollbar, the brand, Register and the menu
+   need every pixel. */
+@media (max-width: 40rem) {
+  .topbar-inner {
+    gap: var(--space-2);
+    padding: 0 var(--space-4);
+  }
+
+  .topbar-brand {
+    font-size: 1.1rem;
+  }
+
+  .topbar-register {
+    padding: 0 1rem;
+  }
+}
+
+/* The bar shrinks over the first scroll, as the design's does, but with a
+   scroll-driven animation rather than a scroll handler. Without support, or
+   with reduced motion, it simply stays full height. */
+@keyframes topbar-shrink {
+  to {
+    min-height: 3.75rem;
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .topbar-inner {
+      animation: topbar-shrink linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 8rem;
+    }
+  }
 }
 
 /* The mark: a wattle-gold ball panel on eucalyptus. Small enough to work as
@@ -429,16 +624,110 @@ a:hover {
 }
 
 .site-footer {
+  margin-top: var(--space-7);
+  border-top: 1px solid var(--pp-line);
+  background: var(--pp-rail);
+  color: var(--pp-text-2);
+  font-size: 0.95rem;
+}
+
+/* The front door's last band meets the footer, so the gap goes. */
+.shell:has(.home) + .site-footer {
+  margin-top: 0;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.site-footer-inner,
+.site-footer-base {
   max-width: var(--shell-width);
-  margin: var(--space-7) auto 0;
-  padding: var(--space-4) var(--space-5) var(--space-6);
-  border-top: 1px solid var(--border);
-  color: var(--subtle);
-  font-size: 0.82rem;
+  margin: 0 auto;
+  padding-inline: var(--space-5);
+}
+
+.site-footer-inner {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+  padding-block: var(--space-7) var(--space-6);
+}
+
+.site-footer-brand {
+  display: grid;
+  gap: var(--space-3);
+  grid-column: 1 / -1;
+  align-content: start;
+}
+
+.site-footer-name {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.site-footer-maker {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.site-footer .site-footer-heading {
+  margin-bottom: var(--space-2);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.site-footer ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--pp-text-2);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.site-footer a:hover {
+  color: #ffffff;
+}
+
+.site-footer-base {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
   justify-content: space-between;
+  gap: var(--space-2) var(--space-5);
+  padding-block: var(--space-5) var(--space-6);
+  border-top: 1px solid var(--pp-line);
+  font-size: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .site-footer-inner {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  .site-footer-brand {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 40rem) {
+  .site-footer-inner,
+  .site-footer-base {
+    padding-inline: var(--space-4);
+  }
 }
 
 /* -------------------------------------------------------- typography */
@@ -1600,10 +1889,6 @@ td {
     padding: var(--space-4) var(--space-4) var(--space-6);
   }
 
-  .masthead {
-    gap: var(--space-2);
-  }
-
   .session-strip {
     align-items: flex-start;
   }
@@ -1633,15 +1918,15 @@ td {
 }
 
 /* A registrar printing a queue or a pack preview wants the rows, not the
-   chrome — and a sticky masthead repeated on every page is worse than no
-   masthead at all. */
+   chrome — and a sticky top bar repeated on every page is worse than no
+   top bar at all. */
 @media print {
   body {
     background: #ffffff;
     background-image: none;
   }
 
-  .masthead,
+  .topbar,
   .registrar-nav-rail,
   .session-strip,
   .skip-link,
@@ -2969,63 +3254,6 @@ time {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── The top bar: a navy broadcast strip, full width, the brand on a red slab ── */
-.masthead {
-  background: var(--night);
-  color: var(--flood);
-  border-bottom: 0;
-  margin-bottom: var(--space-6);
-  padding: 0;
-  min-height: 56px;
-  box-shadow: 0 0 0 100vmax var(--night);
-  clip-path: inset(0 -100vmax);
-  backdrop-filter: none;
-}
-.masthead h1 a {
-  align-self: stretch;
-  background: var(--live);
-  color: #ffffff;
-  padding: var(--space-2) var(--space-6) var(--space-2) var(--space-4);
-  margin-left: calc(var(--space-4) * -1);
-  clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
-}
-.masthead h1 .brand-name {
-  font-size: 1.3rem;
-  color: #ffffff;
-}
-.masthead .brand-region {
-  color: rgb(255 255 255 / 85%);
-}
-.masthead .brand-mark {
-  box-shadow: none;
-}
-.masthead nav a {
-  color: var(--flood);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border-radius: 0;
-  position: relative;
-}
-.masthead nav a:hover {
-  background: transparent;
-  color: #ffffff;
-  box-shadow: none;
-}
-.masthead nav a:hover::after,
-.masthead nav a[aria-current='page']::after {
-  content: '';
-  position: absolute;
-  left: var(--space-3);
-  right: var(--space-3);
-  bottom: 4px;
-  height: 3px;
-  background: var(--live);
-  transform: skewX(-20deg);
-}
-
 /* ── Surfaces: square lower-thirds; the red top edge marks a panel ── */
 .card,
 .panel,
@@ -3143,16 +3371,6 @@ tbody tr:hover td {
   background: var(--surface-2);
 }
 
-@media (max-width: 640px) {
-  .masthead h1 a {
-    padding-right: var(--space-5);
-  }
-  .masthead nav a {
-    font-size: 0.9rem;
-    letter-spacing: 0.06em;
-  }
-}
-
 /* A slanted button cannot keep a full border (the slant clips its sides),
    so the secondary action is a tinted fill instead of an outline. */
 .button.secondary,
@@ -3194,15 +3412,6 @@ nav[aria-label='Club administration'] div > p {
 nav[aria-label='Club administration'] div > p:first-child {
   border-top: 0;
   padding-top: 0;
-}
-
-/* The brand slab carries small text, so it takes a deeper red than the
-   thin on-air markers: white on #c41230 is 5.9:1. */
-.masthead h1 a {
-  background: #c41230;
-}
-.masthead .brand-region {
-  color: #ffffff;
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -4449,8 +4658,12 @@ nav[aria-label='Club administration'] div > p:first-child {
    THE FRONT DOOR — scope 100
 
    The landing page tells one idea, one Person in every role, as a scroll.
-   Panels inside the shell rather than full-bleed bands: breaking out needs
-   100vw, which counts the scrollbar and scrolls the page sideways.
+   Since scope 104, in draft v7's style: full-bleed bands in pitch slate
+   (#112636 rail, #1A3A52 pitch), with the markings in white at 35%. Each
+   band paints its colour to the window's edges with a spread shadow,
+   clipped to the band's own height. Breaking out with 100vw would count the
+   scrollbar and scroll the page sideways. The tokens are set where the top
+   bar's are, in the chrome section.
 
    **All the scroll-linked motion is CSS** (scroll-driven animations), inside
    @supports and no-preference. A browser without them, or a reader who
@@ -4459,42 +4672,71 @@ nav[aria-label='Club administration'] div > p:first-child {
    drawing, the tagline rising) is ordinary animation, which the global
    reduced-motion rule above runs to its end at once.
    ══════════════════════════════════════════════════════════════════════ */
+/* The bands meet the top bar and the footer, so the shell's padding goes. */
 .home {
   display: grid;
-  gap: var(--space-5);
+  margin: calc(var(--space-5) * -1) 0 calc(var(--space-7) * -1);
+}
+
+.home > section {
+  position: relative;
+  padding-block: clamp(3.5rem, 8vw, 6rem);
+  background: var(--band);
+  box-shadow: 0 0 0 100vmax var(--band);
+  clip-path: inset(0 -100vmax);
 }
 
 .home-hero,
 .home-dark {
-  position: relative;
+  --band: var(--pp-rail);
+  color: #ffffff;
+}
+
+/* Not the hero: its pitch runs wider than the column (below). */
+.home-dark {
   overflow: hidden;
-  border-radius: var(--radius-lg);
-  padding: clamp(var(--space-5), 4vw, var(--space-7));
-  background: var(--rail-bg);
-  color: var(--rail-text);
-  box-shadow: var(--shadow-lg);
+}
+
+/* So the front door never scrolls sideways: the hero's pitch is 100vw, which
+   counts a classic scrollbar, and the lens ring's turning box reaches past
+   its column. Both are decoration. Only here: on any other screen a sideways
+   scroll is a bug worth seeing. The root's overflow is the viewport's, so
+   the top bar still sticks. */
+html:has(.home) {
+  overflow-x: hidden;
 }
 
 .home-panel {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: clamp(var(--space-5), 4vw, var(--space-7));
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
+  --band: var(--surface);
 }
 
 .home-sunk {
-  background: var(--bg-sunk);
+  --band: var(--bg-sunk);
+}
+
+/* Broadcast sets headings in condensed capitals; the design does not. */
+.home :is(h2, h3) {
+  text-transform: none;
 }
 
 .home .eyebrow {
   font-family: var(--font-mono);
+  font-size: 0.7rem;
   font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@media (max-width: 40rem) {
+  .home {
+    margin: calc(var(--space-4) * -1) 0 calc(var(--space-6) * -1);
+  }
 }
 
 .home-hero .eyebrow,
 .home-dark .eyebrow {
-  color: var(--rail-text-2);
+  color: var(--pp-text-2);
 }
 
 .home-hero .lede,
@@ -4505,6 +4747,7 @@ nav[aria-label='Club administration'] div > p:first-child {
 
 .home-heading {
   margin: 0 0 var(--space-3);
+  max-width: 36rem;
   font-size: clamp(1.75rem, 1.2rem + 2vw, 2.4rem);
   font-weight: 800;
   line-height: 1.1;
@@ -4518,21 +4761,31 @@ nav[aria-label='Club administration'] div > p:first-child {
   border-radius: var(--radius-full);
   padding: 0.8rem 1.6rem;
   background: #ffffff;
-  color: var(--reef-600);
+  color: var(--pp-pitch);
   border: 2px solid #ffffff;
+  clip-path: none;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.home .button:focus-visible {
+  outline-offset: 2px;
 }
 
 .home-hero .button:hover,
 .home-dark .button:hover {
-  background: var(--sand-100);
-  color: var(--reef-600);
+  background: #f1f5f9;
+  color: var(--pp-pitch);
 }
 
 .home-hero .button.secondary,
 .home-dark .button.secondary {
   background: transparent;
   color: #ffffff;
-  border-color: var(--reef-700);
+  border-color: var(--pp-line);
 }
 
 .home-hero .button.secondary:hover,
@@ -4542,14 +4795,19 @@ nav[aria-label='Club administration'] div > p:first-child {
 
 /* -------------------------------------------------------------- hero */
 
+/* The pitch spans the window, as the design draws it, so its boxes sit
+   outside the text column rather than through the headline. The band's
+   clip-path trims it to the hero's height. */
 .home-pitch {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  top: 0;
+  left: 50%;
+  width: 100vw;
   height: 100%;
+  translate: -50% 0;
   fill: none;
-  stroke: #1e293b;
-  stroke-width: 2;
+  stroke: rgb(255 255 255 / 35%);
+  stroke-width: 3;
   pointer-events: none;
 }
 
@@ -4611,7 +4869,7 @@ nav[aria-label='Club administration'] div > p:first-child {
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--rail-text-2);
+  color: var(--pp-text-2);
 }
 
 /* The lens: the card stays still and the ring of roles turns around it.
@@ -4646,9 +4904,9 @@ nav[aria-label='Club administration'] div > p:first-child {
   align-items: center;
   height: 24px;
   padding: 4px 10px;
-  border: 1px solid #1e293b;
+  border: 1px solid var(--pp-line);
   border-radius: var(--radius-full);
-  background: var(--rail-bg);
+  background: var(--pp-rail);
   color: #e2e8f0;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -4695,9 +4953,9 @@ nav[aria-label='Club administration'] div > p:first-child {
   z-index: 1;
   width: min(100%, 16rem);
   padding: var(--space-5);
-  border: 1px solid #1e293b;
+  border: 1px solid var(--pp-line);
   border-radius: var(--radius-lg);
-  background: var(--reef-600);
+  background: var(--pp-pitch);
   text-align: center;
   box-shadow: var(--shadow-lg);
 }
@@ -4726,9 +4984,9 @@ nav[aria-label='Club administration'] div > p:first-child {
 .lens-since {
   margin: 0 0 var(--space-3);
   padding-bottom: var(--space-3);
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 1px solid var(--pp-line);
   font-size: 0.78rem;
-  color: var(--rail-text-2);
+  color: var(--pp-text-2);
 }
 
 .lens-role {
@@ -4737,7 +4995,7 @@ nav[aria-label='Club administration'] div > p:first-child {
   font-size: 0.7rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--rail-text-2);
+  color: var(--pp-text-2);
 }
 
 .lens-picks {
@@ -4763,9 +5021,9 @@ nav[aria-label='Club administration'] div > p:first-child {
   align-items: center;
   height: 24px;
   padding: 4px 10px;
-  border: 1px solid #1e293b;
+  border: 1px solid var(--pp-line);
   border-radius: var(--radius-full);
-  background: var(--rail-bg);
+  background: var(--pp-rail);
   color: #cbd5e1;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -4783,7 +5041,7 @@ nav[aria-label='Club administration'] div > p:first-child {
 .lens-note {
   margin: 0;
   font-size: 0.75rem;
-  color: var(--rail-text-2);
+  color: var(--pp-text-2);
   text-align: center;
 }
 
@@ -5000,9 +5258,9 @@ nav[aria-label='Club administration'] div > p:first-child {
   width: min(100%, 300px);
   margin: 0 auto;
   padding: 0.75rem;
-  border: 1px solid #1e293b;
+  border: 1px solid var(--pp-line);
   border-radius: 2rem;
-  background: var(--reef-800);
+  background: var(--pp-rail);
   box-shadow: var(--shadow-lg);
 }
 
@@ -5132,9 +5390,9 @@ nav[aria-label='Club administration'] div > p:first-child {
   position: relative;
   aspect-ratio: 3 / 2;
   overflow: hidden;
-  border: 1px solid #1e293b;
+  border: 1px solid var(--pp-line);
   border-radius: var(--radius-lg);
-  background: var(--reef-600);
+  background: var(--pp-pitch);
 }
 
 .matchday-pitch svg {
@@ -5143,8 +5401,8 @@ nav[aria-label='Club administration'] div > p:first-child {
   width: 100%;
   height: 100%;
   fill: none;
-  stroke: #1e293b;
-  stroke-width: 2;
+  stroke: rgb(255 255 255 / 35%);
+  stroke-width: 3;
 }
 
 .matchday-shirt {
@@ -5156,7 +5414,7 @@ nav[aria-label='Club administration'] div > p:first-child {
   height: 28px;
   border-radius: 50%;
   background: var(--euc-500);
-  color: var(--reef-800);
+  color: var(--pp-rail);
   font-size: 10px;
   font-weight: 700;
 }
@@ -5206,9 +5464,9 @@ nav[aria-label='Club administration'] div > p:first-child {
 
 .matchday-fixtures {
   padding: var(--space-4);
-  border: 1px solid #1e293b;
+  border: 1px solid var(--pp-line);
   border-radius: var(--radius-lg);
-  background: var(--reef-600);
+  background: var(--pp-pitch);
 }
 
 .matchday-fixtures ul {
@@ -5232,7 +5490,7 @@ nav[aria-label='Club administration'] div > p:first-child {
   gap: var(--space-2);
   padding: var(--space-3);
   border-radius: var(--radius);
-  background: var(--rail-bg);
+  background: var(--pp-rail);
 }
 
 .matchday-fixtures li > span:first-child {
@@ -5245,15 +5503,17 @@ nav[aria-label='Club administration'] div > p:first-child {
 
 .matchday-fixtures li > span:first-child span {
   font-size: 0.78rem;
-  color: var(--rail-text-2);
+  color: var(--pp-text-2);
 }
 
 /* ---------------------------------------------------------- for clubs */
 
 .home-close {
+  --band: var(--pp-pitch);
   text-align: center;
 }
 
+.home-close .home-heading,
 .home-close .lede {
   margin-inline: auto;
 }
@@ -5299,7 +5559,7 @@ nav[aria-label='Club administration'] div > p:first-child {
 
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .home-reveal {
+    .home-reveal > * {
       animation: home-rise linear both;
       animation-timeline: view();
       animation-range: entry 0% entry 40%;

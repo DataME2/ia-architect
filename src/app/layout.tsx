@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 
-import { MAKER, PRODUCT_NAME, TAGLINE } from '../web/brand.ts';
+import { COMPANY, MAKER, PRODUCT_NAME, TAGLINE } from '../web/brand.ts';
+import { FOOTER_NAV, REGISTER_LINK, SITE_NAV, WORKSPACE_LINK } from '../web/nav.ts';
 import { BrandMark } from './_components/BrandMark.tsx';
 import './globals.css';
 // After globals.css: the design system's utilities (src/components/ui) must
@@ -17,18 +18,22 @@ export const metadata: Metadata = {
 };
 
 /**
- * The theme colour is the deep eucalyptus of the masthead, so a phone's
- * browser chrome continues the page rather than framing it in grey. Two
- * values, because the dark theme's ground is nearly black and the light
- * theme's green would sit on it as a bright band.
+ * The theme colour is the top bar's pitch slate, so a phone's browser
+ * chrome continues the bar rather than framing it in grey. One value: the
+ * bar is the same colour in both schemes (scope 104).
  */
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f1f5f2' },
-    { media: '(prefers-color-scheme: dark)', color: '#0a1310' },
-  ],
+  themeColor: '#112636',
 };
 
+/**
+ * The shell: the top bar, the page, the footer (scope 104).
+ *
+ * The bar and footer sit outside `.shell` so they run the full width, as the
+ * Superdesign front door draws them. **No auth call, and so no Sign in** —
+ * this layout is prerendered, and a Sign in link would also be offered to
+ * people already signed in; Your workspace serves both.
+ */
 export default function RootLayout({ children }: { readonly children: ReactNode }) {
   return (
     <html lang="en-AU">
@@ -41,38 +46,83 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
         <a className="skip-link" href="#main">
           Skip to content
         </a>
-        <div className="shell">
-          <header className="masthead">
-            <h1>
+        <header className="topbar">
+          <div className="topbar-inner">
+            <h1 className="topbar-brand">
               <a href="/">
                 <BrandMark />
-                <span>
-                  <span className="brand-name">{PRODUCT_NAME}</span>
-                  <span className="brand-region">{MAKER}</span>
-                </span>
+                <span className="brand-name">{PRODUCT_NAME}</span>
               </a>
             </h1>
-            {/*
-              Four links, and deliberately not a fifth for signing in. This
-              layout is prerendered — it makes no auth call, by design — so a
-              "Sign in" here would still be offering it to somebody already
-              signed in. `/registrar` sends whoever needs it to the sign-in
-              screen with their destination attached.
-            */}
-            <nav aria-label="Primary">
-              <a href="/me">Your workspace</a>
-              <a href="/registrar">Club administration</a>
-              <a href="/register">New registration</a>
-              <a href="/seasons">Season calendars</a>
+            <nav aria-label="Primary" className="topbar-links">
+              {SITE_NAV.map((l) => (
+                <a key={l.href} href={l.href}>
+                  {l.label}
+                </a>
+              ))}
             </nav>
-          </header>
+            <div className="topbar-actions">
+              <a className="topbar-workspace" href={WORKSPACE_LINK.href}>
+                {WORKSPACE_LINK.label}
+              </a>
+              <a className="topbar-register" href={REGISTER_LINK.href}>
+                {REGISTER_LINK.label}
+              </a>
+              {/* Below 1,200px the destinations fold in here. A native
+                  disclosure, so the menu needs no script; every link is a
+                  full page load, which closes it. */}
+              <details className="topbar-menu">
+                <summary aria-label="Menu">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </summary>
+                <nav aria-label="Menu">
+                  {SITE_NAV.map((l) => (
+                    <a key={l.href} href={l.href}>
+                      {l.label}
+                    </a>
+                  ))}
+                  <a className="topbar-menu-workspace" href={WORKSPACE_LINK.href}>
+                    {WORKSPACE_LINK.label}
+                  </a>
+                </nav>
+              </details>
+            </div>
+          </div>
+        </header>
+        <div className="shell">
           <main id="main">{children}</main>
         </div>
         <footer className="site-footer">
-          <span>
-            <strong>{PRODUCT_NAME}</strong> — {TAGLINE}
-          </span>
-          <span>{MAKER}. Hosted in Sydney; tenant isolation is enforced by the database.</span>
+          <div className="site-footer-inner">
+            <div className="site-footer-brand">
+              <p className="site-footer-name">
+                <BrandMark />
+                <span className="brand-name">{PRODUCT_NAME}</span>
+              </p>
+              <p>{TAGLINE}</p>
+              <p className="site-footer-maker">{MAKER}</p>
+            </div>
+            {FOOTER_NAV.map((column) => (
+              <nav key={column.heading} aria-label={column.heading}>
+                <p className="site-footer-heading">{column.heading}</p>
+                <ul>
+                  {column.links.map((l) => (
+                    <li key={l.href}>
+                      <a href={l.href}>{l.label}</a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ))}
+          </div>
+          <div className="site-footer-base">
+            <span>
+              &copy; {new Date().getFullYear()} {COMPANY}
+            </span>
+            <span>Hosted in Sydney; tenant isolation is enforced by the database.</span>
+          </div>
         </footer>
       </body>
     </html>
