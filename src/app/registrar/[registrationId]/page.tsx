@@ -33,6 +33,7 @@ import {
   verifyLegalNameAction,
   verifyVoucherAction,
 } from '../actions.ts';
+import { JoinLink } from '../_components/JoinLink.tsx';
 import { GuardianInvite } from './GuardianInvite.tsx';
 import { PlayerInvite } from './PlayerInvite.tsx';
 import { ReminderPanel } from './ReminderPanel.tsx';
@@ -149,6 +150,8 @@ export default async function RegistrationDetailPage({
     tenant.roles.includes('admin') || tenant.roles.includes('treasurer');
   // validation_result is written by admin and registrar only (0002's policy).
   const canRecheck = tenant.roles.includes('admin') || tenant.roles.includes('registrar');
+  // BR180: the join page is for an administrator or registrar to pass on.
+  const sharesJoinPage = canRecheck;
   const blocking = failing(entry);
   // Scope 91: the Financial Gate. Earlier seasons come from BR79's two-year
   // arrears function, which refuses a role that may not read it (BR142).
@@ -308,6 +311,9 @@ export default async function RegistrationDetailPage({
         ) : (
           <GuardianInvite registrationId={registrationId} guardians={guardianCandidates} />
         )}
+        {sharesJoinPage && guardianCandidates.some((g) => g.invitedAt !== null && g.claimedAt === null) && (
+          <JoinLink />
+        )}
       </section>
 
       <section className="card">
@@ -325,6 +331,9 @@ export default async function RegistrationDetailPage({
             email={person.email}
             status={playerInvitationStatus}
           />
+        )}
+        {sharesJoinPage && playerInvitationStatus?.invitedAt != null && playerInvitationStatus.claimedAt === null && (
+          <JoinLink />
         )}
       </section>
 
