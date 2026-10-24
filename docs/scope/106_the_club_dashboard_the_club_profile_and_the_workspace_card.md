@@ -38,7 +38,7 @@ product does not hold is left out rather than faked:
 
 | The draft had | The app keeps |
 | ------------- | ------------- |
-| A sidebar with Dashboard, Schedule Management, Engagement Center and Settings | The club menu's real destinations (`src/web/nav.ts`), grouped as before, drawn as the dark sidebar on **every** club screen. On a phone it is still the Menu button |
+| A sidebar with Dashboard, Schedule Management, Engagement Center and Settings | The club menu's real destinations (`src/web/nav.ts`), grouped as before, drawn as the dark sidebar on **every** club screen, each of its four sections headed, ruled and lit in its own hue (orange, sky, gold, violet; none is a status colour or the Assistant's volt). On a phone it is still the Menu button |
 | John Doe, President, at the foot of the sidebar | The session strip above the page, which already names the person, the club and every role held |
 | "Search volunteers…" | **Search people**, which opens the people directory with the search filled in. The directory already searches by name |
 | A bell with a gold dot | The existing notification bell |

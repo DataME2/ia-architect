@@ -6010,3 +6010,23 @@ html:has(.home) {
     display: none !important;
   }
 }
+
+/* The club menu's sections: each heading, its rule and the current link in
+   the section's own hue, so the long menu reads as four parts. Wayfinding,
+   not status, so there is no dot and no pill, and no volt, which is the
+   Assistant's. Each hue is at least 5.5:1 on the rail in both schemes. */
+[data-section] {
+  --section: var(--rail-text-2);
+}
+[data-section='Season'] {
+  --section: #fb923c;
+}
+[data-section='Match day'] {
+  --section: #38bdf8;
+}
+[data-section='Money'] {
+  --section: var(--gold);
+}
+[data-section='Club'] {
+  --section: #a78bfa;
+}

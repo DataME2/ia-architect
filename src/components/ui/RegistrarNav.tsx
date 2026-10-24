@@ -158,21 +158,31 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
 
             return (
               <React.Fragment key={item.href}>
+                {/* Each section in its own hue (globals.css, [data-section]):
+                    the heading, a rule fading out after it, the current link. */}
                 {startsGroup && (
-                  <p className={cn('font-mono text-[0.68rem] uppercase tracking-[0.08em] text-rail-muted px-3 mb-0.5', i > 0 ? 'mt-ds-4' : 'mt-0')}>
+                  <p
+                    data-section={item.group}
+                    className={cn(
+                      'flex items-center gap-2 font-mono text-[0.68rem] font-medium uppercase tracking-[0.08em] text-(--section) px-3 mb-1',
+                      i > 0 ? 'mt-ds-4' : 'mt-0'
+                    )}
+                  >
                     {item.group}
+                    <span aria-hidden="true" className="h-0.5 flex-1 rounded-full bg-linear-to-r from-(--section) to-transparent" />
                   </p>
                 )}
                 <a
                   href={targetHref}
                   onClick={handleClick}
                   aria-current={isCurrent ? 'page' : undefined}
+                  data-section={item.group}
                   className={cn(
                     'flex items-center min-h-[44px] px-3 py-1.5 rounded-md text-sm no-underline transition-colors select-none',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-0',
                     isCurrent
-                      ? 'bg-white/10 text-white hover:text-white font-semibold'
-                      : 'text-rail-muted font-medium hover:bg-white/5 hover:text-rail-foreground'
+                      ? 'bg-(--section)/15 shadow-[inset_3px_0_0_var(--section)] text-white hover:text-white font-semibold'
+                      : 'text-rail-muted font-medium hover:bg-(--section)/10 hover:text-rail-foreground'
                   )}
                 >
                   {item.label}
