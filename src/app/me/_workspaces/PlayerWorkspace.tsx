@@ -1,14 +1,18 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+import { loadOwnMinutes } from '../../../data/academy.ts';
 import { loadFamilyPlayerProfile } from '../../../data/family-player-record.ts';
 import { loadAppearances } from '../../../data/performance.ts';
 import { loadMyRegistration, loadMyTeams, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
 import { loadParticipationResponse } from '../../../data/participation.ts';
 import { loadMyCorrection } from '../../../data/player-record-correction.ts';
 import { ageAt } from '../../../domain/types.ts';
+import { minutesByPosition } from '../../../web/academy.ts';
 import { nextFixture, seasonFigures } from '../../../web/me-view.ts';
 import { participationBanner } from '../../../web/participation-answer.ts';
 import { playerRecordLines } from '../../../web/player-record-view.ts';
+import { GameTimeBars } from '../_academy/GameTimeBars.tsx';
+import { TrainingWeek } from '../_academy/TrainingWeek.tsx';
 import { AvailabilityAnswer } from '../_participation/AvailabilityAnswer.tsx';
 import { CorrectionPanel } from '../_player/CorrectionPanel.tsx';
 import { FixtureCard, Metrics, Panel, RecordLines, RegistrationPill, WorkspaceHead } from './shared.tsx';
@@ -50,6 +54,8 @@ export async function PlayerWorkspace({
   const response =
     next === null ? null : await loadParticipationResponse(client, link.clubId, next.id, link.personId);
   const figures = seasonFigures(appearances);
+  // Scope 112: the same minutes, by the positions they were played in.
+  const byPosition = registration === null ? [] : minutesByPosition(await loadOwnMinutes(client, registration.id));
 
   return (
     <>
@@ -91,6 +97,20 @@ export async function PlayerWorkspace({
               )}
             </Panel>
           )}
+          {mine !== null && season !== null && (
+            <TrainingWeek
+              client={client}
+              clubId={link.clubId}
+              teamId={mine.team.id}
+              personId={link.personId}
+              seasonFrom={season.starts_on}
+              today={today}
+              canAnswer={answersOwnSaturday}
+            />
+          )}
+          <Panel title="Your minutes by position" meta={season?.name.toUpperCase()}>
+            <GameTimeBars rows={byPosition} nameOf={() => 'You'} empty="No minutes recorded for you yet this season." />
+          </Panel>
         </div>
         <div className="stack">
           <Panel title="Your status" meta={season?.name.toUpperCase()}>

@@ -8,7 +8,8 @@ import { FormNotice } from '../../registrar/_components/FormNotice.tsx';
 import { answerParticipationAction } from './actions.ts';
 
 /**
- * Available / not available for one fixture (BR62). One form for the one
+ * Available / not available for one fixture, or one training night (BR62,
+ * scope 112: pass `sessionId` instead of `fixtureId`). One form for the one
  * fixture on screen — a household answering for several children answers
  * each from that child's own card, never a shared control that could
  * record the wrong one.
@@ -16,22 +17,29 @@ import { answerParticipationAction } from './actions.ts';
 export function AvailabilityAnswer({
   clubId,
   fixtureId,
+  sessionId,
   personId,
   response,
 }: {
   readonly clubId: string;
-  readonly fixtureId: string;
+  readonly fixtureId?: string;
+  readonly sessionId?: string;
   readonly personId: string;
   readonly response: ParticipationResponse | null;
 }) {
   const [state, formAction, pending] = useActionState(answerParticipationAction, IDLE_FORM);
   const [declining, setDeclining] = useState(false);
   const banner = participationBanner(response);
+  const answering = sessionId ?? fixtureId ?? '';
 
   return (
     <form action={formAction} className="stack">
       <input type="hidden" name="clubId" value={clubId} />
-      <input type="hidden" name="fixtureId" value={fixtureId} />
+      {sessionId === undefined ? (
+        <input type="hidden" name="fixtureId" value={answering} />
+      ) : (
+        <input type="hidden" name="sessionId" value={answering} />
+      )}
       <input type="hidden" name="personId" value={personId} />
 
       <p style={{ margin: 0 }}>
@@ -47,9 +55,9 @@ export function AvailabilityAnswer({
 
       {declining && (
         <p>
-          <label htmlFor={`reason-${fixtureId}-${personId}`}>Why not available?</label>
+          <label htmlFor={`reason-${answering}-${personId}`}>Why not available?</label>
           <input
-            id={`reason-${fixtureId}-${personId}`}
+            id={`reason-${answering}-${personId}`}
             name="reason"
             type="text"
             required

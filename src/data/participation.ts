@@ -61,6 +61,9 @@ export async function loadFixtureParticipationResponses(
   return new Map(rows.map((r) => [r.person_id, { status: r.status, reason: r.reason }]));
 }
 
+/** What is being answered: a fixture, or (scope 112) a training night. */
+export type AnswerTarget = { readonly fixtureId: string } | { readonly sessionId: string };
+
 /**
  * Record an answer (BR62/BR63). `responderPersonId` is the signed-in
  * person's own Person at this club, never chosen on the screen — the
@@ -69,25 +72,26 @@ export async function loadFixtureParticipationResponses(
 export async function recordParticipationResponse(
   client: SupabaseClient,
   clubId: string,
-  fixtureId: string,
+  target: AnswerTarget,
   personId: string,
   responderPersonId: string,
   status: ParticipationStatus,
   reason: string | null,
 ): Promise<string | null> {
+  const night = 'sessionId' in target;
   const { error } = await client
     .from('participation_response')
     .upsert(
       {
         club_id: clubId,
-        fixture_id: fixtureId,
+        ...(night ? { training_session_id: target.sessionId } : { fixture_id: target.fixtureId }),
         person_id: personId,
         status,
         reason,
         responded_by_person_id: responderPersonId,
         responded_at: new Date().toISOString(),
       },
-      { onConflict: 'fixture_id,person_id' },
+      { onConflict: night ? 'training_session_id,person_id' : 'fixture_id,person_id' },
     );
 
   // The trigger's messages name their rule and are written for a person —

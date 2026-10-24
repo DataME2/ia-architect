@@ -20,7 +20,9 @@ export const TD_PERMISSIONS: readonly Permission[] = [
   { area: 'Player profile', may: 'Record height, weight, positions, preferred foot and squad number', source: 'BR125, player_profile_manage' },
   { area: 'Player-record corrections', may: 'Confirm or decline a player’s proposed correction to their own record', source: 'BR149, app_review_player_record_correction' },
   { area: 'Appearances', may: 'Correct apps, minutes, goals and assists, record a missing appearance, or remove a wrong one — always naming the source', source: 'BR177, app_correct_appearance' },
-  { area: 'Saturday’s answers', may: 'Read who is available, and the reason a player gave for not being', source: 'BR62, participation_response' },
+  { area: 'Saturday’s answers', may: 'Read who is available for a match or a training night, and the reason a player gave for not being', source: 'BR62, participation_response' },
+  { area: 'Training nights', may: 'Add a team’s training nights, once or weekly, and mark who trained', source: 'BR181, BR182, training_session, training_attendance' },
+  { area: 'Game days', may: 'Enter a team’s fixtures', source: 'BR181, fixture_manage' },
   { area: 'Player activity', may: 'Read every change to a player in the last 30 days', source: 'BR176, app_player_activity' },
   { area: 'People and registrations', may: 'Read the club’s people and whether each registration is complete', source: 'app_reads_club_wide' },
 ];

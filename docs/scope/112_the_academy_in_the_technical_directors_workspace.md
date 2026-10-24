@@ -3,9 +3,12 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** branch `claude/academy-plan`. **Status: planned, not
-built.** Every rule below is a proposal until the product owner and the
-pilot club answer open questions [#104–#114](./open-questions.md).
+**Delivered as:** branch `claude/academy-plan`. **Status: training and game
+time built** (WP1–WP3, and those panels of WP6), with migration 0095 **not
+yet applied**; WP4, WP5 and WP7–WP10 **planned**. The rules built are BR181–
+BR183; every other rule below is a proposal. Each adopted answer stands
+until the product owner and the pilot club answer open questions
+[#104–#114](./open-questions.md).
 
 North Star FC's technical director sent the club's **Proposed Athlete
 Management System** (October 2026). It names four page roles (players,
@@ -19,7 +22,8 @@ needs in their workspace, and how to build it.
 Director a workspace: every squad, the corrections waiting on them, and 30
 days of player activity. This scope plans the academy around it. The
 Superdesign draft *Technical Director · Academy* (project `46a311a6`, draft
-`cada6eb6`) draws the workspace's new **Academy** tab on sample data.
+`cada6eb6`) draws the workspace's new **Academy** tab on sample data, and *Player Daily
+Check-in* (draft `bc4a31f0`) draws WP4's phone screen.
 
 ## Who is who
 
@@ -60,6 +64,29 @@ Superdesign draft *Technical Director · Academy* (project `46a311a6`, draft
   **Today's check-in** (wellbeing and RPE in one short form);
   **After the match** for a reflection; **Your reports** once released.
 
+## What is built
+
+| Asked for | Built | Where |
+| --------- | ----- | ----- |
+| Technical Leads enter training nights and game days | BR181: `app_is_technical_lead` (Technical Director, Director of Football, Head of Performance); `fixture_manage` and `training_session` admit them | 0095 |
+| A player says available or not for training, with a reason | BR182: a training night is answered exactly as a fixture is (BR62), through `participation_response.training_session_id` rather than a second table, so who may answer for an under-18, the reason rule and the readers apply unchanged | 0095, *Training this week* on the player's and guardian's workspaces |
+| Coaches and managers record who trained, and why not | BR182: `training_attendance`, marked *trained*, *late* or *did not train* with an optional reason, by the team's coach, assistant coach or manager, a Technical Lead, the admin or the coordinator | 0095, each night's sheet on the coach's workspace |
+| Minutes **and positions**, live if possible, otherwise after the game | BR183: `appearance_position`, never more minutes than the appearance. The live tracker keeps the match in the browser (a reload or a lost signal loses nothing) and saves at full time; the same page takes the minutes after the match | 0095, `/me/game-time/[fixtureId]` |
+| Managers record game time | BR158 extended (#112): `app_coaches_registration` admits `manager` | 0095 |
+| Players review their own game time and attendance | *Your minutes by position* and the season's trained count. **Found while building:** `appearance` had no family policy, so a player always read zero minutes; 0095 adds it (BR183) | 0095, the player's workspace |
+| Technical Leads review every team | The Technical Director's **Academy** section: this week's training by team (answers and marks, counted per player per night), *Add a training night*, game time by position per team | `TechnicalDirectorWorkspace.tsx` |
+| Team chats | Shown as **Coming soon** on the coach's and the Technical Director's workspaces, at the product owner's request, waiting on question #111 | `ComingSoon` panels |
+
+**Deliberately not yet:** the academy flag on a team (#105) arrives with WP4,
+when U13+ starts to matter; until then training and game time apply to every
+team. The Director of Football and the Head of Performance get BR181's
+rights but no workspace lens yet: the lens is still the Technical
+Director's alone. A Technical Lead corrects minutes through BR177, with a
+source, and does not write positions, which stay with BR158's people.
+
+Also fixed on the way: time fields were unstyled across the app (fixtures,
+carnivals, referee availability), and are now 44px like date fields.
+
 ## Privacy and safeguarding (decided before anything is built)
 
 Wellbeing, soreness, RPE and a child's own words about a game are **health
@@ -90,7 +117,7 @@ law, which generally needs consent to collect. So, as **proposals**:
 5. **Training and game time carry no health data.** WP2 and WP3 can ship
    before the consent exists.
 
-## EA alignment (assessed top-down; to be applied when built)
+## EA alignment (assessed top-down; applied for WP1–WP3)
 
 | Layer         | Impact |
 | ------------- | ------ |

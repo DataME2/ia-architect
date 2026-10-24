@@ -1,15 +1,19 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+import { loadNightAnswers, loadNightMarks, loadNights, loadTeamMinutes } from '../../../data/academy.ts';
 import { loadDugout } from '../../../data/dugout.ts';
 import { loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
 import { loadPlayerActivity, registrationsByPerson } from '../../../data/technical-director.ts';
 import { collectCorrections } from '../../../data/waiting.ts';
+import { minutesByPosition, summariseNights, weekOf } from '../../../web/academy.ts';
 import { fixtureLabel } from '../../../web/dugout.ts';
-import { nextFixture } from '../../../web/me-view.ts';
+import { nextFixture, shortDate } from '../../../web/me-view.ts';
 import { TD_NOT_PERMITTED, TD_PERMISSIONS, activityByDay, activityLine } from '../../../web/technical-director.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
 import { TeamDugout } from '../../_components/TeamDugout.tsx';
-import { Metrics, Panel, WorkspaceHead } from './shared.tsx';
+import { GameTimeBars } from '../_academy/GameTimeBars.tsx';
+import { TrainingNightForm } from '../_academy/TrainingNightForm.tsx';
+import { ComingSoon, Metrics, Panel, WorkspaceHead } from './shared.tsx';
 
 /**
  * The Technical Director's workspace (scope 98, BR176): every squad, the
@@ -56,6 +60,28 @@ export async function TechnicalDirectorWorkspace({
       : await registrationsByPerson(client, link.clubId, season.id, activity.map((a) => a.personId));
   const days = activityByDay(activity);
 
+  // Scope 112, the academy: this week's training nights by team, and each
+  // team's season minutes by position.
+  const week = weekOf(today);
+  const nights = await loadNights(client, link.clubId, teams.map((t) => t.id), week.from, week.to);
+  const [nightAnswers, nightMarks, teamMinutes] = await Promise.all([
+    loadNightAnswers(client, link.clubId, nights.map((n) => n.id)),
+    loadNightMarks(client, link.clubId, nights.map((n) => n.id)),
+    season === null
+      ? Promise.resolve([])
+      : Promise.all(dugouts.map(async (d) => minutesByPosition(await loadTeamMinutes(client, link.clubId, season.id, d.team.id)))),
+  ]);
+  const training = dugouts.map((d) =>
+    summariseNights({
+      nights: nights.filter((n) => n.teamId === d.team.id),
+      playerIds: d.players.map((p) => p.id),
+      answers: nightAnswers,
+      marks: nightMarks,
+      today,
+    }),
+  );
+  const nameOf = new Map(dugouts.flatMap((d) => d.players.map((p) => [p.id, p.name] as const)));
+
   return (
     <>
       <WorkspaceHead title="Technical Director">
@@ -70,6 +96,86 @@ export async function TechnicalDirectorWorkspace({
         ]}
       />
 
+      <h2 className="academy-title" id="academy">
+        Academy
+      </h2>
+      <div className="cols">
+        <div className="stack">
+          <Panel title="Training this week" meta={`${shortDate(week.from)} – ${shortDate(week.to)}`.toUpperCase()}>
+            {dugouts.length === 0 ? (
+              <p className="empty" style={{ margin: 0 }}>
+                No teams this season yet.
+              </p>
+            ) : (
+              <table className="sheet">
+                <thead>
+                  <tr>
+                    <th scope="col">Team</th>
+                    <th scope="col">Nights</th>
+                    <th scope="col">Said yes</th>
+                    <th scope="col">Said no</th>
+                    <th scope="col">No answer</th>
+                    <th scope="col">Trained</th>
+                    <th scope="col">Late</th>
+                    <th scope="col">Did not train</th>
+                    <th scope="col">Not marked</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dugouts.map((d, i) => {
+                    const s = training[i];
+                    if (s === undefined) return null;
+                    return (
+                      <tr key={d.team.id}>
+                        <th scope="row">{d.team.name}</th>
+                        <td>{s.nights}</td>
+                        <td>{s.available}</td>
+                        <td>{s.notAvailable}</td>
+                        <td>{s.noAnswer}</td>
+                        <td>{s.trained}</td>
+                        <td>{s.late}</td>
+                        <td>{s.absent}</td>
+                        <td>{s.unmarked}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+            <p className="hint" style={{ marginBottom: 0 }}>
+              Counted per player per night. A night still to come has answers and no marks yet; a cancelled night counts
+              for nothing. The reasons are on each team&rsquo;s sheet, for the coaches and Technical Leads only (BR62).
+            </p>
+          </Panel>
+          <Panel title="Add a training night">
+            <TrainingNightForm clubId={link.clubId} teams={teams} />
+          </Panel>
+        </div>
+        <div className="stack">
+          <Panel title="Game time by position" meta={season?.name.toUpperCase()}>
+            {dugouts.length === 0 ? (
+              <p className="empty" style={{ margin: 0 }}>
+                No teams this season yet.
+              </p>
+            ) : (
+              dugouts.map((d, i) => (
+                <details key={d.team.id} className="td-team" open={i === 0}>
+                  <summary>{d.team.name}</summary>
+                  <GameTimeBars rows={teamMinutes[i] ?? []} nameOf={(id) => nameOf.get(id) ?? 'A player no longer on the sheet'} />
+                </details>
+              ))
+            )}
+          </Panel>
+          <ComingSoon title="Team chat" waitsOn="the club's safeguarding policy (question #111)">
+            A chat for each team, with guardians included for players under 18. Until the club decides how adults
+            message children, team notices are planned instead.
+          </ComingSoon>
+        </div>
+      </div>
+
+      <h2 className="academy-title" id="squads">
+        Squads
+      </h2>
       {dugouts.length === 0 ? (
         <p className="empty">No teams this season yet.</p>
       ) : (

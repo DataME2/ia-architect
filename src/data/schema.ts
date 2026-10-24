@@ -139,11 +139,12 @@ export interface PlayerRecordCorrectionRow {
   review_note: string | null;
 }
 
-/** BR62/BR63 (scope 65): a Player's available/not-available answer to a fixture. */
+/** BR62/BR63 (scope 65): a Player's available/not-available answer to a fixture, or (scope 112) a training night. */
 export interface ParticipationResponseRow {
   id: string;
   club_id: string;
-  fixture_id: string;
+  fixture_id: string | null;
+  training_session_id: string | null;
   person_id: string;
   status: 'available' | 'not_available';
   reason: string | null;
@@ -449,6 +450,39 @@ export interface FixtureRow {
   goals_for: number | null;
   goals_against: number | null;
   status: string;
+}
+
+/** Scope 112: a team's training night. */
+export interface TrainingSessionRow {
+  id: string;
+  club_id: string;
+  team_id: string;
+  held_on: DateString;
+  starts_at: string;
+  ends_at: string | null;
+  venue: string | null;
+  cancelled_at: InstantString | null;
+}
+
+/** Scope 112: whether a player came to a training night, marked by the team's staff. */
+export interface TrainingAttendanceRow {
+  id: string;
+  club_id: string;
+  training_session_id: string;
+  person_id: string;
+  mark: 'present' | 'late' | 'absent';
+  reason: string | null;
+  marked_by: string | null;
+  marked_at: InstantString;
+}
+
+/** Scope 112: minutes an appearance spent in one position. */
+export interface AppearancePositionRow {
+  id: string;
+  club_id: string;
+  appearance_id: string;
+  position: 'goalkeeper' | 'defender' | 'midfielder' | 'forward';
+  minutes: number;
 }
 
 export interface AppearanceRow {
