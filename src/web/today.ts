@@ -28,3 +28,34 @@ export function todayIn(timeZone: string = DEFAULT_TIME_ZONE, now: Date = new Da
     day: '2-digit',
   }).format(now);
 }
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
+
+/**
+ * The ISO 8601 week `day` falls in (scope 110): Monday to Sunday, and week 1
+ * is the one holding the year's first Thursday, as Australian calendars and
+ * fixture lists number them. So the last days of December can be week 1,
+ * and a year can have a week 53.
+ */
+export function isoWeek(day: IsoDate): { readonly week: number; readonly monday: Date; readonly sunday: Date } {
+  const date = new Date(`${day}T00:00:00Z`);
+  const monday = new Date(date);
+  monday.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7));
+  const thursday = new Date(monday);
+  thursday.setUTCDate(monday.getUTCDate() + 3);
+  const sunday = new Date(monday);
+  sunday.setUTCDate(monday.getUTCDate() + 6);
+  const daysIn = (thursday.getTime() - Date.UTC(thursday.getUTCFullYear(), 0, 1)) / 86_400_000;
+  return { week: 1 + Math.floor(daysIn / 7), monday, sunday };
+}
+
+/** `Week 43 · 19–25 Oct`, or `Week 40 · 28 Sep – 4 Oct` across a month. */
+export function weekLabel(day: IsoDate): string {
+  const { week, monday, sunday } = isoWeek(day);
+  const end = `${sunday.getUTCDate()} ${MONTHS[sunday.getUTCMonth()]}`;
+  const start =
+    monday.getUTCMonth() === sunday.getUTCMonth()
+      ? `${monday.getUTCDate()}–`
+      : `${monday.getUTCDate()} ${MONTHS[monday.getUTCMonth()]} – `;
+  return `Week ${week} · ${start}${end}`;
+}

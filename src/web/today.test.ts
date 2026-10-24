@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test, describe } from 'node:test';
 
-import { DEFAULT_TIME_ZONE, todayIn } from './today.ts';
+import { DEFAULT_TIME_ZONE, isoWeek, todayIn, weekLabel } from './today.ts';
 
 describe('todayIn', () => {
   test('formats as YYYY-MM-DD', () => {
@@ -39,5 +39,23 @@ describe('todayIn', () => {
     assert.equal(DEFAULT_TIME_ZONE, 'Australia/Brisbane');
     const instant = new Date('2026-08-18T14:00:00Z');
     assert.equal(todayIn(undefined, instant), '2026-08-19');
+  });
+});
+
+describe('isoWeek and weekLabel', () => {
+  test('numbers the week Monday to Sunday', () => {
+    assert.equal(weekLabel('2026-10-24'), 'Week 43 · 19–25 Oct');
+    assert.equal(weekLabel('2026-10-19'), 'Week 43 · 19–25 Oct');
+    assert.equal(weekLabel('2026-10-25'), 'Week 43 · 19–25 Oct');
+  });
+
+  test('spans a month with both names', () => {
+    assert.equal(weekLabel('2026-10-01'), 'Week 40 · 28 Sep – 4 Oct');
+  });
+
+  test('follows ISO at the turn of the year', () => {
+    assert.equal(isoWeek('2026-01-01').week, 1); // a Thursday
+    assert.equal(isoWeek('2027-01-01').week, 53); // 2026 has 53 weeks
+    assert.equal(weekLabel('2024-12-30'), 'Week 1 · 30 Dec – 5 Jan');
   });
 });
