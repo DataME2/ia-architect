@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 
-import { COMPANY, MAKER, PRODUCT_NAME, TAGLINE } from '../web/brand.ts';
+import { COMPANY, DESCRIPTION, MAKER, PRODUCT_NAME, TAGLINE } from '../web/brand.ts';
 import { FOOTER_NAV, REGISTER_LINK, SITE_NAV, WORKSPACE_LINK } from '../web/nav.ts';
 import { BrandMark } from './_components/BrandMark.tsx';
 import './globals.css';
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     default: `${PRODUCT_NAME} — ${TAGLINE}`,
     template: `%s · ${PRODUCT_NAME}`,
   },
-  description: `${TAGLINE} ${MAKER}.`,
+  description: DESCRIPTION,
 };
 
 /**
@@ -50,7 +50,8 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
           <div className="topbar-inner">
             <h1 className="topbar-brand">
               <a href="/">
-                <BrandMark />
+                {/* Plays the move once on the front door (scope 108). */}
+                <BrandMark intro />
                 <span className="brand-name">{PRODUCT_NAME}</span>
               </a>
             </h1>

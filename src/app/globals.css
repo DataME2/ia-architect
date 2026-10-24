@@ -579,9 +579,8 @@ a:hover {
   }
 }
 
-/* The mark: a wattle-gold ball panel on eucalyptus. Small enough to work as
-   a favicon-sized element, drawn inline so it costs no request and inherits
-   nothing that can fail to load. */
+/* The mark: a pitch, and a football that makes the move (scope 108). Drawn
+   inline so it costs no request and inherits nothing that can fail to load. */
 .brand-mark {
   width: 30px;
   height: 30px;

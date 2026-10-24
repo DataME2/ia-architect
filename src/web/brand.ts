@@ -11,3 +11,5 @@ export const PRODUCT_NAME = 'PitchPeople';
 export const TAGLINE = 'One identity. Every role. Connected football.';
 export const COMPANY = 'Let’s Data Talk';
 export const MAKER = `By ${COMPANY}`;
+/** The site's description, the product owner's words for P1 (scope 108). */
+export const DESCRIPTION = 'One Person, Five Possible Roles, No Second Account';
