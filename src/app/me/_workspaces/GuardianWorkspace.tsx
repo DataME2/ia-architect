@@ -16,6 +16,7 @@ import { ROLE_HUE, nextFixture, shortDate } from '../../../web/me-view.ts';
 import { needsAvailabilityAnswer } from '../../../web/participation-answer.ts';
 import { playerRecordLines } from '../../../web/player-record-view.ts';
 import { AvailabilityAnswer } from '../_participation/AvailabilityAnswer.tsx';
+import { TrainingWeek } from '../_academy/TrainingWeek.tsx';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
 import { loadSubscription } from '../../../data/calendar.ts';
 import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
@@ -461,6 +462,17 @@ export async function GuardianWorkspace({
               </p>
             )}
           </Panel>
+          {team !== null && season !== null && (
+            <TrainingWeek
+              client={client}
+              clubId={link.clubId}
+              teamId={team.team.id}
+              personId={card.personId}
+              seasonFrom={season.starts_on}
+              today={today}
+              canAnswer
+            />
+          )}
         </div>
       </div>
 

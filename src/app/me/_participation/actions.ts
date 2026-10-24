@@ -26,9 +26,12 @@ export async function answerParticipationAction(
   const clubId = String(formData.get('clubId') ?? '');
   if (clubId === '') return formFailed('Which club?');
 
+  // A training night (scope 112) is answered by the same rule as a fixture,
+  // so the parser only needs to know that something is being answered.
+  const sessionId = String(formData.get('sessionId') ?? '');
   const parsed = parseParticipationAnswer({
     personId: String(formData.get('personId') ?? ''),
-    fixtureId: String(formData.get('fixtureId') ?? ''),
+    fixtureId: sessionId === '' ? String(formData.get('fixtureId') ?? '') : sessionId,
     answer: String(formData.get('answer') ?? ''),
     reason: String(formData.get('reason') ?? ''),
   });
@@ -43,7 +46,13 @@ export async function answerParticipationAction(
   if (link === undefined) return formFailed('That is not your club.');
 
   const error = await recordParticipationResponse(
-    client, clubId, parsed.fixtureId, parsed.personId, link.personId, parsed.status, parsed.reason,
+    client,
+    clubId,
+    sessionId === '' ? { fixtureId: parsed.fixtureId } : { sessionId },
+    parsed.personId,
+    link.personId,
+    parsed.status,
+    parsed.reason,
   );
 
   revalidatePath('/me');
