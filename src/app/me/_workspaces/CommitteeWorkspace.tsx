@@ -24,7 +24,7 @@ import { displayNameFor, fullLegalName } from '../../../web/queue-view.ts';
 import { ConfirmPositionButton, RecordResolutionForm } from '../../registrar/governance/GovernanceForms.tsx';
 import { POSITION_LABEL, RESOLUTION_CATEGORY_LABEL, confirmationStatus } from '../../../web/governance-view.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
-import { Panel, WorkspaceHead } from './shared.tsx';
+import { Metrics, Panel, WorkspaceHead } from './shared.tsx';
 
 function titleCase(value: string): string {
   return value.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -83,6 +83,14 @@ export async function CommitteeWorkspace({
           ? 'You also hold the treasurer role, so the money controls are yours.'
           : 'You hold no treasurer role, so nothing here moves money — the controls simply are not rendered.'}
       </WorkspaceHead>
+      <Metrics
+        items={[
+          { label: 'Vouchers waiting', value: vouchers },
+          { label: 'Awaiting confirmation', value: unconfirmed.length, note: 'positions' },
+          { label: 'Hardship requests', value: waitingHardship.length, note: 'waiting' },
+          { label: 'Vacant offices', value: vacant.length, note: term?.name },
+        ]}
+      />
       <div className="cols">
         <div className="stack">
           <Panel title="Awaiting a committee decision">

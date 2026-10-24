@@ -11,7 +11,7 @@ import { participationBanner } from '../../../web/participation-answer.ts';
 import { playerRecordLines } from '../../../web/player-record-view.ts';
 import { AvailabilityAnswer } from '../_participation/AvailabilityAnswer.tsx';
 import { CorrectionPanel } from '../_player/CorrectionPanel.tsx';
-import { Figures, FixtureCard, Panel, RecordLines, RegistrationPill, WorkspaceHead } from './shared.tsx';
+import { FixtureCard, Metrics, Panel, RecordLines, RegistrationPill, WorkspaceHead } from './shared.tsx';
 
 /**
  * A player's own Saturday. What is here is theirs only (BR65) — no other
@@ -49,6 +49,7 @@ export async function PlayerWorkspace({
 
   const response =
     next === null ? null : await loadParticipationResponse(client, link.clubId, next.id, link.personId);
+  const figures = seasonFigures(appearances);
 
   return (
     <>
@@ -56,9 +57,17 @@ export async function PlayerWorkspace({
         What you can see here is <b>yours only</b> — your fixture, your registration, your season.
         No other player&rsquo;s status appears in this context.
       </WorkspaceHead>
+      <Metrics
+        items={[
+          { label: 'Appearances', value: figures.appearances, note: season?.name },
+          { label: 'Minutes', value: figures.minutes },
+          { label: 'Goals', value: figures.goals },
+          { label: 'Assists', value: figures.assists },
+        ]}
+      />
       <div className="cols">
         <div className="stack">
-          <Panel title="Next fixture" meta={mine === null ? undefined : mine.team.name.toUpperCase()}>
+          <Panel title="Next fixture" meta={mine === null ? undefined : mine.team.name.toUpperCase()} dark>
             {next !== null && mine !== null ? (
               <FixtureCard fixture={next} teamName={mine.team.name} />
             ) : (
@@ -92,9 +101,6 @@ export async function PlayerWorkspace({
             ) : (
               <RegistrationPill status={registration.status} outstandingCents={registration.outstanding_amount_cents} />
             )}
-          </Panel>
-          <Panel title="This season">
-            <Figures figures={seasonFigures(appearances)} />
           </Panel>
           <Panel title="Your record">
             <RecordLines lines={playerRecordLines(link.person, profile)} />

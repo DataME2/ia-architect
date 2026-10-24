@@ -41,6 +41,8 @@ export const REGISTRAR_NAV: readonly NavItem[] = [
   { href: '/registrar/fees', label: 'Match official fees', seasonScoped: false, group: 'Money' },
   { href: '/registrar/arrears', label: 'Arrears', seasonScoped: false, group: 'Money' },
   { href: '/registrar/sponsors', label: 'Sponsors', seasonScoped: false, group: 'Money' },
+  // Season-scoped: its teams, fixtures and registrations are the season's (scope 106).
+  { href: '/registrar/club', label: 'Club profile', seasonScoped: true, group: 'Club' },
   { href: '/registrar/governance', label: 'Governance', seasonScoped: false, group: 'Club' },
   { href: '/registrar/committee-hub', label: 'Committee hub', seasonScoped: false, group: 'Club' },
   { href: '/registrar/privacy', label: 'Privacy', seasonScoped: false, group: 'Club' },

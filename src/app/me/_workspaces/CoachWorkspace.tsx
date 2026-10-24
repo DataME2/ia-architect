@@ -4,12 +4,12 @@ import { loadClubCalendar } from '../../../data/competition-calendar.ts';
 import { loadDugout } from '../../../data/dugout.ts';
 import { loadMyTeams, loadRoster, loadTeamFixtures, type ClubLink } from '../../../data/me.ts';
 import { fixtureLabel } from '../../../web/dugout.ts';
-import { nextFixture } from '../../../web/me-view.ts';
+import { nextFixture, shortDate } from '../../../web/me-view.ts';
 import { displayNameFor } from '../../../web/queue-view.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
 import { CompetitionCalendar } from '../../_components/CompetitionCalendar.tsx';
 import { TeamDugout } from '../../_components/TeamDugout.tsx';
-import { FixtureCard, Panel, WorkspaceHead } from './shared.tsx';
+import { FixtureCard, Metrics, Panel, WorkspaceHead } from './shared.tsx';
 
 /** The squad, and who cannot be picked. */
 export async function CoachWorkspace({
@@ -50,6 +50,14 @@ export async function CoachWorkspace({
         The squad, and who cannot be picked. Decline reasons, when they exist, are visible to you as the
         responsible coach and to nobody else in the squad.
       </WorkspaceHead>
+      <Metrics
+        items={[
+          { label: 'Players', value: players.length, note: mine?.team.name },
+          { label: 'Cannot be selected', value: cannotPlay.length + unregistered.length },
+          { label: 'Fixtures', value: fixtures.length, note: link.season?.name },
+          { label: 'Next fixture', value: next === null ? 'None' : shortDate(next.playedOn) },
+        ]}
+      />
       {dugout !== null && mine !== null ? (
         <TeamDugout
           teamName={mine.team.name}
@@ -96,7 +104,7 @@ export async function CoachWorkspace({
               </>
             )}
           </Panel>
-          <Panel title="Next fixture">
+          <Panel title="Next fixture" dark>
             {next !== null && mine !== null ? (
               <FixtureCard fixture={next} teamName={mine.team.name} />
             ) : (

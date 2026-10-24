@@ -20,7 +20,7 @@ import { loadNominations, loadPayouts } from '../../../data/payouts.ts';
 import { displayNameFor } from '../../../web/queue-view.ts';
 import { ConfirmMatchForm } from '../_officiating/ConfirmMatchForm.tsx';
 import { DesignationPanel } from '../_designations/DesignationPanel.tsx';
-import { Panel, WorkspaceHead } from './shared.tsx';
+import { Metrics, Panel, WorkspaceHead } from './shared.tsx';
 import { loadSubscription } from '../../../data/calendar.ts';
 import { CalendarPanel } from '../_calendar/CalendarPanel.tsx';
 
@@ -95,6 +95,14 @@ export async function RefereeWorkspace({
         Your appointments, your week and what you are owed. A conflict with any other role you hold is caught before
         a match is ever offered; what is left to check is beside them.
       </WorkspaceHead>
+      <Metrics
+        items={[
+          { label: 'Offered', value: self.appointments, note: 'open appointments' },
+          { label: 'To confirm', value: confirmable.filter((c) => !c.confirmed).length },
+          { label: 'To check', value: alerts.length, note: 'conflicts and card' },
+          { label: 'Owed to you', value: owed.owed, note: `${claims.length} claims` },
+        ]}
+      />
       <div className="cols">
         <div className="stack">
           <Panel title="Offered" meta={`${self.appointments} OPEN`}>

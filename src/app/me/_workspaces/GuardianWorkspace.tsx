@@ -28,7 +28,7 @@ import { loadHardshipRequests } from '../../../data/hardship.ts';
 import { HardshipRequestForm } from '../_hardship/HardshipForms.tsx';
 import { loadFamilyDocuments } from '../../../data/documents.ts';
 import { DocumentUploadForm } from '../_documents/DocumentUploadForm.tsx';
-import { ComingSoon, FixtureCard, Panel, RecordLines, WorkspaceHead } from './shared.tsx';
+import { ComingSoon, FixtureCard, Metrics, Panel, RecordLines, WorkspaceHead } from './shared.tsx';
 
 const CONSENT_LABEL: Readonly<Record<string, string>> = {
   REGISTRATION_COLLECTION_NOTICE: 'Collection notice',
@@ -167,6 +167,14 @@ export async function GuardianWorkspace({
         their eighteenth birthday, when it transfers as a recorded, notified transition.
         {cards.length > 1 && ` You hold authority for ${cards.length} children here — choose one below.`}
       </WorkspaceHead>
+      <Metrics
+        items={[
+          { label: 'Holding it up', value: card.blockers.length, note: card.label },
+          { label: 'Documents missing', value: missing.length },
+          { label: 'Owed', value: formatMoney(Math.max(0, child.balanceCents)), note: season?.name },
+          { label: 'Children', value: cards.length, note: 'in your care here' },
+        ]}
+      />
 
       {cards.length > 1 && (
         <nav className="household" aria-label="Your children">
@@ -437,7 +445,7 @@ export async function GuardianWorkspace({
               ))}
             </Panel>
           )}
-          <Panel title={`${card.name}'s next match`}>
+          <Panel title={`${card.name}'s next match`} dark>
             {next !== null && team !== null ? (
               <div className="stack">
                 <FixtureCard fixture={next} teamName={team.team.name} />

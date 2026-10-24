@@ -90,8 +90,10 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
       <nav
         ref={ref}
         aria-label={title}
+        // The dashboard draft's dark sidebar (scope 106): the rail's colours in
+        // both schemes, as the identity rail on /me already is.
         className={cn(
-          'print:hidden w-full md:max-w-[260px] flex flex-col font-sans text-foreground bg-surface border border-border rounded-md shadow-xs p-3',
+          'print:hidden w-full md:max-w-[260px] flex flex-col font-sans text-rail-foreground bg-rail border border-rail-line rounded-lg shadow-md p-3',
           className
         )}
         {...props}
@@ -102,7 +104,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
           onClick={() => setIsOpen((prev) => !prev)}
           aria-expanded={isOpen}
           aria-controls={navId}
-          className="md:hidden flex items-center justify-between w-full min-h-[44px] px-3 py-2 rounded-sm shadow-none bg-surfaceSubtle border border-border text-sm font-semibold text-foreground hover:bg-backgroundSunk! hover:text-foreground! transition-colors"
+          className="md:hidden flex items-center justify-between w-full min-h-[44px] px-3 py-2 rounded-md shadow-none bg-white/5 border border-rail-line text-sm font-semibold text-rail-foreground hover:bg-white/10! hover:text-rail-foreground! transition-colors"
         >
           <span className="flex items-center gap-2">
             <svg
@@ -121,14 +123,14 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
             </svg>
             <span>{title}</span>
           </span>
-          <span className="font-mono text-xs text-muted-foreground uppercase">
+          <span className="font-mono text-xs text-rail-muted uppercase">
             {isOpen ? 'Close' : 'Menu'}
           </span>
         </button>
 
         {/* Section Heading for Desktop */}
         {title && (
-          <p className="hidden md:block text-sm font-semibold text-foreground px-3 py-1 mb-ds-2">
+          <p className="hidden md:block text-sm font-semibold text-rail-foreground px-3 py-1 mb-ds-2">
             {title}
           </p>
         )}
@@ -157,7 +159,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
             return (
               <React.Fragment key={item.href}>
                 {startsGroup && (
-                  <p className={cn('text-xs font-semibold text-muted-foreground px-3 mb-0.5', i > 0 ? 'mt-ds-4' : 'mt-0')}>
+                  <p className={cn('font-mono text-[0.68rem] uppercase tracking-[0.08em] text-rail-muted px-3 mb-0.5', i > 0 ? 'mt-ds-4' : 'mt-0')}>
                     {item.group}
                   </p>
                 )}
@@ -167,10 +169,10 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
                   aria-current={isCurrent ? 'page' : undefined}
                   className={cn(
                     'flex items-center min-h-[44px] px-3 py-1.5 rounded-md text-sm no-underline transition-colors select-none',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-0',
                     isCurrent
-                      ? 'bg-primary-soft text-primary hover:text-primary font-semibold'
-                      : 'text-muted-foreground font-medium hover:bg-surfaceSubtle hover:text-foreground'
+                      ? 'bg-white/10 text-white hover:text-white font-semibold'
+                      : 'text-rail-muted font-medium hover:bg-white/5 hover:text-rail-foreground'
                   )}
                 >
                   {item.label}

@@ -9,7 +9,7 @@ import { nextFixture } from '../../../web/me-view.ts';
 import { TD_NOT_PERMITTED, TD_PERMISSIONS, activityByDay, activityLine } from '../../../web/technical-director.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
 import { TeamDugout } from '../../_components/TeamDugout.tsx';
-import { Panel, WorkspaceHead } from './shared.tsx';
+import { Metrics, Panel, WorkspaceHead } from './shared.tsx';
 
 /**
  * The Technical Director's workspace (scope 98, BR176): every squad, the
@@ -62,6 +62,13 @@ export async function TechnicalDirectorWorkspace({
         Every squad at {link.clubName}, the corrections waiting on you, and every change to a player in the last
         30 days. Money is not part of this role: a player reads &ldquo;not clear to play&rdquo;, never an amount.
       </WorkspaceHead>
+      <Metrics
+        items={[
+          { label: 'Teams', value: teams.length, note: season?.name },
+          { label: 'Corrections waiting', value: corrections.length },
+          { label: 'Player changes', value: activity.length, note: 'last 30 days' },
+        ]}
+      />
 
       {dugouts.length === 0 ? (
         <p className="empty">No teams this season yet.</p>

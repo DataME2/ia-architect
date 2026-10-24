@@ -5,7 +5,7 @@ import { loadMe, type ClubLink } from '../../data/me.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
 import { syncEverythingWaiting } from '../../data/waiting.ts';
 import type { InboxNotification } from '../../web/inbox-view.ts';
-import { ROLE_HUE } from '../../web/me-view.ts';
+import { ROLE_HUE, initialsOf } from '../../web/me-view.ts';
 import { ROLE_LABEL, resolveActive, type RoleHolding } from '../../web/role-context.ts';
 import { todayIn } from '../../web/today.ts';
 import { IdentityRail } from '../_components/IdentityRail.tsx';
@@ -57,11 +57,12 @@ export default async function MePage({
   const notifications = await loadNotifications(client, user.id);
   const active = resolveActive(me.holdings, { key: params.role ?? null, clubId: params.club ?? null });
   const link = active === null ? null : me.links.find((l) => l.clubId === active.holding.clubId) ?? null;
+  const personName = me.person?.name ?? (user.email ?? 'Signed in');
 
   return (
     <div className="role-shell">
       <IdentityRail
-        personName={me.person?.name ?? (user.email ?? 'Signed in')}
+        personName={personName}
         legalName={me.person?.legalName ?? 'not linked to a person yet'}
         contexts={me.holdings}
         active={active}
@@ -77,22 +78,47 @@ export default async function MePage({
         </div>
         {active !== null && link !== null ? (
           <>
-            <p className="acting-as" style={{ ['--role-hue' as string]: ROLE_HUE[active.holding.key] }}>
-              <span>
-                <span className="swatch" aria-hidden="true" />
-                You are acting as <b>{ROLE_LABEL[active.holding.key]}</b>
-                {active.holding.scope !== null && ` · ${active.holding.scope}`}
-                {active.how === 'sole' && (
-                  <span className="hint" style={{ display: 'inline', marginLeft: '0.5rem' }}>
-                    — your only role, so nothing was switched
-                  </span>
-                )}
+            {/* The profile draft's card (scope 106): who you are, the role you
+                are acting in, and where. Initials, not a photo, as the rail. */}
+            <section
+              className="profile-card"
+              aria-labelledby="profile-name"
+              style={{ ['--role-hue' as string]: ROLE_HUE[active.holding.key] }}
+            >
+              <span className="profile-avatar" aria-hidden="true">
+                {initialsOf(personName)}
               </span>
-              <span className="club-chip">
-                {link.clubName.toUpperCase()}
-                {link.season !== null && ` · ${link.season.name.toUpperCase()}`}
-              </span>
-            </p>
+              <div className="profile-main">
+                <div className="profile-title">
+                  <h2 id="profile-name">{personName}</h2>
+                  <span className="profile-role">{ROLE_LABEL[active.holding.key]}</span>
+                </div>
+                <p className="profile-facts">
+                  <span>{link.clubName}</span>
+                  {link.season !== null && <span>{link.season.name}</span>}
+                  {active.holding.scope !== null && <span>{active.holding.scope}</span>}
+                </p>
+                <p className="profile-acting">
+                  <span className="swatch" aria-hidden="true" />
+                  Acting as <b>{ROLE_LABEL[active.holding.key]}</b>
+                  {active.how === 'sole' && <span className="hint"> — your only role, so nothing was switched</span>}
+                </p>
+              </div>
+              {(me.holdings.length > 1 || me.isClubOfficer) && (
+                <div className="profile-actions">
+                  {me.holdings.length > 1 && (
+                    <a className="button" href="/me">
+                      Switch role
+                    </a>
+                  )}
+                  {me.isClubOfficer && (
+                    <a className="button secondary" href="/registrar">
+                      Club administration
+                    </a>
+                  )}
+                </div>
+              )}
+            </section>
             <Workspace active={active.holding} link={link} client={client} today={today} childId={params.child ?? null} />
             {/* BR169: sponsors only for an adult; never in a 13-17 person's own workspace. */}
             {showsSponsors({ age: ageAt(link.person.dateOfBirth, today), holdsClubRole: link.membershipRoles.length > 0 }) && (
