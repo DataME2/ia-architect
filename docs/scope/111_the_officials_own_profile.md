@@ -21,6 +21,10 @@ The draft is drawn as a coordinator's screen (*Back to Roster*, *Assign to
 Game*, *Admin User*). Here it is the official's own, so its actions become
 the official's actions.
 
+The official's own version is drawn in the same project as the draft *Your
+Official Profile* (draft `2f0a4ebf`), on sample data, following the table
+below.
+
 ## Where it lives
 
 A new page, **`/me/official?club=<id>`**, *Your official profile*. It
