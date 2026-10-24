@@ -4,8 +4,9 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
 **Delivered as:** branch `claude/academy-plan`. **Status: training and game
-time built** (WP1–WP3, and those panels of WP6), with migration 0095 **not
-yet applied**; WP4, WP5 and WP7–WP10 **planned**. The rules built are BR181–
+time built** (WP1–WP3, and those panels of WP6), with migration 0095
+**applied to the development project on 2026-10-25**, after suite 95 passed
+against it in a rolled-back transaction; WP4, WP5 and WP7–WP10 **planned**. The rules built are BR181–
 BR183; every other rule below is a proposal. Each adopted answer stands
 until the product owner and the pilot club answer open questions
 [#104–#114](./open-questions.md).

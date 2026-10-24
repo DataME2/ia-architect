@@ -51,6 +51,14 @@ insert into team (id, club_id, season_id, name, age_group) values
   ('99500000-0000-0000-0000-000000000001', 'c9500000-0000-0000-0000-000000000001', 'a9500000-0000-0000-0000-000000000001', 'Seniors', 'Senior Men'),
   ('99500000-0000-0000-0000-000000000002', 'c9500000-0000-0000-0000-000000000001', 'a9500000-0000-0000-0000-000000000001', 'U15 Boys', 'U15');
 
+-- No card, no start (BR19): every adult on a team sheet holds a clearance.
+insert into clearance (club_id, person_id, kind, identifier, expires_on, verified_by_user_id, verified_at)
+select 'c9500000-0000-0000-0000-000000000001', p, 'WWCC', 'BC-95-' || right(p::text, 4), date '2033-01-01',
+       'd9500000-0000-0000-0000-000000000001', now()
+  from unnest(array[
+    'b9500000-0000-0000-0000-000000000002',
+    'b9500000-0000-0000-0000-000000000003']::uuid[]) as p;
+
 insert into team_member (club_id, team_id, person_id, role) values
   ('c9500000-0000-0000-0000-000000000001', '99500000-0000-0000-0000-000000000001', 'b9500000-0000-0000-0000-000000000001', 'player'),
   ('c9500000-0000-0000-0000-000000000001', '99500000-0000-0000-0000-000000000001', 'b9500000-0000-0000-0000-000000000002', 'manager'),
