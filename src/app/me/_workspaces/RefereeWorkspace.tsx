@@ -9,6 +9,7 @@ import { hasTurnedOn, roleLabel } from '../../../web/designation-answer.ts';
 import { credentialStanding } from '../../../web/officials-own-view.ts';
 import { rangeLabel, rangeState } from '../../../web/availability-view.ts';
 import { shortDate } from '../../../web/me-view.ts';
+import { weekLabel } from '../../../web/today.ts';
 import { GRID_DAYS, SLOTS, appointmentAlerts, gridFromWindows, ledger } from '../../../web/referee-board.ts';
 import { AppointmentAlerts } from '../../../components/ui/AppointmentAlerts.tsx';
 import { AvailabilityGrid } from '../../../components/ui/AvailabilityGrid.tsx';
@@ -128,7 +129,11 @@ export async function RefereeWorkspace({
               </ul>
             </Panel>
           )}
-          <Panel title="Your week" meta={link.season === null ? undefined : link.season.name.toUpperCase()}>
+          {/* The week of the year, the one a coordinator talks in (scope 110). */}
+          <Panel
+            title="Your week"
+            meta={[link.season?.name, weekLabel(today)].filter(Boolean).join(' · ').toUpperCase()}
+          >
             <p className="hint" style={{ margin: '0 0 var(--space-1)' }}>
               Tap the times you can officiate this season, then save. The coordinator offers you matches in these
               times, and never in a period you are away.{' '}
