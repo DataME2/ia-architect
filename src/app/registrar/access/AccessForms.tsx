@@ -32,6 +32,7 @@ import {
 } from '../../../web/access-view.ts';
 import { IDLE_FORM } from '../../../web/form-result.ts';
 import { FormNotice } from '../_components/FormNotice.tsx';
+import { JoinLink } from '../_components/JoinLink.tsx';
 import {
   grantAccessAction,
   linkAccountAction,
@@ -431,6 +432,7 @@ function DirectoryRow({
                   />
                 </div>
               )}
+              {entry.workspaces.some((w) => w.state === 'link-sent') && <JoinLink />}
             </div>
           )}
         </div>
