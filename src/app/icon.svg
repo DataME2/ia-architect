@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- The favicon (scope 108): the mark drawn for 16 pixels, not shrunk from
+       32. Tile, touchline, halfway line and the football on the spot, big
+       enough to show its middle pentagon. Still: a tab does not reliably
+       play animation. The ball is src/components/ui/BrandMark.tsx's. -->
+  <defs>
+    <radialGradient id="leather" cx="-0.35" cy="-0.4" r="1.55" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="0.6" stop-color="#eef2f6" />
+      <stop offset="1" stop-color="#b9c5d3" />
+    </radialGradient>
+    <radialGradient id="shade" cx="-0.3" cy="-0.35" r="1.45" gradientUnits="userSpaceOnUse">
+      <stop offset="0.55" stop-color="#0b1b27" stop-opacity="0" />
+      <stop offset="1" stop-color="#0b1b27" stop-opacity="0.38" />
+    </radialGradient>
+    <clipPath id="ball"><circle r="1" /></clipPath>
+  </defs>
+  <rect width="16" height="16" rx="4" fill="#1a3a52" />
+  <g fill="none" stroke="#ffffff" stroke-opacity="0.75" stroke-width="1">
+    <rect x="1.5" y="3" width="13" height="10" rx="1" />
+    <line x1="8" y1="3" x2="8" y2="13" />
+  </g>
+  <g transform="translate(8 8) scale(3.3)">
+    <circle r="1" fill="url(#leather)" />
+    <g clip-path="url(#ball)" fill="#13222e">
+      <path d="M0 -0.36L0.342 -0.111L0.212 0.291L-0.212 0.291L-0.342 -0.111Z" />
+      <path d="M0 -0.62L-0.342 -0.869L-0.212 -1.271L0.212 -1.271L0.342 -0.869ZM0.59 -0.192L0.72 -0.594L1.144 -0.594L1.274 -0.192L0.932 0.057ZM0.364 0.502L0.788 0.502L0.918 0.904L0.576 1.153L0.234 0.904ZM-0.364 0.502L-0.234 0.904L-0.576 1.153L-0.918 0.904L-0.788 0.502ZM-0.59 -0.192L-0.932 0.057L-1.274 -0.192L-1.144 -0.594L-0.72 -0.594Z" />
+    </g>
+    <circle r="1" fill="url(#shade)" />
+    <circle r="1" fill="none" stroke="#0b1b27" stroke-width="0.08" />
+  </g>
+</svg>
