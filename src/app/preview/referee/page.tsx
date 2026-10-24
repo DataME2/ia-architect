@@ -5,6 +5,7 @@ import { AvailabilityGrid, type AvailabilityGridResult } from '../../../componen
 import { ClaimsLedger } from '../../../components/ui/ClaimsLedger.tsx';
 import { roleLabel } from '../../../web/designation-answer.ts';
 import { shortDate } from '../../../web/me-view.ts';
+import { weekLabel } from '../../../web/today.ts';
 import {
   GRID_DAYS,
   SLOTS,
@@ -76,7 +77,7 @@ export default function RefereePreview() {
       <WorkspaceHead title="Your match official board">Sample official, North Star FC.</WorkspaceHead>
       <div className="cols">
         <div className="stack">
-          <Panel title="Your week" meta="2026">
+          <Panel title="Your week" meta={`2026 · ${weekLabel(TODAY)}`.toUpperCase()}>
             <AvailabilityGrid
               days={GRID_DAYS}
               slots={SLOTS}

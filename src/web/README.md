@@ -68,7 +68,7 @@ it:
 | `unsubscribe.ts` | Reading an unsubscribe link out of an inbox — mail clients wrap URLs and append punctuation, so what counts as a readable link is the part worth testing |
 | `season-calendar.ts`, `season-calendars.ts`, `season-calendar-fq-2027*.ts` (one per Queensland region) | A governing body's season calendar (scopes 101, 103): how a printed cell reads, weekends by month, the season's pulse, a competition's journey — and the transcription itself, keyed by the Friday that opens each weekend, tested against the round counts the PDF promises |
 | `team-competitions.ts` | Which competition each team plays in (BR179): the four editor roles, the calendars a season covers, the options a form offers, accepting only a choice the calendar knows, and a history line as one sentence |
-| `nav.ts`, `safe-destination.ts`, `password.ts`, `today.ts` | Cross-cutting: the club menu, where a redirect may legitimately go, password rules, and a timezone-correct "today" |
+| `nav.ts`, `safe-destination.ts`, `password.ts`, `today.ts` | Cross-cutting: the club menu, where a redirect may legitimately go, password rules, a timezone-correct "today", and its ISO week of the year (scope 110) |
 
 ## Where the architecture lives
 
