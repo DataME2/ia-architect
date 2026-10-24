@@ -9,10 +9,11 @@ const noSubscription = () => () => {};
 /**
  * What to send when a workspace link went astray (BR180, scope 107).
  *
- * Not the sign-in link: whoever opens that is signed in as the person, so
- * it never reaches staff. This is the page where the person asks for their
- * own link at the address the club holds. It signs nobody in, so it is safe
- * to pass on by any channel.
+ * Not the sign-in link: whoever opens that is signed in as the person. This
+ * is the page where the person asks for their own link at the address the
+ * club holds. It signs nobody in, so it is safe to pass on by any channel.
+ * Shown on a registration's workspace panels; on Access an administrator
+ * makes the sign-in link itself instead (scope 109).
  *
  * The origin is the browser's, read after hydration, so the address is this
  * site's on every deployment and the server render does not differ from it.

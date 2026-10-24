@@ -1,9 +1,13 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
 import { testAddressNote } from '../../../web/test-address.ts';
 
-import { createRequestClient } from '../../../data/server.ts';
+import { ConfigError } from '../../../data/env.ts';
+import { createRequestClient, currentUser } from '../../../data/server.ts';
+import { createSignInLink } from '../../../data/sign-in-link.ts';
+import { welcomeLink, type ShareLinkResult } from '../../../web/sign-in-link.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
 import { isClubRole } from '../../../web/access-view.ts';
 import { sendWorkspaceMagicLink } from '../actions.ts';
@@ -147,4 +151,58 @@ export async function reissueWorkspaceAction(
     return formFailed(`The invitation is reset, but the email did not send: ${sendError}. Press again to retry.`);
   }
   return formOk(testAddressNote(email) ?? `New link sent to ${email}. When they open it, their workspace is back.`);
+}
+
+/**
+ * The person's own sign-in link, for an administrator to send by any
+ * channel (BR180, scope 109).
+ *
+ * `reissue_workspace_invitation` is the gate, exactly as for Resend: an
+ * administrator or registrar of the person's club, an invitation not in
+ * use, re-addressed to the current email, audited. Then the link, only for
+ * an account nobody has used and no other club is waiting for. A link that
+ * cannot be recorded is not shown.
+ */
+export async function workspaceLinkAction(
+  _previous: ShareLinkResult,
+  formData: FormData,
+): Promise<ShareLinkResult> {
+  const personId = String(formData.get('personId') ?? '');
+  if (personId === '') return formFailed('Nobody to make a link for.');
+
+  const client = await createRequestClient();
+  const user = await currentUser(client);
+  if (user === null) return formFailed('Not signed in.');
+
+  const { data, error } = await client.rpc('reissue_workspace_invitation', { p_person_id: personId });
+  if (error !== null) return formFailed(error.message.replace(/^.*?:\s*/, ''));
+  const email = String(data ?? '');
+
+  const { data: person } = await client.from('person').select('club_id').eq('id', personId).single();
+  if (person === null) return formFailed('No such person.');
+
+  let made;
+  try {
+    made = await createSignInLink(String(person.club_id), email);
+  } catch (e) {
+    if (!(e instanceof ConfigError)) throw e;
+    return formFailed('This server has no SUPABASE_SERVICE_ROLE_KEY, so it cannot make a link. Resend link still works.');
+  }
+  if (!made.ok) return formFailed(made.message);
+
+  const { error: auditError } = await client.from('audit_event').insert({
+    club_id: person.club_id,
+    action: 'workspace.link-created',
+    entity: 'person',
+    entity_id: personId,
+    actor_user_id: user.id,
+    detail: { email },
+  });
+  if (auditError !== null) return formFailed('The link could not be recorded, so it is not shown. Try again.');
+
+  const requestHeaders = await headers();
+  const host = requestHeaders.get('host') ?? 'localhost:3000';
+  const proto = requestHeaders.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
+  revalidatePath('/registrar/access');
+  return { status: 'link', link: welcomeLink(`${proto}://${host}`, made.tokenHash, made.type), email };
 }

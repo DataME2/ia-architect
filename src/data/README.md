@@ -43,6 +43,7 @@ something that happens by accident, and that is the design.
 | ------ | ----- |
 | `client.ts` | The three clients above, and the `RlsBypassReason` union |
 | `server.ts` | The request-scoped client and `currentUser()` |
+| `sign-in-link.ts` | The one service-role call a screen makes: a person's sign-in link, made without email and checked across every club first (scope 109) |
 | `env.ts` | Validated configuration — names in [`.env.example`](../../.env.example), values never in the repository |
 | `schema.ts` | Row types, **hand-written deliberately**: `supabase gen types` needs credentials for a live project and CI holds none, so generating them would either put a credential in CI or leave the checked-in copy unverifiable |
 | `mappers.ts` | Rows in, domain values out. Pure — the only module that knows both shapes, which is what keeps the domain free of `snake_case` and of the database's idea of null |

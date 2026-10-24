@@ -133,7 +133,7 @@ acceptable.
 | -------- | ------- | -------------- | ----- |
 | `NEXT_PUBLIC_SUPABASE_URL` | No | `.env.local`, Vercel env vars | Ships in the browser bundle by design |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No | `.env.local`, Vercel env vars | Designed to be public. **Safe only because RLS is on every table** |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Yes** | `.env.local`, Vercel env vars (server scope only) | **Bypasses RLS entirely.** Full read/write across every club |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Yes** | `.env.local`, Vercel env vars (server scope only) | **Bypasses RLS entirely.** Full read/write across every club. Read by the cron routes and, since [scope 109](../../scope/109_a_sign_in_link_an_administrator_can_share.md), by *Create a link to share* on `/registrar/access`, so local development needs it for that button |
 | `SUPABASE_DB_PASSWORD` | **Yes** | Developer's local shell or password manager | Supabase CLI only, for migrations. Not needed at run time |
 | `CRON_SECRET` | **Yes** | `.env.local`, Vercel env vars (server scope only) | Checked against the bearer token Vercel Cron sends automatically. A cron route has no signed-in user, so this is what stops anyone who finds the URL from triggering it |
 

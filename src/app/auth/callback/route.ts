@@ -1,22 +1,16 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { createRequestClient } from '../../../data/server.ts';
-import { landingFor, NO_CREDENTIAL_DESTINATION } from '../../../web/safe-destination.ts';
+import { NO_CREDENTIAL_DESTINATION } from '../../../web/safe-destination.ts';
+import { arrive } from '../arrive.ts';
 
 /**
  * Where a sign-in link lands.
  *
  * Two steps. Exchange the one-time code for a session — which is also the
  * moment the account is created, if the link was an invitation to somebody
- * who had none. Then **claim** whatever access was recorded against their
- * email address before they existed.
- *
- * That second call is what removes the platform owner from the loop: a club
- * is provisioned with its responsible people named, they follow a link, and
- * their administrator membership exists without anybody granting it by
- * hand. `claim_club_access` reads the email from their own session and
- * never from an argument, so it can only ever claim what was addressed to
- * the person signing in.
+ * who had none. Then `arrive` claims whatever access was recorded against
+ * their email address before they existed, and picks where they land.
  */
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
@@ -41,31 +35,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}${NO_CREDENTIAL_DESTINATION}`);
   }
 
-  await client.rpc('claim_club_access');
-
-  // A guardian invited under scope 35's WP4 has no club_membership to claim
-  // — this links their account to the Person the invitation already named
-  // (decision 10), and grants nothing club_membership would (decision 11).
-  // Both calls are cheap no-ops when nothing is pending, so no branch is
-  // needed to tell an officer's link from a guardian's.
-  await client.rpc('claim_family_access');
-
-  // A player invited under scope 64/BR150 has no club_membership either,
-  // for the identical reason. Same shape, same reason it costs nothing to
-  // call unconditionally.
-  await client.rpc('claim_player_access');
-
-  // Somebody appointed to an office or club function (scope 68, BR153):
-  // links the account to the Person the confirmer named and grants the
-  // access that appointment carries. A no-op when nothing is pending.
-  await client.rpc('claim_staff_access');
-
-  // A reset link asks to land on the password page; an invitation names
-  // nothing and falls back to the club — or to the console, for the one
-  // identity that has no club and never will. `landingFor` keeps this from
-  // becoming an open redirect on the one route that hands out sessions:
-  // anything not on the published list is discarded rather than followed.
-  const { data: isPlatform } = await client.rpc('app_is_platform');
-  const next = landingFor(request.nextUrl.searchParams.get('next'), isPlatform === true);
+  const next = await arrive(client, request.nextUrl.searchParams.get('next'));
   return NextResponse.redirect(`${origin}${next}`);
 }

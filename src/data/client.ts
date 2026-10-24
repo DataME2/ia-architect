@@ -37,7 +37,9 @@ export type RlsBypassReason =
   /** Scheduled work with no signed-in user: BR50, BR51, BR67. */
   | 'scheduled-job'
   /** Building a pack across a club's rows on the registrar's behalf (C16). */
-  | 'submission-pack-generation';
+  | 'submission-pack-generation'
+  /** A sign-in link an administrator sends by hand, and the checks on it (BR180, scope 109). */
+  | 'sign-in-link';
 
 /**
  * The service-role client. **Bypasses Row-Level Security entirely.**

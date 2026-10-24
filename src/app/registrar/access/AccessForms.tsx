@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useId, useState } from 'react';
 
 import {
   FILTER_LABEL,
@@ -31,13 +31,14 @@ import {
   type LinkCandidate,
 } from '../../../web/access-view.ts';
 import { IDLE_FORM } from '../../../web/form-result.ts';
+import type { ShareLinkResult } from '../../../web/sign-in-link.ts';
 import { FormNotice } from '../_components/FormNotice.tsx';
-import { JoinLink } from '../_components/JoinLink.tsx';
 import {
   grantAccessAction,
   linkAccountAction,
   revokeAccessAction,
   reissueWorkspaceAction,
+  workspaceLinkAction,
   unlinkAccountAction,
 } from './actions.ts';
 
@@ -432,7 +433,7 @@ function DirectoryRow({
                   />
                 </div>
               )}
-              {entry.workspaces.some((w) => w.state === 'link-sent') && <JoinLink />}
+              {entry.workspaces.some((w) => w.state === 'link-sent') && <ShareLink personId={entry.key} />}
             </div>
           )}
         </div>
@@ -458,6 +459,58 @@ function ReissueButton({ personId, lost }: { readonly personId: string; readonly
       </div>
       <FormNotice result={state} />
     </form>
+  );
+}
+
+/**
+ * The person's own sign-in link, to send by any channel (BR180, scope 109).
+ * Made on request, shown once, never stored; another press cancels it.
+ */
+function ShareLink({ personId }: { readonly personId: string }) {
+  const [state, formAction, pending] = useActionState<ShareLinkResult, FormData>(workspaceLinkAction, IDLE_FORM);
+  const [copied, setCopied] = useState<string | null>(null);
+  const id = useId();
+
+  return (
+    <div className="stack" style={{ gap: '0.3rem', marginTop: '0.75rem' }}>
+      <form action={formAction}>
+        <input type="hidden" name="personId" value={personId} />
+        <button type="submit" className="secondary" disabled={pending}>
+          {pending ? 'Making…' : state.status === 'link' ? 'Make a new link' : 'Create a link to share'}
+        </button>
+      </form>
+      {state.status === 'link' ? (
+        <>
+          <label htmlFor={id}>Their link: send it to {state.email} by message</label>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <input
+              id={id}
+              type="text"
+              readOnly
+              value={state.link}
+              onFocus={(e) => e.currentTarget.select()}
+              style={{ flex: '1 1 16rem', minWidth: 0 }}
+            />
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => {
+                void navigator.clipboard.writeText(state.link).then(() => setCopied(state.link));
+              }}
+            >
+              {copied === state.link ? 'Copied' : 'Copy'}
+            </button>
+          </div>
+          <p className="hint" style={{ margin: 0 }}>
+            It signs them in once, then they choose a password. It expires (after an hour, by
+            default), and a new link or Resend cancels it. Do not open it yourself: it would sign you
+            in as them.
+          </p>
+        </>
+      ) : (
+        <FormNotice result={state} />
+      )}
+    </div>
   );
 }
 

@@ -42,7 +42,7 @@ stack; Vercel serves it.
 | `me/` | The person-facing shell — one record through six role workspaces (player, coach, Technical Director, referee, guardian, committee), one active role at a time (BR61). With several roles and none chosen it is the person's **home** (`_home/`, scope 89): everything waiting on them and their roles side by side, each a link into one role |
 | `preview/` | **Development only** (404 in a production build): design previews on sample data shaped exactly like the real loaders' output, so a screen can be reviewed without signing in as its user. `home/` (scope 89), `referee/` (scope 90) and `registration/` (scope 91, whose submit saves nothing) |
 | `register/`, `join/[token]/` | Registration capture: by a club officer, and by a family through an account-free invitation link (BR72) |
-| `sign-in/`, `set-password/`, `auth/callback/` | Session, first-arrival password (BR98), and the magic-link landing that turns an emailed link into a claimed membership |
+| `sign-in/`, `set-password/`, `auth/callback/`, `welcome/` | Session, first-arrival password (BR98), the magic-link landing that turns an emailed link into a claimed membership, and `/welcome`, where a link an administrator sent signs in on a click (scope 109). Both landings claim through `auth/arrive.ts` |
 | `platform/` | The platform owner's console: provisioning a club, and its licence. **Provisions but never reads** a club's data ([decision 9](../../docs/decisions/9_platform_administration_provisions_but_never_reads.md)) |
 | `calendar/[token]/` | The iCalendar feed, served to a calendar client that holds a URL and no session |
 | `events/[eventId]/` | The Public Event View (P6) — **the one page a stranger may read**. No session, and no branch deciding what to hide |
