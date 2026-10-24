@@ -1,9 +1,12 @@
 import { redirect } from 'next/navigation';
 
-import { loadQueue, loadSeasons, loadTenantContext } from '../../data/queries.ts';
+import { loadPeopleRoleSummary, loadQueue, loadSeasons, loadTenantContext } from '../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../data/server.ts';
+import { SEASON_ROLES } from '../../domain/types.ts';
 import { totalOwed } from '../../domain/finance/eligibility.ts';
 import { formatMoney } from '../../domain/finance/money.ts';
+import { bars, share } from '../../web/dashboard-view.ts';
+import { ROLE_LABEL } from '../../web/people-view.ts';
 import {
   blockerSummary,
   eligibilityOf,
@@ -14,77 +17,90 @@ import {
   unpaidButRegistered,
   type QueueEntry,
 } from '../../web/queue-view.ts';
-import { todayIn } from '../../web/today.ts';
-import { RuleList, StatusPill } from '../_components/rules.tsx';
+import { DEFAULT_TIME_ZONE, todayIn } from '../../web/today.ts';
+import { StatusPill } from '../_components/rules.tsx';
 import { BulkReminders } from './_components/BulkReminders.tsx';
 
 export const dynamic = 'force-dynamic';
 
-function QueueCard({ entry }: { readonly entry: QueueEntry }) {
+/**
+ * One registration as a row of the dashboard's table (scope 106): the
+ * player, the status, what is holding it up, and the money. Each rule's
+ * message is on the registration itself, and in the rule's tooltip here.
+ */
+function QueueRow({ entry, seasonId }: { readonly entry: QueueEntry; readonly seasonId: string }) {
   const blocking = failing(entry);
   const money = moneyNote(entry);
   const eligibility = eligibilityOf(entry);
+  const cannotPlay = !eligibility.mayPlay && eligibility.blockedBy === 'owes-money';
 
   return (
-    <article className="card">
-      <div className="card-row">
-        <div>
-          <p className="name">
-            <a href={`/registrar/${entry.registrationId}`}>{entry.displayName}</a>
-          </p>
-          <p className="legal-name">Legal name: {entry.legalName}</p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          {money !== null && (
-            <span className={entry.owes ? 'pill pill-stop' : 'pill pill-ok'}>
-              {money}
+    <tr>
+      <td>
+        <a href={`/registrar/${entry.registrationId}?season=${seasonId}`}>{entry.displayName}</a>
+        <span className="dash-legal">Legal name: {entry.legalName}</span>
+      </td>
+      <td>
+        <StatusPill status={entry.status} />
+      </td>
+      <td>
+        <span className="dash-holding">
+          {blocking.map((o) => (
+            <span key={o.ruleId} className="rule-id" title={o.message}>
+              {o.ruleId}
+            </span>
+          ))}
+          {/* BR5: a pack excludes these rather than guessing. */}
+          {entry.duplicateCount > 0 && (
+            <span className="pill pill-warn">
+              {entry.duplicateCount === 1 ? '1 possible duplicate' : `${entry.duplicateCount} possible duplicates`}
             </span>
           )}
-          <StatusPill status={entry.status} />
-        </div>
-      </div>
-
-      {!eligibility.mayPlay && eligibility.blockedBy === 'owes-money' && (
-        <p className="notice" style={{ marginTop: '0.85rem', marginBottom: 0 }}>
-          <strong>Cannot take the field.</strong> {eligibility.reason} Registered with the
-          federation, so every other screen reports this one as finished &mdash; it is not.
-        </p>
-      )}
-
-      {entry.duplicateCount > 0 && (
-        <p className="notice" style={{ marginTop: '0.85rem', marginBottom: 0 }}>
-          {entry.duplicateCount === 1
-            ? '1 possible duplicate needs a human decision (BR5).'
-            : `${entry.duplicateCount} possible duplicates need a human decision (BR5).`}{' '}
-          A pack excludes them rather than guessing.
-        </p>
-      )}
-
-      <RuleList outcomes={blocking} />
-    </article>
+          {/* BR79: registered, so every other screen reports it finished. */}
+          {cannotPlay && <span className="pill pill-stop">Cannot take the field</span>}
+          {blocking.length === 0 && entry.duplicateCount === 0 && !cannotPlay && <span className="hint">Nothing</span>}
+        </span>
+      </td>
+      <td>
+        {money === null ? (
+          <span className="hint">&mdash;</span>
+        ) : (
+          <span className={entry.owes ? 'pill pill-stop' : 'pill pill-ok'}>{money}</span>
+        )}
+      </td>
+    </tr>
   );
 }
 
-function Section({
+/** One of the queue's four groups, as a headed run of rows. */
+function Group({
   title,
   entries,
   emptyText,
+  seasonId,
 }: {
   readonly title: string;
   readonly entries: readonly QueueEntry[];
   readonly emptyText: string;
+  readonly seasonId: string;
 }) {
   return (
-    <section>
-      <h2>
-        {title} <span style={{ color: 'var(--muted)', fontWeight: 400 }}>({entries.length})</span>
-      </h2>
+    <tbody>
+      <tr className="dash-group">
+        <th colSpan={4} scope="colgroup">
+          {title} <span className="dash-count">({entries.length})</span>
+        </th>
+      </tr>
       {entries.length === 0 ? (
-        <p className="empty">{emptyText}</p>
+        <tr>
+          <td colSpan={4} className="hint">
+            {emptyText}
+          </td>
+        </tr>
       ) : (
-        entries.map((entry) => <QueueCard key={entry.registrationId} entry={entry} />)
+        entries.map((entry) => <QueueRow key={entry.registrationId} entry={entry} seasonId={seasonId} />)
       )}
-    </section>
+    </tbody>
   );
 }
 
@@ -150,25 +166,50 @@ export default async function RegistrarPage({
 
   const params = await searchParams;
   const season = seasons.find((s) => s.id === params.season) ?? seasons[0]!;
-  const entries = await loadQueue(client, tenant.clubId, season.id, todayIn());
+  const [entries, people] = await Promise.all([
+    loadQueue(client, tenant.clubId, season.id, todayIn()),
+    loadPeopleRoleSummary(client, tenant.clubId, season.id),
+  ]);
   const grouped = groupQueue(entries);
   const summary = blockerSummary(entries);
   const unpaid = unpaidButRegistered(entries);
   const debtors = owing(entries);
+  const registered = share(grouped.complete.length, entries.length);
+  const evaluatedAt = new Date().toLocaleTimeString('en-AU', {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: DEFAULT_TIME_ZONE,
+  });
 
   return (
-    <>
-      <h2>
-        {tenant.clubName} — {season.name}
-      </h2>
-      <p className="lede">
-        Every registration this season, with what is blocking it. Rules are evaluated fresh on
-        each load and the result is what the submission pack is built from.
-      </p>
+    <div className="dash">
+      <div className="dash-head">
+        <div>
+          <p className="eyebrow">Club administration</p>
+          <h2>
+            {tenant.clubName} — {season.name}
+          </h2>
+        </div>
+        {/* The people directory already searches by name; this only opens it. */}
+        <form method="get" action="/registrar/people" className="dash-search" role="search">
+          <input type="hidden" name="season" value={season.id} />
+          <label htmlFor="dash-q" className="sr-only">
+            Search people
+          </label>
+          <input id="dash-q" name="q" type="search" placeholder="Search people…" />
+          <button type="submit" className="secondary">
+            Search
+          </button>
+        </form>
+      </div>
 
-      {seasons.length > 1 && (
-        <form method="get" className="card" style={{ display: 'flex', gap: '0.75rem', alignItems: 'end' }}>
-          <div style={{ flex: 1 }}>
+      <div className="dash-fresh">
+        <p>
+          <span className="dash-fresh-dot" aria-hidden="true" />
+          Rules evaluated on this load, at <span className="mono">{evaluatedAt}</span>
+        </p>
+        {seasons.length > 1 && (
+          <form method="get" className="dash-season">
             <label htmlFor="season">Season</label>
             <select id="season" name="season" defaultValue={season.id}>
               {seasons.map((s) => (
@@ -177,35 +218,39 @@ export default async function RegistrarPage({
                 </option>
               ))}
             </select>
-          </div>
-          <button type="submit" className="secondary">
-            Show
-          </button>
-        </form>
-      )}
+            <button type="submit" className="secondary">
+              Show
+            </button>
+          </form>
+        )}
+      </div>
 
-      <div className="summary-grid">
-        <div className="stat">
-          <span className="n">{entries.length}</span>
-          <span className="label">registrations</span>
+      <div className="dash-metrics">
+        <div className="dash-metric">
+          <p className="dash-metric-label">Registrations</p>
+          <p className="dash-metric-n">{entries.length}</p>
+          <p className="dash-metric-note">
+            {grouped.readyToSubmit.length} ready to submit · {grouped.awaitingFederation.length} sent, not yet
+            registered
+          </p>
         </div>
-        <div className="stat">
-          <span className="n">{grouped.needsAction.length}</span>
-          <span className="label">need action</span>
+        <div className="dash-metric">
+          <p className="dash-metric-label">Registered</p>
+          <p className="dash-metric-n">{registered === null ? '—' : `${registered}%`}</p>
+          <div className="dash-meter" aria-hidden="true">
+            <span style={{ width: `${registered ?? 0}%` }} />
+          </div>
+          <p className="dash-metric-note">
+            {grouped.complete.length} of {entries.length} confirmed by the federation
+          </p>
         </div>
-        <div className="stat">
-          <span className="n">{grouped.readyToSubmit.length}</span>
-          <span className="label">ready to submit</span>
-        </div>
-        <div className="stat">
-          <span className="n">{grouped.awaitingFederation.length}</span>
-          <span className="label">sent, not registered</span>
-        </div>
-        <div className="stat">
-          <span className="n">{formatMoney(totalOwed(debtors))}</span>
-          <span className="label">
-            owed by {debtors.length} {debtors.length === 1 ? 'family' : 'families'}
-          </span>
+        <div className="dash-metric is-gold">
+          <p className="dash-metric-label">Needs action</p>
+          <p className="dash-metric-n">{grouped.needsAction.length}</p>
+          <p className="dash-metric-alert">
+            {formatMoney(totalOwed(debtors))} owed by {debtors.length}{' '}
+            {debtors.length === 1 ? 'family' : 'families'}
+          </p>
         </div>
       </div>
 
@@ -246,61 +291,115 @@ export default async function RegistrarPage({
         </section>
       )}
 
-      {summary.length > 0 && (
-        <section className="card">
-          <h3 style={{ marginTop: 0 }}>What is holding the season up</h3>
-          <p className="hint" style={{ marginTop: 0, marginBottom: '0.75rem' }}>
-            Counted per rule. This is the decomposition open question #32 asks for — the club
-            has never been able to say which part of the delay is which, because nobody kept
-            the failure history.
-          </p>
+      <div className="dash-grid">
+        <section className="dash-card" aria-labelledby="dash-registrations">
+          <div className="dash-card-head">
+            <h3 id="dash-registrations">Registrations</h3>
+            <a href={`/registrar/pack?season=${season.id}`}>Submission pack</a>
+          </div>
           <div className="table-scroll">
             <table>
               <thead>
                 <tr>
-                  <th>Rule</th>
-                  <th>Registrations</th>
-                  <th>Example</th>
+                  <th scope="col">Player</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Holding it up</th>
+                  <th scope="col">Money</th>
                 </tr>
               </thead>
-              <tbody>
-                {summary.map((row) => (
-                  <tr key={row.ruleId}>
-                    <td>
-                      <span className="rule-id">{row.ruleId}</span>
-                    </td>
-                    <td>{row.count}</td>
-                    <td>{row.example}</td>
-                  </tr>
-                ))}
-              </tbody>
+              <Group title="Needs action" entries={grouped.needsAction} emptyText="Nothing is blocked." seasonId={season.id} />
+              <Group
+                title="Ready to submit"
+                entries={grouped.readyToSubmit}
+                emptyText="Nothing is waiting to be packed."
+                seasonId={season.id}
+              />
+              <Group
+                title="Sent — not yet registered"
+                entries={grouped.awaitingFederation}
+                emptyText="Nothing has been handed over yet."
+                seasonId={season.id}
+              />
+              <Group
+                title="Registered"
+                entries={grouped.complete}
+                emptyText="No player has been confirmed by the federation yet."
+                seasonId={season.id}
+              />
             </table>
           </div>
         </section>
-      )}
 
-      {grouped.needsAction.length > 0 && <BulkReminders seasonId={season.id} />}
+        <div className="dash-side">
+          <section className="dash-card" aria-labelledby="dash-holding">
+            <h3 id="dash-holding">What is holding the season up</h3>
+            {summary.length === 0 ? (
+              <p className="hint">No rule is failing.</p>
+            ) : (
+              <ul className="dash-bars">
+                {bars(summary.map((row) => ({ label: row.ruleId, count: row.count }))).map((bar) => (
+                  <li key={bar.label}>
+                    <span className="dash-bar-label">
+                      <span className="rule-id" title={summary.find((s) => s.ruleId === bar.label)?.example}>
+                        {bar.label}
+                      </span>
+                      <b>{bar.count}</b>
+                    </span>
+                    <span className="dash-bar" aria-hidden="true">
+                      <span style={{ width: `${bar.width}%` }} />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="hint">
+              Counted per rule, so the club can say which part of the delay is which (open question #32).
+            </p>
+          </section>
 
-      <Section
-        title="Needs action"
-        entries={grouped.needsAction}
-        emptyText="Nothing is blocked."
-      />
-      <Section
-        title="Ready to submit"
-        entries={grouped.readyToSubmit}
-        emptyText="Nothing is waiting to be packed."
-      />
-      <Section
-        title="Sent — not yet registered"
-        entries={grouped.awaitingFederation}
-        emptyText="Nothing has been handed over yet."
-      />
-      <Section
-        title="Registered"
-        entries={grouped.complete}
-        emptyText="No player has been confirmed by the federation yet."
-      />
-    </>
+          <section className="dash-card" aria-labelledby="dash-people">
+            <h3 id="dash-people">People this season</h3>
+            <ul className="dash-bars">
+              {bars(SEASON_ROLES.map((role) => ({ label: ROLE_LABEL[role], count: people.byRole.get(role) ?? 0 }))).map(
+                (bar) => (
+                  <li key={bar.label}>
+                    <span className="dash-bar-label">
+                      {bar.label}
+                      <b>{bar.count}</b>
+                    </span>
+                    <span className="dash-bar is-blue" aria-hidden="true">
+                      <span style={{ width: `${bar.width}%` }} />
+                    </span>
+                  </li>
+                ),
+              )}
+            </ul>
+            <p className="hint">
+              {people.total} on record, {people.unrostered} with no role this season.
+            </p>
+          </section>
+
+          <section className="dash-card" aria-labelledby="dash-actions">
+            <h3 id="dash-actions">Quick actions</h3>
+            <ul className="dash-actions">
+              <li>
+                <a href={`/registrar/invitations?season=${season.id}`}>Registration links</a>
+              </li>
+              <li>
+                <a href={`/registrar/pack?season=${season.id}`}>Submission pack</a>
+              </li>
+              <li>
+                <a href={`/registrar/people?season=${season.id}`}>People</a>
+              </li>
+              <li>
+                <a href={`/registrar/club?season=${season.id}`}>Club profile</a>
+              </li>
+            </ul>
+          </section>
+
+          {grouped.needsAction.length > 0 && <BulkReminders seasonId={season.id} />}
+        </div>
+      </div>
+    </div>
   );
 }

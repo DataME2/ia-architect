@@ -2,22 +2,28 @@ import type { ReactNode } from 'react';
 
 import { formatMoney } from '../../../domain/finance/money.ts';
 import { STATUS_LABEL } from '../../../web/household-view.ts';
-import { shortDate, type FixtureLike, type SeasonFigures } from '../../../web/me-view.ts';
+import { shortDate, type FixtureLike } from '../../../web/me-view.ts';
 import type { RecordLine } from '../../../web/player-record-view.ts';
 import type { RegistrationStatusRow } from '../../../data/schema.ts';
 
-/** A titled block in a workspace. Border and fill say "one thing", once. */
+/**
+ * A titled block in a workspace. Border and fill say "one thing", once.
+ * `dark` is the profile draft's upcoming-schedule card (scope 106): the next
+ * match, wherever a workspace has one.
+ */
 export function Panel({
   title,
   meta,
+  dark = false,
   children,
 }: {
   readonly title: string;
   readonly meta?: string | undefined;
+  readonly dark?: boolean;
   readonly children: ReactNode;
 }) {
   return (
-    <section className="panel">
+    <section className={dark ? 'panel is-dark' : 'panel'}>
       <div className="panel-head">
         <h3>{title}</h3>
         {meta !== undefined && <span className="meta">{meta}</span>}
@@ -85,29 +91,6 @@ export function FixtureCard({ fixture, teamName }: { readonly fixture: FixtureLi
   );
 }
 
-export function Figures({ figures }: { readonly figures: SeasonFigures }) {
-  return (
-    <div className="figs">
-      <div>
-        <b>{figures.appearances}</b>
-        <span>Apps</span>
-      </div>
-      <div>
-        <b>{figures.minutes.toLocaleString('en-AU')}</b>
-        <span>Minutes</span>
-      </div>
-      <div>
-        <b>{figures.goals}</b>
-        <span>Goals</span>
-      </div>
-      <div>
-        <b>{figures.assists}</b>
-        <span>Assists</span>
-      </div>
-    </div>
-  );
-}
-
 /** A registration's status as a pill, with BR79's money caveat alongside. */
 export function RegistrationPill({
   status,
@@ -124,6 +107,28 @@ export function RegistrationPill({
       <span className={`pill ${tone}`}>{STATUS_LABEL[status]}</span>
       {outstandingCents !== null && outstandingCents > 0 && <span className="pill pill-stop">{formatMoney(outstandingCents)} outstanding</span>}
     </span>
+  );
+}
+
+/**
+ * The workspace's figures, as the profile draft's metric cards (scope 106).
+ * Counted from what the workspace already loads; no score, no ranking.
+ */
+export function Metrics({
+  items,
+}: {
+  readonly items: readonly { readonly label: string; readonly value: string | number; readonly note?: string | undefined }[];
+}) {
+  return (
+    <div className="metrics">
+      {items.map((i) => (
+        <div key={i.label} className="metric">
+          <p className="metric-label">{i.label}</p>
+          <p className="metric-n">{typeof i.value === 'number' ? i.value.toLocaleString('en-AU') : i.value}</p>
+          {i.note !== undefined && <p className="metric-note">{i.note}</p>}
+        </div>
+      ))}
+    </div>
   );
 }
 

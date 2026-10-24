@@ -59,6 +59,7 @@ it:
 | `plan-view.ts`, `money.ts` | Instalment ledgers, arrears, and money formatted one way everywhere |
 | `referee-view.ts`, `availability-view.ts` | The officiating roster and who may officiate what |
 | `player-view.ts`, `team-view.ts`, `people-view.ts`, `access-view.ts`, `platform-view.ts`, `pack-view.ts`, `invitation-view.ts` | One screen's decisions each |
+| `dashboard-view.ts`, `club-profile-view.ts` | The club dashboard's shares and bar lengths, and the club profile's words: a jurisdiction's name and the licence standing as a dot and a word (scope 106) |
 | `governance-view.ts` | The governance screen's decisions, including BR123's resolution form and BR21's enablement form. `enabledProgramNames` compares trimmed and lower-cased — the same comparison `assert_voucher_program_is_enabled` makes in the database — so the screen never calls a program new when a club only typed its name differently the second time |
 | `fixture-change.ts` | What changed about a fixture, in the words a participant reads (BR64) — computed from before and after, so a submit that changed nothing announces nothing |
 | `privacy-view.ts` | Grouping retention proposals so the **irreversible** group is the only one with an action beside it — a life member listed like a lapsed player is how a club deletes its own history |

@@ -88,6 +88,9 @@
   --ochre-100: #fef3c7;
   --ochre-500: #d97706;
   --ochre-700: #78350f;
+  /* Brand gold (scope 106): the dashboard's one card that needs you, with
+     pitch-blue text on it (6:1). Not a status, so not a status family. */
+  --gold: #ffc145;
 
   /* Card red — blocked. */
   --oxide-100: #fee2e2;
@@ -2171,37 +2174,6 @@ td {
   margin-right: 3.25rem;
 }
 
-/* ─────────────────────────────────────────────── acting-as banner */
-.acting-as {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-3);
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-2) var(--space-4);
-  margin-bottom: var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow-xs);
-  font-size: 0.87rem;
-  color: var(--muted);
-}
-
-.acting-as b {
-  color: var(--text);
-  font-weight: 700;
-}
-
-.acting-as .swatch {
-  display: inline-block;
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 50%;
-  background: var(--role-hue, var(--accent));
-  margin-right: 0.45rem;
-}
-
 /* The prompt shown when several roles are held and none has been chosen.
    BR61 forbids guessing, so this is a real screen, not an edge case. */
 .role-prompt {
@@ -2226,8 +2198,7 @@ td {
 }
 
 @media print {
-  .identity-rail,
-  .acting-as {
+  .identity-rail {
     display: none !important;
   }
 }
@@ -2263,9 +2234,10 @@ td {
   font-size: 0.92rem;
 }
 
+/* The profile draft's two-to-one grid (scope 106). */
 .cols {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: var(--space-4);
   align-items: start;
 }
@@ -2274,18 +2246,6 @@ td {
   display: grid;
   gap: var(--space-3);
   align-content: start;
-}
-
-.club-chip {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.05em;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-full);
-  padding: 0.15rem 0.65rem;
-  color: var(--muted);
-  background: var(--surface-2);
-  white-space: nowrap;
 }
 
 /* panels */
@@ -5400,4 +5360,673 @@ html:has(.home) {
       animation-name: home-token-across;
     }
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   The club dashboard, the club profile and the workspace card — scope 106.
+   After the Superdesign drafts "Dashboard", "PitchPeople Organization
+   Profile" and "Volunteer Profile Detail". One column on a phone and a
+   tablet held upright; the drafts' two-to-one grid from 64rem.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.dash {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.dash-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.dash-head h2 {
+  margin: 0;
+}
+
+.dash-head .eyebrow {
+  margin-bottom: var(--space-1);
+}
+
+.dash-search {
+  display: flex;
+  gap: var(--space-2);
+  flex: 1 1 16rem;
+  max-width: 24rem;
+}
+
+.dash-search input {
+  flex: 1;
+  min-width: 0;
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+}
+
+/* The draft's "data is live" strip, saying instead when the rules ran. */
+.dash-fresh {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-xs);
+}
+
+.dash-fresh p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.87rem;
+  font-weight: 600;
+}
+
+.dash-fresh-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--ok-dot);
+  box-shadow: 0 0 0 3px var(--ok-bg);
+}
+
+.dash-season {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dash-season label {
+  margin: 0;
+}
+
+.dash-season select {
+  width: auto;
+}
+
+/* metric cards: pitch blue by default, gold for the one that needs you */
+.dash-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-3);
+}
+
+.dash-metrics.is-five {
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+}
+
+.dash-metric {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--reef-600);
+  color: #ffffff;
+  box-shadow: var(--shadow-md);
+}
+
+.dash-metric p {
+  margin: 0;
+}
+
+.dash-metric-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--rail-text-2);
+}
+
+.dash-metric-n {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-metric-note {
+  font-size: 0.82rem;
+  color: var(--rail-text-2);
+}
+
+.dash-metric-alert {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: rgb(17 38 54 / 10%);
+}
+
+.dash-metric.is-gold {
+  background: var(--gold);
+  color: var(--reef-800);
+}
+
+.dash-metric.is-gold .dash-metric-label {
+  color: var(--reef-700);
+}
+
+.dash-metric.is-light {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+}
+
+.dash-metric.is-light .dash-metric-label,
+.dash-metric.is-light .dash-metric-note {
+  color: var(--muted);
+}
+
+/* White on stadium green is 5:1; the rail grey on it is not, so all white. */
+.dash-metric.is-green {
+  background: var(--euc-700);
+}
+
+.dash-metric.is-green .dash-metric-label,
+.dash-metric.is-green .dash-metric-note {
+  color: #ffffff;
+}
+
+.dash-meter {
+  height: 0.4rem;
+  border-radius: var(--radius-full);
+  background: rgb(255 255 255 / 15%);
+  overflow: hidden;
+}
+
+.dash-meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--euc-500);
+}
+
+/* the two-to-one grid */
+.dash-grid {
+  display: grid;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (min-width: 64rem) {
+  .dash-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
+
+.dash-main,
+.dash-side {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  min-width: 0;
+}
+
+.dash-card {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+}
+
+.dash-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.dash-card p {
+  margin: 0;
+}
+
+/* A table runs to the card's edges, as in the draft. */
+.dash-card .table-scroll {
+  margin: 0 calc(-1 * var(--space-5)) calc(-1 * var(--space-4));
+  border-width: 1px 0 0;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: none;
+}
+
+.dash-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.dash-card-head a {
+  font-size: 0.87rem;
+  font-weight: 600;
+}
+
+.dash-card.is-dark {
+  background: var(--reef-800);
+  border-color: var(--reef-700);
+  color: #ffffff;
+}
+
+.dash-card-note {
+  font-size: 0.82rem;
+  color: var(--rail-text-2);
+}
+
+.dash-legal {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.dash-holding {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.dash-group th {
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: left;
+}
+
+.dash-count {
+  font-weight: 400;
+}
+
+.dash-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* bars: one per rule, or per role */
+.dash-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.dash-bar-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: 0.3rem;
+  font-size: 0.87rem;
+  font-weight: 600;
+}
+
+.dash-bar-label b {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.dash-bar {
+  display: block;
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--border);
+  overflow: hidden;
+}
+
+.dash-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ochre-500);
+}
+
+.dash-bar.is-blue > span {
+  background: var(--reef-500);
+}
+
+/* quick actions */
+.dash-actions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.dash-actions a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dash-actions a::after {
+  content: '›';
+  color: var(--muted);
+  font-size: 1.2rem;
+}
+
+.dash-actions a:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-sunk);
+}
+
+.dash-facts {
+  margin: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.dash-facts dt {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.dash-card.is-dark .dash-facts dt {
+  color: var(--rail-text-2);
+}
+
+.dash-facts dd {
+  margin: 0.15rem 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------- the club profile head */
+.club-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+}
+
+/* Dashed until a crest is licensed, as the rail's crest slot is. */
+.club-crest {
+  width: 5rem;
+  height: 5rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.club-head-main {
+  flex: 1 1 16rem;
+  min-width: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.club-head-main p {
+  margin: 0;
+}
+
+.club-head-main h2 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.club-head-where {
+  color: var(--muted);
+}
+
+.club-head-main .club-head-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* ------------------------------------------------- the workspace card */
+.profile-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+}
+
+/* The draft's tinted corner, in the role's own hue. */
+.profile-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8rem;
+  height: 8rem;
+  border-bottom-left-radius: 100%;
+  background: var(--role-hue, var(--accent));
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.profile-avatar {
+  width: 4.5rem;
+  height: 4.5rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(150deg, var(--euc-500), var(--reef-700));
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.profile-main {
+  flex: 1 1 16rem;
+  min-width: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.profile-main p {
+  margin: 0;
+}
+
+.profile-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.profile-title h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  overflow-wrap: anywhere;
+}
+
+.profile-role {
+  padding: 0.2rem 0.7rem;
+  border-radius: var(--radius-full);
+  background: var(--info-bg);
+  color: var(--info-text);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.profile-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.profile-acting {
+  justify-self: start;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.profile-acting b {
+  color: var(--text);
+}
+
+.profile-acting .swatch {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--role-hue, var(--accent));
+}
+
+.profile-acting .hint {
+  margin: 0;
+}
+
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+@media (min-width: 40rem) {
+  .profile-actions {
+    flex-direction: column;
+  }
+}
+
+/* the workspace's figures */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: var(--space-3);
+}
+
+.metric {
+  display: grid;
+  gap: 0.2rem;
+  align-content: start;
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+}
+
+.metric p {
+  margin: 0;
+}
+
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.metric-n {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.metric-note {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* The draft's dark upcoming-schedule card. The panel re-points the theme
+   tokens, so whatever it holds (a fixture, a hint, an answer form) turns
+   with it, and primary buttons become the front door's white pill. */
+.panel.is-dark {
+  --surface: var(--reef-800);
+  --surface-2: var(--reef-600);
+  --text: #ffffff;
+  --muted: var(--rail-text-2);
+  --subtle: var(--rail-text-2);
+  --border: var(--reef-700);
+  --border-strong: #2f5d7e;
+  --link: #ffffff;
+  --accent: #ffffff;
+  --accent-hover: var(--sand-200);
+  --accent-text: var(--reef-800);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.panel.is-dark .panel-head {
+  background: transparent;
+}
+
+@media print {
+  .profile-card {
+    display: none !important;
+  }
+}
+
+/* The club menu's sections: each heading, its rule and the current link in
+   the section's own hue, so the long menu reads as four parts. Wayfinding,
+   not status, so there is no dot and no pill, and no volt, which is the
+   Assistant's. Each hue is at least 5.5:1 on the rail in both schemes. */
+[data-section] {
+  --section: var(--rail-text-2);
+}
+[data-section='Season'] {
+  --section: #fb923c;
+}
+[data-section='Match day'] {
+  --section: #38bdf8;
+}
+[data-section='Money'] {
+  --section: var(--gold);
+}
+[data-section='Club'] {
+  --section: #a78bfa;
 }
