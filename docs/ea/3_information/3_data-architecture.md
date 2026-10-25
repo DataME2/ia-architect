@@ -15,7 +15,7 @@ platform (BR59), and what may reach an AI service (Principle P4).
 
 | Class | What is in it | Handling |
 | ----- | ------------- | -------- |
-| **Regulated — children** | A minor's identity, date of birth, photograph, guardianship, documents, WWCC evidence | Tenant-isolated; **never sent to an uncontrolled AI service** (P4); disclosure only under a consent that names it (BR48); the class the retention schedule treats most conservatively |
+| **Regulated — children** | A minor's identity, date of birth, photograph, guardianship, documents, WWCC evidence, daily check-ins (`wellbeing_entry`, `rpe_entry`: health information, BR186) | Tenant-isolated; **never sent to an uncontrolled AI service** (P4); disclosure only under a consent that names it (BR48); the class the retention schedule treats most conservatively |
 | **Sensitive — personal** | An adult's equivalents, contact details, referee payment details | Tenant-isolated; disclosure only for a stated purpose |
 | **Internal — operational** | Validation results, submission packs and records, audit events, configuration | Tenant-isolated; not personal in itself but frequently *about* someone, so it inherits their class where it names them |
 | **Public** | Published carnival schedules and results, club/team level only (BR26, P6) | The single scoped exception to P5, and the only class readable without authentication |
