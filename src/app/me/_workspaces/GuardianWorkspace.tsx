@@ -16,6 +16,7 @@ import { ROLE_HUE, nextFixture, shortDate } from '../../../web/me-view.ts';
 import { needsAvailabilityAnswer } from '../../../web/participation-answer.ts';
 import { playerRecordLines } from '../../../web/player-record-view.ts';
 import { AvailabilityAnswer } from '../_participation/AvailabilityAnswer.tsx';
+import { CheckInCard } from '../_academy/CheckInCard.tsx';
 import { TrainingWeek } from '../_academy/TrainingWeek.tsx';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
 import { loadSubscription } from '../../../data/calendar.ts';
@@ -473,6 +474,16 @@ export async function GuardianWorkspace({
               canAnswer
             />
           )}
+          {/* Scope 113: BR185's agreement, then the week's check-ins, read only (#107). */}
+          <CheckInCard
+            client={client}
+            clubId={link.clubId}
+            clubName={link.clubName}
+            personId={card.personId}
+            playerName={card.name}
+            today={today}
+            viewer="guardian"
+          />
         </div>
       </div>
 

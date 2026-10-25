@@ -23,6 +23,8 @@ export const TD_PERMISSIONS: readonly Permission[] = [
   { area: 'Saturday’s answers', may: 'Read who is available for a match or a training night, and the reason a player gave for not being', source: 'BR62, participation_response' },
   { area: 'Training nights', may: 'Add a team’s training nights, once or weekly, and mark who trained', source: 'BR181, BR182, training_session, training_attendance' },
   { area: 'Game days', may: 'Enter a team’s fixtures', source: 'BR181, fixture_manage' },
+  { area: 'Academy teams', may: 'Mark a team as academy, so its players of U13 or older are asked to check in', source: 'BR184, app_set_team_academy' },
+  { area: 'Daily check-ins', may: 'Read what academy players entered, and the answers listed to follow up — never write them', source: 'BR186, BR187, wellbeing_entry, rpe_entry' },
   { area: 'Player activity', may: 'Read every change to a player in the last 30 days', source: 'BR176, app_player_activity' },
   { area: 'People and registrations', may: 'Read the club’s people and whether each registration is complete', source: 'app_reads_club_wide' },
 ];

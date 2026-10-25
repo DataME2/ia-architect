@@ -7,6 +7,7 @@ import { syncEverythingWaiting } from '../../data/waiting.ts';
 import type { InboxNotification } from '../../web/inbox-view.ts';
 import { ROLE_HUE, initialsOf } from '../../web/me-view.ts';
 import { ROLE_LABEL, resolveActive, type RoleHolding } from '../../web/role-context.ts';
+import { rangeFrom } from '../../web/academy.ts';
 import { todayIn } from '../../web/today.ts';
 import { IdentityRail } from '../_components/IdentityRail.tsx';
 import { NotificationBell } from '../registrar/_components/NotificationBell.tsx';
@@ -16,7 +17,7 @@ import { CommitteeWorkspace } from './_workspaces/CommitteeWorkspace.tsx';
 import { GuardianWorkspace } from './_workspaces/GuardianWorkspace.tsx';
 import { PlayerWorkspace } from './_workspaces/PlayerWorkspace.tsx';
 import { RefereeWorkspace } from './_workspaces/RefereeWorkspace.tsx';
-import { TechnicalDirectorWorkspace } from './_workspaces/TechnicalDirectorWorkspace.tsx';
+import { TechnicalDirectorWorkspace, tdTabFrom } from './_workspaces/TechnicalDirectorWorkspace.tsx';
 import { SponsorSlot } from './_sponsors/SponsorSlot.tsx';
 import { PersonHome } from './_home/PersonHome.tsx';
 import { ageAt } from '../../domain/types.ts';
@@ -37,7 +38,15 @@ export const dynamic = 'force-dynamic';
 export default async function MePage({
   searchParams,
 }: {
-  readonly searchParams: Promise<{ readonly role?: string; readonly club?: string; readonly child?: string }>;
+  readonly searchParams: Promise<{
+    readonly role?: string;
+    readonly club?: string;
+    readonly child?: string;
+    /** The Technical Director's tab, team and range (scope 113). */
+    readonly tab?: string;
+    readonly team?: string;
+    readonly range?: string;
+  }>;
 }) {
   const params = await searchParams;
   const client = await createRequestClient();
@@ -119,7 +128,14 @@ export default async function MePage({
                 </div>
               )}
             </section>
-            <Workspace active={active.holding} link={link} client={client} today={today} childId={params.child ?? null} />
+            <Workspace
+              active={active.holding}
+              link={link}
+              client={client}
+              today={today}
+              childId={params.child ?? null}
+              tdView={{ tab: tdTabFrom(params.tab), team: params.team ?? null, range: rangeFrom(params.range) }}
+            />
             {/* BR169: sponsors only for an adult; never in a 13-17 person's own workspace. */}
             {showsSponsors({ age: ageAt(link.person.dateOfBirth, today), holdsClubRole: link.membershipRoles.length > 0 }) && (
               <SponsorSlot client={client} clubId={link.clubId} role={active.holding.key} today={today} />
@@ -139,12 +155,14 @@ async function Workspace({
   client,
   today,
   childId,
+  tdView,
 }: {
   readonly active: RoleHolding;
   readonly link: ClubLink;
   readonly client: Awaited<ReturnType<typeof createRequestClient>>;
   readonly today: string;
   readonly childId: string | null;
+  readonly tdView: Parameters<typeof TechnicalDirectorWorkspace>[0]['view'];
 }) {
   switch (active.key) {
     case 'player':
@@ -152,7 +170,7 @@ async function Workspace({
     case 'coach':
       return <CoachWorkspace client={client} link={link} today={today} />;
     case 'technical':
-      return <TechnicalDirectorWorkspace client={client} link={link} today={today} />;
+      return <TechnicalDirectorWorkspace client={client} link={link} today={today} view={tdView} />;
     case 'referee':
       return <RefereeWorkspace client={client} link={link} today={today} />;
     case 'guardian':

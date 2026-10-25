@@ -33,6 +33,26 @@ export function weekOf(day: IsoDate): { readonly from: IsoDate; readonly to: Iso
   return { from, to: addDays(from, 6) };
 }
 
+export type Range = 'day' | 'week' | 'month';
+
+export const RANGES: readonly { readonly key: Range; readonly label: string; readonly meta: string }[] = [
+  { key: 'day', label: 'Day', meta: 'TODAY' },
+  { key: 'week', label: 'Week', meta: 'THIS WEEK' },
+  { key: 'month', label: 'Month', meta: 'THIS MONTH' },
+];
+
+/** The Academy tab's range around `today` (scope 113): the day, its week, or its month. */
+export function periodOf(today: IsoDate, range: Range): { readonly from: IsoDate; readonly to: IsoDate } {
+  if (range === 'day') return { from: today, to: today };
+  if (range === 'week') return weekOf(today);
+  const first = `${today.slice(0, 8)}01`;
+  return { from: first, to: addDays(addDays(first, 32).slice(0, 8) + '01', -1) };
+}
+
+/** A range from a query string, falling back to the week. */
+export const rangeFrom = (value: string | undefined): Range =>
+  value === 'day' || value === 'month' ? value : 'week';
+
 // --------------------------------------------------------- training nights
 
 /** A weekly night is entered at most for a year. */
@@ -150,6 +170,10 @@ export interface NightSummary {
   readonly late: number;
   readonly absent: number;
   readonly unmarked: number;
+  /** Player-nights held, which the marks are counted against. */
+  readonly expected: number;
+  /** Marked as not training, or (unmarked, or still to come) said not available. */
+  readonly away: number;
 }
 
 /**
@@ -173,25 +197,66 @@ export function summariseNights(input: {
   let late = 0;
   let absent = 0;
   let unmarked = 0;
+  let expected = 0;
+  let away = 0;
   const held = input.nights.filter((n) => !n.cancelled);
   for (const night of held) {
     for (const personId of players) {
       const answer = input.answers.find((a) => a.sessionId === night.id && a.personId === personId);
       if (answer !== undefined && answer.available) available += 1;
       else if (answer !== undefined) notAvailable += 1;
+      const saidNo = answer !== undefined && !answer.available;
 
       if (night.heldOn > input.today) {
         if (answer === undefined) noAnswer += 1;
+        if (saidNo) away += 1;
         continue;
       }
+      expected += 1;
       const mark = input.marks.find((m) => m.sessionId === night.id && m.personId === personId);
       if (mark === undefined) unmarked += 1;
       else if (mark.mark === 'present') trained += 1;
       else if (mark.mark === 'late') late += 1;
       else absent += 1;
+      if (mark?.mark === 'absent' || (mark === undefined && saidNo)) away += 1;
     }
   }
-  return { nights: held.length, available, notAvailable, noAnswer, trained, late, absent, unmarked };
+  return { nights: held.length, available, notAvailable, noAnswer, trained, late, absent, unmarked, expected, away };
+}
+
+/**
+ * Why players were away, as they and their coaches wrote it, counted
+ * (scope 113). The coach's reason wins over the player's for the same
+ * night. Grouped by the words, not into categories nobody chose.
+ */
+export function awayReasons(input: {
+  readonly nights: readonly { readonly id: string; readonly heldOn: IsoDate; readonly cancelled: boolean }[];
+  readonly answers: readonly { readonly sessionId: string; readonly personId: string; readonly available: boolean; readonly reason: string | null }[];
+  readonly marks: readonly { readonly sessionId: string; readonly personId: string; readonly mark: AttendanceMark; readonly reason: string | null }[];
+}): readonly { readonly reason: string; readonly count: number }[] {
+  const counted = new Map<string, { reason: string; count: number }>();
+  const add = (reason: string | null) => {
+    const said = reason?.trim() ?? '';
+    if (said === '') return;
+    const key = said.toLowerCase();
+    const seen = counted.get(key);
+    counted.set(key, { reason: seen?.reason ?? said, count: (seen?.count ?? 0) + 1 });
+  };
+  const nights = new Set(input.nights.filter((n) => !n.cancelled).map((n) => n.id));
+  const key = (x: { readonly sessionId: string; readonly personId: string }) => `${x.sessionId}:${x.personId}`;
+  const answerOf = new Map(input.answers.map((a) => [key(a), a] as const));
+  // A night the coach has marked is decided by the mark, whatever was said before.
+  const marked = new Set<string>();
+  for (const m of input.marks) {
+    if (!nights.has(m.sessionId)) continue;
+    marked.add(key(m));
+    if (m.mark === 'absent') add(m.reason ?? answerOf.get(key(m))?.reason ?? null);
+  }
+  for (const a of input.answers) {
+    if (!nights.has(a.sessionId) || a.available || marked.has(key(a))) continue;
+    add(a.reason);
+  }
+  return [...counted.values()].sort((a, b) => b.count - a.count || a.reason.localeCompare(b.reason));
 }
 
 /**

@@ -37,7 +37,8 @@ export type { SeasonRole };
 export type ConsentPurposeRow =
   | 'REGISTRATION_COLLECTION_NOTICE'
   | 'IDENTIFICATION_PHOTOGRAPH'
-  | 'PUBLICITY';
+  | 'PUBLICITY'
+  | 'ATHLETE_WELLBEING';
 
 export type RegistrationStatusRow =
   | 'DRAFT'
@@ -291,6 +292,8 @@ export interface TeamRow {
   season_id: string;
   name: string;
   age_group: string | null;
+  /** BR184 (0096): marked by a Technical Lead. */
+  academy: boolean;
   created_at: InstantString;
 }
 
@@ -477,6 +480,32 @@ export interface TrainingAttendanceRow {
 }
 
 /** Scope 112: minutes an appearance spent in one position. */
+/** BR186 (0096): a player's own daily check-in. */
+export interface WellbeingEntryRow {
+  id: string;
+  club_id: string;
+  person_id: string;
+  entered_on: string;
+  motivation: number;
+  mood: number;
+  sleep_quality: number;
+  stress: number;
+  soreness: number;
+  entered_at: InstantString;
+  updated_at: InstantString;
+}
+
+/** BR186 (0096): a session the player did, and how hard it felt. */
+export interface RpeEntryRow {
+  id: string;
+  club_id: string;
+  person_id: string;
+  done_on: string;
+  kind: 'team_training' | 'gym' | 'individual_training' | 'other_sport';
+  rpe: number;
+  entered_at: InstantString;
+}
+
 export interface AppearancePositionRow {
   id: string;
   club_id: string;
