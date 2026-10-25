@@ -2,9 +2,8 @@
 
 import { useActionState } from 'react';
 
-import { MARK_LABEL, type AttendanceMark } from '../../../web/academy.ts';
+import { MARK_LABEL, saidLabel, type AttendanceMark } from '../../../web/academy.ts';
 import { IDLE_FORM } from '../../../web/form-result.ts';
-import { participationBanner } from '../../../web/participation-answer.ts';
 import { FormNotice } from '../../registrar/_components/FormNotice.tsx';
 import { markAttendanceAction } from './actions.ts';
 
@@ -40,16 +39,14 @@ export function AttendanceSheet({
         <thead>
           <tr>
             <th scope="col">Player</th>
-            <th scope="col">Said</th>
+            <th scope="col">Said beforehand</th>
             {held && <th scope="col">Came</th>}
             {held && <th scope="col">Why not (optional)</th>}
           </tr>
         </thead>
         <tbody>
           {rows.map((r) => {
-            const said = participationBanner(
-              r.answer === null ? null : { status: r.answer.available ? 'available' : 'not_available', reason: r.answer.reason },
-            );
+            const said = saidLabel(r.answer, held);
             return (
               <tr key={r.personId}>
                 <th scope="row">

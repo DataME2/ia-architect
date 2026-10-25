@@ -9,6 +9,7 @@
 import type { IsoDate } from '../domain/types.ts';
 import { LINES, type Line } from './dugout.ts';
 import { shortDate } from './me-view.ts';
+import { participationBanner } from './participation-answer.ts';
 
 export const POSITION_SHORT: Readonly<Record<Line, string>> = {
   goalkeeper: 'GK',
@@ -139,9 +140,10 @@ export function parseAttendanceMarks(
 
 export interface NightSummary {
   readonly nights: number;
-  /** Player answers (BR62): said available, said not, said nothing. */
+  /** Player answers (BR62): said available, said not. */
   readonly available: number;
   readonly notAvailable: number;
+  /** Said nothing yet, for nights still to come: once a night is held, the mark is what counts. */
   readonly noAnswer: number;
   /** The coach's marks, for nights already held. */
   readonly trained: number;
@@ -151,9 +153,10 @@ export interface NightSummary {
 }
 
 /**
- * One team's week. Answers are counted for every night; marks only for
- * nights on or before `today`, because a night that has not happened has
- * nobody missing from it yet. Cancelled nights count for nothing.
+ * One team's week. What players said is counted for every night, and who
+ * has still to say only for nights to come; marks only for nights on or
+ * before `today`, because a night that has not happened has nobody missing
+ * from it yet. Cancelled nights count for nothing.
  */
 export function summariseNights(input: {
   readonly nights: readonly { readonly id: string; readonly heldOn: IsoDate; readonly cancelled: boolean }[];
@@ -174,11 +177,13 @@ export function summariseNights(input: {
   for (const night of held) {
     for (const personId of players) {
       const answer = input.answers.find((a) => a.sessionId === night.id && a.personId === personId);
-      if (answer === undefined) noAnswer += 1;
-      else if (answer.available) available += 1;
-      else notAvailable += 1;
+      if (answer !== undefined && answer.available) available += 1;
+      else if (answer !== undefined) notAvailable += 1;
 
-      if (night.heldOn > input.today) continue;
+      if (night.heldOn > input.today) {
+        if (answer === undefined) noAnswer += 1;
+        continue;
+      }
       const mark = input.marks.find((m) => m.sessionId === night.id && m.personId === personId);
       if (mark === undefined) unmarked += 1;
       else if (mark.mark === 'present') trained += 1;
@@ -187,6 +192,21 @@ export function summariseNights(input: {
     }
   }
   return { nights: held.length, available, notAvailable, noAnswer, trained, late, absent, unmarked };
+}
+
+/**
+ * What a player said about a night, on the coach's sheet. Before the night
+ * a missing answer is still awaited; after it, nobody is waiting for one,
+ * and the coach's mark says whether they came.
+ */
+export function saidLabel(
+  answer: { readonly available: boolean; readonly reason: string | null } | null,
+  held: boolean,
+): { readonly label: string; readonly className: string } {
+  if (answer === null && held) return { label: 'Didn’t say', className: 'pill' };
+  return participationBanner(
+    answer === null ? null : { status: answer.available ? 'available' : 'not_available', reason: answer.reason },
+  );
 }
 
 // ---------------------------------------------------------------- game time

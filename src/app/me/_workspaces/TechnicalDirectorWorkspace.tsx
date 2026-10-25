@@ -114,7 +114,7 @@ export async function TechnicalDirectorWorkspace({
                     <th scope="col">Nights</th>
                     <th scope="col">Said yes</th>
                     <th scope="col">Said no</th>
-                    <th scope="col">No answer</th>
+                    <th scope="col">Still to answer</th>
                     <th scope="col">Trained</th>
                     <th scope="col">Late</th>
                     <th scope="col">Did not train</th>
@@ -143,8 +143,8 @@ export async function TechnicalDirectorWorkspace({
               </table>
             )}
             <p className="hint" style={{ marginBottom: 0 }}>
-              Counted per player per night. A night still to come has answers and no marks yet; a cancelled night counts
-              for nothing. The reasons are on each team&rsquo;s sheet, for the coaches and Technical Leads only (BR62).
+              Counted per player per night. A night still to come has answers and no marks yet; once it is held, the
+              coach&rsquo;s mark counts and nobody is still to answer. A cancelled night counts for nothing. The reasons are on each team&rsquo;s sheet, for the coaches and Technical Leads only (BR62).
             </p>
           </Panel>
           <Panel title="Add a training night">

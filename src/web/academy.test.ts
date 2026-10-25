@@ -8,6 +8,7 @@ import {
   parseAttendanceMarks,
   parseGameTime,
   parseTrainingNights,
+  saidLabel,
   summariseNights,
   weekOf,
 } from './academy.ts';
@@ -107,6 +108,30 @@ describe('summariseNights', () => {
       absent: 1,
       unmarked: 0,
     });
+  });
+
+  it('waits for an answer only before the night; after it, the mark counts', () => {
+    // The QA case: a coach marked two players on a night neither answered.
+    const s = summariseNights({
+      nights: [{ id: 'n1', heldOn: '2026-10-19', cancelled: false }],
+      playerIds: ['a', 'b'],
+      answers: [],
+      marks: [
+        { sessionId: 'n1', personId: 'a', mark: 'present' },
+        { sessionId: 'n1', personId: 'b', mark: 'present' },
+      ],
+      today: '2026-10-25',
+    });
+    assert.equal(s.noAnswer, 0);
+    assert.equal(s.trained, 2);
+  });
+});
+
+describe('saidLabel', () => {
+  it('says a missing answer is awaited before the night, and was not given after it', () => {
+    assert.equal(saidLabel(null, false).label, 'No answer yet');
+    assert.deepEqual(saidLabel(null, true), { label: 'Didn’t say', className: 'pill' });
+    assert.equal(saidLabel({ available: false, reason: 'School camp' }, true).label, 'Not available');
   });
 });
 
