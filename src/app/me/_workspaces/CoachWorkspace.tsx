@@ -9,6 +9,7 @@ import { fixtureLabel } from '../../../web/dugout.ts';
 import { nextFixture, shortDate } from '../../../web/me-view.ts';
 import { displayNameFor } from '../../../web/queue-view.ts';
 import { AssistantNote } from '../../_components/AssistantNote.tsx';
+import { CollapseAll } from '../../_components/CollapseAll.tsx';
 import { CompetitionCalendar } from '../../_components/CompetitionCalendar.tsx';
 import { TeamDugout } from '../../_components/TeamDugout.tsx';
 import { AttendanceSheet } from '../_academy/AttendanceSheet.tsx';
@@ -96,7 +97,9 @@ export async function CoachWorkspace({
       {squads.length === 0 ? (
         <p className="empty">You are not named as a team official this season.</p>
       ) : several ? (
-        squads.map((s) => (
+        <section id="coach-squads" aria-label="Your squads">
+          <CollapseAll target="coach-squads" label="Every team's dugout" />
+          {squads.map((s) => (
           <details key={s.team.id} className="td-team" open>
             <summary>
               {s.team.name}
@@ -112,7 +115,8 @@ export async function CoachWorkspace({
               fixtureLabel={fixtureLabel(s.next)}
             />
           </details>
-        ))
+          ))}
+        </section>
       ) : (
         squads.map((s) => (
           <TeamDugout

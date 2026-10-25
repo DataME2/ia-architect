@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { addNights, loadGameSheet, recordMarks, saveGameTime } from '../../../data/academy.ts';
+import { setTeamAcademy } from '../../../data/check-in.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { parseAttendanceMarks, parseGameTime, parseTrainingNights } from '../../../web/academy.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
@@ -79,4 +80,18 @@ export async function saveGameTimeAction(_previous: FormResult, formData: FormDa
   revalidatePath(`/me/game-time/${fixtureId}`);
   if (error !== null) return formFailed(error);
   return formOk(`Game time saved for ${parsed.rows.length} ${parsed.rows.length === 1 ? 'player' : 'players'}.`);
+}
+
+/** BR184: a Technical Lead marks a team as academy, or unmarks it. */
+export async function setAcademyTeamAction(_previous: FormResult, formData: FormData): Promise<FormResult> {
+  const teamId = String(formData.get('teamId') ?? '');
+  const academy = formData.get('academy') === 'true';
+  if (teamId === '') return formFailed('Which team?');
+
+  const client = await signedIn();
+  if (client === null) return formFailed('Sign in first.');
+  const error = await setTeamAcademy(client, teamId, academy);
+  revalidatePath('/me');
+  if (error !== null) return formFailed(error);
+  return formOk(academy ? 'Marked as an academy team.' : 'No longer an academy team.');
 }

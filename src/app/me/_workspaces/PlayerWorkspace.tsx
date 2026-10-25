@@ -12,6 +12,8 @@ import { nextFixture, seasonFigures } from '../../../web/me-view.ts';
 import { participationBanner } from '../../../web/participation-answer.ts';
 import { playerRecordLines } from '../../../web/player-record-view.ts';
 import { GameTimeBars } from '../_academy/GameTimeBars.tsx';
+import { displayNameFor } from '../../../web/queue-view.ts';
+import { CheckInCard } from '../_academy/CheckInCard.tsx';
 import { TrainingWeek } from '../_academy/TrainingWeek.tsx';
 import { AvailabilityAnswer } from '../_participation/AvailabilityAnswer.tsx';
 import { CorrectionPanel } from '../_player/CorrectionPanel.tsx';
@@ -73,6 +75,16 @@ export async function PlayerWorkspace({
       />
       <div className="cols">
         <div className="stack">
+          {/* Scope 113: offered only to academy players of U13 or older (BR184). */}
+          <CheckInCard
+            client={client}
+            clubId={link.clubId}
+            clubName={link.clubName}
+            personId={link.personId}
+            playerName={displayNameFor(link.person)}
+            today={today}
+            viewer={isAdult ? 'adult' : 'player'}
+          />
           <Panel title="Next fixture" meta={mine === null ? undefined : mine.team.name.toUpperCase()} dark>
             {next !== null && mine !== null ? (
               <FixtureCard fixture={next} teamName={mine.team.name} />

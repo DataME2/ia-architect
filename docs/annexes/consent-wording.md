@@ -232,6 +232,41 @@ reason it is stored rather than referenced.
 
 ---
 
+## 5. Daily check-in — athlete wellbeing
+
+**Purpose `ATHLETE_WELLBEING` (BR185).** Shown to the Parent/Guardian
+holding authority for a player under 18, on their workspace, and to a
+player of 18 or over on the check-in page. Nothing is asked of the player
+until it is given. Realised in `CHECK_IN_CONSENT` in `src/web/check-in.ts`,
+which is what the screens show.
+
+> **The daily check-in.** [Club] asks its academy players, U13 and older,
+> to answer five questions once a day: motivation, mood, sleep quality,
+> stress and soreness, each from 1 to 10. They also say how hard each
+> session they did felt. This is information about [Player]'s health and
+> wellbeing.
+>
+> **Who sees it:** [Player], you, the coaches of [Player]'s teams and the
+> club's Technical Leads. Not team managers, teammates, other parents or
+> the committee, and it is never given to an automated assistant.
+>
+> **What it is for:** helping the coaches plan training and notice when a
+> player may want a conversation. An answer at the end of a scale is
+> listed for a coach to follow up. It is not a diagnosis, and it is never
+> a label on [Player].
+>
+> **How long it is kept:** this season and the last, then deleted.
+>
+> **You can withdraw at any time** on your workspace. New check-ins stop at
+> once.
+>
+> ☐ I agree to [Player] completing the daily check-in.
+
+For a player of 18 or over, the same text in the second person, ending
+*I agree to complete the daily check-in*.
+
+---
+
 ## Not yet drafted
 
 - **Coach, volunteer, and committee wording** — WWCC evidence collection

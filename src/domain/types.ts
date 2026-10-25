@@ -91,6 +91,8 @@ export const CONSENT_PURPOSES = [
   'REGISTRATION_COLLECTION_NOTICE',
   'IDENTIFICATION_PHOTOGRAPH',
   'PUBLICITY',
+  // BR185 (scope 113): the daily check-in's own consent.
+  'ATHLETE_WELLBEING',
 ] as const;
 
 export type ConsentPurpose = (typeof CONSENT_PURPOSES)[number];

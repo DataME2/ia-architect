@@ -225,6 +225,20 @@ export async function loadTeamMinutes(
   return withPositions(appearances, await positionsOf(client, appearances.map((a) => a.id)));
 }
 
+/** Of these fixtures, the ones with positions recorded (scope 113's tile). */
+export async function loadFixturesWithPositions(
+  client: SupabaseClient,
+  fixtureIds: readonly string[],
+): Promise<ReadonlySet<string>> {
+  if (fixtureIds.length === 0) return new Set();
+  const appearances = unwrap<Pick<AppearanceRow, 'id' | 'fixture_id'>[]>(
+    'appearance',
+    await client.from('appearance').select('id, fixture_id').in('fixture_id', [...fixtureIds]),
+  );
+  const positioned = new Set((await positionsOf(client, appearances.map((a) => a.id))).map((p) => p.appearance_id));
+  return new Set(appearances.filter((a) => positioned.has(a.id)).map((a) => a.fixture_id));
+}
+
 /** One player's own appearances this registration, with positions. */
 export async function loadOwnMinutes(client: SupabaseClient, registrationId: string): Promise<readonly PlayedMinutes[]> {
   const appearances = unwrap<AppearanceRow[]>(

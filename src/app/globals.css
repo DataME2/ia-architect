@@ -3725,6 +3725,490 @@ td {
   flex: 0 0 auto;
 }
 
+/* The Technical Director's tabs and the Academy tab (scope 113). Tabs and
+   the range switch are links, so each view is an address. Wellbeing and RPE
+   use the same four steps of slate as game time: no measure is coloured
+   good or bad, and volt stays the Assistant's. */
+.td-head h1 {
+  margin: 0 0 var(--space-3);
+}
+
+.td-tabs {
+  display: flex;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-4);
+  overflow-x: auto;
+}
+
+.td-tabs a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.td-tabs a[aria-current='page'] {
+  color: var(--text);
+  border-bottom-color: var(--text);
+}
+
+.academy-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.academy-team-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.academy-team-filter select {
+  min-height: 44px;
+  width: auto;
+  min-width: 12rem;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.segmented a {
+  min-height: 44px;
+  min-width: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-3);
+  color: var(--subtle);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.segmented a[aria-current='page'] {
+  background: var(--text);
+  color: var(--surface);
+}
+
+.academy-label,
+.ci-label {
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.academy-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+}
+
+.academy-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+}
+
+.academy-switch,
+.collapse-all {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+}
+
+.academy-switch {
+  padding: 0 var(--space-2);
+}
+
+.wb-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: var(--space-2);
+}
+
+.wb-tile {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+
+.wb-tile p {
+  margin: 0;
+}
+
+.wb-tile .mono {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.wb-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.wb-tile svg {
+  display: block;
+  width: 100%;
+  height: 32px;
+  margin: var(--space-1) 0;
+}
+
+.wb-tile polyline {
+  fill: none;
+  stroke: var(--subtle);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.wb-tile circle {
+  fill: var(--subtle);
+}
+
+.rpe-chart {
+  display: flex;
+  gap: 4px;
+}
+
+.rpe-day {
+  flex: 1 1 0;
+  min-width: 0;
+  display: grid;
+  grid-template-rows: 1rem 110px 1rem;
+  justify-items: center;
+  gap: 2px;
+}
+
+.rpe-bar {
+  align-self: end;
+  width: 100%;
+  max-width: 28px;
+  min-height: 2px;
+  display: flex;
+  flex-direction: column-reverse;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  overflow: hidden;
+  background: var(--bg-sunk);
+}
+
+.rpe-bar > span {
+  flex: 1 1 0;
+}
+
+.rpe-avg,
+.rpe-label {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.rpe-team_training {
+  background: var(--text);
+}
+
+.rpe-gym {
+  background: var(--subtle);
+}
+
+.rpe-individual_training {
+  background: var(--muted);
+}
+
+.rpe-other_sport {
+  background: var(--border-strong);
+}
+
+/* The daily check-in (scope 113): one column drawn for a phone, every choice
+   a 44px radio drawn as a chip, and the save bar held at the foot of the
+   screen. */
+.ci-page {
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.ci-head {
+  margin: 0 calc(-1 * var(--space-4));
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.ci-back {
+  margin: 0 0 var(--space-2);
+}
+
+.ci-back a,
+.ci-center a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.ci-date {
+  margin: 0 0 var(--space-1);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.ci-head h1 {
+  margin: 0 0 var(--space-2);
+  font-size: 1.75rem;
+}
+
+.ci-section {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+}
+
+.ci-section h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.ci-section h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.ci-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.ci-card {
+  margin: 0;
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.ci-scale legend,
+.ci-kinds legend {
+  float: left;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.ci-scale legend {
+  font-weight: 600;
+}
+
+/* A scale inside a card (the session's RPE) is not a second card. */
+.ci-card .ci-card {
+  padding: 0;
+  border: 0;
+}
+
+.ci-ends {
+  clear: both;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) 0;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ci-chips {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-2);
+}
+
+.ci-chip {
+  position: relative;
+  display: block;
+}
+
+.ci-chip input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.ci-chip span {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-weight: 600;
+  text-align: center;
+}
+
+.ci-chip input:checked + span {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--surface);
+}
+
+.ci-chip input:focus-visible + span {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.ci-kinds {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.ci-kind-grid {
+  clear: both;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.ci-kinds legend,
+.ci-field .mono {
+  margin-bottom: var(--space-1);
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ci-field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.ci-field input {
+  min-height: 44px;
+}
+
+.ci-rpe {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.ci-sessions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.ci-session {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.ci-session b {
+  display: block;
+}
+
+.ci-remove {
+  min-height: 44px;
+}
+
+.ci-private {
+  display: flex;
+  gap: var(--space-2);
+  background: var(--bg-sunk);
+  font-size: 0.8rem;
+  color: var(--subtle);
+}
+
+.ci-center {
+  margin: 0;
+  text-align: center;
+}
+
+.ci-agree {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.ci-agree input {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+}
+
+.ci-bar {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-5) calc(-1 * var(--space-4)) 0;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.ci-bar button {
+  width: 100%;
+  min-height: 52px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* Labels set in the mono face, not code: no chip around them. */
+.ci-page .mono,
+.td-head .mono,
+.academy-label.mono,
+.wb-tile .mono,
+.rpe-chart .mono {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+}
+
 /* ══════════════════════════════════════════════════════════════════════
    THE COMPETITION CALENDAR — scope 99
 

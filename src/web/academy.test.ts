@@ -3,11 +3,14 @@ import { describe, it } from 'node:test';
 
 import {
   addDays,
+  awayReasons,
   minutesByPosition,
   nightLabel,
   parseAttendanceMarks,
   parseGameTime,
   parseTrainingNights,
+  periodOf,
+  rangeFrom,
   saidLabel,
   summariseNights,
   weekOf,
@@ -22,6 +25,22 @@ describe('dates', () => {
   it('runs a week Monday to Sunday', () => {
     assert.deepEqual(weekOf('2026-10-25'), { from: '2026-10-19', to: '2026-10-25' });
     assert.deepEqual(weekOf('2026-10-26'), { from: '2026-10-26', to: '2026-11-01' });
+  });
+});
+
+describe('periodOf', () => {
+  it('reads the day, its Monday-to-Sunday week, or its month', () => {
+    assert.deepEqual(periodOf('2026-10-25', 'day'), { from: '2026-10-25', to: '2026-10-25' });
+    assert.deepEqual(periodOf('2026-10-25', 'week'), { from: '2026-10-19', to: '2026-10-25' });
+    assert.deepEqual(periodOf('2026-10-25', 'month'), { from: '2026-10-01', to: '2026-10-31' });
+    assert.deepEqual(periodOf('2028-02-10', 'month'), { from: '2028-02-01', to: '2028-02-29' });
+    assert.deepEqual(periodOf('2026-12-31', 'month'), { from: '2026-12-01', to: '2026-12-31' });
+  });
+
+  it('falls back to the week for anything else in the address', () => {
+    assert.equal(rangeFrom('month'), 'month');
+    assert.equal(rangeFrom('year'), 'week');
+    assert.equal(rangeFrom(undefined), 'week');
   });
 });
 
@@ -107,6 +126,8 @@ describe('summariseNights', () => {
       late: 0,
       absent: 1,
       unmarked: 0,
+      expected: 2,
+      away: 1,
     });
   });
 
@@ -124,6 +145,34 @@ describe('summariseNights', () => {
     });
     assert.equal(s.noAnswer, 0);
     assert.equal(s.trained, 2);
+  });
+});
+
+describe('awayReasons', () => {
+  it('counts reasons as written, the coach’s over the player’s, and ignores a night they came to', () => {
+    const reasons = awayReasons({
+      nights: [
+        { id: 'n1', heldOn: '2026-10-20', cancelled: false },
+        { id: 'n2', heldOn: '2026-10-22', cancelled: false },
+        { id: 'n3', heldOn: '2026-10-21', cancelled: true },
+      ],
+      answers: [
+        { sessionId: 'n1', personId: 'a', available: false, reason: 'School camp' },
+        { sessionId: 'n1', personId: 'b', available: false, reason: 'Sore ankle' },
+        { sessionId: 'n1', personId: 'c', available: false, reason: 'Sick' },
+        { sessionId: 'n2', personId: 'a', available: false, reason: 'school camp ' },
+        { sessionId: 'n3', personId: 'a', available: false, reason: 'Cancelled anyway' },
+      ],
+      marks: [
+        { sessionId: 'n1', personId: 'a', mark: 'absent', reason: null },
+        { sessionId: 'n1', personId: 'b', mark: 'absent', reason: 'Injured' },
+        { sessionId: 'n1', personId: 'c', mark: 'present', reason: null },
+      ],
+    });
+    assert.deepEqual(reasons, [
+      { reason: 'School camp', count: 2 },
+      { reason: 'Injured', count: 1 },
+    ]);
   });
 });
 
