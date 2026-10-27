@@ -71,6 +71,18 @@ domain to it. Amplify is a gap note below, not a decision against it.
     Storage buckets exist with their policies.
   - `PRODUCTION_PROJECT_REF` in `src/data/env.ts` set to the new ref; the
     deployment doc's environments table names it.
+- **Delivered 2026-10-28:** `pitchpeople-prod` (`afufvmkxjkulygeoajpw`)
+  created by the product owner; migrations 0001–0097 applied with
+  `supabase db push --db-url` through the session pooler
+  (`aws-0-ap-southeast-2.pooler.supabase.com:5432`; the direct host is
+  IPv6-only), the password passed as `PGPASSWORD` rather than in the URL.
+  Verified the same day: `schema_migration_log` reads 0097; 93 tables, all
+  with RLS and a policy; six Storage buckets (only `sponsor-creatives`
+  public, as 0082 intends) and 16 policies on `storage.objects`; `anon`
+  cannot execute 0096's functions; `club` and `person` hold no rows.
+  The repository's `supabase/config.toml` (`major_version = 16`) is refused
+  by current Supabase CLIs, so the push ran from a copy of the migrations
+  alone; the config is left as the RLS test harness reads it.
 - **Outcome:** a production database that exists, matches `main`, and that
   nothing can reach by accident.
 
