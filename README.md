@@ -33,10 +33,12 @@ What is true today, stated plainly:
   would move it ([decision 16](./docs/decisions/16_the_platform_records_a_payout_a_provider_moves_it.md),
   [payout providers](./docs/annexes/payout-providers.md)). Registration fees
   are recorded by the treasurer as they arrive.
-- **There is no production environment yet.** Everything points at a
-  development Supabase project that nonetheless holds the only copy of the
-  data there is. Production gets its own project, and encrypted bank
-  details, when the product is ready.
+- **Production exists but is dark.** Everything, including the public test
+  site, points at the development Supabase project and its synthetic data.
+  The production project, `pitchpeople-prod`, holds the whole schema and no
+  rows until a real club arrives
+  ([scope 114](./docs/scope/114_a_public_test_site_and_a_production_project.md));
+  encrypted bank details come with it.
 
 What exists, what is partial, and what has no code at all is tracked per
 capability in

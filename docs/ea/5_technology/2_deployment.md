@@ -14,7 +14,8 @@ must never appear**.
 | ----------- | ------- | -------- | -------------- |
 | **Local** | `next dev` on a developer machine | **The development Supabase project** (`sxsloxdtpcjpdobwpwsm`) | One developer |
 | **Preview** | Vercel preview deployment, one per pull request | The same development project — **never production** | Anyone with the PR link |
-| **Production** | Vercel, Sydney region | **`ltd-production`** (`jqyfbgojgxpymjgecxgx`), Supabase `ap-southeast-2` — created and **guarded**, not yet pointed at | Club users |
+| **Test** | Vercel, the deployment of `main`, at **`pitchpeople-test.datamanagementengineer.com`** (DNS in Route 53) ([scope 114](../../scope/114_a_public_test_site_and_a_production_project.md)) | The development project — **synthetic data only** | Anyone: it is shown to clubs |
+| **Production** | Vercel, Sydney region | **`pitchpeople-prod`** (`afufvmkxjkulygeoajpw`), a new project tagged prod, Supabase `ap-southeast-2`, migrations 0001–0097 applied 2026-10-28, no rows ([scope 114](../../scope/114_a_public_test_site_and_a_production_project.md)) — **guarded**, not yet pointed at. It supersedes `ltd-production` (`jqyfbgojgxpymjgecxgx`) | Club users |
 
 > **A production project now exists — `ltd-production`, Sydney — and
 > nothing points at it yet.** Created 15 September 2026. Until the Vercel
@@ -64,6 +65,8 @@ must never appear**.
 >
 > 1. **The simulated referee payout is refused** (BR162, [decision 16](../../decisions/16_the_platform_records_a_payout_a_provider_moves_it.md)) — only a connected provider may mark a run paid.
 > 2. **`payout_nomination.bsb` and `account_number` are encrypted at rest** (Supabase Vault / pgsodium), on top of the masking and the three-role read already enforced.
+
+> **Scope 114 (October 2026): the test site is Vercel's Production environment for now.** `main` deploys there, on the development project, under the product owner's domain. When a real club arrives, production needs that environment back, and the test site moves to an environment of its own. AWS Amplify was asked for and deferred: its documentation supports Next.js up to 15, and this platform runs 16 (the gap note in scope 114 says what moving would take).
 
 **Preview deployments must never point at production.** A preview URL is
 effectively public — it is in the pull request, and pull requests here are

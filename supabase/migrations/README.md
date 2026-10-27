@@ -18,8 +18,8 @@ lives in both.
 **1. Never edit a migration that has already been applied.** The repository
 is connected to Supabase, so a migration merged to `main` runs against the
 linked project **with no second confirmation**. That project is the
-development one and there is no production environment yet — but it holds
-the only copy of the data there is, so treat it as irreversible.
+development one. Production (`pitchpeople-prod`) is applied to by hand,
+the same migrations in the same order. Treat both as irreversible.
 Corrections are new migrations.
 
 **2. Never add a table without its RLS policy in the same change.**

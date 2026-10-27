@@ -92,10 +92,12 @@ CI. A policy can be present and wrong, and that failure is silent.
 
 **The repository is connected to Supabase**, so a migration merged to `main`
 runs against the linked project with no second confirmation. That project is
-the **development** one — there is no production environment yet, see
-[`docs/ea/5_technology/2_deployment.md`](./docs/ea/5_technology/2_deployment.md)
-— but it holds the only copy of the data there is, so treat it as
-irreversible. Two rules follow: never edit a migration that has already been
+the **development** one (`sxsloxdtpcjpdobwpwsm`, synthetic data only, also
+behind the public test site). Production is a separate project,
+`pitchpeople-prod` (`afufvmkxjkulygeoajpw`), which receives migrations only
+by hand and which nothing points at until a real club arrives — see
+[`docs/ea/5_technology/2_deployment.md`](./docs/ea/5_technology/2_deployment.md).
+Treat both as irreversible. Two rules follow: never edit a migration that has already been
 applied — corrections are new migrations — and never merge a schema change
 whose RLS test has not run.
 
