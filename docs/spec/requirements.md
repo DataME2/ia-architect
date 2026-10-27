@@ -212,7 +212,7 @@ a business rule without an intermediate mapping table.
 | NFR-6 | **Tests run without a build step or a database** | `node --test` alone | **Verified** | Node 22 strips types; 73 suites in ~2.3s |
 | NFR-7 | **Data residency.** Children's personal data stays onshore | Sydney `ap-southeast-2` | **Verified** | Supabase + Vercel region choice |
 | NFR-8 | **Secrets never enter the repository** | Zero | **Verified** | `.env.example` carries names only; service-role key is server-scoped in Vercel |
-| NFR-9 | **A preview deployment never points at production data** | Absolute | **Verified by absence** | There is no production environment yet; the rule starts to bind when one exists |
+| NFR-9 | **A preview deployment never points at production data** | Absolute | **Verified** | `assertNotPreviewAgainstProduction` in `src/data/env.ts` refuses a non-production deployment whose Supabase URL names `PRODUCTION_PROJECT_REF`, now `pitchpeople-prod` ([scope 114](../scope/114_a_public_test_site_and_a_production_project.md)); `src/data/env.test.ts` proves it |
 | NFR-10 | **Migrations are immutable once applied.** Corrections are new migrations | Absolute | **Convention** | Not mechanically enforced; merging to `main` applies to the linked project with no second confirmation |
 | NFR-11 | **Documentation traceability.** Every architecture element names the module realising it, or says "pending" | 100% | **Partial** | Enforced socially and by `check_links.py` for links only — see §5 |
 | NFR-12 | **Documentation language is English**, using the glossary's terms | Absolute | **Verified** | — |
