@@ -246,10 +246,30 @@ begin
   select count(*) into n from rpe_entry where person_id = player;
   if n <> 1 then failures := array_append(failures, 'the player could not remove their own session'); end if;
 
+  -- 12. Neither a signed-in non-lead nor a caller without sign-in flips the
+  --     academy switch (0097): the trigger lets a write without auth.uid()
+  --     through, so the function decides for itself.
+  perform set_config('request.jwt.claim.sub', admin::text, true);
+  begin
+    perform app_set_team_academy(u15, false);
+    failures := array_append(failures, 'the admin unmarked an academy team through the switch');
+  exception when insufficient_privilege then null;
+  end;
+  perform set_config('role', 'anon', true);
+  perform set_config('request.jwt.claim.sub', '', true);
+  begin
+    perform app_set_team_academy(u15, false);
+    failures := array_append(failures, 'a caller without sign-in unmarked an academy team');
+  exception when insufficient_privilege then null;
+  end;
+  perform set_config('role', 'postgres', true);
+  select count(*) into n from team where id = u15 and academy;
+  if n <> 1 then failures := array_append(failures, 'the academy switch was flipped without a Technical Lead'); end if;
+
   if array_length(failures, 1) > 0 then
     raise exception E'The daily check-in FAILED:\n  - %', array_to_string(failures, E'\n  - ');
   end if;
 
-  raise notice 'The daily check-in OK — 11 scenarios; a Technical Lead marks academy teams, nothing is written without the right person''s consent, the player writes their own, few read it, and nothing crosses a club';
+  raise notice 'The daily check-in OK — 12 scenarios; a Technical Lead marks academy teams, nothing is written without the right person''s consent, the player writes their own, few read it, and nothing crosses a club';
 end
 $$;
