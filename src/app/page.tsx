@@ -1,56 +1,28 @@
-import type { CSSProperties } from 'react';
-
-import { MAKER, PRODUCT_NAME, TAGLINE } from '../web/brand.ts';
-import type { Status } from '../web/home-story.ts';
-import { PersonLens } from './_components/PersonLens.tsx';
-import { RoleWorkspaces } from './_components/RoleWorkspaces.tsx';
+import { HEADLINE, MAKER, PITCH, TAGLINE } from '../web/brand.ts';
+import { CONNECTIONS, TRUST } from '../web/home-story.ts';
+import { HeroPreview } from './_components/HeroPreview.tsx';
+import { RegistrationWalkthrough } from './_components/RegistrationWalkthrough.tsx';
+import { RoleExplorer } from './_components/RoleExplorer.tsx';
+import { ScrollReveal } from './_components/ScrollReveal.tsx';
 
 /**
- * The landing page (scope 100): the product's one idea — one Person, every
- * role — told as a scroll from the front door to matchday. Laid out as
- * draft v7's full-bleed bands since scope 104.
+ * The front door (scope 118): what PitchPeople does for a club, shown
+ * rather than described, for the people who run one.
  *
- * Three audiences arrive here: a family with a child to register, a club
- * officer starting a shift, and a prospect. The hero's two actions separate
- * the first two before either reads further; For clubs closes for the third.
+ * The first screen answers three questions: what it does (the headline and
+ * the line under it), why it matters (the preview of a club's week), and
+ * what to do next (explore the demonstration club, or discuss a pilot).
+ * A family or an officer who arrives here still has one line, and the top
+ * bar, to register or sign in.
  *
- * **Still prerendered, still no auth call** — which is why the top bar has
- * no Sign in. The motion is CSS: the timeline, the reveals and the line-up
- * are scroll-driven animations, so no script runs on scroll, and a browser
- * without them, or a reader who asks for reduced motion, gets every section
- * in its finished state. Only the lens and the roles phone are client
- * components, because a reader chooses in them.
+ * **Still prerendered, still no auth call, and still no data.** Everything
+ * shown is `src/web/home-story.ts`, a fictional club that the page labels as
+ * fictional. The interactive parts are four small client islands; the rest
+ * is server-rendered and reads the same without JavaScript.
  */
-
-const JOURNEY: readonly { readonly step: string; readonly status: Status }[] = [
-  { step: 'Family enters details once', status: { tone: 'info', word: 'Entered' } },
-  { step: 'Documents checked', status: { tone: 'warn', word: 'Waiting' } },
-  { step: 'Fee settled', status: { tone: 'ok', word: 'Ready' } },
-  { step: 'Registered', status: { tone: 'ok', word: 'Ready' } },
-  { step: 'Submitted to the governing body', status: { tone: 'ok', word: 'Submitted' } },
-];
-
-/** A 4-3-3, left to right from the goalkeeper, as % of the pitch. */
-const LINE_UP: readonly { readonly line: string; readonly x: number; readonly y: number }[] = [
-  { line: 'GK', x: 6, y: 50 },
-  ...[18, 39, 61, 82].map((y) => ({ line: 'DF', x: 23, y })),
-  ...[28, 50, 72].map((y) => ({ line: 'MF', x: 45, y })),
-  ...[22, 50, 78].map((y) => ({ line: 'FW', x: 68, y })),
-];
-
-const FIXTURES: readonly { readonly when: string; readonly match: string; readonly status: Status }[] = [
-  { when: 'Sat 7 · 10:00', match: 'U14 Girls v Harbour', status: { tone: 'ok', word: 'Set' } },
-  { when: 'Sat 14 · 13:00', match: 'U16 Boys v Rovers', status: { tone: 'warn', word: 'Referee due' } },
-  { when: 'Sat 21 · 09:00', match: 'Seniors v City', status: { tone: 'ok', word: 'Set' } },
-  { when: 'Sat 28 · 11:00', match: 'U12 Mixed v Bay', status: { tone: 'info', word: 'Scheduled' } },
-];
-
-/** Each shirt pops in a little after the one before it. */
-const at = (i: number) => ({ '--at': `${i * 3}%` }) as CSSProperties;
-
 export default function HomePage() {
-  // The tagline is three sentences, and the hero sets each on its own line.
-  const tagline = TAGLINE.split(/(?<=\.)\s+/);
+  // The headline is two sentences, and the hero sets each on its own line.
+  const headline = HEADLINE.split(/(?<=\.)\s+/);
 
   return (
     <div className="home">
@@ -64,163 +36,156 @@ export default function HomePage() {
         </svg>
 
         <div className="home-hero-grid">
-          <div>
-            <p className="eyebrow">{PRODUCT_NAME} · Football clubs in Australia &amp; New Zealand</p>
+          <div className="home-hero-copy">
+            <p className="eyebrow">{TAGLINE}</p>
             <h2 id="home-title" className="home-title">
-              {tagline.map((sentence) => (
+              {headline.map((sentence) => (
                 <span key={sentence}>{sentence}</span>
               ))}
             </h2>
-            <p className="lede">
-              Registration, money, documents and match officials, around one Person who can play,
-              coach, referee, look after a child and sit on the committee &mdash; with one sign-in.
-              A family enters a player&rsquo;s details one time, and the club hands the governing body a
-              complete submission instead of a guess that comes back weeks later.
-            </p>
+            <p className="lede">{PITCH}</p>
             <div className="hero-actions">
-              <a className="button" href="/sign-in?next=/me">
-                Sign in to your roles
+              <a className="button" href="/demo">
+                Explore the demonstration club
               </a>
-              <a className="button secondary" href="/register">
-                Start a registration
+              <a className="button secondary" href="/interest">
+                Discuss a pilot for your club
               </a>
             </div>
-            <p className="home-maker">{MAKER}</p>
+            <p className="home-note">
+              The demonstration club asks for an email address, not a password. You can read
+              everything and change nothing, and its families are invented.
+            </p>
+            <p className="home-families">
+              Registering a player? <a href="/register">Start a registration</a>. Already with a club?{' '}
+              <a href="/sign-in?next=/me">Sign in to your roles</a>.
+            </p>
           </div>
-          <PersonLens />
+          <HeroPreview />
         </div>
       </section>
 
-      <section className="home-panel home-reveal" aria-labelledby="how-title">
-        <p className="eyebrow">How it works</p>
-        <h2 id="how-title" className="home-heading">
-          One registration, start to submitted.
-        </h2>
-        <p className="lede">
-          A family enters a player&rsquo;s details once. The record carries itself through the club and
-          lands with the governing body as a complete submission.
-        </p>
+      <section className="home-panel" aria-labelledby="explore-title">
+        <div className="home-inner" data-reveal="">
+          <p className="eyebrow">Role explorer</p>
+          <h2 id="explore-title" className="home-heading">
+            One person. Every role they hold. Only what each role should see.
+          </h2>
+          <p className="lede">
+            Everyone at a club is one Person record, however many jobs they do. Choose a role to see
+            what that person handles, what their screen holds, and the roles they switch between.
+          </p>
+          <RoleExplorer />
+        </div>
+      </section>
 
-        <div className="home-journey">
-          <div className="home-track" aria-hidden="true">
-            <span className="home-track-fill" />
-            <span className="home-track-token" />
+      <section className="home-sunk" aria-labelledby="walk-title">
+        <div className="home-inner" data-reveal="">
+          <p className="eyebrow">Walkthrough · one registration</p>
+          <h2 id="walk-title" className="home-heading">
+            From the club’s link to clear to play.
+          </h2>
+          <p className="lede">
+            Step through a player’s registration. Each step names who acts, what PitchPeople checks
+            and where a person decides. It explains the product: it submits, approves and pays
+            nothing.
+          </p>
+          <RegistrationWalkthrough />
+          <p className="home-more">
+            Want every condition, for every path? <a href="/season-paths">See the season paths</a>.
+          </p>
+        </div>
+      </section>
+
+      <section className="home-panel" aria-labelledby="connect-title">
+        <div className="home-inner home-split" data-reveal="">
+          <div>
+            <p className="eyebrow">Connected operations</p>
+            <h2 id="connect-title" className="home-heading">
+              Entered once. Used by every role that needs it.
+            </h2>
+            <p className="lede">
+              The same record carries a registration from the family to the registrar, the treasurer,
+              the coach and the referee coordinator, with each seeing only their part. PitchPeople
+              works on the club’s side: it follows the governing body’s published season and prepares
+              the club’s submission for Squadi, which stays the competition system.
+            </p>
           </div>
-          <ol>
-            {JOURNEY.map((j, i) => (
-              <li key={j.step}>
-                <span className="home-step" aria-hidden="true">
-                  {i + 1}
-                </span>
-                <h3>{j.step}</h3>
-                <span className={`pill pill-${j.status.tone}`}>{j.status.word}</span>
+          <ol className="home-chain">
+            {CONNECTIONS.map((c) => (
+              <li key={c.when}>
+                <p className="home-chain-when">{c.when}</p>
+                <p className="home-chain-then">{c.then}</p>
+                <code>{c.rules}</code>
               </li>
             ))}
           </ol>
         </div>
-
-        <div className="home-pack">
-          <div>
-            <p className="eyebrow">Submission pack</p>
-            <p className="home-pack-title">Complete submission</p>
-            <p className="home-pack-what">Player, documents, consents and fee</p>
-          </div>
-          <span className="pill pill-ok">Complete</span>
-        </div>
       </section>
 
-      <section className="home-panel home-sunk home-reveal" aria-labelledby="roles-title">
-        <p className="eyebrow">Roles · an illustration</p>
-        <h2 id="roles-title" className="home-heading">
-          One Person, seen five ways.
-        </h2>
-        <p className="lede">Switch the lens; the person never changes, only what you see does.</p>
-        <RoleWorkspaces />
-      </section>
-
-      <section className="home-dark home-reveal" aria-labelledby="matchday-title">
-        <p className="eyebrow">Matchday · an illustration</p>
-        <h2 id="matchday-title" className="home-heading">
-          Who&rsquo;s clear to play, and who&rsquo;s got the whistle.
-        </h2>
-        <p className="lede">The squad takes the field, the officials are appointed, and the fixtures line up.</p>
-
-        <div className="matchday">
-          <div className="matchday-field">
-            <div
-              className="matchday-pitch"
-              role="img"
-              aria-label="Eleven players in a 4-3-3, two more on the bench not clear to play, and the referee appointed"
-            >
-              <svg viewBox="0 0 600 400" aria-hidden="true">
-                <rect x="10" y="10" width="580" height="380" />
-                <line x1="300" y1="10" x2="300" y2="390" />
-                <circle cx="300" cy="200" r="55" />
-                <rect x="10" y="120" width="70" height="160" />
-                <rect x="520" y="120" width="70" height="160" />
-              </svg>
-              {LINE_UP.map((p, i) => (
-                <span
-                  key={`${p.line}-${p.y}`}
-                  className="matchday-shirt"
-                  style={{ left: `${p.x}%`, top: `${p.y}%`, ...at(i) }}
-                >
-                  {p.line}
-                </span>
+      <section className="home-dark" aria-labelledby="trust-title">
+        <div className="home-inner" data-reveal="">
+          <p className="eyebrow">Trust</p>
+          <h2 id="trust-title" className="home-heading">
+            Built for children’s records and volunteer committees.
+          </h2>
+          <div className="home-trust">
+            <dl>
+              {TRUST.map((t) => (
+                <div key={t.title}>
+                  <dt>{t.title}</dt>
+                  <dd>{t.text}</dd>
+                </div>
               ))}
-              <span className="matchday-shirt matchday-referee" style={{ left: '55%', top: '38%', ...at(11) }}>
-                R
-              </span>
-            </div>
-            <div className="matchday-labels">
-              <span className="matchday-bench">
-                <span className="matchday-shirt matchday-sub" style={at(12)} />
-                <span className="matchday-shirt matchday-sub" style={at(13)} />
-                <span className="pill pill-stop">Not clear to play</span>
-              </span>
-              <span className="matchday-official">
-                <span className="pill pill-ok">Referee appointed</span>
-              </span>
-            </div>
-          </div>
-
-          <div className="matchday-fixtures">
-            <p className="eyebrow">Competition · March</p>
-            <ul>
-              {FIXTURES.map((f) => (
-                <li key={f.when}>
-                  <span>
-                    <strong>{f.when}</strong>
-                    <span>{f.match}</span>
-                  </span>
-                  <span className={`pill pill-${f.status.tone}`}>{f.status.word}</span>
-                </li>
-              ))}
-            </ul>
+            </dl>
+            {/*
+              A note the coach's workspace really shows, set as it appears:
+              in the Assistant's colour, which nothing else on the site uses.
+              An illustration, not the component, which has a Dismiss button
+              that would do nothing here.
+            */}
+            <figure className="home-ai">
+              <figcaption>
+                <span className="home-ai-mark" aria-hidden="true" />
+                Assistant · explaining
+              </figcaption>
+              <p>
+                A decline’s reason is visible to you as the responsible coach and to nobody else in
+                the squad (BR62).
+              </p>
+              <p className="home-ai-foot">As a coach sees it. It never sends; you do.</p>
+            </figure>
           </div>
         </div>
       </section>
 
-      <section className="home-dark home-close home-reveal" aria-labelledby="clubs-title">
-        <h2 id="clubs-title" className="home-heading">
-          Bring your club&rsquo;s season into one place.
-        </h2>
-        <p className="lede">
-          There&rsquo;s no account to create to ask, nothing to set up, and no free trial &mdash; an empty
-          system is worth nothing to a club. Tell us about your club and we&rsquo;ll reply directly.
-        </p>
-        <div className="hero-actions">
-          <a className="button" href="/interest">
-            Talk to us about your club
-          </a>
-          <a className="button secondary" href="/interest?request=demo">
-            Request a demo
-          </a>
-          <a className="button secondary" href="/demo">
-            See the demonstration club
-          </a>
+      <section className="home-close" aria-labelledby="pilot-title">
+        <div className="home-inner" data-reveal="">
+          <p className="eyebrow">For clubs and academies</p>
+          <h2 id="pilot-title" className="home-heading">
+            Discuss a pilot for your club.
+          </h2>
+          <p className="lede">
+            Tell us your club’s name, roughly how many registrations it takes a season, what it runs
+            today and your role. A person reads every enquiry and replies directly. Sending one sets
+            nothing up: joining starts with moving your club’s records across, with you.
+          </p>
+          <div className="hero-actions">
+            <a className="button" href="/interest">
+              Discuss a pilot for your club
+            </a>
+            <a className="button secondary" href="/demo">
+              Explore the demonstration club
+            </a>
+          </div>
+          <p className="home-note">
+            Want to walk every role yourself? Ask for a QA Test Pass in your enquiry.
+          </p>
+          <p className="home-maker">{MAKER}</p>
         </div>
       </section>
+
+      <ScrollReveal />
     </div>
   );
 }

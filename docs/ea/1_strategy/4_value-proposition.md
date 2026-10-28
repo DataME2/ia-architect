@@ -29,6 +29,23 @@ says so rather than letting the gap be discovered in a sales conversation.
 > complete view of every participant, from players and families to
 > referees, coaches, and volunteers.
 
+## Commercial headline (the front door)
+
+> **Less time chasing admin. More time running your club.**
+>
+> Connect registrations, families, club finance, teams and match-official
+> administration through one football operations platform.
+
+Added October 2026 ([scope 118](../../scope/118_the_front_door_speaks_to_a_club.md)).
+The tagline, *One identity. Every role. Connected football.*, names the
+idea (**P1**); the headline names the benefit, which is what a club hears
+first. Each noun in the supporting line is a delivered service: registration
+(**C2**), the household (**C17**), fees, plans and referee payments (**C3**,
+**C5**), teams and their competitions (**C11**), and designation through to
+verification (**C4**). The front door applies the claim boundaries below: it
+says Squadi stays the competition system, that the Assistant never decides,
+and that nothing moves money.
+
 The commercial statement's "**replaces**" is deliberate and consistent
 with [decision 5](../../decisions/5_replace-the-incumbent-rather-than-integrate.md):
 PitchPeople competes for the incumbent's market rather than

@@ -90,8 +90,9 @@ colorsDark:
     muted: "#94a3b8"
 typography:
   fontFamily:
-    sans: "'Archivo Variable', ui-sans-serif, system-ui, -apple-system, sans-serif"
-    mono: "'DM Mono', ui-monospace, SFMono-Regular, monospace"
+    display: "'Saira', 'Arial Narrow', ui-sans-serif, system-ui, sans-serif"
+    sans: "'Public Sans', ui-sans-serif, system-ui, -apple-system, sans-serif"
+    mono: "'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace"
   fontSize:
     xs: "0.72rem"
     sm: "0.85rem"
@@ -153,12 +154,13 @@ The system employs a dual-theme architecture (Light Slate & Pitch Night). Surfac
 
 ## Typography
 
-Type roles are strictly assigned across two self-hosted font families:
+Type roles are strictly assigned across three self-hosted font families (scope 118). All three are SIL Open Font License faces, served as latin-subset woff2 from `public/fonts/`, with their licences in `public/fonts/licenses/`:
 
-- **Page Titles & Headlines (`typography.fontSize.2xl` / `xl`):** Archivo Variable bold/expanded weights (`typography.fontWeight.bold`).
-- **Section Headers & Card Titles (`typography.fontSize.lg` / `base`):** Archivo Variable semibold (`typography.fontWeight.semibold`).
-- **Body & Running Text (`typography.fontSize.base` / `sm`):** Archivo Variable regular/medium (`typography.fontWeight.normal` / `medium`).
-- **Data, Rules & Identifiers (`typography.fontFamily.mono`):** DM Mono for business rule tags (e.g. BR1, BR61), timestamps, squad numbers, and financial figures.
+- **Display (`typography.fontFamily.display`): Saira**, variable on width (50–125%) and weight. Page titles (`h2`), the front door's headlines, eyebrows and the brand name, set semi-condensed (`font-stretch: 87.5%`) for titles and condensed (75–80%) for the front door, bold to extra-bold. The width axis is the football in the system: it reads as a kit number or a scoreboard, not a report heading.
+- **Interface and body (`typography.fontFamily.sans`): Public Sans**, variable on weight. Running text, labels, tables, forms, card titles (`h3`, semibold) and buttons. It was drawn for dense government services, and stays legible at small sizes on a club laptop.
+- **Data, rules and identifiers (`typography.fontFamily.mono`): IBM Plex Mono** (400, 500). Business rule tags (BR1, BR61), routes, timestamps, squad numbers and figures, where a 0 must never read as an O.
+
+Figures use tabular numbers (`font-variant-numeric: tabular-nums`) in every face.
 
 ## Spacing, Sizing & Density
 
@@ -231,4 +233,5 @@ Operational views prioritize key status chips at the top right of cards, clear s
 - **Academy palette (October 2026):** Replaced the Australian landscape palette (sand, reef, eucalyptus, ochre, oxide, desert orange) with Pitch Slate & Electric Volt. `globals.css` carries the same values, so every screen changes with it.
 - **Volt stays the Assistant's only.** The academy brief also proposed volt for calls to action, KPIs and active navigation; that would make the Assistant's colour an ordinary highlight, so Principle 2 is kept until the club decides otherwise.
 - **Dark rail muted text is `#94a3b8`, not the brief's `#64748b`:** that one is 4.3:1 on the dark rail, under WCAG AA for its small labels.
-- **Font Fallbacks:** System UI fallbacks are configured alongside Archivo Variable and DM Mono for self-hosted font safety.
+- **Font Fallbacks:** System UI fallbacks are configured alongside each face, and the display stack falls back to Arial Narrow so a condensed headline stays condensed.
+- **New type system (scope 118, October 2026):** Saira, Public Sans and IBM Plex Mono replace Archivo and DM Mono. One variable display face carries the athletic character through its width axis, so the interface face can be chosen for readability alone. The 27 KB Public Sans file now carries most of the text, which Archivo's 90 KB file used to. Still self-hosted: nothing is fetched at build or run time.

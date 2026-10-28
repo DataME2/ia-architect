@@ -26,39 +26,54 @@
    field.
 
    ---------------------------------------------------------------------
-   The type
+   The type (scope 118)
    ---------------------------------------------------------------------
-   Archivo, variable on both weight and width, is most of the character —
-   expanded and heavy for headlines and scorelines, regular for running
-   text. DM Mono carries rule identifiers and timestamps.
+   Three faces, each with one job:
+
+   - Saira, variable on width and weight, is the display face: page
+     titles, the hero, eyebrows and the brand name, set condensed and
+     heavy, the way a kit number or a scoreboard is.
+   - Public Sans, variable on weight, is the interface: running text,
+     labels, tables and forms. It was drawn for dense government services
+     and stays legible at 13px on a club laptop.
+   - IBM Plex Mono carries rule identifiers, routes, times and figures,
+     where a 0 must never read as an O.
 
    **Self-hosted, not fetched.** Scope 31 refused `next/font` because a
    typeface is not worth a build that fails when a CDN is unreachable. That
-   objection is honoured rather than overturned: the two faces are
-   repository assets in `public/fonts/` (124 KB of latin-subset woff2),
-   nothing is fetched at build time, and there is no runtime dependency on
-   a font host. */
+   still holds: the three faces are repository assets in `public/fonts/`
+   (155 KB of latin-subset woff2, with their OFL licences in
+   `public/fonts/licenses/`), nothing is fetched at build time, and there
+   is no runtime dependency on a font host. */
 
 @font-face {
-  font-family: 'Archivo Variable';
-  src: url('/fonts/archivo-var-latin.woff2') format('woff2-variations');
-  font-weight: 400 800;
-  font-stretch: 75% 125%;
+  font-family: 'Saira';
+  src: url('/fonts/saira-var-latin.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-stretch: 50% 125%;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'DM Mono';
-  src: url('/fonts/dmmono-400-latin.woff2') format('woff2');
+  font-family: 'Public Sans';
+  src: url('/fonts/publicsans-var-latin.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/plexmono-400-latin.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'DM Mono';
-  src: url('/fonts/dmmono-500-latin.woff2') format('woff2');
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/plexmono-500-latin.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -177,9 +192,10 @@
   --shadow-md: 0 4px 12px rgb(15 23 42 / 8%), 0 2px 4px rgb(15 23 42 / 4%);
   --shadow-lg: 0 12px 32px rgb(15 23 42 / 12%), 0 4px 8px rgb(15 23 42 / 6%);
 
-  --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, -apple-system,
+  --font-sans: 'Public Sans', ui-sans-serif, system-ui, -apple-system,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo,
+  --font-display: 'Saira', 'Arial Narrow', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo,
     Consolas, 'Liberation Mono', monospace;
 
   --dur-fast: 120ms;
@@ -590,7 +606,10 @@ a:hover {
 }
 
 .brand-name {
+  font-family: var(--font-display);
   font-weight: 700;
+  font-stretch: 92%;
+  letter-spacing: 0.005em;
 }
 
 .site-footer {
@@ -709,10 +728,15 @@ h4 {
   text-wrap: balance;
 }
 
+/* The display face (scope 118) takes the page title, set semi-condensed:
+   Saira's width axis is what makes it read as a kit number rather than a
+   report heading. h3 and below stay in the interface face. */
 h2 {
-  font-size: clamp(1.35rem, 1.15rem + 0.7vw, 1.6rem);
-  font-weight: 680;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 1.2rem + 0.8vw, 1.75rem);
+  font-weight: 700;
+  font-stretch: 87.5%;
+  letter-spacing: -0.005em;
   margin: var(--space-6) 0 var(--space-2);
 }
 
@@ -747,10 +771,10 @@ h3 {
 }
 
 .eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
   margin: 0 0 var(--space-2);
@@ -799,10 +823,11 @@ h3 {
 
 .hero h2 {
   margin: 0 0 var(--space-3);
-  font-size: clamp(1.7rem, 1.1rem + 2.4vw, 2.6rem);
+  font-size: clamp(1.9rem, 1.2rem + 2.6vw, 2.9rem);
   font-weight: 800;
-  line-height: 1.12;
-  letter-spacing: -0.03em;
+  font-stretch: 80%;
+  line-height: 1.05;
+  letter-spacing: -0.005em;
   color: #ffffff;
   max-width: 22ch;
 }
@@ -5087,23 +5112,26 @@ td {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   THE FRONT DOOR — scope 100
+   THE FRONT DOOR — scope 118
 
-   The landing page tells one idea, one Person in every role, as a scroll.
-   Since scope 104, in draft v7's style: full-bleed bands in pitch slate
-   (#112636 rail, #1A3A52 pitch), with the markings in white at 35%. Each
-   band paints its colour to the window's edges with a spread shadow,
-   clipped to the band's own height. Breaking out with 100vw would count the
-   scrollbar and scroll the page sideways. The colours are the base ramp's
-   (scope 105).
+   Written for the people who run a club. The hero states the benefit and
+   previews one fictional club's week; then the role explorer, the
+   registration walkthrough, what connects, trust, and the pilot.
 
-   **All the scroll-linked motion is CSS** (scroll-driven animations), inside
-   @supports and no-preference. A browser without them, or a reader who
-   asks for reduced motion, gets every section finished — the timeline full,
-   the shirts on the pitch. The hero's load-time motion (the markings
-   drawing, the tagline rising) is ordinary animation, which the global
-   reduced-motion rule above runs to its end at once.
+   Full-bleed bands, as since scope 104: each band paints its colour to the
+   window's edges with a spread shadow, clipped to its own height, because
+   breaking out with 100vw would count the scrollbar and scroll the page
+   sideways. Pitch slate carries structure; the status colours appear only
+   in statuses, with their word; electric volt appears once, on the
+   Assistant's note, which is the only thing it ever marks.
+
+   Motion explains a change and then stops: a tab's panel re-enters, the
+   hub's lines draw to the roles a person holds, the marker moves to the
+   chosen role, and each section rises once as it arrives (ScrollReveal).
+   The global reduced-motion rule ends all of it at once, and every state
+   is complete without it.
    ══════════════════════════════════════════════════════════════════════ */
+
 /* The bands meet the top bar and the footer, so the shell's padding goes. */
 .home {
   display: grid;
@@ -5112,7 +5140,7 @@ td {
 
 .home > section {
   position: relative;
-  padding-block: clamp(3.5rem, 8vw, 6rem);
+  padding-block: clamp(3.5rem, 8vw, 6.5rem);
   background: var(--band);
   box-shadow: 0 0 0 100vmax var(--band);
   clip-path: inset(0 -100vmax);
@@ -5124,18 +5152,11 @@ td {
   color: #ffffff;
 }
 
-/* Not the hero: its pitch runs wider than the column (below). */
-.home-dark {
-  overflow: hidden;
-}
-
-/* So the front door never scrolls sideways: the hero's pitch is 100vw, which
-   counts a classic scrollbar, and the lens ring's turning box reaches past
-   its column. Both are decoration. Only here: on any other screen a sideways
-   scroll is a bug worth seeing. The root's overflow is the viewport's, so
-   the top bar still sticks. */
-html:has(.home) {
-  overflow-x: hidden;
+.home-close {
+  --band: var(--reef-600);
+  --focus: #4ade80;
+  color: #ffffff;
+  text-align: center;
 }
 
 .home-panel {
@@ -5146,6 +5167,13 @@ html:has(.home) {
   --band: var(--bg-sunk);
 }
 
+/* The hero's pitch is 100vw, which counts a classic scrollbar. Decoration
+   only, so the sideways scroll it would cause is suppressed here and only
+   here; on any other screen a sideways scroll is a bug worth seeing. */
+html:has(.home) {
+  overflow-x: hidden;
+}
+
 @media (max-width: 40rem) {
   .home {
     margin: calc(var(--space-4) * -1) 0 calc(var(--space-6) * -1);
@@ -5153,774 +5181,35 @@ html:has(.home) {
 }
 
 .home-hero .eyebrow,
-.home-dark .eyebrow {
+.home-dark .eyebrow,
+.home-close .eyebrow {
   color: var(--rail-text-2);
 }
 
+.home .lede {
+  max-width: 62ch;
+}
+
 .home-hero .lede,
-.home-dark .lede {
-  color: rgb(248 250 252 / 80%);
-  max-width: 54ch;
+.home-dark .lede,
+.home-close .lede {
+  color: rgb(248 250 252 / 82%);
 }
 
 .home-heading {
   margin: 0 0 var(--space-3);
-  max-width: 36rem;
-  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.4rem);
+  max-width: 26ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 1.25rem + 2.3vw, 2.9rem);
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-}
-
-/* On the dark panels the primary action is white and the secondary an
-   outline: the same two weights as everywhere else, inverted. */
-.home-hero .button,
-.home-dark .button {
-  border-radius: var(--radius-full);
-  padding: 0.8rem 1.6rem;
-  background: #ffffff;
-  color: var(--reef-600);
-  border: 2px solid #ffffff;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.home-hero .button:hover,
-.home-dark .button:hover {
-  background: #f1f5f9;
-  color: var(--reef-600);
-}
-
-.home-hero .button.secondary,
-.home-dark .button.secondary {
-  background: transparent;
-  color: #ffffff;
-  border-color: var(--reef-700);
-}
-
-.home-hero .button.secondary:hover,
-.home-dark .button.secondary:hover {
-  border-color: var(--stone);
-}
-
-/* -------------------------------------------------------------- hero */
-
-/* The pitch spans the window, as the design draws it, so its boxes sit
-   outside the text column rather than through the headline. The band's
-   clip-path trims it to the hero's height. */
-.home-pitch {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 100vw;
-  height: 100%;
-  translate: -50% 0;
-  fill: none;
-  stroke: rgb(255 255 255 / 35%);
-  stroke-width: 3;
-  pointer-events: none;
-}
-
-/* pathLength=1 on every mark, so one dash the length of the whole line
-   draws each of them, whatever its real length. */
-.home-pitch > * {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: home-draw 2.2s var(--ease) forwards;
-}
-
-.home-pitch > :nth-child(2) {
-  animation-delay: 0.3s;
-}
-
-.home-pitch > :nth-child(n + 3) {
-  animation-delay: 0.6s;
-}
-
-.home-hero-grid {
-  position: relative;
-  display: grid;
-  gap: var(--space-7);
-  align-items: center;
-}
-
-@media (min-width: 1024px) {
-  .home-hero-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
-}
-
-.home-title {
-  margin: 0 0 var(--space-5);
-  font-size: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
-  font-weight: 800;
+  font-stretch: 80%;
   line-height: 1.04;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.005em;
+}
+
+.home-dark .home-heading,
+.home-close .home-heading {
   color: #ffffff;
-}
-
-.home-title span {
-  display: block;
-  animation: home-rise 600ms var(--ease) both;
-}
-
-.home-title span:nth-child(2) {
-  color: var(--euc-500);
-  animation-delay: 140ms;
-}
-
-.home-title span:nth-child(3) {
-  animation-delay: 280ms;
-}
-
-.home-maker {
-  margin: var(--space-4) 0 0;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--rail-text-2);
-}
-
-/* The lens: the card stays still and the ring of roles turns around it.
-   A phone is too narrow for the ring, so its roles become chips under the
-   card; so does a reader who asked for no motion, since a still ring can
-   choose nothing. */
-.lens-wrap {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-3);
-}
-
-.lens {
-  position: relative;
-  display: grid;
-  justify-items: center;
-  gap: var(--space-3);
-  width: 100%;
-}
-
-.lens-ring {
-  display: none;
-}
-
-.lens-chip {
-  position: absolute;
-  translate: -50% -50%;
-}
-
-.lens-chip > span {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 4px 10px;
-  border: 1px solid var(--reef-700);
-  border-radius: var(--radius-full);
-  background: var(--reef-800);
-  color: #e2e8f0;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.lens-chip-0 { left: 50%; top: 0; }
-.lens-chip-1 { left: 100%; top: 50%; }
-.lens-chip-2 { left: 50%; top: 100%; }
-.lens-chip-3 { left: 0; top: 50%; }
-.lens-chip-4 { left: 14.6%; top: 14.6%; }
-
-@media (min-width: 640px) and (prefers-reduced-motion: no-preference) {
-  .lens {
-    width: 420px;
-    height: 420px;
-    place-content: center;
-    margin: var(--space-5) 0;
-  }
-
-  .lens-ring {
-    display: block;
-    position: absolute;
-    inset: 0;
-    animation: home-spin 20s linear infinite;
-  }
-
-  /* Counter-turned, so every label reads level all the way round. */
-  .lens-chip > span {
-    animation: home-spin 20s linear infinite reverse;
-  }
-
-  /* .lens-picks' own display comes later in this sheet; the extra class
-     outranks it. */
-  .lens .lens-picks {
-    display: none;
-  }
-}
-
-.lens-card {
-  position: relative;
-  z-index: 1;
-  width: min(100%, 16rem);
-  padding: var(--space-5);
-  border: 1px solid var(--reef-700);
-  border-radius: var(--radius-lg);
-  background: var(--reef-600);
-  text-align: center;
-  box-shadow: var(--shadow-lg);
-}
-
-.lens-avatar {
-  display: grid;
-  place-items: center;
-  width: 4rem;
-  height: 4rem;
-  margin: 0 auto var(--space-3);
-  border-radius: 50%;
-  border: 1px solid rgb(22 163 74 / 40%);
-  background: rgb(22 163 74 / 20%);
-  color: var(--euc-500);
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.lens-name {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.lens-since {
-  margin: 0 0 var(--space-3);
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--reef-700);
-  font-size: 0.78rem;
-  color: var(--rail-text-2);
-}
-
-.lens-role {
-  margin: 0 0 var(--space-2);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--rail-text-2);
-}
-
-.lens-picks {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0 var(--space-1);
-}
-
-/* Each chip is a 44px target; the visible pill is the span inside it. */
-.lens-picks button,
-.lens-picks button:hover:not(:disabled) {
-  min-height: 44px;
-  padding: 0 2px;
-  border: 0;
-  background: none;
-  box-shadow: none;
-  color: inherit;
-}
-
-.lens-picks span {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 4px 10px;
-  border: 1px solid var(--reef-700);
-  border-radius: var(--radius-full);
-  background: var(--reef-800);
-  color: #cbd5e1;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.lens-picks button[aria-pressed="true"] span {
-  border-color: var(--euc-500);
-  background: rgb(22 163 74 / 15%);
-  color: #ffffff;
-}
-
-.lens-note {
-  margin: 0;
-  font-size: 0.75rem;
-  color: var(--rail-text-2);
-  text-align: center;
-}
-
-/* ------------------------------------------------------ how it works */
-
-.home-journey {
-  position: relative;
-  margin-top: var(--space-6);
-}
-
-.home-journey ol {
-  list-style: none;
-  margin: 0;
-  padding: 0 0 0 2.5rem;
-  display: grid;
-  gap: var(--space-5);
-}
-
-.home-journey li {
-  display: grid;
-  grid-template-columns: 2.5rem 1fr;
-  column-gap: var(--space-3);
-  row-gap: var(--space-1);
-  align-items: start;
-}
-
-.home-journey h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.home-journey .pill {
-  justify-self: start;
-}
-
-.home-step {
-  grid-row: span 2;
-  display: grid;
-  place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--bg-sunk);
-  font-family: var(--font-mono);
-  font-weight: 500;
-}
-
-.home-journey li:last-child .home-step {
-  border-color: var(--euc-500);
-  background: var(--euc-500);
-  color: #ffffff;
-}
-
-/* The track runs down beside the steps on a phone, across above them from
-   768px. Finished by default; scroll fills it where the browser can. */
-.home-track {
-  position: absolute;
-  left: 0.6rem;
-  top: 1.25rem;
-  bottom: 1.25rem;
-  width: 4px;
-  border-radius: var(--radius-full);
-  background: var(--border);
-}
-
-/* Sized, not inset: the scroll animation grows width or height from 0, and
-   an inset-derived `auto` size cannot be interpolated to. */
-.home-track-fill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--euc-500);
-}
-
-.home-track-token {
-  position: absolute;
-  left: 50%;
-  top: 100%;
-  width: 24px;
-  height: 24px;
-  translate: -50% -50%;
-  border-radius: 50%;
-  border: 4px solid var(--surface);
-  background: var(--euc-500);
-  box-shadow: var(--shadow-md);
-}
-
-@media (min-width: 768px) {
-  .home-journey ol {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: var(--space-4);
-    padding: 2.75rem 0 0;
-    text-align: center;
-  }
-
-  .home-journey li {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .home-journey .pill {
-    align-self: center;
-  }
-
-  .home-track {
-    left: 10%;
-    right: 10%;
-    top: 0.6rem;
-    bottom: auto;
-    width: auto;
-    height: 4px;
-  }
-
-  .home-track-token {
-    left: 100%;
-    top: 50%;
-  }
-}
-
-/* The finished pack, with two more sheets stacked behind it. */
-.home-pack {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  max-width: 28rem;
-  margin: var(--space-6) auto 0;
-  padding: var(--space-5);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  box-shadow:
-    4px 4px 0 -1px var(--bg-sunk),
-    4px 4px 0 0 var(--border),
-    8px 8px 0 -1px var(--bg-sunk),
-    8px 8px 0 0 var(--border);
-}
-
-.home-pack p {
-  margin: 0;
-}
-
-.home-pack-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.home-pack-what {
-  font-size: 0.88rem;
-  color: var(--muted);
-}
-
-/* ------------------------------------------------------------- roles */
-
-.roles-split {
-  display: grid;
-  gap: var(--space-5);
-  margin-top: var(--space-5);
-}
-
-/* A swipeable strip on a phone; a column beside the sticky phone from 768px. */
-.roles-list {
-  display: flex;
-  gap: var(--space-3);
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding-bottom: var(--space-2);
-}
-
-.home .roles-item,
-.home .roles-item:hover:not(:disabled) {
-  flex: 0 0 15rem;
-  scroll-snap-align: start;
-  display: grid;
-  align-content: start;
-  justify-content: stretch;
-  justify-items: start;
-  gap: var(--space-1);
-  padding: var(--space-4) var(--space-5);
-  border: 0;
-  border-left: 4px solid transparent;
-  border-radius: 0 var(--radius) var(--radius) 0;
-  background: var(--surface);
-  color: var(--text);
-  text-align: left;
-  font-weight: 400;
-  box-shadow: none;
-}
-
-.home .roles-item[aria-pressed="true"] {
-  border-left-color: var(--euc-500);
-  box-shadow: var(--shadow-sm);
-}
-
-.roles-item strong {
-  font-size: 1.1rem;
-}
-
-.roles-item span {
-  font-size: 0.88rem;
-  line-height: 1.45;
-  color: var(--muted);
-}
-
-.roles-phone {
-  width: min(100%, 300px);
-  margin: 0 auto;
-  padding: 0.75rem;
-  border: 1px solid var(--reef-700);
-  border-radius: 2rem;
-  background: var(--reef-800);
-  box-shadow: var(--shadow-lg);
-}
-
-.roles-screen {
-  position: relative;
-  height: 520px;
-  overflow: hidden;
-  border-radius: 1.5rem;
-  background: var(--surface);
-}
-
-.roles-view {
-  position: absolute;
-  inset: 0;
-  padding: var(--space-5) var(--space-4);
-  opacity: 0;
-  transition: opacity 400ms var(--ease);
-}
-
-.roles-view[data-on="true"] {
-  opacity: 1;
-}
-
-.roles-view-role {
-  margin: 0 0 var(--space-1);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.roles-view-heading {
-  margin: 0 0 var(--space-4);
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.roles-view ul {
-  list-style: none;
-  margin: 0 0 var(--space-4);
-  padding: 0;
-  display: grid;
-  gap: var(--space-2);
-}
-
-.roles-view li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  padding: var(--space-3);
-  border-radius: var(--radius);
-  background: var(--bg-sunk);
-  font-size: 0.85rem;
-  font-weight: 550;
-}
-
-.roles-view-aside {
-  font-weight: 400;
-  color: var(--muted);
-}
-
-.roles-view-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin: 0;
-}
-
-/* A picture of the action, not a control: the phone is an illustration. */
-.roles-view-action {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  border-radius: var(--radius);
-  background: var(--accent);
-  color: var(--accent-text);
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-@media (min-width: 768px) {
-  .roles-split {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--space-7);
-    align-items: start;
-  }
-
-  .roles-list {
-    display: grid;
-    overflow: visible;
-    padding: 0;
-  }
-
-  .roles-phone-wrap {
-    position: sticky;
-    top: 6rem;
-  }
-
-  .roles-screen {
-    height: 560px;
-  }
-}
-
-/* ---------------------------------------------------------- matchday */
-
-.matchday {
-  display: grid;
-  gap: var(--space-5);
-  margin-top: var(--space-5);
-}
-
-@media (min-width: 1024px) {
-  .matchday {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    align-items: start;
-  }
-}
-
-.matchday-field {
-  position: relative;
-}
-
-.matchday-pitch {
-  position: relative;
-  aspect-ratio: 3 / 2;
-  overflow: hidden;
-  border: 1px solid var(--reef-700);
-  border-radius: var(--radius-lg);
-  background: var(--reef-600);
-}
-
-.matchday-pitch svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  fill: none;
-  stroke: rgb(255 255 255 / 35%);
-  stroke-width: 3;
-}
-
-.matchday-shirt {
-  position: absolute;
-  translate: -50% -50%;
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--euc-500);
-  color: var(--reef-800);
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.matchday-referee {
-  background: var(--ochre-500);
-}
-
-.matchday-sub {
-  position: static;
-  translate: none;
-  background: #475569;
-}
-
-/* On a phone the labels sit under the pitch, where they cover no shirt. */
-.matchday-labels {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  margin-top: var(--space-3);
-}
-
-.matchday-bench {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-@media (min-width: 640px) {
-  .matchday-labels {
-    margin: 0;
-  }
-
-  .matchday-bench {
-    position: absolute;
-    left: var(--space-3);
-    bottom: var(--space-3);
-  }
-
-  .matchday-official {
-    position: absolute;
-    right: var(--space-3);
-    top: var(--space-3);
-  }
-}
-
-.matchday-fixtures {
-  padding: var(--space-4);
-  border: 1px solid var(--reef-700);
-  border-radius: var(--radius-lg);
-  background: var(--reef-600);
-}
-
-.matchday-fixtures ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--space-2);
-}
-
-@media (min-width: 640px) and (max-width: 1023px) {
-  .matchday-fixtures ul {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.matchday-fixtures li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  padding: var(--space-3);
-  border-radius: var(--radius);
-  background: var(--reef-800);
-}
-
-.matchday-fixtures li > span:first-child {
-  display: grid;
-}
-
-.matchday-fixtures strong {
-  font-size: 0.9rem;
-}
-
-.matchday-fixtures li > span:first-child span {
-  font-size: 0.78rem;
-  color: var(--rail-text-2);
-}
-
-/* ---------------------------------------------------------- for clubs */
-
-.home-close {
-  --band: var(--reef-600);
-  text-align: center;
 }
 
 .home-close .home-heading,
@@ -5932,84 +5221,1001 @@ html:has(.home) {
   justify-content: center;
 }
 
-/* ---------------------------------------------------- scroll-linked */
+/* On the dark bands the primary action is white and the secondary an
+   outline: the same two weights as everywhere else, inverted. */
+.home-hero .button,
+.home-close .button {
+  border-radius: var(--radius-full);
+  padding: 0.8rem 1.6rem;
+  background: #ffffff;
+  color: var(--reef-600);
+  border: 2px solid #ffffff;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.home-hero .button:hover,
+.home-close .button:hover {
+  background: var(--sand-100);
+  color: var(--reef-600);
+}
+
+.home-hero .button.secondary,
+.home-close .button.secondary {
+  background: transparent;
+  color: #ffffff;
+  border-color: rgb(255 255 255 / 45%);
+}
+
+.home-hero .button.secondary:hover,
+.home-close .button.secondary:hover {
+  background: rgb(255 255 255 / 8%);
+  border-color: #ffffff;
+}
+
+.home-hero a:not(.button),
+.home-close a:not(.button) {
+  color: #ffffff;
+  text-underline-offset: 3px;
+}
+
+.home-inner {
+  min-width: 0;
+}
+
+.home-note {
+  margin: var(--space-3) 0 0;
+  max-width: 58ch;
+  font-size: 0.88rem;
+  color: rgb(248 250 252 / 72%);
+}
+
+.home-close .home-note {
+  margin-inline: auto;
+}
+
+.home-families {
+  margin: var(--space-4) 0 0;
+  padding-top: var(--space-3);
+  max-width: 58ch;
+  border-top: 1px solid rgb(255 255 255 / 14%);
+  font-size: 0.92rem;
+  color: rgb(248 250 252 / 85%);
+}
+
+.home-maker {
+  margin: var(--space-5) 0 0;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rail-text-2);
+}
+
+.home-more {
+  margin: var(--space-5) 0 0;
+  color: var(--muted);
+}
+
+/* -------------------------------------------------------------- hero */
+
+/* The pitch spans the window, so its boxes sit outside the text column
+   rather than through the headline. Faint: it says football, and gets out
+   of the way of the words. pathLength=1 on every mark, so one dash the
+   length of the whole line draws each of them. */
+.home-pitch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  height: 100%;
+  translate: -50% 0;
+  fill: none;
+  stroke: rgb(255 255 255 / 14%);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.home-pitch > * {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: home-draw 2s var(--ease) forwards;
+}
+
+.home-pitch > :nth-child(n + 2) {
+  animation-delay: 0.25s;
+}
+
+.home-hero-grid {
+  position: relative;
+  display: grid;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .home-hero-grid {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    gap: var(--space-7);
+  }
+}
+
+.home-title {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 1.4rem + 4.6vw, 4.9rem);
+  font-weight: 800;
+  font-stretch: 75%;
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+
+.home-title span {
+  display: block;
+  animation: home-rise 600ms var(--ease) both;
+}
+
+/* The second sentence is the payoff, set a step quieter so the two read
+   as cause and effect rather than one long shout. */
+.home-title span:nth-child(2) {
+  color: var(--rail-text-2);
+  animation-delay: 120ms;
+}
+
+.home-hero .lede {
+  font-size: 1.08rem;
+}
+
+/* --------------------------------------------- the hero's preview (hp) */
+
+.hp {
+  min-width: 0;
+  overflow: hidden;
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 60px rgb(2 6 23 / 45%), 0 2px 6px rgb(2 6 23 / 30%);
+  animation: home-rise 700ms var(--ease) 200ms both;
+}
+
+.hp-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--reef-600);
+  color: #ffffff;
+}
+
+.hp-club {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-stretch: 87.5%;
+  letter-spacing: 0.01em;
+}
+
+.hp-tabs {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3) 0;
+  overflow-x: auto;
+  box-shadow: inset 0 -1px 0 var(--border);
+}
+
+.home .hp-tabs button,
+.home .hp-tabs button:hover:not(:disabled) {
+  flex: 0 0 auto;
+  min-height: 2.75rem;
+  padding: 0 var(--space-3);
+  background: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.home .hp-tabs button:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.home .hp-tabs button[aria-selected='true'] {
+  color: var(--text);
+  border-bottom-color: var(--reef-600);
+}
+
+.hp-panel {
+  padding: var(--space-4);
+  animation: home-swap 260ms var(--ease) both;
+}
+
+.hp-heading {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hp-rows,
+.rx-rows {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hp-rows li,
+.rx-rows li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------ role explorer (rx) */
+
+.rx {
+  display: grid;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+@media (min-width: 64rem) {
+  .rx {
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.rx-tabs {
+  display: flex;
+  gap: var(--space-2);
+  padding-bottom: var(--space-1);
+  overflow-x: auto;
+}
+
+@media (min-width: 64rem) {
+  .rx-tabs {
+    flex-direction: column;
+    padding: 0;
+    overflow: visible;
+  }
+}
+
+.home .rx-tabs button,
+.home .rx-tabs button:hover:not(:disabled) {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 2px;
+  justify-content: start;
+  justify-items: start;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius-sm);
+  box-shadow: none;
+  color: var(--text);
+  text-align: left;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.home .rx-tabs button:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.home .rx-tabs button[aria-selected='true'] {
+  background: var(--accent-soft);
+  border-color: var(--border-strong);
+  border-left-color: var(--reef-600);
+}
+
+.rx-tab-role {
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.rx-tab-who {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.rx-stage {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+@media (min-width: 80rem) {
+  .rx-stage {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+/* The hub: the person in the middle, the eight roles round them. */
+.rx-hub {
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--bg-sunk);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.rx-hub svg {
+  display: block;
+  width: 100%;
+  max-width: 26rem;
+  height: auto;
+  margin-inline: auto;
+  overflow: visible;
+}
+
+.rx-hub figcaption {
+  margin-top: var(--space-3);
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.rx-link {
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+  stroke-dasharray: 0.02 0.03;
+}
+
+.rx-link-held {
+  stroke: var(--reef-500);
+  stroke-width: 2.5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: rx-draw 520ms var(--ease) both;
+}
+
+.rx-link-on {
+  stroke-width: 4;
+}
+
+.rx-node rect {
+  fill: var(--surface);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+  transition: fill var(--dur) var(--ease), stroke var(--dur) var(--ease);
+}
+
+.rx-node text {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--muted);
+}
+
+.rx-node-held rect {
+  stroke: var(--reef-500);
+  stroke-width: 1.5;
+}
+
+.rx-node-held text {
+  fill: var(--text);
+}
+
+.rx-node-on rect {
+  fill: var(--reef-600);
+  stroke: var(--reef-600);
+}
+
+.rx-node-on text {
+  fill: #ffffff;
+}
+
+.rx-person {
+  fill: var(--reef-600);
+  stroke: var(--surface);
+  stroke-width: 4;
+}
+
+.rx-person-initials {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  fill: #ffffff;
+}
+
+/* The active-role marker: it moves to the chosen role and stops. */
+.rx-marker {
+  fill: var(--reef-500);
+  transition: transform 420ms var(--ease);
+}
+
+/* The workspace the chosen role sees. */
+.rx-panel {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  animation: home-swap 280ms var(--ease) both;
+}
+
+.rx-panel > p {
+  margin: 0;
+}
+
+.rx-who {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.rx-who strong {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-stretch: 87.5%;
+}
+
+.rx-as {
+  color: var(--muted);
+}
+
+.rx-avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-full);
+  background: var(--reef-600);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+
+.rx-problem {
+  color: var(--subtle);
+}
+
+.rx-screen {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.rx-screen-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-sunk);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.rx-screen .rx-rows {
+  padding: var(--space-3);
+}
+
+.rx-boundary {
+  padding: var(--space-3);
+  background: var(--accent-soft);
+  border-left: 3px solid var(--reef-600);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.92rem;
+}
+
+.rx-routes {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.rx-routes code,
+.home-chain code,
+.wk-checks code {
+  padding: 0.1em 0.4em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.rx-also {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+.rx-also p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--subtle);
+}
+
+.rx-also-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* A phone is too narrow for eight labels round a ring: the panel already
+   names the person and the roles they hold, so the hub steps aside. */
+@media (max-width: 40rem) {
+  .rx-hub {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------ the walkthrough (wk) */
+
+.wk {
+  display: grid;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+.wk-steps {
+  position: relative;
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 56rem) {
+  .wk-steps {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  /* The touchline under the steps, filled to the current one. */
+  .wk-steps::before,
+  .wk-steps::after {
+    content: '';
+    position: absolute;
+    left: 10%;
+    top: 1.35rem;
+    height: 3px;
+    border-radius: 3px;
+  }
+
+  .wk-steps::before {
+    right: 10%;
+    background: var(--border);
+  }
+
+  .wk-steps::after {
+    width: calc(80% * var(--wk-progress, 0));
+    background: var(--reef-600);
+    transition: width 420ms var(--ease);
+  }
+}
+
+.wk-steps li {
+  position: relative;
+  z-index: 1;
+}
+
+.home .wk-steps button,
+.home .wk-steps button:hover:not(:disabled) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--space-1) var(--space-2);
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: var(--muted);
+  text-align: left;
+}
+
+@media (min-width: 56rem) {
+  .home .wk-steps button,
+  .home .wk-steps button:hover:not(:disabled) {
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: center;
+  }
+}
+
+.home .wk-steps button:hover:not(:disabled),
+.home .wk-steps [data-state='current'] button {
+  color: var(--text);
+}
+
+.wk-num {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  border: 2px solid var(--border-strong);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--muted);
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.wk-step-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.wk-steps [data-state='done'] .wk-num {
+  border-color: var(--reef-600);
+  color: var(--reef-600);
+}
+
+.wk-steps [data-state='current'] .wk-num {
+  background: var(--reef-600);
+  border-color: var(--reef-600);
+  color: #ffffff;
+}
+
+.wk-panel {
+  padding: clamp(var(--space-4), 3vw, var(--space-6));
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.wk-count {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.wk-body {
+  display: grid;
+  gap: var(--space-3);
+  animation: home-swap 280ms var(--ease) both;
+}
+
+.wk-body > p {
+  margin: 0;
+}
+
+.wk-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+}
+
+.wk-head h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-stretch: 87.5%;
+}
+
+.wk-who {
+  color: var(--subtle);
+}
+
+.wk-cols {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 48rem) {
+  .wk-cols {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  }
+}
+
+.wk-label {
+  margin: 0 0 var(--space-2);
+  font-size: 0.8rem;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.wk-involves,
+.wk-checks {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.93rem;
+}
+
+.wk-involves li {
+  position: relative;
+  padding-left: var(--space-4);
+}
+
+.wk-involves li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 2px;
+  background: var(--reef-500);
+}
+
+.wk-checks li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.wk-human,
+.wk-next {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 0.93rem;
+}
+
+.wk-human {
+  background: var(--bg-sunk);
+  border-left: 3px solid var(--reef-600);
+}
+
+.wk-next {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.wk-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.wk-nav [aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* --------------------------------------------- what connects (chain) */
+
+.home-split {
+  display: grid;
+  gap: var(--space-6);
+}
+
+@media (min-width: 64rem) {
+  .home-split {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: start;
+  }
+}
+
+.home-chain {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: chain;
+}
+
+.home-chain li {
+  position: relative;
+  display: grid;
+  gap: var(--space-1);
+  padding: 0 0 var(--space-5) var(--space-7);
+  counter-increment: chain;
+}
+
+/* Each link numbered, on a line that joins it to the next. */
+.home-chain li::before {
+  content: counter(chain);
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  background: var(--reef-600);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.home-chain li::after {
+  content: '';
+  position: absolute;
+  left: calc(1.125rem - 1px);
+  top: 2.25rem;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.home-chain li:last-child::after {
+  display: none;
+}
+
+.home-chain p {
+  margin: 0;
+}
+
+.home-chain-when {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-stretch: 87.5%;
+}
+
+.home-chain-then {
+  color: var(--subtle);
+}
+
+.home-chain code {
+  justify-self: start;
+}
+
+/* ----------------------------------------------------------- trust */
+
+.home-trust {
+  display: grid;
+  gap: var(--space-6);
+  margin-top: var(--space-5);
+}
+
+@media (min-width: 64rem) {
+  .home-trust {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
+    align-items: start;
+  }
+}
+
+.home-trust dl {
+  display: grid;
+  gap: var(--space-5) var(--space-6);
+  margin: 0;
+}
+
+@media (min-width: 48rem) {
+  .home-trust dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.home-trust dl > div {
+  padding-top: var(--space-3);
+  border-top: 2px solid var(--reef-700);
+}
+
+.home-trust dt {
+  margin-bottom: var(--space-2);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-stretch: 87.5%;
+  color: #ffffff;
+}
+
+.home-trust dd {
+  margin: 0;
+  font-size: 0.95rem;
+  color: rgb(248 250 252 / 78%);
+}
+
+/* The Assistant's note, as the coach's workspace shows it: the one place
+   on this page electric volt appears, because it marks only the Assistant. */
+.home-ai {
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--highlight);
+  border-radius: var(--radius);
+  color: var(--text);
+}
+
+.home-ai figcaption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.home-ai-mark {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: var(--radius-full);
+  background: var(--highlight);
+}
+
+.home-ai p {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.home-ai .home-ai-foot {
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------- motion */
 
 @keyframes home-draw {
   to { stroke-dashoffset: 0; }
 }
 
 @keyframes home-rise {
-  from { opacity: 0; transform: translateY(24px); }
+  from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: none; }
 }
 
-@keyframes home-spin {
-  to { rotate: 360deg; }
+@keyframes home-swap {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 
-@keyframes home-pop {
-  from { opacity: 0; scale: 0.4; }
+@keyframes rx-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
 }
 
-@keyframes home-fill-down {
-  from { height: 0; }
+/* ScrollReveal marks what is still below the fold as waiting, then shown.
+   Without it (no script, reduced motion) nothing is ever marked, so
+   nothing is ever hidden. Transform only, so the layout never moves. */
+[data-reveal] {
+  transition: opacity 560ms var(--ease), transform 560ms var(--ease);
 }
 
-@keyframes home-token-down {
-  from { top: 0; }
+[data-reveal='waiting'] {
+  opacity: 0;
+  transform: translateY(20px);
 }
 
-@keyframes home-fill-across {
-  from { width: 0; }
-}
-
-@keyframes home-token-across {
-  from { left: 0; }
-}
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .home-reveal > * {
-      animation: home-rise linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 40%;
-    }
-
-    .home-journey {
-      view-timeline: --journey block;
-    }
-
-    .home-track-fill,
-    .home-track-token {
-      animation: home-fill-down linear both;
-      animation-timeline: --journey;
-      animation-range: cover 20% cover 60%;
-    }
-
-    .home-track-token {
-      animation-name: home-token-down;
-    }
-
-    .matchday {
-      view-timeline: --pitch block;
-    }
-
-    /* Each shirt's --at (set in page.tsx) staggers it after the last. */
-    .matchday-shirt {
-      animation: home-pop linear both;
-      animation-timeline: --pitch;
-      animation-range: entry calc(30% + var(--at, 0%)) entry calc(60% + var(--at, 0%));
-    }
-  }
-
-  @media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
-    .home-track-fill {
-      animation-name: home-fill-across;
-    }
-
-    .home-track-token {
-      animation-name: home-token-across;
-    }
+@media print {
+  [data-reveal='waiting'] {
+    opacity: 1;
+    transform: none;
   }
 }
 

@@ -11,5 +11,13 @@ export const PRODUCT_NAME = 'PitchPeople';
 export const TAGLINE = 'One identity. Every role. Connected football.';
 export const COMPANY = 'Let’s Data Talk';
 export const MAKER = `By ${COMPANY}`;
+/**
+ * The front door's commercial headline and its supporting line (scope 118).
+ * The tagline names the idea; these name the benefit, which a club hears
+ * first. Traced in docs/ea/1_strategy/4_value-proposition.md.
+ */
+export const HEADLINE = 'Less time chasing admin. More time running your club.';
+export const PITCH =
+  'Connect registrations, families, club finance, teams and match-official administration through one football operations platform.';
 /** The site's description, the product owner's words for P1 (scope 108). */
 export const DESCRIPTION = 'One Person, Five Possible Roles, No Second Account';
