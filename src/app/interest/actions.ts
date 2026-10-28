@@ -1,9 +1,11 @@
 'use server';
 
+import { redirect } from 'next/navigation';
+
 import { createRequestClient } from '../../data/server.ts';
 import { alertPlatform, recordInterest } from '../../data/enquiries.ts';
-import { formFailed, formOk, type FormResult } from '../../web/form-result.ts';
-import { parseEnquiry } from '../../web/enquiry-form.ts';
+import { formFailed, type FormResult } from '../../web/form-result.ts';
+import { parseEnquiryForm } from '../../web/enquiry-form.ts';
 
 /**
  * Records a club's expression of interest.
@@ -26,18 +28,12 @@ export async function recordInterestAction(
   _previous: FormResult,
   formData: FormData,
 ): Promise<FormResult> {
-  const parsed = parseEnquiry({
-    clubName: formData.get('clubName'),
-    email: formData.get('email'),
-    contactName: formData.get('contactName'),
-    contactRole: formData.get('contactRole'),
-    jurisdiction: formData.get('jurisdiction'),
-    clubSize: formData.get('clubSize'),
-    currentSystem: formData.get('currentSystem'),
-    note: formData.get('note'),
-    phone: formData.get('phone'),
-    marketingConsent: formData.get('marketingConsent'),
-  });
+  // The honeypot: a field no person can see, so a tick means a bot. It is
+  // shown the same thank-you page and nothing is recorded, because telling
+  // a bot it was caught teaches it which field to skip.
+  if (formData.get('botcheck') !== null) redirect('/interest/thank-you');
+
+  const parsed = parseEnquiryForm(formData);
   if (!parsed.ok) return formFailed(parsed.error);
 
   const client = await createRequestClient();
@@ -73,10 +69,8 @@ export async function recordInterestAction(
     );
   }
 
-  // Says what happens next, not "thank you". A club that has just typed its
-  // name wants to know whether somebody is going to reply and roughly when.
-  return formOk(
-    `Thank you — we have ${parsed.enquiry.clubName} down. We read these ourselves and will ` +
-      'reply to you directly, usually within two business days.',
-  );
+  // The thank-you page says what happens next: a club that has just typed
+  // its name wants to know whether somebody will reply and roughly when.
+  // Outside the try above, because `redirect` works by throwing.
+  redirect(parsed.enquiry.wantsDemo ? '/interest/thank-you?request=demo' : '/interest/thank-you');
 }

@@ -77,3 +77,19 @@ describe('parseEnquiry — BR144, two required fields and six invited ones', () 
     assert.equal(parsed.ok && parsed.enquiry.clubSize, 'about 400, mostly MiniRoos');
   });
 });
+
+describe('parseEnquiry — BR188, a question or a guided demo', () => {
+  const minimum = { clubName: 'Brisbane Bayside FC', email: 'sec@bayside.test' };
+
+  it('reads request=demo as a demo request', () => {
+    const parsed = parseEnquiry({ ...minimum, request: 'demo' });
+    assert.equal(parsed.ok && parsed.enquiry.wantsDemo, true);
+  });
+
+  it('treats a question, a missing choice and anything else as a question', () => {
+    for (const request of ['question', undefined, null, 'DEMO', 'yes']) {
+      const parsed = parseEnquiry({ ...minimum, request });
+      assert.equal(parsed.ok && parsed.enquiry.wantsDemo, false, String(request));
+    }
+  });
+});

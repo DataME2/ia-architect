@@ -1,11 +1,40 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, type FormEvent } from 'react';
 
 import { FormNotice } from '../registrar/_components/FormNotice.tsx';
 import { IDLE_FORM } from '../../web/form-result.ts';
-import { ENQUIRY_CONSENT_WORDING } from '../../web/enquiry-form.ts';
+import { ENQUIRY_CONSENT_WORDING, parseEnquiryForm } from '../../web/enquiry-form.ts';
+import { relayPayload, WEB3FORMS_ENDPOINT } from '../../web/enquiry-relay.ts';
 import { recordInterestAction } from './actions.ts';
+
+/**
+ * Sends the operator a copy through Web3Forms, from this browser (BR189).
+ *
+ * Fired as the form submits and not awaited: the server action records the
+ * enquiry and redirects whatever happens here, and `keepalive` lets the
+ * request finish after the page has moved on. Only a valid enquiry is sent,
+ * read by the same parser the server uses, so the inbox never hears about
+ * one the server is about to refuse. No key configured, no copy — the form
+ * works exactly as it did before scope 116.
+ */
+function copyToInbox(event: FormEvent<HTMLFormElement>): void {
+  const key = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
+  if (!key) return;
+  const form = new FormData(event.currentTarget);
+  if (form.get('botcheck') !== null) return;
+  const parsed = parseEnquiryForm(form);
+  if (!parsed.ok) return;
+  fetch(WEB3FORMS_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(relayPayload(parsed.enquiry, key)),
+    keepalive: true,
+  }).catch(() => {
+    // The row is the record; a lost copy is what the console's alert
+    // column and its retry exist for.
+  });
+}
 
 /**
  * Eight fields, and **two of them are required** (BR144).
@@ -18,12 +47,28 @@ import { recordInterestAction } from './actions.ts';
  * itself rather than by an asterisk somewhere else: a field whose
  * optionality you have to infer reads as required.
  */
-export function InterestForm() {
+export function InterestForm({ wantsDemo }: { readonly wantsDemo: boolean }) {
   const [state, formAction, pending] = useActionState(recordInterestAction, IDLE_FORM);
 
   return (
-    <form action={formAction} className="stack">
+    <form action={formAction} onSubmit={copyToInbox} className="stack">
       <FormNotice result={state} />
+
+      {/*
+        BR188. A question is the default because it asks less of the club;
+        the homepage's "Request a demo" arrives with the other one chosen.
+      */}
+      <fieldset>
+        <legend>What would you like?</legend>
+        <label className="consent-label">
+          <input type="radio" name="request" value="question" defaultChecked={!wantsDemo} />
+          <span>Ask us a question</span>
+        </label>
+        <label className="consent-label">
+          <input type="radio" name="request" value="demo" defaultChecked={wantsDemo} />
+          <span>Request a guided demo, on a call with us</span>
+        </label>
+      </fieldset>
 
       <fieldset>
         <legend>Your club</legend>
@@ -118,6 +163,24 @@ export function InterestForm() {
           </label>
         </div>
       </fieldset>
+
+      {/*
+        Web3Forms' honeypot. Hidden from people and from assistive
+        technology, so only a bot ticks it; the action then records nothing.
+      */}
+      <input
+        type="checkbox"
+        name="botcheck"
+        aria-label="Leave this unticked"
+        tabIndex={-1}
+        aria-hidden="true"
+        style={{ display: 'none' }}
+      />
+
+      <p className="hint" style={{ margin: 0 }}>
+        We keep your enquiry in PitchPeople and send a copy to our own inbox through Web3Forms, a
+        form-forwarding service. Neither is shared with anyone else.
+      </p>
 
       <div>
         <button type="submit" disabled={pending}>

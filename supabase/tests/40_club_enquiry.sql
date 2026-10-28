@@ -79,7 +79,9 @@ begin
     -- The alert went out. Sent by the caller before this row was written,
     -- which is why the outcome arrives as an argument rather than through a
     -- second function anybody could call (BR146).
-    true, null);
+    true, null,
+    -- And it asked for a guided demo (BR188).
+    true);
 
   -- 2. **BR145 — and it granted nothing.** This is the scenario the suite
   --    exists for: the natural next request after an interest form is a
@@ -311,6 +313,22 @@ begin
     failures := array_append(failures, 'the owner''s retry was not recorded as delivered');
   end if;
 
+  -- 15. **A later question does not withdraw a demo request** (BR188).
+  --     The follow-up in scenario 5 did not pass the choice, which is how
+  --     every caller that predates 0098 calls, and it means "a question".
+  perform set_config('role', 'authenticated', true);
+  perform set_config('request.jwt.claim.sub', owner::text, true);
+  select count(*) into n from app_enquiries()
+   where email = 'secretary@bayside.test' and wants_demo;
+  if n <> 1 then
+    failures := array_append(failures,
+      'a later question erased the earlier demo request — BR188');
+  end if;
+  select count(*) into n from app_enquiries() where email = 'sec@crocs.test' and wants_demo;
+  if n <> 0 then
+    failures := array_append(failures, 'an enquiry that did not ask for a demo was marked as one');
+  end if;
+
   -- 14. **A prospect still has no tenant** (BR92). The whole isolation
   --    argument for this table rests on it, and a future migration could
   --    add a club_id without anybody noticing.
@@ -327,6 +345,6 @@ begin
     raise exception E'Club enquiry FAILED:\n  - %', array_to_string(failures, E'\n  - ');
   end if;
 
-  raise notice 'Club enquiry OK — 14 scenarios; an enquiry grants no club, no membership and no account, the writer cannot read the list back, only the platform owner can, a returning club stays one lead, an unticked box withdraws nothing, a failed alert is recorded rather than absent, and a delivered one is never sent again';
+  raise notice 'Club enquiry OK — 15 scenarios; an enquiry grants no club, no membership and no account, the writer cannot read the list back, only the platform owner can, a returning club stays one lead, an unticked box withdraws nothing, a failed alert is recorded rather than absent, a delivered one is never sent again, and a demo request survives a later question';
 end
 $$;

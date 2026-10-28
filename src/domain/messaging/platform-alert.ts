@@ -29,6 +29,8 @@ export interface EnquiryAlertInput {
   readonly note: string | null;
   readonly phone: string | null;
   readonly marketingConsent: boolean;
+  /** A guided demo rather than a question (BR188). */
+  readonly wantsDemo: boolean;
 }
 
 export interface PlatformAlert {
@@ -58,10 +60,13 @@ function line(label: string, value: string | null): string {
  * what they actually said reads as a club.
  */
 export function composeEnquiryAlert(input: EnquiryAlertInput): PlatformAlert {
+  // A demo request leads the subject: it asks for a call to be booked, which
+  // is a different first reply from an answer (BR188).
+  const kind = input.wantsDemo ? 'Demo request' : 'New enquiry';
   const subject =
     input.currentSystem === null
-      ? `New enquiry: ${input.clubName}`
-      : `New enquiry: ${input.clubName} — on ${input.currentSystem}`;
+      ? `${kind}: ${input.clubName}`
+      : `${kind}: ${input.clubName} — on ${input.currentSystem}`;
 
   const who =
     input.contactName === null
@@ -89,7 +94,9 @@ export function composeEnquiryAlert(input: EnquiryAlertInput): PlatformAlert {
   return {
     subject,
     body:
-      `${input.clubName} has asked to be contacted.\n\n` +
+      (input.wantsDemo
+        ? `${input.clubName} has asked for a guided demo.\n\n`
+        : `${input.clubName} has asked to be contacted.\n\n`) +
       details +
       said +
       consent +
