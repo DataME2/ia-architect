@@ -15,7 +15,7 @@ must never appear**.
 | **Local** | `next dev` on a developer machine | **The development Supabase project** (`sxsloxdtpcjpdobwpwsm`) | One developer |
 | **Preview** | Vercel preview deployment, one per pull request | The same development project — **never production** | Anyone with the PR link |
 | **Test** | Vercel, the deployment of `main`, at **`pitchpeople-test.datamanagementengineer.com`** (DNS in Route 53) ([scope 114](../../scope/114_a_public_test_site_and_a_production_project.md)) | The development project — **synthetic data only** | Anyone: it is shown to clubs |
-| **Production** | Vercel, Sydney region | **`pitchpeople-prod`** (`afufvmkxjkulygeoajpw`), a new project tagged prod, Supabase `ap-southeast-2`, migrations 0001–0097 applied 2026-10-28, no rows ([scope 114](../../scope/114_a_public_test_site_and_a_production_project.md)) — **guarded**, not yet pointed at. It supersedes `ltd-production` (`jqyfbgojgxpymjgecxgx`) | Club users |
+| **Production** | Vercel, Sydney region | **`sqzqausvkgjsdwcgicxn`**, tagged PROD, Supabase `ap-southeast-2`, migrations 0001–0097 applied 2026-10-28, no rows ([scope 115](../../scope/115_production_moves_to_a_new_project.md)) — **guarded**, not yet pointed at. It supersedes `pitchpeople-prod` (`afufvmkxjkulygeoajpw`, [scope 114](../../scope/114_a_public_test_site_and_a_production_project.md)) and `ltd-production` (`jqyfbgojgxpymjgecxgx`) | Club users |
 
 > **A production project now exists — `ltd-production`, Sydney — and
 > nothing points at it yet.** Created 15 September 2026. Until the Vercel

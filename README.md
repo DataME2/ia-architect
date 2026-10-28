@@ -35,9 +35,9 @@ What is true today, stated plainly:
   are recorded by the treasurer as they arrive.
 - **Production exists but is dark.** Everything, including the public test
   site, points at the development Supabase project and its synthetic data.
-  The production project, `pitchpeople-prod`, holds the whole schema and no
-  rows until a real club arrives
-  ([scope 114](./docs/scope/114_a_public_test_site_and_a_production_project.md));
+  The production project, `sqzqausvkgjsdwcgicxn`, holds the whole schema
+  and no rows until a real club arrives
+  ([scope 115](./docs/scope/115_production_moves_to_a_new_project.md));
   encrypted bank details come with it.
 
 What exists, what is partial, and what has no code at all is tracked per
