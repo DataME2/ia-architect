@@ -12,7 +12,7 @@
  * logs.
  */
 export const metadata = {
-  title: 'Thank you · PitchPeople',
+  title: 'Thank you',
   robots: { index: false },
 };
 
