@@ -126,6 +126,8 @@ export interface SiteLink {
  */
 export const SITE_NAV: readonly SiteLink[] = [
   { href: '/seasons', label: 'Season calendars' },
+  // Scope 117: the season walked step by step, rule by rule.
+  { href: '/season-paths', label: 'Season paths' },
   { href: '/registrar', label: 'Club administration' },
   { href: '/demo', label: 'Demonstration club' },
   { href: '/interest', label: 'For clubs' },
@@ -146,6 +148,7 @@ export const FOOTER_NAV: readonly { readonly heading: string; readonly links: re
     heading: 'Product',
     links: [
       { href: '/seasons', label: 'Season calendars' },
+      { href: '/season-paths', label: 'Season paths' },
       { href: '/register', label: 'Start a registration' },
       { href: '/me', label: 'Your workspace' },
     ],
