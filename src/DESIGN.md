@@ -151,6 +151,9 @@ The system employs a dual-theme architecture (Light Slate & Pitch Night). Surfac
 - **Card Red (`destructive`):** Blocked clearances, expired compliance (WWCC), lapsed clearances, or irreversible actions.
 - **Electric Volt (`accent`):** Assistant notes, draft suggestions, and advisory guidance only.
 - **Identity Rail (`rail`):** Persistent pitch-black ground anchored across both light and dark operational modes.
+- **Turf (ground only):** Grass under the front door's bands: light turf with mown stripes, and deep turf for the floodlit pitch and the close (scope 119). Turf is a surface, never a status, so Stadium Green stays the one green that means ready. Muted text steps to `muted.foreground` on light turf to keep AA.
+
+In `globals.css` the ramps carry these names: `--slate-*`, `--stadium-*`, `--trophy-*`, `--redcard-*`, `--volt-*`, `--chalk-*` (neutrals) and `--turf-*`. Screens use the semantic aliases (`--accent`, `--ok-*`, `--warn-*`, `--stop-*`, `--highlight`, `--turf-ground`), never a ramp directly.
 
 ## Typography
 
@@ -233,5 +236,7 @@ Operational views prioritize key status chips at the top right of cards, clear s
 - **Academy palette (October 2026):** Replaced the Australian landscape palette (sand, reef, eucalyptus, ochre, oxide, desert orange) with Pitch Slate & Electric Volt. `globals.css` carries the same values, so every screen changes with it.
 - **Volt stays the Assistant's only.** The academy brief also proposed volt for calls to action, KPIs and active navigation; that would make the Assistant's colour an ordinary highlight, so Principle 2 is kept until the club decides otherwise.
 - **Dark rail muted text is `#94a3b8`, not the brief's `#64748b`:** that one is 4.3:1 on the dark rail, under WCAG AA for its small labels.
+- **Ramps renamed, values kept (scope 119):** the CSS ramps had kept the landscape names (reef, euc, ochre, oxide, desert, sand) after the academy palette replaced their values. They now carry the football names above, with every value unchanged, so no screen moves. Trophy Gold is still amber (`#d97706`). A truer gold would restyle every pending pill, so it waits for the workspace pass.
+- **The front door's premium layer (scope 119):** floodlight gradients, a perspective pitch, glass on the hero preview's frame only, a dark tactics board for the identity hub, and turf bands. Cartoon footballs, stock imagery and feature-card grids were left out, since they work against the clean, credible surface this system asks for. Everything is CSS and SVG, with no dependency.
 - **Font Fallbacks:** System UI fallbacks are configured alongside each face, and the display stack falls back to Arial Narrow so a condensed headline stays condensed.
 - **New type system (scope 118, October 2026):** Saira, Public Sans and IBM Plex Mono replace Archivo and DM Mono. One variable display face carries the athletic character through its width axis, so the interface face can be chosen for readability alone. The 27 KB Public Sans file now carries most of the text, which Archivo's 90 KB file used to. Still self-hosted: nothing is fetched at build or run time.

@@ -16,6 +16,7 @@ import {
   previousStep,
   roleView,
   rolesHeldBy,
+  toneTally,
   type PersonId,
 } from './home-story.ts';
 
@@ -90,5 +91,20 @@ describe('the front door (scope 118)', () => {
     assert.equal(last?.status.word, 'Complete');
     assert.ok(last?.checks.some((c) => c.br === 'BR60'));
     for (const s of WALK_STEPS.slice(0, -1)) assert.notEqual(s.status.word, 'Complete', s.id);
+  });
+});
+
+describe('the preview summary (scope 119)', () => {
+  it('counts only the rows shown, in a fixed order, each tone with a word', () => {
+    const matchday = HERO_TABS.find((t) => t.id === 'matchday');
+    assert.deepEqual(
+      toneTally(matchday?.rows ?? []).map((t) => [t.tone, t.count]),
+      [['ok', 1], ['warn', 1], ['stop', 1], ['info', 1]],
+    );
+    for (const tab of HERO_TABS) {
+      const tally = toneTally(tab.rows);
+      assert.equal(tally.reduce((n, t) => n + t.count, 0), tab.rows.length, tab.id);
+      for (const t of tally) assert.ok(t.count > 0 && t.word.length > 0, `${tab.id} ${t.tone}`);
+    }
   });
 });

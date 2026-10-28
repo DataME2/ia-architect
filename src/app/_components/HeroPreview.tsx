@@ -2,13 +2,18 @@
 
 import { useRef, useState, type KeyboardEvent } from 'react';
 
-import { DEMO_CLUB, HERO_TABS, indexAfterKey } from '../../web/home-story.ts';
+import { DEMO_CLUB, HERO_TABS, indexAfterKey, toneTally } from '../../web/home-story.ts';
+
+const CREST = DEMO_CLUB.split(' ').map((word) => word[0]).join('');
 
 /**
  * The hero's product preview (scope 118): one fictional club's week, seen
  * as registrations, money and match day. A real tab list: the arrows move
  * between tabs, and each tab changes what the panel lists. Nothing is read;
  * the rows are `HERO_TABS`, and the panel says they are fictional.
+ *
+ * Since scope 119 each tab opens on a summary strip, which only counts the
+ * rows beneath it by tone (`toneTally`), each count with its word.
  */
 export function HeroPreview() {
   const [at, setAt] = useState(0);
@@ -27,7 +32,12 @@ export function HeroPreview() {
   return (
     <div className="hp">
       <div className="hp-bar">
-        <span className="hp-club">{DEMO_CLUB}</span>
+        <span className="hp-club">
+          <span className="hp-crest" aria-hidden="true">
+            {CREST}
+          </span>
+          {DEMO_CLUB}
+        </span>
         <span className="pill">Fictional club</span>
       </div>
 
@@ -54,6 +64,14 @@ export function HeroPreview() {
       {/* Keyed by the tab, so the panel re-enters with each choice. */}
       <div key={tab.id} id="hp-panel" className="hp-panel" role="tabpanel" aria-labelledby={`hp-tab-${tab.id}`}>
         <p className="hp-heading">{tab.heading}</p>
+        <ul className="hp-tally" aria-label="The rows below, counted">
+          {toneTally(tab.rows).map((t) => (
+            <li key={t.tone} data-tone={t.tone}>
+              <strong>{t.count}</strong>
+              <span>{t.word}</span>
+            </li>
+          ))}
+        </ul>
         <ul className="hp-rows">
           {tab.rows.map((r) => (
             <li key={r.label}>

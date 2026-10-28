@@ -71,6 +71,31 @@ export const HERO_TABS: readonly HeroTab[] = [
   },
 ];
 
+/** What each tone means when the preview counts its rows. */
+const TALLY_WORDS: Readonly<Record<Tone, string>> = {
+  ok: 'on track',
+  warn: 'waiting on someone',
+  stop: 'blocked',
+  info: 'for information',
+};
+
+export interface Tally {
+  readonly tone: Tone;
+  readonly count: number;
+  readonly word: string;
+}
+
+/**
+ * The preview's summary strip (scope 119): how many of the rows below are
+ * in each tone, in a fixed order, leaving out tones with none. It counts
+ * only the fictional rows shown, so it is never a figure about a club.
+ */
+export function toneTally(rows: readonly PreviewRow[]): readonly Tally[] {
+  return (Object.keys(TALLY_WORDS) as Tone[])
+    .map((tone) => ({ tone, count: rows.filter((r) => r.status.tone === tone).length, word: TALLY_WORDS[tone] }))
+    .filter((t) => t.count > 0);
+}
+
 // --------------------------------------------------------- role explorer
 
 export type PersonId = 'aroha' | 'tane' | 'kofi' | 'priya' | 'maria';

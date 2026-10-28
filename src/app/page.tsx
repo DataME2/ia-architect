@@ -1,5 +1,5 @@
 import { HEADLINE, MAKER, PITCH, TAGLINE } from '../web/brand.ts';
-import { CONNECTIONS, TRUST } from '../web/home-story.ts';
+import { CONNECTIONS, PEOPLE, TRUST, rolesHeldBy } from '../web/home-story.ts';
 import { HeroPreview } from './_components/HeroPreview.tsx';
 import { RegistrationWalkthrough } from './_components/RegistrationWalkthrough.tsx';
 import { RoleExplorer } from './_components/RoleExplorer.tsx';
@@ -19,21 +19,37 @@ import { ScrollReveal } from './_components/ScrollReveal.tsx';
  * shown is `src/web/home-story.ts`, a fictional club that the page labels as
  * fictional. The interactive parts are four small client islands; the rest
  * is server-rendered and reads the same without JavaScript.
+ *
+ * Since scope 119 it is set as a night match: floodlights and a mown pitch
+ * behind the hero, light turf under the explorer and the connections, and
+ * a deep-turf close. All of it is decoration in CSS and SVG, hidden from
+ * assistive technology.
  */
 export default function HomePage() {
   // The headline is two sentences, and the hero sets each on its own line.
   const headline = HEADLINE.split(/(?<=\.)\s+/);
+  // The hero's card: one fictional person and every role they hold.
+  const held = PEOPLE.tane;
+  const heldRoles = rolesHeldBy(held.id).map((r) => r.short);
 
   return (
     <div className="home">
       <section className="home-hero" aria-labelledby="home-title">
-        <svg className="home-pitch" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <rect pathLength={1} x="60" y="80" width="1320" height="640" rx="2" />
-          <line pathLength={1} x1="720" y1="80" x2="720" y2="720" />
-          <circle pathLength={1} cx="720" cy="400" r="130" />
-          <rect pathLength={1} x="60" y="250" width="170" height="300" />
-          <rect pathLength={1} x="1210" y="250" width="170" height="300" />
-        </svg>
+        {/* A full-size pitch, 10 units to the metre, laid in perspective
+            under the floodlights. Every mark draws once (pathLength=1). */}
+        <div className="home-stadium" aria-hidden="true">
+          <svg className="home-pitch" viewBox="-40 -40 1130 760" preserveAspectRatio="xMidYMax slice">
+            <rect pathLength={1} x="0" y="0" width="1050" height="680" />
+            <line pathLength={1} x1="525" y1="0" x2="525" y2="680" />
+            <circle pathLength={1} cx="525" cy="340" r="91.5" />
+            <rect pathLength={1} x="0" y="138.5" width="165" height="403" />
+            <rect pathLength={1} x="885" y="138.5" width="165" height="403" />
+            <rect pathLength={1} x="0" y="248.5" width="55" height="183" />
+            <rect pathLength={1} x="995" y="248.5" width="55" height="183" />
+            <path pathLength={1} d="M165 266.9 A91.5 91.5 0 0 1 165 413.1" />
+            <path pathLength={1} d="M885 266.9 A91.5 91.5 0 0 0 885 413.1" />
+          </svg>
+        </div>
 
         <div className="home-hero-grid">
           <div className="home-hero-copy">
@@ -61,11 +77,24 @@ export default function HomePage() {
               <a href="/sign-in?next=/me">Sign in to your roles</a>.
             </p>
           </div>
-          <HeroPreview />
+          <div className="hp-stage">
+            <HeroPreview />
+            <p className="hp-float">
+              <span className="hp-float-avatar" aria-hidden="true">
+                {held.initials}
+              </span>
+              <span>
+                <strong>{held.name}</strong>
+                <span className="hp-float-roles">
+                  One Person record · {heldRoles.join(' · ')}
+                </span>
+              </span>
+            </p>
+          </div>
         </div>
       </section>
 
-      <section className="home-panel" aria-labelledby="explore-title">
+      <section className="home-turf" aria-labelledby="explore-title">
         <div className="home-inner" data-reveal="">
           <p className="eyebrow">Role explorer</p>
           <h2 id="explore-title" className="home-heading">
@@ -97,7 +126,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="home-panel" aria-labelledby="connect-title">
+      <section className="home-turf" aria-labelledby="connect-title">
         <div className="home-inner home-split" data-reveal="">
           <div>
             <p className="eyebrow">Connected operations</p>
