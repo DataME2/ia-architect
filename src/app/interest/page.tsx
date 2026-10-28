@@ -9,8 +9,8 @@ import { InterestForm } from './InterestForm.tsx';
  * address with no club attached, and the first reply was a round of
  * questions.
  *
- * Static, like `/`: no session lookup, nothing read before the visitor
- * acts, and therefore nothing to leak to somebody who is not a customer.
+ * No session lookup and nothing read before the visitor acts but the query
+ * string, so nothing to leak to somebody who is not a customer.
  * **Nothing here grants access** (BR145) — the page says so in words,
  * because the absence of a "create your club" button is not an
  * explanation, and a club that expected one deserves to know why there
@@ -22,7 +22,15 @@ export const metadata = {
     'Tell us about your club and we will reply directly. No account, and nothing to set up.',
 };
 
-export default function InterestPage() {
+export default async function InterestPage({
+  searchParams,
+}: {
+  readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  // `?request=demo` from the homepage's "Request a demo" (BR188). The only
+  // thing read before the visitor acts, and it is not about them.
+  const wantsDemo = (await searchParams)['request'] === 'demo';
+
   return (
     <>
       <section className="hero">
@@ -69,7 +77,7 @@ export default function InterestPage() {
       </div>
 
       <section className="card">
-        <InterestForm />
+        <InterestForm wantsDemo={wantsDemo} />
       </section>
 
       <p className="hint">

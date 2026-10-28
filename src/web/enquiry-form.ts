@@ -51,6 +51,12 @@ export interface ClubEnquiry {
    * whether the enquiry is answered.
    */
   readonly marketingConsent: boolean;
+  /**
+   * A guided demo rather than a question (BR188). Optional like everything
+   * but the two required fields: an enquirer who skips it is asking a
+   * question.
+   */
+  readonly wantsDemo: boolean;
 }
 
 export type EnquiryParse =
@@ -74,6 +80,29 @@ export interface EnquiryFields {
   readonly note?: unknown;
   readonly phone?: unknown;
   readonly marketingConsent?: unknown;
+  /** `demo` or `question`, from the form's radio group. */
+  readonly request?: unknown;
+}
+
+/**
+ * The form's fields, read by name. Shared by the server action and the
+ * browser-side copy (BR189), so both read the same enquiry. Typed as
+ * anything with `get`, because this layer has no DOM and `FormData` is one.
+ */
+export function parseEnquiryForm(form: { get(name: string): unknown }): EnquiryParse {
+  return parseEnquiry({
+    clubName: form.get('clubName'),
+    email: form.get('email'),
+    contactName: form.get('contactName'),
+    contactRole: form.get('contactRole'),
+    jurisdiction: form.get('jurisdiction'),
+    clubSize: form.get('clubSize'),
+    currentSystem: form.get('currentSystem'),
+    note: form.get('note'),
+    phone: form.get('phone'),
+    marketingConsent: form.get('marketingConsent'),
+    request: form.get('request'),
+  });
 }
 
 /**
@@ -120,6 +149,7 @@ export function parseEnquiry(fields: EnquiryFields): EnquiryParse {
       // and it is also the answer we want when anything is ambiguous.
       // Consent is only ever the affirmative case (BR93).
       marketingConsent: fields.marketingConsent === 'on' || fields.marketingConsent === true,
+      wantsDemo: fields.request === 'demo',
     },
   };
 }

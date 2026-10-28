@@ -95,6 +95,13 @@ export function EnquiryList({ enquiries }: { readonly enquiries: readonly Enquir
                       // missing.
                       <span className="hint">looked at the demo only</span>
                     )}
+                    {enquiry.wantsDemo && (
+                      // BR188: the reply is a call to book, not an answer.
+                      <>
+                        {' '}
+                        <span className="pill">wants a guided demo</span>
+                      </>
+                    )}
                     {enquiry.jurisdiction !== null && (
                       <>
                         <br />

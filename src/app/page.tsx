@@ -213,6 +213,9 @@ export default function HomePage() {
           <a className="button" href="/interest">
             Talk to us about your club
           </a>
+          <a className="button secondary" href="/interest?request=demo">
+            Request a demo
+          </a>
           <a className="button secondary" href="/demo">
             See the demonstration club
           </a>

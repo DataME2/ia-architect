@@ -23,6 +23,7 @@ const ENQUIRY: ClubEnquiry = {
   note: null,
   phone: null,
   marketingConsent: false,
+  wantsDemo: false,
 };
 
 function transport(send: MessageTransport['send']): MessageTransport {
@@ -132,6 +133,7 @@ describe('alertsPending — BR147, delivery is terminal', () => {
     notifyError: null,
     notifyAttempts: 1,
     notifyAttemptedAt: '2026-09-14T00:00:00Z',
+    wantsDemo: false,
   };
 
   it('selects an enquiry whose alert failed', () => {
@@ -176,6 +178,7 @@ describe('a retried alert is the alert that failed', () => {
       note: 'Season starts in March.',
       phone: '0400 000 000',
       marketingConsent: true,
+      wantsDemo: true,
     };
 
     const stored: Enquiry = {
@@ -199,6 +202,7 @@ describe('a retried alert is the alert that failed', () => {
       notifyError: 'provider down',
       notifyAttempts: 1,
       notifyAttemptedAt: '2026-09-14T00:00:00Z',
+      wantsDemo: true,
     };
 
     const sent: { subject: string; body: string }[] = [];
@@ -219,7 +223,7 @@ describe('a retried alert is the alert that failed', () => {
       contactName: null, contactRole: null, clubSize: null, currentSystem: null, note: null,
       source: 'demo', enquiredAt: null, firstSeenAt: '2026-09-14T00:00:00Z',
       lastSeenAt: '2026-09-14T00:00:00Z', marketingConsentAt: null, notifiedAt: null,
-      notifyError: null, notifyAttempts: 0, notifyAttemptedAt: null,
+      notifyError: null, notifyAttempts: 0, notifyAttemptedAt: null, wantsDemo: false,
     };
     assert.equal(alertInputFor(looker).clubName, 'someone@example.test');
   });

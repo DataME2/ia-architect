@@ -13,6 +13,7 @@ const bare: EnquiryAlertInput = {
   note: null,
   phone: null,
   marketingConsent: false,
+  wantsDemo: false,
 };
 
 const full: EnquiryAlertInput = {
@@ -95,5 +96,13 @@ describe('composeEnquiryAlert — BR146', () => {
     for (const word of words) {
       assert.ok(accountedFor(word), `"${word}" is in the alert and came from nowhere in the input`);
     }
+  });
+});
+
+describe('composeEnquiryAlert — BR188', () => {
+  it('leads with a demo request, in the subject and the first line', () => {
+    const alert = composeEnquiryAlert({ ...full, wantsDemo: true });
+    assert.equal(alert.subject, 'Demo request: Brisbane Bayside FC — on Majestri');
+    assert.ok(alert.body.startsWith('Brisbane Bayside FC has asked for a guided demo.'));
   });
 });

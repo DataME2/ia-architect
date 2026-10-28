@@ -45,6 +45,7 @@ export async function recordInterest(
     p_marketing_wording: enquiry.marketingConsent ? ENQUIRY_CONSENT_WORDING : null,
     p_notified: notification.notified,
     p_notify_error: notification.error,
+    p_wants_demo: enquiry.wantsDemo,
   });
 
   if (error !== null) throw new QueryError('record_interest', error.message);
@@ -166,6 +167,8 @@ export interface Enquiry {
   readonly notifyAttempts: number;
   /** When it was last attempted. `notifiedAt` is the success; this is the try. */
   readonly notifyAttemptedAt: string | null;
+  /** A guided demo was asked for, on this enquiry or an earlier one (BR188). */
+  readonly wantsDemo: boolean;
 }
 
 /** The lead list, for the platform owner. Raises for anybody else. */
@@ -193,6 +196,7 @@ export async function loadEnquiries(client: SupabaseClient): Promise<readonly En
     notifyError: (row['notify_error'] as string | null) ?? null,
     notifyAttempts: Number(row['notify_attempts'] ?? 0),
     notifyAttemptedAt: (row['notify_attempted_at'] as string | null) ?? null,
+    wantsDemo: row['wants_demo'] === true,
   }));
 }
 
@@ -223,6 +227,7 @@ export function alertInputFor(enquiry: Enquiry): EnquiryAlertInput {
     note: enquiry.note,
     phone: enquiry.phone,
     marketingConsent: enquiry.marketingConsentAt !== null,
+    wantsDemo: enquiry.wantsDemo,
   };
 }
 
