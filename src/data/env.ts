@@ -222,9 +222,11 @@ export function readCronSecret(
 /**
  * The project ref a preview deployment must never be pointed at.
  *
- * **`pitchpeople-prod`, Sydney, set 27 October 2026 (scope 114).** It
- * replaces `ltd-production` (`jqyfbgojgxpymjgecxgx`, set 15 September), which
- * was never pointed at. Both were set before anything could reach them on
+ * **`sqzqausvkgjsdwcgicxn`, Sydney, set 28 October 2026 (scope 115).** It
+ * replaces `pitchpeople-prod` (`afufvmkxjkulygeoajpw`, set 27 October, scope
+ * 114), which the product owner retired a day later, and `ltd-production`
+ * (`jqyfbgojgxpymjgecxgx`, set 15 September). None was ever pointed at. All
+ * were set before anything could reach them on
  * purpose: the dangerous window is the deploy *after* somebody creates the
  * project and *before* anyone remembers there was a rule about this. The
  * guard is armed before the database it guards is reachable, which is the
@@ -246,7 +248,7 @@ export function readCronSecret(
  * refuses that rather than letting a typo disable a safety check. Which is
  * the same objection as the environment variable, one step along.
  */
-export const PRODUCTION_PROJECT_REF = 'afufvmkxjkulygeoajpw';
+export const PRODUCTION_PROJECT_REF = 'sqzqausvkgjsdwcgicxn';
 
 /**
  * Whether a value is a project ref rather than a URL, a fragment of one, or
