@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -20 480 1020" width="480" height="1020">
+  <!--
+    A grassroots referee, signalling with a raised arm (scope 120). An
+    original drawing for PitchPeople, made for the front door: an adult
+    volunteer, not an elite athlete. Line work in ink over light paper, so
+    the wordmark reads where it crosses the figure, and a paper keyline
+    round the whole cut-out, so the figure separates from the ink letters
+    behind it. The only pigment is the whistle's oxide lanyard.
+  -->
+  <defs>
+    <filter id="cut" x="-8%" y="-4%" width="116%" height="108%">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="7" result="grown" />
+      <feFlood flood-color="#dcd7cb" />
+      <feComposite in2="grown" operator="in" result="edge" />
+      <feMerge>
+        <feMergeNode in="edge" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <style>
+      .paper { fill: #f4f1ea; stroke: #1a1917; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+      .ink { fill: #1a1917; stroke: #1a1917; stroke-width: 3; stroke-linejoin: round; }
+      .line { fill: none; stroke: #1a1917; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+      .hair { fill: none; stroke: #1a1917; stroke-width: 1.5; stroke-linecap: round; }
+      .oxide { fill: none; stroke: #9b3418; stroke-width: 3; stroke-linecap: round; }
+    </style>
+  </defs>
+
+  <g filter="url(#cut)">
+    <!-- Mirrored, so the raised arm is on the viewer's right: on the page it
+         reaches up behind the P of PITCH while the head stays clear of it. -->
+    <g transform="matrix(-1 0 0 1 440 0)">
+    <!-- Legs, socks and boots -->
+    <path class="paper" d="M166 676 L210 682 L207 800 L201 928 L173 928 L167 800 Z" />
+    <path class="paper" d="M232 682 L278 676 L275 800 L269 928 L241 928 L235 800 Z" />
+    <path class="ink" d="M168 812 L206 812 L205 828 L168 828 Z" />
+    <path class="ink" d="M236 812 L274 812 L273 828 L236 828 Z" />
+    <path class="line" d="M190 724 C188 748 189 770 192 790" />
+    <path class="line" d="M254 724 C256 748 255 770 252 790" />
+    <path class="ink" d="M170 926 L204 926 L207 954 C194 962 172 966 156 964 C146 962 146 950 156 946 C163 943 168 936 170 926 Z" />
+    <path class="ink" d="M240 926 L272 926 C274 936 279 943 286 946 C296 950 296 962 286 964 C270 966 248 962 237 954 Z" />
+
+    <!-- Shorts -->
+    <path class="ink" d="M162 552 L282 552 L292 680 L234 688 L222 626 L210 688 L152 680 Z" />
+
+    <!-- The arm at the side, its sleeve, and the hand -->
+    <path class="paper" d="M298 424 L326 420 L334 586 C336 600 330 612 318 614 C306 614 300 604 302 590 Z" />
+    <path class="paper" d="M282 320 C296 326 312 342 318 360 L332 430 L294 438 L286 400 Z" />
+    <path class="line" d="M296 430 L330 424" />
+
+    <!-- The shirt -->
+    <path class="paper" d="M176 316 C190 306 204 300 210 298 L234 298 C244 302 262 308 280 318 L288 400 L284 560 C248 572 196 572 160 560 L158 420 L150 352 Z" />
+    <path class="line" d="M160 556 C196 566 248 566 284 556" />
+    <path class="line" d="M222 352 L222 556" />
+    <path class="hair" d="M222 372 m-2 0 a2 2 0 1 0 4 0 a2 2 0 1 0 -4 0 M222 412 m-2 0 a2 2 0 1 0 4 0 a2 2 0 1 0 -4 0 M222 452 m-2 0 a2 2 0 1 0 4 0 a2 2 0 1 0 -4 0" />
+    <path class="line" d="M240 366 L270 364 L271 398 L241 400 Z" />
+    <path class="line" d="M240 376 L270 374" />
+
+    <!-- The raised arm: sleeve, arm and open hand, signalling -->
+    <path class="paper" d="M132 352 L176 324 L144 92 L108 96 Z" />
+    <path class="paper" d="M124 360 C120 330 120 290 130 240 L180 232 C188 262 190 296 186 330 Z" />
+    <path class="line" d="M130 246 L180 238" />
+    <path class="paper" d="M108 98 C102 74 101 48 106 30 C110 16 132 12 140 24 C146 36 147 64 144 94 Z" />
+    <path class="paper" d="M110 88 C98 82 92 70 96 62 C100 56 108 62 110 72" />
+    <path class="hair" d="M118 30 L119 58 M128 26 L129 56 M137 30 L137 58" />
+
+    <!-- Collar, neck and head -->
+    <path class="paper" d="M206 276 L238 276 L240 304 L204 304 Z" />
+    <path class="paper" d="M204 300 L222 334 L192 318 Z" />
+    <path class="paper" d="M240 300 L222 334 L252 318 Z" />
+    <ellipse class="paper" cx="182" cy="242" rx="7" ry="12" />
+    <ellipse class="paper" cx="262" cy="242" rx="7" ry="12" />
+    <path class="paper" d="M222 186 C248 186 262 206 262 236 C262 268 246 290 222 290 C198 290 182 268 182 236 C182 206 196 186 222 186 Z" />
+    <path class="ink" d="M182 238 C178 204 196 182 224 182 C250 182 266 202 262 238 C256 222 244 210 222 210 C204 210 190 218 182 238 Z" />
+    <path class="hair" d="M214 274 C220 278 226 278 232 274" />
+
+    <!-- The whistle, on its oxide lanyard -->
+    <path class="oxide" d="M208 302 C204 334 210 366 222 382 M236 302 C240 334 234 366 222 382" />
+    <path class="ink" d="M214 382 L232 382 L232 396 L214 396 Z" />
+    </g>
+  </g>
+</svg>
