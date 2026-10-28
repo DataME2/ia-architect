@@ -71,8 +71,11 @@ contact support with server IP address (Pro plan is required)"*.
     enquirer stayed one lead.
   - The security advisor raised nothing new.
 
-  **PROD is held** at the product owner's request. It must have 0098
-  before any deployment pointed at PROD runs this code.
+  **Applied to PROD the same day** (`sqzqausvkgjsdwcgicxn`), at the
+  product owner's request after review on DEV, by the hand procedure
+  (`supabase db push --db-url`, a dry run first). The same checks gave the
+  same results, run in a transaction that was rolled back, so PROD still
+  holds no `prospect` rows.
 - **Outcome:** a demo request is a fact on the lead, not a sentence in a note.
 
 ### WP2 — The form, the copy and the thank-you page
