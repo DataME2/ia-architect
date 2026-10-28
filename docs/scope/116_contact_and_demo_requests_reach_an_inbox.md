@@ -62,6 +62,17 @@ contact support with server IP address (Pro plan is required)"*.
   - `supabase/tests/40_club_enquiry.sql` updated for the new signature,
     including that a later question keeps an earlier demo request.
   - `src/data/migration-drift.ts` expects 0098.
+- **Applied to DEV on 2026-10-28** and verified:
+  - `schema_migration_log` reads 0098.
+  - Only the new `record_interest` signature exists.
+  - `anon` may execute `record_interest` but no longer `app_enquiries`.
+  - In a rolled-back run as `anon`, a demo request survived a later
+    question, a plain question was not marked as a demo, and a returning
+    enquirer stayed one lead.
+  - The security advisor raised nothing new.
+
+  **PROD is held** at the product owner's request. It must have 0098
+  before any deployment pointed at PROD runs this code.
 - **Outcome:** a demo request is a fact on the lead, not a sentence in a note.
 
 ### WP2 — The form, the copy and the thank-you page
