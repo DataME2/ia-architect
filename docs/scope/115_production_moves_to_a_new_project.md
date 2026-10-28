@@ -70,15 +70,15 @@ project from the same migrations and moves the guard to it.
 
 | In scope | Out of scope (gaps, candidate future work) |
 | -------- | ------------------------------------------- |
-| Building the new project and moving the guard | Deleting or pausing `pitchpeople-prod` (the product owner's decision, in the dashboard) |
+| Building the new project and moving the guard | Deleting or pausing `pitchpeople-prod`: the product owner's step in the dashboard, **done 2026-10-28** |
 | The documents naming it | Pointing any deployment at production, which still waits for a real club (scope 49, step 4) |
 | | The new project's dashboard settings (Auth URLs, SMTP, email templates, backups) |
 
 ## Gap notes
 
-- **`pitchpeople-prod` still exists** until the product owner deletes it.
-  It holds the schema and no rows, so it costs a project's fee and nothing
-  else. Nothing in the repository names it as production any more.
+- **`pitchpeople-prod` is gone.** The product owner deleted or paused it in
+  the dashboard on 2026-10-28. It held the schema and no rows, and nothing
+  in the repository names it as production any more.
 - **Dashboard settings.** The new project's Auth, SMTP, template and backup
   settings are not in migrations and were not compared. They matter on the
   day a deployment points at it.
