@@ -457,6 +457,133 @@ a:hover {
   padding: var(--space-5) var(--space-5) var(--space-7);
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   THE WORKSPACE FRAME — scope 125
+
+   The club screens and /me run the full width of the window, with the club
+   menu or the identity rail pinned to its left edge, as a dashboard does.
+   From 64rem the side is the window's height under the bar and scrolls on
+   its own; below that it is a card above the page (the club menu folds
+   into a Menu button), so a tablet gets the full width for the work.
+
+   The content is a container, so its two-column grids answer to the space
+   they actually have, not to the window: a card is never squeezed beside
+   another until the two overlap.
+   ══════════════════════════════════════════════════════════════════════ */
+.shell:has(.ws-frame) {
+  max-width: none;
+  padding: 0 0 var(--space-7);
+}
+
+.ws-side {
+  padding: var(--space-4) var(--space-4) 0;
+}
+
+.ws-content {
+  container: ws / inline-size;
+  min-width: 0;
+  padding: var(--space-4) var(--space-4) 0;
+}
+
+@media (min-width: 64rem) {
+  /* The bar and the ledge it stands on. It shrinks on scroll only where the
+     scroll-driven animation runs (see the top bar), and the side sticks
+     under whichever height it has. */
+  .ws-frame {
+    --bar-h: calc(5rem + var(--border-width-frame));
+  }
+
+  .ws-side {
+    position: sticky;
+    top: var(--bar-h);
+    height: calc(100dvh - var(--bar-h));
+    padding: 0;
+  }
+
+  .ws-content {
+    padding: var(--space-5) var(--space-6) 0;
+  }
+
+  /* Flush with the window's edge: no corners, no shadow, a rule on the
+     right only. The club menu fills its sticky column; the identity rail
+     is the column itself. */
+  .ws-frame .ws-side > nav,
+  .ws-frame.role-shell > aside {
+    max-width: none;
+    overflow-y: auto;
+    border-width: 0 1px 0 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .ws-frame .ws-side > nav {
+    height: 100%;
+  }
+
+  .ws-frame.role-shell > aside {
+    position: sticky;
+    top: var(--bar-h);
+    height: calc(100dvh - var(--bar-h));
+  }
+
+  .ws-frame.role-shell {
+    grid-template-columns: 17.5rem minmax(0, 1fr);
+    gap: 0;
+  }
+}
+
+/* Below 64rem /me is one column: the rail is a card above the work. */
+@media (max-width: 63.99rem) {
+  .ws-frame.role-shell {
+    padding: var(--space-4) var(--space-4) 0;
+    gap: var(--space-4);
+  }
+
+  .ws-frame.role-shell > .ws-content {
+    padding: 0;
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    .ws-frame {
+      --bar-h: calc(3.75rem + var(--border-width-frame));
+    }
+  }
+}
+
+/* Work in progress (scope 125): a chalk stamp across a screen that is not
+   finished. It is real text, first in the page, so a screen reader meets it
+   before the screen; it never takes a click. */
+.wip-page {
+  position: relative;
+}
+
+.wip-stamp {
+  position: absolute;
+  margin: 0;
+  top: 12rem;
+  left: 50%;
+  z-index: 1;
+  translate: -50% 0;
+  rotate: -14deg;
+  padding: var(--space-2) var(--space-5);
+  border: var(--border-width) dashed color-mix(in srgb, var(--text) 22%, transparent);
+  border-radius: var(--radius-sm);
+  color: color-mix(in srgb, var(--text) 16%, transparent);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Scoped to the frame so it outranks .cols, which comes later. */
+@container ws (max-width: 56rem) {
+  .ws-content .cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* ------------------------------------------- top bar and footer
 
    Scope 104: the Superdesign front door's chrome, on every screen. The
@@ -2332,7 +2459,7 @@ td {
 }
 
 /* ─────────────────────────────────────────────── responsive */
-@media (max-width: 62rem) {
+@media (max-width: 63.99rem) {
   .role-shell {
     grid-template-columns: 1fr;
   }
@@ -2371,9 +2498,7 @@ td {
 .work-head h2 {
   margin: 0;
   font-size: 1.5rem;
-  font-weight: 800;
-  font-variation-settings: 'wdth' 108;
-  letter-spacing: -0.03em;
+  font-weight: 400;
 }
 
 .work-head p {

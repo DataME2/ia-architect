@@ -45,7 +45,11 @@ export default async function CarnivalsPage({
   };
 
   return (
-    <>
+    // Scope 125: stamped as work in progress until carnivals are finished.
+    <div className="wip-page">
+      <p className="wip-stamp" role="note">
+        Work in progress
+      </p>
       <h2>Carnivals</h2>
       <p className="lede">
         Multi-club events, followed by families with no account. Team and club results only &mdash;
@@ -142,6 +146,6 @@ export default async function CarnivalsPage({
           )}
         </>
       )}
-    </>
+    </div>
   );
 }

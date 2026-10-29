@@ -93,7 +93,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
         // The dashboard draft's dark sidebar (scope 106): the rail's colours in
         // both schemes, as the identity rail on /me already is.
         className={cn(
-          'print:hidden w-full md:max-w-[260px] flex flex-col font-sans text-rail-foreground bg-rail border border-rail-line rounded-lg shadow-md p-3',
+          'print:hidden w-full flex flex-col font-sans text-rail-foreground bg-rail border border-rail-line rounded-lg shadow-md p-3',
           className
         )}
         {...props}
@@ -104,7 +104,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
           onClick={() => setIsOpen((prev) => !prev)}
           aria-expanded={isOpen}
           aria-controls={navId}
-          className="md:hidden flex items-center justify-between w-full min-h-[44px] px-3 py-2 rounded-md shadow-none bg-rail-foreground/5 border-2 border-rail-line text-sm font-semibold text-rail-foreground hover:bg-rail-foreground/10! hover:text-rail-foreground! transition-colors"
+          className="lg:hidden flex items-center justify-between w-full min-h-[44px] px-3 py-2 rounded-md shadow-none bg-rail-foreground/5 border-2 border-rail-line text-sm font-semibold text-rail-foreground hover:bg-rail-foreground/10! hover:text-rail-foreground! transition-colors"
         >
           <span className="flex items-center gap-2">
             <svg
@@ -130,7 +130,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
 
         {/* Section Heading for Desktop */}
         {title && (
-          <p className="hidden md:block text-sm font-semibold text-rail-foreground px-3 py-1 mb-ds-2">
+          <p className="hidden lg:block text-sm font-semibold text-rail-foreground px-3 py-1 mb-ds-2">
             {title}
           </p>
         )}
@@ -140,7 +140,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
           id={navId}
           className={cn(
             'flex-col gap-1 transition-all duration-180',
-            isOpen ? 'flex mt-2' : 'hidden md:flex'
+            isOpen ? 'flex mt-2' : 'hidden lg:flex'
           )}
         >
           {items.map((item, i) => {
