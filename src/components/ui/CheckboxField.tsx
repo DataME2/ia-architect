@@ -91,7 +91,6 @@ export const CheckboxField = React.forwardRef<HTMLInputElement, CheckboxFieldPro
                 'peer appearance-none w-5 h-5 rounded-sm border border-border-strong bg-surface transition-all duration-180 ease-in-out cursor-pointer',
                 'checked:bg-primary checked:border-primary',
                 'indeterminate:bg-primary indeterminate:border-primary',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                 'hover:border-primary',
                 disabled && 'cursor-not-allowed bg-backgroundSunk border-border peer-checked:bg-muted peer-checked:border-muted',
                 hasError && 'border-destructive-indicator'

@@ -288,9 +288,18 @@ Magnet numbers are 19px bold (large text) at 5.6:1 on the home red. Focus is a 3
 - Dark-first (Felt); the Whiteboard theme is the light counterpart for projectors and sunlight.
 - Token names match the existing Tailwind layer; `signal`, `magnet.*` and `frame` are additions.
 - Space Grotesk, Space Mono and Permanent Marker are self-hosted as latin woff2 in `public/fonts/`, with their licences (scope 123).
-- **Applied as tokens first (scope 123).** `globals.css` and the Tailwind layer carry these values, and every colour in `globals.css` is a token. The magnets, index cards, motion patterns and the four screens are not built yet.
+- **Applied as tokens first (scope 123).** `globals.css` and the Tailwind layer carry these values, and every colour in `globals.css` is a token.
+- **Then the shapes and the pieces (scope 124).**
+  - 2px controls, pill strips with the active one in chalk yellow, and chalk pills that press 3px into their 5px drop.
+  - One 3px focus ring offset 3px, and index-card corners and shadows.
+  - `Magnet`, `ChalkLine` and `PinnedCard` in `src/components/ui`.
+  - The bar and footer on the wooden ledge, and the Team Dugout drawn as a board.
+  - The home board, the other three screens and the remaining motion patterns are not built yet.
 - `--font-display` is Permanent Marker, so it stays on headings of 20px or more. Eyebrows, the brand name, small labels and initials fall back to Space Grotesk, and tallies to Space Mono.
 - The Whiteboard is also the print scheme, so paper is never felt.
 - A pressed chip is the active strip in chalk yellow, since a felt fill would vanish on felt.
 - `shadows.md` and `shadows.lg` are not in this file. The black versions are kept for the panels and popovers that use them.
+- Card and Panel take the index card's corners and shadow, but stay on `surface`, because body text on cards is chalk on felt. The paper (`--card`, #fbfaf4) is for task cards: `PinnedCard`, whose `.paper` scope restates the Whiteboard tokens so ink, the light statuses and the felt primary pill follow. Only task cards are pinned and tilted.
+- The mark is a paper tile with a felt pitch drawn on it in chalk. Its net lights in `signal` with a felt edge, since chalk yellow is 1.4:1 on paper.
+- On a phone narrower than about 400px, the dugout's magnets shrink to 44px, the touch-target floor, so five in a line do not touch.
 - Tailwind's type scale is not remapped, because the components' `text-lg` and `text-2xl` would jump to 2.125rem and 3.5rem. Only `text-hand` is added.

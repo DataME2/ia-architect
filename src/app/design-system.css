@@ -12,7 +12,10 @@
  * 3. Every colour points at a globals.css variable rather than repeating a
  *    hex value. DESIGN.md's tokens were derived from those variables and
  *    its dark values are theirs, so this keeps one source of truth and the
- *    app's own dark mode (prefers-color-scheme) applies unchanged.
+ *    app's own dark mode (prefers-color-scheme) applies unchanged. The
+ *    theme is `inline` (scope 124): a utility reads the globals.css variable
+ *    where it is used, so a scope that restates a token (an index card's
+ *    `.paper`, the dugout's board) recolours every utility inside it.
  *
  * The theme is imported into a cascade layer, so where Tailwind's variable
  * names coincide with globals.css (--radius-sm, --shadow-sm, --font-sans)
@@ -29,7 +32,7 @@
 /* The Assistant's one surface lives in src/app (scripts/check_assistant.py). */
 @source './_components/AssistantNote.tsx';
 
-@theme {
+@theme inline {
   /* Surfaces and text */
   --color-background: var(--bg);
   --color-backgroundSunk: var(--bg-sunk);
@@ -62,7 +65,10 @@
   --color-magnet-home: var(--magnet-home);
   --color-magnet-away: var(--magnet-away);
   --color-magnet-you: var(--magnet-you);
+  --color-magnet-foreground: var(--magnet-text);
+  --color-magnet-you-foreground: var(--magnet-you-text);
   --color-frame: var(--frame);
+  --color-card-rule: var(--card-rule);
 
   /* Status families: background, text, and the dot beside it */
   --color-success: var(--ok-bg);
@@ -109,6 +115,25 @@
   --ease-magnet: cubic-bezier(0.5, 1.6, 0.4, 1);
   --ease-chalk: ease-out;
   --ease-pin: cubic-bezier(0.3, 1.4, 0.5, 1);
+
+  /* The pieces' motion (src/components/ui: ChalkLine, PinnedCard), used
+     behind motion-safe: so reduced motion shows the end state */
+  --animate-chalk: chalk-draw var(--dur-chalk) var(--ease-chalk) both;
+  --animate-pin: pin-drop 600ms var(--ease-pin) both;
+
+  @keyframes chalk-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+  }
+
+  @keyframes pin-drop {
+    from {
+      opacity: 0;
+      translate: 0 -14px;
+      rotate: 0deg;
+    }
+  }
 
   /* Shadows are inlined by Tailwind, so they are stated here (DESIGN.md) */
   --shadow-xs: 0 2px 0 rgb(0 0 0 / 25%);

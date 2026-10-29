@@ -36,7 +36,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const variantClasses: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary:
-    'bg-primary text-primary-foreground hover:bg-primary-hover border-transparent shadow-xs',
+    'bg-primary text-primary-foreground hover:bg-primary-hover border-transparent shadow-sm active:shadow-xs',
   secondary:
     'bg-secondary text-secondary-foreground border-border-strong hover:bg-surfaceSubtle hover:border-primary hover:text-primary shadow-xs',
   ghost:
@@ -80,9 +80,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         aria-busy={isLoading || undefined}
         className={cn(
-          'inline-flex items-center justify-center font-sans border rounded-sm transition-all duration-180 ease-in-out cursor-pointer select-none',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
-          'active:translate-y-[1px]',
+          'inline-flex items-center justify-center font-sans border-2 rounded-full transition-all duration-180 ease-in-out cursor-pointer select-none',
+          'active:translate-y-[3px]',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:shadow-none',
           variantClasses[variant],
           sizeClasses[size],

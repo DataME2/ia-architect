@@ -46,7 +46,7 @@ export const HeroBanner = React.forwardRef<HTMLElement, HeroBannerProps>(
         ref={ref}
         aria-roledescription="hero banner"
         className={cn(
-          'relative overflow-hidden rounded-lg bg-gradient-to-br from-primary via-primary-hover to-rail text-primary-foreground shadow-lg p-ds-5 sm:p-ds-6 md:p-ds-7 mb-ds-6 select-none font-sans',
+          'relative overflow-hidden rounded-card bg-rail text-rail-foreground border-2 border-rail-line shadow-card p-ds-5 sm:p-ds-6 md:p-ds-7 mb-ds-6 select-none font-sans',
           className
         )}
         {...props}
@@ -54,7 +54,7 @@ export const HeroBanner = React.forwardRef<HTMLElement, HeroBannerProps>(
         {/* Decorative Pitch Marking Circle */}
         {pitchDecoration && (
           <div
-            className="absolute -right-24 -bottom-56 w-[26rem] h-[26rem] rounded-full border-[1.5px] border-accent/30 pointer-events-none shadow-[0_0_0_6rem_rgba(242,118,27,0.04)]"
+            className="absolute -right-24 -bottom-56 w-[26rem] h-[26rem] rounded-full border-2 border-rail-foreground/30 pointer-events-none"
             aria-hidden="true"
           />
         )}
@@ -62,13 +62,13 @@ export const HeroBanner = React.forwardRef<HTMLElement, HeroBannerProps>(
         {/* Content Container */}
         <div className="relative z-10 max-w-3xl flex flex-col items-start">
           {eyebrow && (
-            <span className="font-sans font-bold text-xs uppercase tracking-widest text-[#ffb877] mb-ds-2">
+            <span className="font-sans font-bold text-xs uppercase tracking-widest text-magnet-you mb-ds-2">
               {eyebrow}
             </span>
           )}
 
           {typeof title === 'string' ? (
-            <h2 className="font-sans font-bold text-2xl sm:text-3xl md:text-4xl text-white tracking-tight leading-tight mb-ds-3 max-w-xl">
+            <h2 className="font-hand font-normal text-2xl sm:text-3xl md:text-4xl text-rail-foreground leading-tight mb-ds-3 max-w-xl">
               {title}
             </h2>
           ) : (
@@ -76,7 +76,7 @@ export const HeroBanner = React.forwardRef<HTMLElement, HeroBannerProps>(
           )}
 
           {subtext && (
-            <p className="font-sans text-sm sm:text-base text-primary-foreground/90 max-w-xl mb-ds-5 leading-normal m-0">
+            <p className="font-sans text-sm sm:text-base text-rail-muted max-w-xl mb-ds-5 leading-normal m-0">
               {subtext}
             </p>
           )}

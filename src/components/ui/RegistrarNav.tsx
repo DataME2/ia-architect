@@ -104,7 +104,7 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
           onClick={() => setIsOpen((prev) => !prev)}
           aria-expanded={isOpen}
           aria-controls={navId}
-          className="md:hidden flex items-center justify-between w-full min-h-[44px] px-3 py-2 rounded-md shadow-none bg-white/5 border border-rail-line text-sm font-semibold text-rail-foreground hover:bg-white/10! hover:text-rail-foreground! transition-colors"
+          className="md:hidden flex items-center justify-between w-full min-h-[44px] px-3 py-2 rounded-md shadow-none bg-rail-foreground/5 border-2 border-rail-line text-sm font-semibold text-rail-foreground hover:bg-rail-foreground/10! hover:text-rail-foreground! transition-colors"
         >
           <span className="flex items-center gap-2">
             <svg
@@ -179,9 +179,8 @@ export const RegistrarNav = React.forwardRef<HTMLElement, RegistrarNavProps>(
                   data-section={item.group}
                   className={cn(
                     'flex items-center min-h-[44px] px-3 py-1.5 rounded-md text-sm no-underline transition-colors select-none',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-0',
                     isCurrent
-                      ? 'bg-(--section)/15 shadow-[inset_3px_0_0_var(--section)] text-white hover:text-white font-semibold'
+                      ? 'bg-(--section)/15 shadow-[inset_3px_0_0_var(--section)] text-rail-foreground hover:text-rail-foreground font-semibold'
                       : 'text-rail-muted font-medium hover:bg-(--section)/10 hover:text-rail-foreground'
                   )}
                 >

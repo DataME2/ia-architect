@@ -89,7 +89,7 @@ export const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
         className={cn(
           'relative overflow-hidden rounded bg-surface border border-border shadow-xs transition-all duration-180',
           sizePaddingStyles[size],
-          isClickable && 'cursor-pointer hover:border-border-strong hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+          isClickable && 'cursor-pointer hover:border-border-strong hover:shadow-md',
           className
         )}
         {...props}

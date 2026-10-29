@@ -138,7 +138,6 @@
   --signal: #f5d547;
   --signal-text: #12382a;
   --focus: var(--signal);
-  --focus-halo: color-mix(in srgb, var(--signal) 35%, transparent);
 
   --ok-bg: #173f2c;
   --ok-text: #9df0c0;
@@ -167,12 +166,21 @@
   --magnet-home: #c62828;
   --magnet-away: #2563eb;
   --magnet-you: #f5d547;
+  --magnet-text: #ffffff;
+  --magnet-you-text: #12382a;
   --frame: #6b4b2e;
 
+  /* The index card (DESIGN.md): paper with a faint blue ruling, the same
+     in both schemes. What sits on it reads through .paper, below. */
+  --card: #fbfaf4;
+  --card-rule: #e3ebf5;
+
   /* Categories, not statuses: they never borrow ok, warn or stop. */
-  --team-0: #4f74e3;
+  /* 0 and 2 are lightened on felt (scope 124): 4.8:1 and 4.4:1 on a card.
+     The Whiteboard restores the darker pair, which pass on white. */
+  --team-0: #7b9cf0;
   --team-1: #e0a33a;
-  --team-2: #8a5cc7;
+  --team-2: #a985e0;
   --team-3: #2b9bb3;
   --team-4: #c75c8a;
   --team-5: #6b8e23;
@@ -290,6 +298,9 @@
     --magnet-you: #d4a800;
     --frame: #9aa4a0;
 
+    --team-0: #4f74e3;
+    --team-2: #8a5cc7;
+
     --playoff-bg: #ede4f7;
     --playoff-text: #5b2a86;
     --event-bg: #fbe3f3;
@@ -302,6 +313,50 @@
     --shadow-md: 0 4px 12px rgb(0 0 0 / 8%), 0 2px 4px rgb(0 0 0 / 4%);
     --shadow-lg: 0 12px 32px rgb(0 0 0 / 12%), 0 4px 8px rgb(0 0 0 / 6%);
   }
+}
+
+/* An index card is a patch of Whiteboard on any board (scope 124): dark
+   ink, the light status colours, and a felt pill for its primary button
+   (DESIGN.md, Component Conventions). These are the Whiteboard's values
+   restated. A token defined through var() resolves where it is declared,
+   so the ones built on others are restated too. */
+.paper {
+  color-scheme: light;
+
+  --surface: var(--card);
+  --surface-2: #f1f3ee;
+  --border: #d3d9d2;
+  --border-strong: #7f8e85;
+  --text: #13211a;
+  --muted: #4f5f56;
+  --subtle: #34433a;
+
+  --accent: #12382a;
+  --accent-hover: #184634;
+  --accent-soft: #e1ece5;
+  --accent-text: #ffffff;
+  --link: var(--accent);
+  --signal: #8a6d00;
+  --signal-text: #ffffff;
+  --focus: var(--signal);
+
+  --ok-bg: #dcf3e4;
+  --ok-text: #0f5132;
+  --ok-dot: #12a150;
+  --warn-bg: #fff3c4;
+  --warn-text: #6b4e00;
+  --warn-dot: #a87f00;
+  --stop-bg: #fde2e2;
+  --stop-text: #8a1c1c;
+  --stop-dot: #d32f2f;
+  --info-bg: #dde9fb;
+  --info-text: #1e3a6e;
+  --info-dot: #2563eb;
+  --neutral-bg: var(--surface-2);
+  --neutral-text: var(--muted);
+  --neutral-dot: var(--subtle);
+
+  color: var(--text);
 }
 
 /* ------------------------------------------------------------ base */
@@ -353,12 +408,12 @@ a:hover {
 /* One focus treatment for everything, and it is deliberately loud. These
    screens are operated at speed on a club laptop with a keyboard, and a
    focus ring you have to hunt for is a focus ring that stops being used.
-   Green ring for contrast, gold halo for identity. */
+   A 3px chalk-yellow outline offset 3px (DESIGN.md, scope 124). It leaves
+   the shape and the shadow alone, so a pill stays a pill and a button
+   keeps its drop. */
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 5px var(--focus-halo);
-  border-radius: var(--radius-sm);
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
 }
 
 /* Available to a screen reader, absent from the page. Used where a number
@@ -418,12 +473,14 @@ a:hover {
 }
 
 /* The bar sticks. Which club you are in and the way out are the two facts
-   most worth not scrolling away from. */
+   most worth not scrolling away from. It sits on the board's wooden ledge
+   (DESIGN.md, scope 124). */
 .topbar {
   position: sticky;
   top: 0;
   z-index: 20;
-  border-bottom: 1px solid var(--slate-700);
+  border-bottom: var(--border-width-frame) solid var(--frame);
+  box-shadow: var(--shadow-xs);
   background: color-mix(in srgb, var(--slate-800) 95%, transparent);
   backdrop-filter: blur(12px);
   color: var(--chalk-50);
@@ -440,8 +497,10 @@ a:hover {
   padding: 0 var(--space-5);
 }
 
+/* An h1, and the one heading that stays in the interface face. */
 .topbar-brand {
   margin: 0;
+  font-family: var(--font-sans);
   font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -459,7 +518,7 @@ a:hover {
 
 .topbar-links {
   display: none;
-  gap: var(--space-5);
+  gap: var(--space-2);
 }
 
 .topbar-actions {
@@ -468,30 +527,43 @@ a:hover {
   gap: var(--space-2);
 }
 
-/* 44px touch targets throughout (DESIGN.md). */
+/* 44px touch targets throughout (DESIGN.md). The destinations are strips:
+   2px chalk pills, and the page you are on is the chalk-yellow one, at the
+   dark grounds' full strength in both schemes. */
 .topbar-links a,
 .topbar-workspace {
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
-  padding: 0 var(--space-2);
-  color: var(--chalk-300);
+  padding: 0 var(--space-4);
+  border: var(--border-width) solid color-mix(in srgb, var(--chalk-50) 28%, transparent);
+  border-radius: var(--radius-full);
+  color: var(--chalk-50);
   font-size: 0.9rem;
   font-weight: 500;
   text-decoration: none;
   white-space: nowrap;
-  transition: color var(--dur-fast) var(--ease);
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
 }
 
 .topbar-links a:hover,
 .topbar-workspace:hover {
+  border-color: var(--chalk-50);
   color: var(--chalk-50);
+}
+
+.topbar-links a[aria-current='page'],
+.topbar-menu nav a[aria-current='page'] {
+  border-color: var(--trophy-300);
+  background: var(--trophy-300);
+  color: var(--slate-800);
 }
 
 .topbar-workspace {
   display: none;
 }
 
+/* The chalk pill that presses (see the buttons). */
 .topbar-register {
   display: inline-flex;
   align-items: center;
@@ -503,11 +575,18 @@ a:hover {
   font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
 }
 
 .topbar-register:hover {
   background: var(--chalk-100);
   color: var(--slate-600);
+}
+
+.topbar-register:active {
+  transform: translateY(3px);
+  box-shadow: var(--shadow-xs);
 }
 
 .topbar-menu {
@@ -519,8 +598,8 @@ a:hover {
   place-items: center;
   width: 2.75rem;
   height: 2.75rem;
-  border: 1px solid var(--slate-700);
-  border-radius: var(--radius-sm);
+  border: var(--border-width) solid color-mix(in srgb, var(--chalk-50) 28%, transparent);
+  border-radius: var(--radius-full);
   color: var(--chalk-200);
   list-style: none;
   cursor: pointer;
@@ -557,7 +636,7 @@ a:hover {
   align-items: center;
   min-height: 2.75rem;
   padding: 0 var(--space-3);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   color: var(--chalk-200);
   font-weight: 500;
   text-decoration: none;
@@ -646,9 +725,10 @@ a:hover {
   letter-spacing: 0.005em;
 }
 
+/* The footer stands on the same ledge as the bar. */
 .site-footer {
   margin-top: var(--space-7);
-  border-top: 1px solid var(--slate-700);
+  border-top: var(--border-width-frame) solid var(--frame);
   background: var(--slate-800);
   color: var(--rail-text-2);
   font-size: 0.95rem;
@@ -701,10 +781,15 @@ a:hover {
   text-transform: uppercase;
 }
 
+/* Under 20px, so not the hand: a mono caps label, like a step name. */
 .site-footer .site-footer-heading {
   margin-bottom: var(--space-2);
   color: var(--chalk-50);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .site-footer ul {
@@ -732,7 +817,7 @@ a:hover {
   justify-content: space-between;
   gap: var(--space-2) var(--space-5);
   padding-block: var(--space-5) var(--space-6);
-  border-top: 1px solid var(--slate-700);
+  border-top: var(--border-width) dashed var(--slate-700);
   font-size: 0.85rem;
 }
 
@@ -762,8 +847,16 @@ h4 {
   text-wrap: balance;
 }
 
-/* The coach's handwriting (scope 123) takes the page title. h3 and below
-   stay in the interface face. */
+/* The coach's handwriting (scope 123) takes every heading of 20px or more:
+   the page title and the section titles (scope 124). It has one weight, so
+   400 rather than a synthesised bold. h3 and below stay in the interface
+   face, and so does the bar's brand name. */
+h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+
 h2 {
   font-family: var(--font-display);
   font-size: clamp(1.45rem, 1.2rem + 0.8vw, 1.75rem);
@@ -906,20 +999,22 @@ h3 {
 
 /* ------------------------------------------------------------ cards */
 
+/* An index card's corners and shadow (scope 124). A card is a record, so it
+   stays straight and unpinned: the pin and the tilt are for task cards
+   (src/components/ui/PinnedCard.tsx). */
 .card {
   position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
   padding: var(--space-4) var(--space-5);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-card);
   margin-bottom: var(--space-4);
   transition: box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease),
     transform var(--dur) var(--ease);
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
   border-color: var(--border-strong);
 }
 
@@ -1176,7 +1271,7 @@ textarea {
      forms get filled in on a phone at a ground as often as on a desk. */
   min-height: 2.75rem;
   padding: 0.6rem 0.75rem;
-  border: 1px solid var(--border-strong);
+  border: var(--border-width) solid var(--border-strong);
   border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
@@ -1274,7 +1369,7 @@ button,
   min-height: 2.75rem; /* DESIGN.md: 44px touch target */
   background: var(--accent);
   color: var(--accent-text);
-  border: 1px solid transparent;
+  border: var(--border-width) solid transparent;
   border-radius: var(--radius-sm);
   padding: 0.55rem 1.15rem;
   font: inherit;
@@ -1283,7 +1378,8 @@ button,
   line-height: 1.2;
   cursor: pointer;
   text-decoration: none;
-  box-shadow: var(--shadow-xs);
+  /* The chalk pill stands on a 5px drop and presses 3px into it. */
+  box-shadow: var(--shadow-sm);
   transition: background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease),
     transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
@@ -1303,13 +1399,12 @@ button:hover:not(:disabled),
 .button:hover {
   background: var(--accent-hover);
   color: var(--accent-text);
-  box-shadow: var(--shadow-sm);
 }
 
 button:active:not(:disabled),
 .button:active {
-  transform: translateY(1px);
-  box-shadow: none;
+  transform: translateY(3px);
+  box-shadow: var(--shadow-xs);
 }
 
 button:disabled,
@@ -1906,9 +2001,10 @@ td {
   cursor: grabbing;
 }
 
+/* Inside, because the canvas fills a clipped frame. */
 .crop-canvas:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: -2px;
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
 }
 
 /* -------------------------------------------------------- responsive */
@@ -2305,7 +2401,8 @@ td {
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 
@@ -3081,7 +3178,7 @@ td {
 }
 .chip {
   border-radius: var(--radius-full);
-  border: 1px solid var(--border-strong);
+  border: var(--border-width) solid var(--border-strong);
   background: var(--surface);
   color: var(--text);
   padding: 0.3rem 0.85rem;
@@ -3250,22 +3347,18 @@ td {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   THE TEAM DUGOUT — scope 99
+   THE TEAM DUGOUT — scopes 99 and 124
 
-   The squad on a pitch, the bench and the technical area beside it. The
-   grass is the one place outside the brand slab where green is used as a
-   surface: it is a pitch, not a status. Shirts run out from the tunnel
-   (bottom centre) on the first draw and glide when the formation changes;
-   under reduced motion they simply appear where they stand.
+   The squad as magnets on a tactics board: felt in a 3px chalk frame, the
+   markings in chalk at 35%, and the chosen player's card pinned beside it
+   with the bench and the technical area as straight records. The board is
+   a dark ground in both schemes, so it keeps full-strength chalk yellow for
+   its ring, its line and its focus. Magnets run out from the tunnel (bottom
+   centre) on the first draw and glide when the formation changes; under
+   reduced motion they simply appear where they stand.
    ══════════════════════════════════════════════════════════════════════ */
 .dugout {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-top: 3px solid var(--accent);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-xs);
-  padding: var(--space-4);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-6);
 }
 
 .dugout-head {
@@ -3274,44 +3367,29 @@ td {
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-3);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
-.dugout-head h3 {
-  margin: 0;
+/* The team's name is a heading of 20px or more, so it is in the hand. */
+.dugout-title {
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1.1;
 }
 
-.dugout-formations {
-  display: inline-flex;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.dugout-formations button {
+.dugout-head .chips button {
   min-height: 44px;
   min-width: 64px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--text);
   font-variant-numeric: tabular-nums;
   box-shadow: none;
 }
 
-.dugout-formations button + button {
-  border-left: 1px solid var(--border-strong);
-}
-
-.dugout-formations button.is-on {
-  background: var(--accent);
-  color: var(--accent-text);
-}
-
 .dugout-body {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(220px, 1fr);
-  gap: var(--space-4);
+  grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+  gap: var(--space-5);
   align-items: start;
 }
 
@@ -3321,15 +3399,23 @@ td {
   }
 }
 
-.dugout-pitch {
+.dugout-board {
+  --signal: var(--trophy-300);
+  --focus: var(--trophy-300);
+  /* 52px, except where five in a line would touch on a narrow phone: there
+     44px, the touch-target floor. */
+  --magnet-size: clamp(44px, 15cqw, 52px);
+
   position: relative;
-  aspect-ratio: 68 / 88;
-  border-radius: var(--radius);
-  overflow: hidden;
+  container-type: inline-size;
+  aspect-ratio: 68 / 105;
+  border: 3px solid color-mix(in srgb, var(--chalk-50) 70%, transparent);
+  border-radius: var(--radius-sm);
   background:
-    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--chalk-50) 14%, transparent), transparent 60%),
-    repeating-linear-gradient(180deg, var(--turf-700) 0 9%, var(--turf-800) 9% 18%);
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--shade) 12%, transparent);
+    radial-gradient(ellipse at 30% 20%, color-mix(in srgb, var(--chalk-50) 5%, transparent), transparent 55%),
+    radial-gradient(ellipse at 75% 80%, color-mix(in srgb, var(--chalk-50) 4%, transparent), transparent 50%),
+    var(--slate-800);
+  box-shadow: var(--shadow-card);
 }
 
 .dugout-lines {
@@ -3338,112 +3424,141 @@ td {
   width: 100%;
   height: 100%;
   fill: none;
-  stroke: color-mix(in srgb, var(--chalk-50) 70%, transparent);
-  stroke-width: 0.4;
+  stroke: color-mix(in srgb, var(--chalk-50) 35%, transparent);
+  stroke-width: 0.35;
 }
 
 .dugout-lines .spot {
-  fill: color-mix(in srgb, var(--chalk-50) 80%, transparent);
+  fill: color-mix(in srgb, var(--chalk-50) 55%, transparent);
 }
 
-.dugout-shirt,
-.dugout-open {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  transition:
-    left 600ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    top 600ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow var(--dur-fast, 150ms) ease;
+.dugout-lines .tech {
+  fill: var(--signal);
+  stroke: none;
 }
 
-.dugout-shirt {
-  display: grid;
-  justify-items: center;
-  gap: 2px;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--chalk-50);
-  box-shadow: none;
-  cursor: pointer;
-  animation: dugout-run-out 700ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--delay, 0ms) both;
+.dugout-lines.is-landscape {
+  display: none;
+}
+
+.dugout-board .magnet {
+  width: var(--magnet-size);
+  height: var(--magnet-size);
+  animation: dugout-run-out var(--dur-magnet) var(--ease-magnet) var(--delay, 0ms) both;
 }
 
 @keyframes dugout-run-out {
   from {
     opacity: 0;
-    transform: translate(-50%, 260%) scale(0.6);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translateY(240%) scale(0.6);
   }
 }
 
-.dugout-shirt .num {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--slate-600);
-  border: 2px solid var(--chalk-50);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  box-shadow: 0 3px 8px color-mix(in srgb, var(--shade) 35%, transparent);
+.dugout-magnet.is-unanswered {
+  outline: 2px dashed color-mix(in srgb, var(--chalk-50) 80%, transparent);
+  outline-offset: 3px;
 }
 
-.dugout-shirt.is-goalkeeper .num {
-  background: var(--trophy-300);
-  color: var(--slate-800);
-}
-
-.dugout-shirt.is-unanswered .num {
-  border-style: dashed;
-}
-
-.dugout-shirt .nm {
-  font-size: 0.72rem;
-  font-weight: 600;
-  line-height: 1.1;
+/* The name hangs under the magnet, in the interface face. */
+.dugout-magnet .nm {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 50%;
+  translate: -50% 0;
   padding: 1px 5px;
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--slate-800) 75%, transparent);
+  background: color-mix(in srgb, var(--slate-800) 80%, transparent);
+  color: var(--chalk-50);
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.1;
   white-space: nowrap;
 }
 
-.dugout-shirt:hover .num,
-.dugout-shirt.is-selected .num {
-  outline: 3px solid var(--chalk-50);
-  outline-offset: 2px;
-}
-
-.dugout-shirt:focus-visible {
-  outline: 3px solid var(--chalk-50);
-  outline-offset: 2px;
-}
-
+/* Flat chalk, so not something to tap (DESIGN.md). */
 .dugout-open {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  translate: -50% -50%;
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  border: 2px dashed color-mix(in srgb, var(--chalk-50) 75%, transparent);
-  color: color-mix(in srgb, var(--chalk-50) 85%, transparent);
+  border: 2px dashed color-mix(in srgb, var(--chalk-50) 55%, transparent);
+  color: color-mix(in srgb, var(--chalk-50) 80%, transparent);
   font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  transition:
+    left var(--dur-magnet) var(--ease-magnet),
+    top var(--dur-magnet) var(--ease-magnet);
 }
 
-.dugout-side h4 {
+/* On its side once the board has the width: the own goal on the left and
+   the technical area on the near touchline, as on the mock-up. */
+@media (min-width: 64rem) {
+  .dugout-board {
+    aspect-ratio: 105 / 68;
+  }
+
+  .dugout-board .magnet,
+  .dugout-open {
+    left: calc(100% - var(--y));
+    top: var(--x);
+  }
+
+  .dugout-lines.is-portrait {
+    display: none;
+  }
+
+  .dugout-lines.is-landscape {
+    display: block;
+  }
+}
+
+.dugout-side {
+  display: grid;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
+}
+
+.dugout-pin-kind {
+  margin: 0 0 var(--space-1);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dugout-pin-name {
   margin: 0 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  line-height: 1.15;
 }
 
-.dugout-side h4 + * {
-  margin-bottom: var(--space-4);
+.dugout-pin-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.dugout-record {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+}
+
+.dugout-record h4 {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .dugout-officials,
@@ -3499,19 +3614,26 @@ td {
   gap: var(--space-2);
   justify-content: flex-start;
   text-align: left;
-  background: var(--surface-2, var(--bg));
+  background: var(--surface-2);
   color: var(--text);
-  border: 1px solid var(--border);
+  border-color: var(--border);
+  border-radius: var(--radius-full);
   box-shadow: none;
 }
 
+.dugout-bench button:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
 .dugout-bench button[aria-pressed='true'] {
-  border-color: var(--accent);
+  border-color: var(--signal);
 }
 
 .dugout-bench .num {
+  font-family: var(--font-mono);
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
   min-width: 1.6rem;
 }
 
@@ -3520,47 +3642,14 @@ td {
   min-width: 0;
 }
 
-.dugout-card {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  margin-top: var(--space-3);
-  padding: var(--space-3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface-2, var(--bg));
-  min-height: 64px;
-}
-
-.dugout-card > div {
-  flex: 1 1 12rem;
-}
-
-.dugout-card-num {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--accent-text);
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .dugout-shirt,
-  .dugout-open {
-    transition: none;
-  }
-
-  .dugout-shirt {
-    animation: none;
-  }
-
+  .dugout-board .magnet,
   .dugout-officials li {
     animation: none;
+  }
+
+  .dugout-open {
+    transition: none;
   }
 }
 
@@ -4139,8 +4228,8 @@ td {
 }
 
 .ci-chip input:focus-visible + span {
-  outline: 2px solid var(--text);
-  outline-offset: 2px;
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
 }
 
 .ci-kinds {
@@ -5406,8 +5495,8 @@ html:has(.home) {
   padding: 0.8rem 1.6rem;
   background: var(--chalk-50);
   color: var(--slate-600);
-  box-shadow: 0 10px 30px color-mix(in srgb, var(--shade) 35%, transparent);
-  border: 2px solid var(--chalk-50);
+  box-shadow: var(--shadow-sm);
+  border: var(--border-width) solid var(--chalk-50);
   font-size: 1rem;
   font-weight: 650;
 }
@@ -5639,21 +5728,19 @@ html:has(.home) {
 
 .hp-tabs {
   display: flex;
-  gap: var(--space-1);
-  padding: var(--space-2) var(--space-3) 0;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-3) var(--space-1);
   overflow-x: auto;
-  box-shadow: inset 0 -1px 0 var(--border);
 }
 
 .home .hp-tabs button,
 .home .hp-tabs button:hover:not(:disabled) {
   flex: 0 0 auto;
   min-height: 2.75rem;
-  padding: 0 var(--space-3);
+  padding: 0 var(--space-4);
   background: none;
-  border: 0;
-  border-bottom: 3px solid transparent;
-  border-radius: 0;
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius-full);
   box-shadow: none;
   color: var(--muted);
   font-weight: 600;
@@ -5664,8 +5751,9 @@ html:has(.home) {
 }
 
 .home .hp-tabs button[aria-selected='true'] {
-  color: var(--text);
-  border-bottom-color: var(--accent);
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--signal-text);
 }
 
 .hp-panel {
@@ -5848,11 +5936,10 @@ html:has(.home) {
   justify-content: start;
   justify-items: start;
   min-height: 2.75rem;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-5);
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid transparent;
-  border-radius: var(--radius-sm);
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius-full);
   box-shadow: none;
   color: var(--text);
   text-align: left;
@@ -5865,10 +5952,9 @@ html:has(.home) {
 
 .home .rx-tabs button[aria-selected='true'],
 .home .rx-tabs button[aria-selected='true']:hover:not(:disabled) {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-text);
-  box-shadow: var(--shadow-md);
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--signal-text);
 }
 
 .home .rx-tabs button[aria-selected='true'] .rx-tab-who {

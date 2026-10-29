@@ -71,7 +71,7 @@ export const ProcessDetail = React.forwardRef<HTMLDetailsElement, ProcessDetailP
       >
         <summary
           className={cn(
-            'cursor-pointer font-medium text-foreground list-none flex items-center justify-between gap-ds-3 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 rounded-xs',
+            'cursor-pointer font-medium text-foreground list-none flex items-center justify-between gap-ds-3 transition-colors hover:text-primary rounded-xs',
             isOpen && 'mb-ds-2 pb-ds-2 border-b border-border'
           )}
         >

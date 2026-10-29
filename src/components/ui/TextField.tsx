@@ -95,12 +95,12 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
             aria-invalid={hasError || undefined}
             aria-describedby={describedBy}
             className={cn(
-              'w-full min-h-[44px] px-ds-3 py-ds-2 bg-surface text-foreground placeholder:text-muted-foreground/70 font-sans text-sm rounded-sm border transition-all duration-180 ease-in-out',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:border-primary',
+              'w-full min-h-[44px] px-ds-3 py-ds-2 bg-surface text-foreground placeholder:text-muted-foreground/70 font-sans text-sm rounded-sm border-2 transition-all duration-180 ease-in-out',
+              ' focus-visible:border-primary',
               leftIcon ? 'pl-ds-6' : '',
               rightIcon ? 'pr-ds-6' : '',
               hasError
-                ? 'border-destructive-indicator bg-destructive/10 text-destructive-foreground focus-visible:ring-destructive-indicator'
+                ? 'border-destructive-indicator bg-destructive/10 text-destructive-foreground'
                 : 'border-border-strong hover:border-primary',
               disabled && 'bg-backgroundSunk text-muted cursor-not-allowed border-border hover:border-border opacity-70',
               className

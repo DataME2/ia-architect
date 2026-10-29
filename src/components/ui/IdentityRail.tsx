@@ -109,7 +109,7 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
 
           {/* User Avatar */}
           <div
-            className="w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-success-indicator to-primary border-2 border-white/20 text-white font-bold text-sm grid place-items-center shadow-xs overflow-hidden"
+            className="w-12 h-12 shrink-0 rounded-full bg-magnet-you text-magnet-you-foreground border-2 border-rail-foreground/20 font-bold text-sm grid place-items-center shadow-magnet overflow-hidden"
             aria-hidden="true"
           >
             {avatarUrl ? (
@@ -180,7 +180,6 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
             aria-current={homeActive ? 'page' : undefined}
             className={cn(
               'flex items-center min-h-[44px] px-3 py-2 rounded-sm text-xs font-semibold no-underline border-l-4 transition-colors duration-180',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
               homeActive
                 ? 'bg-rail-line text-rail-foreground hover:text-rail-foreground border-primary'
                 : 'text-rail-foreground/80 hover:bg-rail-line/60 hover:text-rail-foreground border-transparent',
@@ -220,7 +219,7 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
               href={officerHref}
               // Rail text, not primary-foreground: that turns near-black in dark
               // mode, on a rail that stays dark in both.
-              className="text-rail-foreground hover:text-white no-underline font-medium text-xs transition-colors flex items-center justify-between min-h-[44px] px-2 rounded-sm hover:bg-rail-line/50"
+              className="text-rail-foreground hover:text-rail-foreground no-underline font-medium text-xs transition-colors flex items-center justify-between min-h-[44px] px-2 rounded-sm hover:bg-rail-line/50"
             >
               <span>{officerLabel}</span>
             </a>
@@ -233,7 +232,7 @@ export const IdentityRail = React.forwardRef<HTMLElement, IdentityRailProps>(
                 // globals.css centres every <button>, gives it a shadow, and turns
                 // it reef blue on hover with a selector more specific than a
                 // utility class.
-                className="flex w-full items-center justify-start min-h-[44px] px-3 py-2 rounded-sm border-0 shadow-none bg-rail-line text-rail-foreground hover:bg-rail-line/80! hover:text-rail-foreground! font-medium text-xs transition-colors cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="flex w-full items-center justify-start min-h-[44px] px-3 py-2 rounded-sm border-0 shadow-none bg-rail-line text-rail-foreground hover:bg-rail-line/80! hover:text-rail-foreground! font-medium text-xs transition-colors cursor-pointer text-left"
               >
                 Sign out
               </button>

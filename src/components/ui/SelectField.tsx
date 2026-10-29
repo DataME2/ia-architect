@@ -98,10 +98,10 @@ export const SelectField = React.forwardRef<HTMLSelectElement, SelectFieldProps>
             aria-invalid={hasError || undefined}
             aria-describedby={describedBy}
             className={cn(
-              'w-full min-h-[44px] pl-ds-3 pr-ds-6 py-ds-2 bg-surface text-foreground font-sans text-sm rounded-sm border appearance-none transition-all duration-180 ease-in-out cursor-pointer',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:border-primary',
+              'w-full min-h-[44px] pl-ds-3 pr-ds-6 py-ds-2 bg-surface text-foreground font-sans text-sm rounded-sm border-2 appearance-none transition-all duration-180 ease-in-out cursor-pointer',
+              ' focus-visible:border-primary',
               hasError
-                ? 'border-destructive-indicator bg-destructive/10 text-destructive-foreground focus-visible:ring-destructive-indicator'
+                ? 'border-destructive-indicator bg-destructive/10 text-destructive-foreground'
                 : 'border-border-strong hover:border-primary',
               disabled && 'bg-backgroundSunk text-muted cursor-not-allowed border-border hover:border-border opacity-70',
               className
