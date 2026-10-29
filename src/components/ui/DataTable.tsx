@@ -154,7 +154,7 @@ export function DataTable<T = any>({
                             <button
                               type="button"
                               onClick={() => handleHeaderClick(col)}
-                              className="w-full bg-transparent border-0 p-0 m-0 text-inherit font-inherit uppercase tracking-inherit cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
+                              className="w-full bg-transparent border-0 p-0 m-0 text-inherit font-inherit uppercase tracking-inherit cursor-pointer rounded-sm"
                             >
                               {label}
                             </button>

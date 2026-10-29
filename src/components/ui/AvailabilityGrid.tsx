@@ -106,7 +106,6 @@ export function AvailabilityGrid({ days, slots, initialCells, custom, fields, ac
                           // globals.css paints every <button> in the accent and lifts it
                           // on hover; a cell is a toggle, so both are overridden.
                           'w-full min-h-[44px] rounded-sm border text-xs font-semibold shadow-none transition-colors duration-180',
-                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
                           on
                             ? 'bg-success text-success-foreground border-success-indicator hover:bg-success! hover:text-success-foreground!'
                             : 'bg-surface text-muted border-border hover:bg-surfaceSubtle! hover:text-foreground!',

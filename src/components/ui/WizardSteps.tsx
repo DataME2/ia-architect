@@ -41,10 +41,9 @@ export function WizardSteps({ steps, current, reached, errorSteps = [], onSelect
                 aria-current={isCurrent ? 'step' : undefined}
                 className={cn(
                   // globals.css paints every <button> in the accent; a step is a tab.
-                  'min-h-[44px] flex items-center gap-ds-2 px-ds-3 rounded-full border text-left text-xs font-semibold whitespace-nowrap shadow-none transition-colors duration-180',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
+                  'min-h-[44px] flex items-center gap-ds-2 px-ds-3 rounded-full border-2 text-left text-xs font-semibold whitespace-nowrap shadow-none transition-colors duration-180',
                   isCurrent
-                    ? 'bg-primary text-primary-foreground border-primary hover:bg-primary! hover:text-primary-foreground!'
+                    ? 'bg-signal text-signal-foreground border-signal hover:bg-signal! hover:text-signal-foreground!'
                     : hasError
                       ? 'bg-destructive text-destructive-foreground border-destructive-indicator hover:bg-destructive! hover:text-destructive-foreground!'
                       : reachable
@@ -56,7 +55,11 @@ export function WizardSteps({ steps, current, reached, errorSteps = [], onSelect
                   aria-hidden="true"
                   className={cn(
                     'shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-full font-mono text-[10px]',
-                    isCurrent ? 'bg-primary-foreground text-primary' : done ? 'bg-success-indicator text-white' : 'bg-secondary text-muted',
+                    isCurrent
+                      ? 'bg-signal-foreground text-signal'
+                      : done
+                        ? 'bg-success text-success-foreground border border-success-indicator'
+                        : 'bg-secondary text-muted',
                   )}
                 >
                   {done && !hasError ? '✓' : i + 1}

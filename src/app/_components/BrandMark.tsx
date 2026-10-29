@@ -19,9 +19,9 @@ import {
 
 /**
  * The mark, with the move (scope 108): three passes across the pitch and a
- * shot into the right-hand net, which lights in volt. The mark is not a
- * status, so it may borrow the Assistant's colour. Then the ball is back on
- * the centre spot, upright, for the restart.
+ * shot into the right-hand net, which lights in chalk yellow (`--signal`,
+ * scope 124) with a felt edge, because yellow alone is 1.4:1 on the paper
+ * tile. Then the ball is back on the centre spot, upright, for the restart.
  *
  * Still unless asked. With `intro` (the top bar) it plays once when the
  * front door opens; everywhere it plays on hover, or when its link takes
@@ -64,7 +64,16 @@ export function BrandMark({ intro = false }: { readonly intro?: boolean }) {
       <MarkPitch />
       <g transform="translate(16 16)">
         {/* The net: taller than the ball, so it shows lit around it. */}
-        <rect x="11" y="-4" width="2.8" height="8" rx="0.6" fill="#84cc16" opacity="0">
+        <rect
+          x="11"
+          y="-4"
+          width="2.8"
+          height="8"
+          rx="0.6"
+          style={{ fill: 'var(--signal)', stroke: 'var(--slate-800)' }}
+          strokeWidth="0.4"
+          opacity="0"
+        >
           <animate attributeName="opacity" values={list(NET_FLASH.values)} keyTimes={list(NET_FLASH.keyTimes)} {...timing} />
         </rect>
         <g>

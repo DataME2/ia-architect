@@ -40,7 +40,7 @@ export function AssistantNote({
   // file). no-underline, shadow-none and the important hovers are there
   // because globals.css styles every <a> and <button> more specifically.
   const control =
-    'inline-flex items-center justify-center min-h-[44px] px-ds-3 py-ds-1 text-xs rounded-sm no-underline shadow-none transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2';
+    'inline-flex items-center justify-center min-h-[44px] px-ds-3 py-ds-1 text-xs rounded-sm no-underline shadow-none transition-colors cursor-pointer';
   return (
     <aside
       aria-label={`Assistant — ${kind}`}
@@ -62,14 +62,14 @@ export function AssistantNote({
         {onUse !== undefined && (
           <a
             href={onUse}
-            className={`${control} font-bold bg-accent text-accent-foreground hover:bg-accent-hover! hover:text-accent-foreground! focus-visible:ring-accent`}
+            className={`${control} font-bold bg-accent text-accent-foreground hover:bg-accent-hover! hover:text-accent-foreground!`}
           >
             {useLabel}
           </a>
         )}
         <button
           type="button"
-          className={`${control} font-medium border border-border bg-surface text-foreground hover:bg-surfaceSubtle! hover:text-foreground! focus-visible:ring-primary`}
+          className={`${control} font-medium border border-border bg-surface text-foreground hover:bg-surfaceSubtle! hover:text-foreground!`}
         >
           Dismiss
         </button>

@@ -106,7 +106,6 @@ export const NotificationBell = React.forwardRef<HTMLDivElement, NotificationBel
           className={cn(
             'relative inline-flex items-center justify-center w-11 h-11 p-0 rounded-sm border border-border bg-surface text-foreground shadow-xs cursor-pointer transition-colors duration-180',
             'hover:bg-surfaceSubtle! hover:text-foreground! hover:border-border-strong',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
             isOpen && 'bg-surfaceSubtle border-primary'
           )}
         >

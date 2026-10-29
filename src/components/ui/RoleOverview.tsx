@@ -28,7 +28,7 @@ export interface RoleOverviewProps extends React.HTMLAttributes<HTMLElement> {
 export function RoleOverview({ roles, headingId = 'roles-heading', className, ...props }: RoleOverviewProps) {
   return (
     <section aria-labelledby={headingId} className={cn('font-sans', className)} {...props}>
-      <h2 id={headingId} className="m-0 mb-ds-1 text-lg font-semibold text-foreground">
+      <h2 id={headingId} className="m-0 mb-ds-1 font-hand text-xl font-normal text-foreground">
         Your roles
       </h2>
       <p className="m-0 mb-ds-3 text-sm text-muted">
@@ -45,7 +45,6 @@ export function RoleOverview({ roles, headingId = 'roles-heading', className, ..
                 'group flex h-full min-h-[44px] flex-col gap-ds-2 p-ds-4 rounded-md border border-border bg-surface shadow-xs no-underline',
                 'border-l-[6px] [border-left-color:var(--role-hue,var(--border-strong))]',
                 'text-foreground hover:text-foreground hover:shadow-md hover:border-border-strong transition-shadow duration-180',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
               )}
             >
               <span className="flex items-start justify-between gap-ds-2">

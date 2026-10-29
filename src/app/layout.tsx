@@ -2,8 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 
 import { COMPANY, DESCRIPTION, MAKER, PRODUCT_NAME, TAGLINE } from '../web/brand.ts';
-import { FOOTER_NAV, REGISTER_LINK, SITE_NAV, WORKSPACE_LINK } from '../web/nav.ts';
+import { FOOTER_NAV, REGISTER_LINK, WORKSPACE_LINK } from '../web/nav.ts';
 import { BrandMark } from './_components/BrandMark.tsx';
+import { TopbarLinks } from './_components/TopbarLinks.tsx';
 import './globals.css';
 // After globals.css: the design system's utilities (src/components/ui) must
 // win over its element rules. See the header of design-system.css.
@@ -18,19 +19,21 @@ export const metadata: Metadata = {
 };
 
 /**
- * The theme colour is the top bar's pitch slate, so a phone's browser
- * chrome continues the bar rather than framing it in grey. One value: the
- * bar is the same colour in both schemes (scope 104).
+ * The theme colour is the top bar's felt (`--slate-800`), so a phone's
+ * browser chrome continues the bar rather than framing it in grey. One
+ * value: the bar is the same colour in both schemes (scopes 104 and 124).
  */
 export const viewport: Viewport = {
-  themeColor: '#112636',
+  themeColor: '#12382a',
 };
 
 /**
  * The shell: the top bar, the page, the footer (scope 104).
  *
  * The bar and footer sit outside `.shell` so they run the full width, as the
- * Superdesign front door draws them. **No auth call, and so no Sign in** —
+ * Superdesign front door draws them. Since scope 124 both stand on the
+ * Tactics Board's wooden ledge, and the destinations are chalk pills with
+ * the current page in chalk yellow. **No auth call, and so no Sign in** —
  * this layout is prerendered, and a Sign in link would also be offered to
  * people already signed in; Your workspace serves both.
  */
@@ -56,11 +59,7 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
               </a>
             </h1>
             <nav aria-label="Primary" className="topbar-links">
-              {SITE_NAV.map((l) => (
-                <a key={l.href} href={l.href}>
-                  {l.label}
-                </a>
-              ))}
+              <TopbarLinks />
             </nav>
             <div className="topbar-actions">
               <a className="topbar-workspace" href={WORKSPACE_LINK.href}>
@@ -79,11 +78,7 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
                   </svg>
                 </summary>
                 <nav aria-label="Menu">
-                  {SITE_NAV.map((l) => (
-                    <a key={l.href} href={l.href}>
-                      {l.label}
-                    </a>
-                  ))}
+                  <TopbarLinks />
                   <a className="topbar-menu-workspace" href={WORKSPACE_LINK.href}>
                     {WORKSPACE_LINK.label}
                   </a>
