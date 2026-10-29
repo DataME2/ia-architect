@@ -4567,6 +4567,101 @@ td {
   gap: var(--space-5);
 }
 
+/* --- who plays where (scope 121) ----------------------------------
+
+   A governing body's declaration of leagues, top league first, under the
+   season it belongs to. Each league is a card of its printed teams; between
+   two cards, a line says how they meet. Promotion and relegation are not
+   statuses, so the arrows and words stay in the text colours, never in
+   green or red. */
+
+.league-decl {
+  margin-top: var(--space-7);
+  scroll-margin-top: 6rem;
+}
+
+.league-decl > h2 {
+  margin-top: 0;
+}
+
+.league-decl > .season-caveat {
+  margin-bottom: var(--space-5);
+}
+
+.league-ladder {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.league {
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.league h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  margin: 0 0 var(--space-3);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.league-count {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.league-teams {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.92rem;
+}
+
+.league-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 var(--space-2);
+  margin: 0;
+  padding: var(--space-2) 0;
+  color: var(--subtle);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.league-link-between {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.league-notes {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 75ch;
+  margin-top: var(--space-5);
+  color: var(--subtle);
+  font-size: 0.92rem;
+}
+
+.league-notes p {
+  margin: 0;
+}
+
 /* --- the pulse ------------------------------------------------- */
 
 .season-pulse {

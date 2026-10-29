@@ -110,6 +110,7 @@ registration path, without pretending those questions are answered.
 | 71 | **Who may approve a referee payment claim** — the Treasurer alone, or the Referee Coordinator who proposed the designation? | None yet. Adopted: **the treasurer**, matching BR78's separation for player money. The coordinator raises, the treasurer approves; the person who chose the official is not the person who authorises paying them. A small club may find that unworkable, and that is a governance decision for them rather than a default the platform should have picked — see [scope 34](./34_paying_the_officials.md) |
 | 72 | **Does a rate change apply to appointments already made?** | None yet. Adopted: **no** — a claim carries the rate that applied on the date of the fixture (BR115, BR116), so a mid-season schedule change does not silently reprice games already played. **Confirmed (September 2026):** rate-setting is the treasurer's, consistent with #71 | [47_stakeholder-answers-september-2026.md](./47_stakeholder-answers-september-2026.md) |
 
+| 117 | **What does the footnote under "Play-offs" in FQ's 2027 Provisional Declaration of Leagues (SEQ Metro Men) say?** It reads something like "play-offs for promotion ready", but the graphic held is too small to read it with certainty | None yet. Adopted: **not transcribed** (BR191). The page names the play-off ladders the key lists and says how many teams move is not printed. Settled by the published PDF or by Football Queensland | [121](./121_who_plays_where_the_declaration_of_leagues.md) |
 
 ## Resolved
 

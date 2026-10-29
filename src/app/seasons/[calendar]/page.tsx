@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation';
 
+import { declarationsFor } from '../../../web/league-declarations.ts';
 import { seasonFacts, shortDate } from '../../../web/season-calendar.ts';
 import { CALENDARS, calendarById } from '../../../web/season-calendars.ts';
+import { LeagueLadder } from './LeagueLadder.tsx';
 import { SeasonPanel } from './SeasonPanel.tsx';
 
 /**
@@ -10,6 +12,8 @@ import { SeasonPanel } from './SeasonPanel.tsx';
  * Prerendered for every calendar we hold, and nothing else: an unknown id
  * is a 404, never a page built on demand. The calendar is the governing
  * body's public document, so the page reads no session and no club data.
+ * Where the governing body has also declared who plays in which league, the
+ * declaration follows the calendar (scope 121).
  */
 export const dynamicParams = false;
 
@@ -26,6 +30,7 @@ export default async function SeasonPage({ params }: { readonly params: Promise<
   const cal = calendarById((await params).calendar);
   if (!cal) notFound();
   const facts = seasonFacts(cal);
+  const declarations = declarationsFor(cal.id);
 
   return (
     <>
@@ -64,9 +69,19 @@ export default async function SeasonPage({ params }: { readonly params: Promise<
           <span className="pill pill-warn">Subject to change</span> {cal.caveat} Source: {cal.governingBody},{' '}
           {cal.source}. Teams, venues and kick-off times come later, with each club’s own fixtures.
         </p>
+        {declarations.length > 0 && (
+          <p className="season-caveat">
+            Which league is a team in? <a href="#leagues">See who plays where</a>, from the{' '}
+            {cal.governingBody} declaration of leagues.
+          </p>
+        )}
       </section>
 
       <SeasonPanel calendar={cal} />
+
+      {declarations.map((d) => (
+        <LeagueLadder key={d.id} declaration={d} />
+      ))}
     </>
   );
 }
