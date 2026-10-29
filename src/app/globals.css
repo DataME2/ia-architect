@@ -6,19 +6,18 @@
    repaired. See scope 32.
 
    ---------------------------------------------------------------------
-   The palette: LTD - Football Academy (src/DESIGN.md)
+   The palette: PitchPeople — Tactics Board (src/DESIGN.md, scope 123)
    ---------------------------------------------------------------------
-   Pitch slate, stadium green, trophy gold, card red and electric volt.
-   The ramps carry those names (scope 119): slate, stadium, trophy,
-   redcard and volt, with chalk for the neutrals. Turf is the one ramp
-   outside the five: grass under the front door's bands, a ground and
-   never a state, so stadium green keeps its single meaning.
+   The coach's whiteboard: green felt, chalk, chalk yellow and magnets.
+   Felt is the default scheme and the Whiteboard its light counterpart,
+   chosen by prefers-color-scheme and always used for print. The ramps
+   keep scope 119's names (slate, stadium, trophy, redcard, chalk, turf)
+   and carry the Tactics Board's values; screens use the semantic aliases.
 
-   **ELECTRIC VOLT IS THE ASSISTANT AND NOTHING ELSE.** Never a status,
-   never a primary button, never an accent of convenience. Gold means
-   waiting, red means blocked, green means ready — and reserving the
-   fourth tone for a single actor is what keeps those three legible as
-   separate meanings.
+   **THE ASSISTANT'S BLUE (`--highlight`) IS THE ASSISTANT AND NOTHING
+   ELSE.** Never a status, never a primary button. Chalk yellow
+   (`--signal`) means "look here" and is never a button fill on the
+   board. Gold means waiting, red means blocked, green means ready.
 
    The second rule survives from scope 31 and is not negotiable: **no state
    is signalled by hue alone.** Every status pill carries a dot and a word.
@@ -27,162 +26,172 @@
    field.
 
    ---------------------------------------------------------------------
-   The type (scope 118)
+   The type (scope 123)
    ---------------------------------------------------------------------
    Three faces, each with one job:
 
-   - Saira, variable on width and weight, is the display face: page
-     titles, the hero, eyebrows and the brand name, set condensed and
-     heavy, the way a kit number or a scoreboard is.
-   - Public Sans, variable on weight, is the interface: running text,
-     labels, tables and forms. It was drawn for dense government services
-     and stays legible at 13px on a club laptop.
-   - IBM Plex Mono carries rule identifiers, routes, times and figures,
-     where a 0 must never read as an O.
+   - Permanent Marker (`--font-display`) is the coach's handwriting: page
+     titles and headings at 20px or more, never a control. It has one
+     weight, so headings set it at 400 rather than a synthesised bold.
+   - Space Grotesk, variable on weight, is everything else: running text,
+     labels, tables, forms and buttons.
+   - Space Mono carries numbers, clocks, money, rule identifiers and
+     status words, where a 0 must never read as an O.
 
    **Self-hosted, not fetched.** Scope 31 refused `next/font` because a
    typeface is not worth a build that fails when a CDN is unreachable. That
    still holds: the three faces are repository assets in `public/fonts/`
-   (155 KB of latin-subset woff2, with their OFL licences in
+   (85 KB of latin-subset woff2, with their licences in
    `public/fonts/licenses/`), nothing is fetched at build time, and there
    is no runtime dependency on a font host. */
 
 @font-face {
-  font-family: 'Saira';
-  src: url('/fonts/saira-var-latin.woff2') format('woff2-variations');
-  font-weight: 100 900;
-  font-stretch: 50% 125%;
+  font-family: 'Space Grotesk';
+  src: url('/fonts/spacegrotesk-var-latin.woff2') format('woff2-variations');
+  font-weight: 300 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Public Sans';
-  src: url('/fonts/publicsans-var-latin.woff2') format('woff2-variations');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'IBM Plex Mono';
-  src: url('/fonts/plexmono-400-latin.woff2') format('woff2');
+  font-family: 'Space Mono';
+  src: url('/fonts/spacemono-400-latin.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'IBM Plex Mono';
-  src: url('/fonts/plexmono-500-latin.woff2') format('woff2');
-  font-weight: 500;
+  font-family: 'Space Mono';
+  src: url('/fonts/spacemono-700-latin.woff2') format('woff2');
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Permanent Marker';
+  src: url('/fonts/permanentmarker-400-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Felt, DESIGN.md's `colors`: the default scheme. */
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  /* Pitch slate — structure, the rail, every primary action; sky for info.
-     The Superdesign v7 palette (scope 105): #1A3A52 is the pitch, #112636
-     the rail, #234A66 the line between them. */
-  --slate-50: #f1f5f9;
-  --slate-100: #e0f2fe;
-  --slate-500: #0284c7;
-  --slate-600: #1a3a52;
-  --slate-700: #234a66;
-  --slate-800: #112636;
-  --slate-900: #0b1b27;
+  /* The ramps: constant in both schemes, for what is drawn the same way in
+     each (the bar, the footer, the hero, the dark bands, the dugout). */
+  --slate-400: #6f9f88;
+  --slate-600: #184634;
+  --slate-700: #2b6049;
+  --slate-800: #12382a;
+  --slate-900: #0d2b20;
 
-  /* Stadium green — ready, cleared, available. */
-  --stadium-100: #dcfce7;
-  --stadium-500: #16a34a;
-  --stadium-700: #15803d;
-  --stadium-900: #14532d;
+  --stadium-300: #7ee2a8;
+  --stadium-500: #12a150;
+  /* Deepened until chalk text on it passes: 8.2:1. */
+  --stadium-700: #0f5132;
+  --stadium-900: #173f2c;
 
-  /* Trophy gold — waiting on somebody, and the demonstration tenant's marker. */
-  --trophy-100: #fef3c7;
-  --trophy-500: #d97706;
-  --trophy-700: #78350f;
-  /* Brand gold (scope 106): the dashboard's one card that needs you, with
-     pitch-slate text on it (6:1). Not a status: it sits in the ramp, but
-     no pill uses it. */
-  --trophy-300: #ffc145;
+  --trophy-100: #fff3c4;
+  /* Chalk yellow at full strength: the gold card and the focus ring on the
+     dark grounds, with felt text on it (8.9:1). */
+  --trophy-300: #f5d547;
 
-  /* Card red — blocked. */
-  --redcard-100: #fee2e2;
-  --redcard-500: #dc2626;
-  --redcard-700: #7f1d1d;
-
-  /* Electric volt — the Assistant, exclusively. See the header. */
-  --volt-100: #f7fee7;
-  --volt-500: #84cc16;
-  --volt-700: #3f6212;
-
-  /* Chalk — cool neutrals, the colour of the lines. */
-  --chalk-50: #f8fafc;
-  --chalk-100: #f1f5f9;
-  --chalk-200: #e2e8f0;
-  --chalk-300: #cbd5e1;
-  --stone: #64748b;
-  --ink: #1a3a52;
+  --chalk-50: #f2f0e6;
+  --chalk-100: #eceee8;
+  --chalk-200: #d3d9d2;
+  --chalk-300: #b9c7bc;
+  --stone: #4f5f56;
+  --ink: #13211a;
 
   /* Turf — grass under the front door's bands (scope 119). A ground, never
-     a state: no pill, dot or word ever takes it, so stadium green stays the
-     one green that means ready. The light end is a band, the dark end the
-     floodlit pitch. */
+     a state: no pill, dot or word ever takes it. */
   --turf-50: #f1f7ef;
-  --turf-100: #e3efdf;
-  --turf-200: #cde0c7;
   --turf-700: #1f5136;
   --turf-800: #143d29;
   --turf-900: #0b2a1c;
 
-  /* Semantic aliases. Screens use these; the ramps above are the source. */
-  --turf-ground: var(--turf-50);
-  --turf-stripe: rgb(31 81 54 / 5%);
-  --turf-line: rgb(31 81 54 / 18%);
-  --bg: var(--chalk-50);
-  --bg-sunk: var(--chalk-100);
-  --surface: #ffffff;
-  --surface-2: var(--chalk-50);
-  --border: var(--chalk-200);
-  --border-strong: var(--chalk-300);
-  --text: var(--ink);
-  --muted: var(--stone);
-  --subtle: #475569;
+  /* Semantic aliases. Screens use these. */
+  --bg: #0d2b20;
+  --bg-sunk: #0a2219;
+  --surface: #12382a;
+  --surface-2: #184634;
+  --border: #2b6049;
+  --border-strong: #6f9f88;
+  --text: #f2f0e6;
+  --muted: #b9c7bc;
+  --subtle: #dbe3dc;
 
-  --accent: var(--slate-600);
-  --accent-hover: var(--slate-700);
-  --accent-soft: var(--slate-50);
-  --accent-text: #ffffff;
-  --link: var(--slate-600);
-  --highlight: var(--volt-500);
-  --highlight-hover: #65a30d;
-  --focus: var(--slate-600);
-  --focus-halo: rgb(132 204 22 / 45%);
+  --accent: #f2f0e6;
+  --accent-hover: #ffffff;
+  --accent-soft: #1d523d;
+  --accent-text: #12382a;
+  --link: var(--accent);
+  /* The Assistant, and only the Assistant: a pale blue index card. */
+  --highlight: #dbe9ff;
+  --highlight-hover: #c6dcff;
+  --highlight-text: #14233a;
+  /* Chalk yellow: live, now, this one. Never a button fill on the board. */
+  --signal: #f5d547;
+  --signal-text: #12382a;
+  --focus: var(--signal);
+  --focus-halo: color-mix(in srgb, var(--signal) 35%, transparent);
 
-  --ok-bg: var(--stadium-100);
-  --ok-text: var(--stadium-900);
-  --ok-dot: var(--stadium-500);
-  --warn-bg: var(--trophy-100);
-  --warn-text: var(--trophy-700);
-  --warn-dot: var(--trophy-500);
-  --stop-bg: var(--redcard-100);
-  --stop-text: var(--redcard-700);
-  --stop-dot: var(--redcard-500);
-  --info-bg: var(--slate-100);
-  --info-text: var(--slate-700);
-  --info-dot: var(--slate-500);
-  --neutral-bg: var(--chalk-200);
-  --neutral-text: var(--stone);
+  --ok-bg: #173f2c;
+  --ok-text: #9df0c0;
+  --ok-dot: #7ee2a8;
+  --warn-bg: #3a3a12;
+  --warn-text: #f5d547;
+  --warn-dot: #f5d547;
+  --stop-bg: #4a1d1f;
+  --stop-text: #ffb0b2;
+  --stop-dot: #ff8a8d;
+  --info-bg: #173a4a;
+  --info-text: #a8dcf5;
+  --info-dot: #6cc4ee;
+  --neutral-bg: var(--surface-2);
+  --neutral-text: var(--muted);
   --neutral-dot: var(--subtle);
 
   /* The rail. Constant in every role context — see src/web/role-context.ts. */
-  --rail-bg: var(--slate-800);
-  --rail-line: var(--slate-700);
-  --rail-text: #f8fafc;
-  --rail-text-2: #94a3b8;
+  --rail-bg: #0a2219;
+  --rail-line: #1d523d;
+  --rail-text: #f2f0e6;
+  --rail-text-2: #b9c7bc;
+
+  /* The style's extras: magnets (team colours, white numbers at 19px bold)
+     and the wooden ledge under the header. */
+  --magnet-home: #c62828;
+  --magnet-away: #2563eb;
+  --magnet-you: #f5d547;
+  --frame: #6b4b2e;
+
+  /* Categories, not statuses: they never borrow ok, warn or stop. */
+  --team-0: #4f74e3;
+  --team-1: #e0a33a;
+  --team-2: #8a5cc7;
+  --team-3: #2b9bb3;
+  --team-4: #c75c8a;
+  --team-5: #6b8e23;
+  --season-bar: #3b82f6;
+  --season-holiday: #f4b183;
+  --season-off: #facc15;
+  --season-followed: #22c55e;
+  --playoff-bg: #3a2352;
+  --playoff-text: #e3ccff;
+  --event-bg: #4a1a3a;
+  --event-text: #ffc8ea;
+  /* The club menu's sections, at least 4.5:1 on the rail in both schemes. */
+  --section-season: #fb923c;
+  --section-matchday: #38bdf8;
+  --section-club: #a78bfa;
+
+  --turf-ground: var(--bg-sunk);
+  --turf-stripe: color-mix(in srgb, var(--text) 3%, transparent);
+  --turf-line: color-mix(in srgb, var(--text) 12%, transparent);
 
   /* Reserved for commissioned artwork. Empty by design — scope 32 WP6 and
      open question 66. A club crest lands in the first; a licensed motif
@@ -200,23 +209,36 @@
 
   --radius-sm: 6px;
   --radius: 10px;
-  --radius-lg: 16px;
+  --radius-lg: 14px;
+  --radius-card: 4px;
   --radius-full: 999px;
 
-  --shadow-xs: 0 1px 2px rgb(15 23 42 / 5%);
-  --shadow-sm: 0 1px 3px rgb(15 23 42 / 8%), 0 1px 2px rgb(15 23 42 / 4%);
-  --shadow-md: 0 4px 12px rgb(15 23 42 / 8%), 0 2px 4px rgb(15 23 42 / 4%);
-  --shadow-lg: 0 12px 32px rgb(15 23 42 / 12%), 0 4px 8px rgb(15 23 42 / 6%);
+  --border-width: 2px;
+  --border-width-frame: 6px;
 
-  --font-sans: 'Public Sans', ui-sans-serif, system-ui, -apple-system,
+  /* Every shadow is black (DESIGN.md); rules mix --shade, never a hex. */
+  --shade: #000000;
+  --shadow-xs: 0 2px 0 rgb(0 0 0 / 25%);
+  --shadow-sm: 0 5px 0 -1px rgb(0 0 0 / 35%);
+  --shadow-md: 0 2px 6px rgb(0 0 0 / 45%), 0 12px 28px rgb(0 0 0 / 40%);
+  --shadow-lg: 0 4px 10px rgb(0 0 0 / 50%), 0 22px 46px rgb(0 0 0 / 48%);
+  --shadow-magnet: inset 0 -5px 0 rgb(0 0 0 / 22%), 0 6px 10px rgb(0 0 0 / 35%);
+  --shadow-card: 0 10px 18px -10px rgb(0 0 0 / 55%);
+
+  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-display: 'Saira', 'Arial Narrow', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo,
+  --font-display: 'Permanent Marker', 'Comic Sans MS', cursive;
+  --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo,
     Consolas, 'Liberation Mono', monospace;
 
   --dur-fast: 120ms;
-  --dur: 180ms;
+  --dur: 260ms;
+  --dur-magnet: 700ms;
+  --dur-chalk: 1100ms;
   --ease: cubic-bezier(0.2, 0.6, 0.3, 1);
+  --ease-magnet: cubic-bezier(0.5, 1.6, 0.4, 1);
+  --ease-chalk: ease-out;
+  --ease-pin: cubic-bezier(0.3, 1.4, 0.5, 1);
 
   --shell-width: 78rem;
   --reading-width: 46rem;
@@ -225,67 +247,60 @@
   --shadow: var(--shadow-sm);
 }
 
-@media (prefers-color-scheme: dark) {
+/* The Whiteboard, DESIGN.md's `colorsLight`, for bright clubrooms and
+   projectors, and for paper. Tokens it does not restate are the same in
+   both schemes. */
+@media (prefers-color-scheme: light), print {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
 
-    --bg: #0b1b27;
-    --bg-sunk: #07131c;
-    --surface: #112636;
-    --surface-2: #1a3a52;
-    --border: #234a66;
-    --border-strong: #2f5d7e;
-    --text: #f8fafc;
-    --muted: #94a3b8;
-    --subtle: #cbd5e1;
+    --bg: #f6f7f4;
+    --bg-sunk: #eceee8;
+    --surface: #ffffff;
+    --surface-2: #f1f3ee;
+    --border: #d3d9d2;
+    --border-strong: #7f8e85;
+    --text: #13211a;
+    --muted: #4f5f56;
+    --subtle: #34433a;
 
-    /* The action colour lightens so it can carry dark text — the same
-       relationship as the light theme, inverted, rather than the light
-       theme's slate floated on a dark ground where it would fail twice. */
-    --accent: #38bdf8;
-    --accent-hover: #7dd3fc;
-    --accent-soft: #0c4a6e;
-    --accent-text: #0b1b27;
-    --link: #38bdf8;
-    --highlight: #a3e635;
-    --highlight-hover: #bef264;
-    --focus: #38bdf8;
-    --focus-halo: rgb(163 230 53 / 30%);
+    --accent: #12382a;
+    --accent-hover: #184634;
+    --accent-soft: #e1ece5;
+    --accent-text: #ffffff;
+    --signal: #8a6d00;
+    --signal-text: #ffffff;
 
-    --ok-bg: #064e3b;
-    --ok-text: #86efac;
-    --ok-dot: #4ade80;
-    --warn-bg: #451a03;
-    --warn-text: #fde047;
-    --warn-dot: #facc15;
-    --stop-bg: #450a0a;
-    --stop-text: #fca5a5;
-    --stop-dot: #f87171;
-    --info-bg: #0c4a6e;
-    --info-text: #7dd3fc;
-    --info-dot: #38bdf8;
-    --neutral-bg: #1a3a52;
-    --neutral-text: var(--muted);
-    --neutral-dot: var(--subtle);
+    --ok-bg: #dcf3e4;
+    --ok-text: #0f5132;
+    --ok-dot: #12a150;
+    --warn-bg: #fff3c4;
+    --warn-text: #6b4e00;
+    --warn-dot: #a87f00;
+    --stop-bg: #fde2e2;
+    --stop-text: #8a1c1c;
+    --stop-dot: #d32f2f;
+    --info-bg: #dde9fb;
+    --info-text: #1e3a6e;
+    --info-dot: #2563eb;
 
-    --rail-bg: #07131c;
-    --rail-line: #1a3a52;
-    --rail-text: #f8fafc;
-    /* #94a3b8, not DESIGN.md's #64748b: that is 4.3:1 on this rail, under
-       WCAG AA for the rail's small labels. */
-    --rail-text-2: #94a3b8;
+    --rail-bg: #12382a;
 
-    --volt-100: #1a2e05;
-    --volt-700: #bef264;
+    --magnet-away: #1d4ed8;
+    --magnet-you: #d4a800;
+    --frame: #9aa4a0;
 
-    --turf-ground: #0a2218;
-    --turf-stripe: rgb(255 255 255 / 3%);
-    --turf-line: rgb(255 255 255 / 12%);
+    --playoff-bg: #ede4f7;
+    --playoff-text: #5b2a86;
+    --event-bg: #fbe3f3;
+    --event-text: #8a1c62;
 
-    --shadow-xs: 0 1px 2px rgb(0 0 0 / 45%);
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 45%), 0 2px 8px rgb(0 0 0 / 32%);
-    --shadow-md: 0 2px 6px rgb(0 0 0 / 45%), 0 12px 28px rgb(0 0 0 / 40%);
-    --shadow-lg: 0 4px 10px rgb(0 0 0 / 50%), 0 22px 46px rgb(0 0 0 / 48%);
+    --turf-ground: var(--turf-50);
+    --turf-stripe: color-mix(in srgb, var(--turf-700) 5%, transparent);
+    --turf-line: color-mix(in srgb, var(--turf-700) 18%, transparent);
+
+    --shadow-md: 0 4px 12px rgb(0 0 0 / 8%), 0 2px 4px rgb(0 0 0 / 4%);
+    --shadow-lg: 0 12px 32px rgb(0 0 0 / 12%), 0 4px 8px rgb(0 0 0 / 6%);
   }
 }
 
@@ -309,8 +324,8 @@ body {
      so the page has a horizon instead of a flat grey field. Fixed, because
      a gradient that scrolls away is a gradient nobody sees twice. */
   background-image:
-    radial-gradient(62rem 30rem at 88% -12%, rgb(132 204 22 / 8%), transparent 66%),
-    radial-gradient(54rem 28rem at -8% -14%, rgb(56 189 248 / 8%), transparent 62%);
+    radial-gradient(62rem 30rem at 88% -12%, color-mix(in srgb, var(--text) 5%, transparent), transparent 66%),
+    radial-gradient(54rem 28rem at -8% -14%, color-mix(in srgb, var(--text) 4%, transparent), transparent 62%);
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: var(--text);
@@ -391,14 +406,15 @@ a:hover {
 
    Scope 104: the Superdesign front door's chrome, on every screen. The
    ramp's own colours rather than the theme's surfaces, because the design
-   draws the bar and the footer in pitch blue in both schemes. */
+   draws the bar and the footer in felt in both schemes. */
 
-/* The default ring is navy, which vanishes on pitch slate. */
+/* The default ring darkens in the light scheme, where it would vanish on
+   felt, so the dark grounds keep the full chalk yellow. */
 .topbar,
 .site-footer,
 .home-hero,
 .home-dark {
-  --focus: #4ade80;
+  --focus: var(--trophy-300);
 }
 
 /* The bar sticks. Which club you are in and the way out are the two facts
@@ -408,9 +424,9 @@ a:hover {
   top: 0;
   z-index: 20;
   border-bottom: 1px solid var(--slate-700);
-  background: rgb(17 38 54 / 95%);
+  background: color-mix(in srgb, var(--slate-800) 95%, transparent);
   backdrop-filter: blur(12px);
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 .topbar-inner {
@@ -437,7 +453,7 @@ a:hover {
   align-items: center;
   gap: 0.6rem;
   min-height: 2.75rem;
-  color: #ffffff;
+  color: var(--chalk-50);
   text-decoration: none;
 }
 
@@ -459,7 +475,7 @@ a:hover {
   align-items: center;
   min-height: 2.75rem;
   padding: 0 var(--space-2);
-  color: #cbd5e1;
+  color: var(--chalk-300);
   font-size: 0.9rem;
   font-weight: 500;
   text-decoration: none;
@@ -469,7 +485,7 @@ a:hover {
 
 .topbar-links a:hover,
 .topbar-workspace:hover {
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 .topbar-workspace {
@@ -482,7 +498,7 @@ a:hover {
   min-height: 2.75rem;
   padding: 0 1.25rem;
   border-radius: var(--radius-full);
-  background: #ffffff;
+  background: var(--chalk-50);
   color: var(--slate-600);
   font-size: 0.9rem;
   font-weight: 600;
@@ -490,7 +506,7 @@ a:hover {
 }
 
 .topbar-register:hover {
-  background: #f1f5f9;
+  background: var(--chalk-100);
   color: var(--slate-600);
 }
 
@@ -505,7 +521,7 @@ a:hover {
   height: 2.75rem;
   border: 1px solid var(--slate-700);
   border-radius: var(--radius-sm);
-  color: #e2e8f0;
+  color: var(--chalk-200);
   list-style: none;
   cursor: pointer;
 }
@@ -533,7 +549,7 @@ a:hover {
   border: 1px solid var(--slate-700);
   border-radius: var(--radius);
   background: var(--slate-800);
-  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 50%);
+  box-shadow: 0 25px 50px -12px color-mix(in srgb, var(--shade) 50%, transparent);
 }
 
 .topbar-menu nav a {
@@ -542,14 +558,14 @@ a:hover {
   min-height: 2.75rem;
   padding: 0 var(--space-3);
   border-radius: var(--radius-sm);
-  color: #e2e8f0;
+  color: var(--chalk-200);
   font-weight: 500;
   text-decoration: none;
 }
 
 .topbar-menu nav a:hover {
   background: var(--slate-600);
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 /* On a phone Your workspace is in the menu, under a rule. */
@@ -626,9 +642,7 @@ a:hover {
 }
 
 .brand-name {
-  font-family: var(--font-display);
   font-weight: 700;
-  font-stretch: 92%;
   letter-spacing: 0.005em;
 }
 
@@ -674,7 +688,7 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  color: #ffffff;
+  color: var(--chalk-50);
   font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -689,7 +703,7 @@ a:hover {
 
 .site-footer .site-footer-heading {
   margin-bottom: var(--space-2);
-  color: #ffffff;
+  color: var(--chalk-50);
   font-weight: 700;
 }
 
@@ -709,7 +723,7 @@ a:hover {
 }
 
 .site-footer a:hover {
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 .site-footer-base {
@@ -748,14 +762,12 @@ h4 {
   text-wrap: balance;
 }
 
-/* The display face (scope 118) takes the page title, set semi-condensed:
-   Saira's width axis is what makes it read as a kit number rather than a
-   report heading. h3 and below stay in the interface face. */
+/* The coach's handwriting (scope 123) takes the page title. h3 and below
+   stay in the interface face. */
 h2 {
   font-family: var(--font-display);
   font-size: clamp(1.45rem, 1.2rem + 0.8vw, 1.75rem);
-  font-weight: 700;
-  font-stretch: 87.5%;
+  font-weight: 400;
   letter-spacing: -0.005em;
   margin: var(--space-6) 0 var(--space-2);
 }
@@ -791,7 +803,6 @@ h3 {
 }
 
 .eyebrow {
-  font-family: var(--font-display);
   font-size: 0.74rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -813,11 +824,11 @@ h3 {
   padding: clamp(var(--space-5), 4vw, var(--space-7));
   margin-bottom: var(--space-6);
   background: linear-gradient(135deg, var(--slate-600), var(--slate-800));
-  color: #ffffff;
+  color: var(--chalk-50);
   box-shadow: var(--shadow-lg);
 }
 
-/* A centre circle in the front door's markings: white, 3px. Aria-hidden
+/* A centre circle in the front door's markings: chalk, 3px. Aria-hidden
    decoration in CSS only, so it costs no markup and disappears in print.
    Fainter than the front door's 35%, because here it sits behind a page's
    own heading rather than beside it. */
@@ -828,7 +839,7 @@ h3 {
   width: 26rem;
   height: 26rem;
   border-radius: 50%;
-  border: 3px solid rgb(255 255 255 / 20%);
+  border: 3px solid color-mix(in srgb, var(--chalk-50) 20%, transparent);
   pointer-events: none;
 }
 
@@ -844,16 +855,15 @@ h3 {
 .hero h2 {
   margin: 0 0 var(--space-3);
   font-size: clamp(1.9rem, 1.2rem + 2.6vw, 2.9rem);
-  font-weight: 800;
-  font-stretch: 80%;
+  font-weight: 400;
   line-height: 1.05;
   letter-spacing: -0.005em;
-  color: #ffffff;
+  color: var(--chalk-50);
   max-width: 22ch;
 }
 
 .hero .lede {
-  color: rgb(248 250 252 / 80%);
+  color: color-mix(in srgb, var(--chalk-50) 80%, transparent);
   margin-bottom: var(--space-5);
   max-width: 52ch;
 }
@@ -867,9 +877,9 @@ h3 {
 /* On the dark ground the primary action is white and the secondary an
    outline, as on the front door. */
 .hero .button {
-  background: #ffffff;
+  background: var(--chalk-50);
   color: var(--slate-600);
-  border-color: #ffffff;
+  border-color: var(--chalk-50);
 }
 
 .hero .button:hover {
@@ -879,7 +889,7 @@ h3 {
 
 .hero .button.secondary {
   background: transparent;
-  color: #ffffff;
+  color: var(--chalk-50);
   border-color: var(--slate-700);
 }
 
@@ -888,12 +898,10 @@ h3 {
   border-color: var(--stone);
 }
 
-/* In the dark theme the page ground is already nearly the hero's blue, so
-   a hairline keeps it a panel rather than the background. */
-@media (prefers-color-scheme: dark) {
-  .hero {
-    border: 1px solid var(--slate-700);
-  }
+/* On felt the page ground is already nearly the hero's green, so a
+   hairline keeps it a panel rather than the background. */
+.hero {
+  border: 1px solid var(--slate-700);
 }
 
 /* ------------------------------------------------------------ cards */
@@ -1085,7 +1093,7 @@ h3 {
   position: absolute;
   inset: 0 0 auto;
   height: 3px;
-  background: linear-gradient(90deg, var(--trophy-500), var(--slate-500));
+  background: linear-gradient(90deg, var(--warn-dot), var(--info-dot));
 }
 
 .stat .n {
@@ -1827,7 +1835,7 @@ td {
   padding: 0 0.35rem;
   border-radius: var(--radius-sm);
   background: var(--slate-700);
-  color: #ffffff;
+  color: var(--chalk-50);
   font-variant-numeric: tabular-nums;
   font-weight: 660;
   text-align: center;
@@ -1943,7 +1951,7 @@ td {
    top bar at all. */
 @media print {
   body {
-    background: #ffffff;
+    background: var(--surface);
     background-image: none;
   }
 
@@ -2022,8 +2030,8 @@ td {
   flex: 0 0 auto;
   border-radius: 50%;
   background: linear-gradient(150deg, var(--stadium-500), var(--slate-700));
-  border: 2px solid rgb(255 255 255 / 18%);
-  color: #fff;
+  border: 2px solid color-mix(in srgb, var(--rail-text) 18%, transparent);
+  color: var(--rail-text);
   display: grid;
   place-items: center;
   font-weight: 700;
@@ -2104,7 +2112,7 @@ td {
 }
 
 .rail-ledger .is-zero b {
-  color: #4ade80;
+  color: var(--stadium-300);
 }
 
 .rail-label {
@@ -2136,7 +2144,7 @@ td {
 }
 
 .role-item:hover {
-  background: rgb(255 255 255 / 7%);
+  background: color-mix(in srgb, var(--rail-text) 7%, transparent);
   color: var(--rail-text);
 }
 
@@ -2158,7 +2166,7 @@ td {
 .role-item-count {
   font-family: var(--font-mono);
   font-size: 0.66rem;
-  background: rgb(255 255 255 / 12%);
+  background: color-mix(in srgb, var(--rail-text) 12%, transparent);
   border-radius: var(--radius-full);
   padding: 0.1rem 0.45rem;
   min-width: 1.4rem;
@@ -2167,7 +2175,7 @@ td {
 }
 
 .role-item.is-current {
-  background: rgb(255 255 255 / 11%);
+  background: color-mix(in srgb, var(--rail-text) 11%, transparent);
   border-color: var(--role-hue, var(--rail-text-2));
   box-shadow: inset 3px 0 0 var(--role-hue, var(--rail-text-2));
 }
@@ -2531,12 +2539,12 @@ td {
 }
 
 .check .box.done {
-  background: var(--stadium-500);
-  border-color: var(--stadium-500);
+  background: var(--ok-dot);
+  border-color: var(--ok-dot);
 }
 
 .check .box.todo {
-  border-color: var(--redcard-500);
+  border-color: var(--stop-dot);
 }
 
 .check .ctitle {
@@ -2562,7 +2570,7 @@ td {
 /* callouts */
 .callout {
   margin: 0;
-  border-left: 3px solid var(--redcard-500);
+  border-left: 3px solid var(--stop-dot);
   background: var(--stop-bg);
   color: var(--stop-text);
   border-radius: var(--radius-sm);
@@ -2571,7 +2579,7 @@ td {
 }
 
 .callout.wait {
-  border-left-color: var(--trophy-500);
+  border-left-color: var(--warn-dot);
   background: var(--warn-bg);
   color: var(--warn-text);
 }
@@ -2720,7 +2728,7 @@ td {
 }
 
 .rail-link:hover {
-  color: #ffffff;
+  color: var(--rail-text);
   text-decoration: underline;
 }
 
@@ -2735,7 +2743,7 @@ td {
 }
 
 .rail-signout:hover:not(:disabled) {
-  background: rgb(255 255 255 / 8%);
+  background: color-mix(in srgb, var(--rail-text) 8%, transparent);
   color: var(--rail-text);
 }
 
@@ -2862,20 +2870,20 @@ td {
   border-radius: var(--radius);
 }
 
-/* Stadium green, deepened until white text on it passes: 5:1. */
+/* Stadium green, deepened until chalk text on it passes: 8.2:1. */
 .auth-submit {
   width: 100%;
   min-height: 3.25rem;
   border-radius: var(--radius);
   background: var(--stadium-700);
-  color: #ffffff;
+  color: var(--chalk-50);
   font-weight: 700;
-  box-shadow: 0 10px 15px -3px rgb(22 163 74 / 20%);
+  box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--stadium-500) 20%, transparent);
 }
 
 .auth-submit:hover:not(:disabled) {
   background: var(--stadium-900);
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 .auth-note {
@@ -2893,8 +2901,8 @@ td {
   gap: var(--space-6);
   align-content: center;
   padding: clamp(var(--space-5), 5vw, 4rem);
-  background: linear-gradient(135deg, var(--slate-600) 0%, #0f2438 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, var(--slate-600) 0%, var(--slate-900) 100%);
+  color: var(--chalk-50);
 }
 
 /* The draft's trophy watermark, as a pitch's centre circle instead. */
@@ -2906,7 +2914,7 @@ td {
   width: 24rem;
   height: 24rem;
   border-radius: 50%;
-  border: 3px solid rgb(255 255 255 / 8%);
+  border: 3px solid color-mix(in srgb, var(--chalk-50) 8%, transparent);
   pointer-events: none;
 }
 
@@ -2932,9 +2940,9 @@ td {
   justify-self: start;
   margin: 0;
   padding: 0.3rem 0.75rem;
-  border: 1px solid rgb(255 255 255 / 10%);
+  border: 1px solid color-mix(in srgb, var(--chalk-50) 10%, transparent);
   border-radius: var(--radius-sm);
-  background: rgb(255 255 255 / 10%);
+  background: color-mix(in srgb, var(--chalk-50) 10%, transparent);
   font-size: 0.875rem;
   font-weight: 500;
 }
@@ -2942,7 +2950,7 @@ td {
 .auth-badge svg {
   width: 1rem;
   height: 1rem;
-  color: #4ade80;
+  color: var(--stadium-300);
 }
 
 .auth-benefits {
@@ -2966,18 +2974,18 @@ td {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: rgb(22 163 74 / 20%);
-  color: #4ade80;
+  background: color-mix(in srgb, var(--stadium-300) 20%, transparent);
+  color: var(--stadium-300);
 }
 
 .auth-benefit-icon.is-gold {
-  background: rgb(217 119 6 / 20%);
-  color: #fbbf24;
+  background: color-mix(in srgb, var(--trophy-300) 20%, transparent);
+  color: var(--trophy-300);
 }
 
 .auth-benefits h3 {
   margin: 0 0 var(--space-1);
-  color: #ffffff;
+  color: var(--chalk-50);
   font-size: 1.15rem;
   font-weight: 700;
 }
@@ -2990,26 +2998,26 @@ td {
 .auth-card {
   margin: 0;
   padding: var(--space-6);
-  border: 1px solid rgb(255 255 255 / 10%);
+  border: 1px solid color-mix(in srgb, var(--chalk-50) 10%, transparent);
   border-radius: var(--radius-lg);
-  background: rgb(255 255 255 / 5%);
+  background: color-mix(in srgb, var(--chalk-50) 5%, transparent);
   backdrop-filter: blur(16px);
 }
 
 .auth-card .eyebrow {
-  color: #4ade80;
+  color: var(--stadium-300);
 }
 
 .auth-card .auth-card-title {
   margin: 0 0 var(--space-2);
-  color: #ffffff;
+  color: var(--chalk-50);
   font-size: 1.25rem;
   font-weight: 700;
   line-height: 1.3;
 }
 
 .auth-card p {
-  color: rgb(248 250 252 / 80%);
+  color: color-mix(in srgb, var(--chalk-50) 80%, transparent);
 }
 
 .auth-ledger {
@@ -3026,13 +3034,13 @@ td {
   gap: var(--space-3);
   align-items: baseline;
   padding-top: 0.6rem;
-  border-top: 1px solid rgb(255 255 255 / 14%);
-  color: rgb(248 250 252 / 80%);
+  border-top: 1px solid color-mix(in srgb, var(--chalk-50) 14%, transparent);
+  color: color-mix(in srgb, var(--chalk-50) 80%, transparent);
   font-size: 0.88rem;
 }
 
 .auth-ledger b {
-  color: #ffffff;
+  color: var(--chalk-50);
   font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -3082,9 +3090,9 @@ td {
   cursor: pointer;
 }
 .chip[aria-pressed='true'] {
-  background: var(--slate-800);
-  border-color: var(--slate-800);
-  color: #ffffff;
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--signal-text);
 }
 .chip .chip-count {
   margin-left: 0.35em;
@@ -3319,9 +3327,9 @@ td {
   border-radius: var(--radius);
   overflow: hidden;
   background:
-    radial-gradient(ellipse at 50% 0%, rgb(255 255 255 / 14%), transparent 60%),
-    repeating-linear-gradient(180deg, #2f8a4a 0 9%, #2a7d43 9% 18%);
-  box-shadow: inset 0 0 0 2px rgb(0 0 0 / 12%);
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--chalk-50) 14%, transparent), transparent 60%),
+    repeating-linear-gradient(180deg, var(--turf-700) 0 9%, var(--turf-800) 9% 18%);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--shade) 12%, transparent);
 }
 
 .dugout-lines {
@@ -3330,12 +3338,12 @@ td {
   width: 100%;
   height: 100%;
   fill: none;
-  stroke: rgb(255 255 255 / 70%);
+  stroke: color-mix(in srgb, var(--chalk-50) 70%, transparent);
   stroke-width: 0.4;
 }
 
 .dugout-lines .spot {
-  fill: rgb(255 255 255 / 80%);
+  fill: color-mix(in srgb, var(--chalk-50) 80%, transparent);
 }
 
 .dugout-shirt,
@@ -3357,7 +3365,7 @@ td {
   padding: 0;
   border: 0;
   background: transparent;
-  color: #fff;
+  color: var(--chalk-50);
   box-shadow: none;
   cursor: pointer;
   animation: dugout-run-out 700ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--delay, 0ms) both;
@@ -3381,14 +3389,14 @@ td {
   height: 34px;
   border-radius: 50%;
   background: var(--slate-600);
-  border: 2px solid #fff;
+  border: 2px solid var(--chalk-50);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  box-shadow: 0 3px 8px rgb(0 0 0 / 35%);
+  box-shadow: 0 3px 8px color-mix(in srgb, var(--shade) 35%, transparent);
 }
 
 .dugout-shirt.is-goalkeeper .num {
-  background: #ffc145;
+  background: var(--trophy-300);
   color: var(--slate-800);
 }
 
@@ -3402,18 +3410,18 @@ td {
   line-height: 1.1;
   padding: 1px 5px;
   border-radius: var(--radius-sm);
-  background: rgb(17 38 54 / 75%);
+  background: color-mix(in srgb, var(--slate-800) 75%, transparent);
   white-space: nowrap;
 }
 
 .dugout-shirt:hover .num,
 .dugout-shirt.is-selected .num {
-  outline: 3px solid #ffffff;
+  outline: 3px solid var(--chalk-50);
   outline-offset: 2px;
 }
 
 .dugout-shirt:focus-visible {
-  outline: 3px solid #fff;
+  outline: 3px solid var(--chalk-50);
   outline-offset: 2px;
 }
 
@@ -3423,8 +3431,8 @@ td {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  border: 2px dashed rgb(255 255 255 / 75%);
-  color: rgb(255 255 255 / 85%);
+  border: 2px dashed color-mix(in srgb, var(--chalk-50) 75%, transparent);
+  color: color-mix(in srgb, var(--chalk-50) 85%, transparent);
   font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -3604,7 +3612,7 @@ td {
 }
 
 /* The academy (scope 112): training sheets, game time by position, and the
-   live tracker. Positions are four steps of slate, never volt; minutes with
+   live tracker. Positions are four steps of slate, never the Assistant's blue; minutes with
    no position are striped, so they never pass for one. */
 .academy-title {
   margin: var(--space-6) 0 var(--space-3);
@@ -3773,7 +3781,7 @@ td {
 /* The Technical Director's tabs and the Academy tab (scope 113). Tabs and
    the range switch are links, so each view is an address. Wellbeing and RPE
    use the same four steps of slate as game time: no measure is coloured
-   good or bad, and volt stays the Assistant's. */
+   good or bad, and the blue stays the Assistant's. */
 .td-head h1 {
   margin: 0 0 var(--space-3);
 }
@@ -4262,12 +4270,6 @@ td {
    what a PDF prints — html.print-calendar hides everything else.
    ══════════════════════════════════════════════════════════════════════ */
 .comp-cal {
-  --team-0: #4f74e3;
-  --team-1: #e0a33a;
-  --team-2: #8a5cc7;
-  --team-3: #2b9bb3;
-  --team-4: #c75c8a;
-  --team-5: #6b8e23;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -4677,7 +4679,7 @@ td {
 }
 
 .season-pulse-head .hint {
-  color: rgb(244 246 255 / 72%);
+  color: color-mix(in srgb, var(--chalk-50) 72%, transparent);
   margin: var(--space-1) 0 var(--space-3);
 }
 
@@ -4700,11 +4702,11 @@ td {
 }
 
 .season .season-pulse-month:hover:not(:disabled) {
-  background: rgb(255 255 255 / 8%);
+  background: color-mix(in srgb, var(--chalk-50) 8%, transparent);
 }
 
 .season .season-pulse-month[aria-pressed='true'] {
-  background: rgb(255 255 255 / 12%);
+  background: color-mix(in srgb, var(--chalk-50) 12%, transparent);
   border-color: var(--stadium-500);
 }
 
@@ -4720,22 +4722,22 @@ td {
   height: var(--h);
   min-width: 2px;
   border-radius: 2px 2px 0 0;
-  background: #3b82f6;
+  background: var(--season-bar);
   transform-origin: bottom;
 }
 
 .season-bar.is-holiday {
-  background: #f4b183;
+  background: var(--season-holiday);
 }
 
 .season-bar.is-off {
-  background: #facc15;
+  background: var(--season-off);
   height: 100%;
   opacity: 0.35;
 }
 
 .season-bar.is-followed {
-  background: #22c55e;
+  background: var(--season-followed);
 }
 
 .season-pulse-label {
@@ -4745,7 +4747,7 @@ td {
 .season-key {
   margin: var(--space-3) 0 0;
   font-size: 0.8rem;
-  color: rgb(244 246 255 / 80%);
+  color: color-mix(in srgb, var(--chalk-50) 80%, transparent);
 }
 
 .season-swatch {
@@ -4755,19 +4757,19 @@ td {
   border-radius: 2px;
   vertical-align: -0.05rem;
   margin-left: var(--space-2);
-  background: #3b82f6;
+  background: var(--season-bar);
 }
 
 .season-swatch.is-holiday {
-  background: #f4b183;
+  background: var(--season-holiday);
 }
 
 .season-swatch.is-off {
-  background: #facc15;
+  background: var(--season-off);
 }
 
 .season-swatch.is-followed {
-  background: #22c55e;
+  background: var(--season-followed);
 }
 
 /* --- controls -------------------------------------------------- */
@@ -4827,7 +4829,7 @@ td {
   border-radius: var(--radius-lg);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-left: 4px solid #22c55e;
+  border-left: 4px solid var(--season-followed);
 }
 
 .season-follow-card h3 {
@@ -5044,14 +5046,14 @@ td {
 
 .season-chip.is-play-off,
 .season-strip .is-play-off {
-  background: #ede4f7;
-  color: #5b2a86;
+  background: var(--playoff-bg);
+  color: var(--playoff-text);
 }
 
 .season-chip.is-event,
 .season-strip .is-event {
-  background: #fbe3f3;
-  color: #8a1c62;
+  background: var(--event-bg);
+  color: var(--event-text);
 }
 
 .season-chip.is-admin,
@@ -5062,7 +5064,7 @@ td {
 
 .season-chip.is-followed {
   border-color: currentColor;
-  box-shadow: 0 0 0 2px #22c55e;
+  box-shadow: 0 0 0 2px var(--season-followed);
 }
 
 .season-dates {
@@ -5135,20 +5137,6 @@ td {
   .season-dates li {
     grid-template-columns: 1fr;
     gap: var(--space-1);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .season-chip.is-play-off,
-  :root:not([data-theme='light']) .season-strip .is-play-off {
-    background: #3a2352;
-    color: #e3ccff;
-  }
-
-  :root:not([data-theme='light']) .season-chip.is-event,
-  :root:not([data-theme='light']) .season-strip .is-event {
-    background: #4a1a3a;
-    color: #ffc8ea;
   }
 }
 
@@ -5236,8 +5224,8 @@ td {
    Full-bleed bands, as since scope 104: each band paints its colour to the
    window's edges with a spread shadow, clipped to its own height, because
    breaking out with 100vw would count the scrollbar and scroll the page
-   sideways. Pitch slate carries structure; the status colours appear only
-   in statuses, with their word; electric volt appears once, on the
+   sideways. Felt carries structure; the status colours appear only
+   in statuses, with their word; the Assistant's blue appears once, on the
    Assistant's note, which is the only thing it ever marks.
 
    Motion explains a change and then stops: a tab's panel re-enters, the
@@ -5272,13 +5260,13 @@ td {
 .home-hero,
 .home-dark {
   --band: var(--slate-800);
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 .home-close {
   --band: var(--turf-900);
-  --focus: #4ade80;
-  color: #ffffff;
+  --focus: var(--trophy-300);
+  color: var(--chalk-50);
   text-align: center;
 }
 
@@ -5339,7 +5327,7 @@ td {
 
 /* One floodlight over the trust band. */
 .home-dark::before {
-  background: radial-gradient(50% 70% at 10% 0%, rgb(226 240 255 / 9%), transparent 70%);
+  background: radial-gradient(50% 70% at 10% 0%, color-mix(in srgb, var(--chalk-50) 9%, transparent), transparent 70%);
 }
 
 /* The close: mown deep turf under a floodlight, with the centre circle
@@ -5347,10 +5335,10 @@ td {
 .home-close::before {
   --ring: clamp(9rem, 22vw, 15rem);
   background:
-    radial-gradient(circle at 50% 50%, transparent 0 calc(var(--ring) - 1px), rgb(255 255 255 / 13%) calc(var(--ring) - 1px) calc(var(--ring) + 1px), transparent calc(var(--ring) + 1px)),
-    linear-gradient(180deg, transparent calc(50% - 1px), rgb(255 255 255 / 13%) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
-    radial-gradient(60% 80% at 50% -10%, rgb(226 240 255 / 14%), transparent 70%),
-    repeating-linear-gradient(90deg, rgb(255 255 255 / 3%) 0 7rem, transparent 7rem 14rem);
+    radial-gradient(circle at 50% 50%, transparent 0 calc(var(--ring) - 1px), color-mix(in srgb, var(--chalk-50) 13%, transparent) calc(var(--ring) - 1px) calc(var(--ring) + 1px), transparent calc(var(--ring) + 1px)),
+    linear-gradient(180deg, transparent calc(50% - 1px), color-mix(in srgb, var(--chalk-50) 13%, transparent) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    radial-gradient(60% 80% at 50% -10%, color-mix(in srgb, var(--chalk-50) 14%, transparent), transparent 70%),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--chalk-50) 3%, transparent) 0 7rem, transparent 7rem 14rem);
 }
 
 .home-sunk {
@@ -5383,7 +5371,7 @@ html:has(.home) {
 .home-hero .lede,
 .home-dark .lede,
 .home-close .lede {
-  color: rgb(248 250 252 / 82%);
+  color: color-mix(in srgb, var(--chalk-50) 82%, transparent);
 }
 
 .home-heading {
@@ -5391,15 +5379,14 @@ html:has(.home) {
   max-width: 26ch;
   font-family: var(--font-display);
   font-size: clamp(1.9rem, 1.25rem + 2.3vw, 2.9rem);
-  font-weight: 800;
-  font-stretch: 80%;
+  font-weight: 400;
   line-height: 1.04;
   letter-spacing: -0.005em;
 }
 
 .home-dark .home-heading,
 .home-close .home-heading {
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 .home-close .home-heading,
@@ -5417,10 +5404,10 @@ html:has(.home) {
 .home-close .button {
   border-radius: var(--radius-full);
   padding: 0.8rem 1.6rem;
-  background: #ffffff;
+  background: var(--chalk-50);
   color: var(--slate-600);
-  box-shadow: 0 10px 30px rgb(2 6 23 / 35%);
-  border: 2px solid #ffffff;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--shade) 35%, transparent);
+  border: 2px solid var(--chalk-50);
   font-size: 1rem;
   font-weight: 650;
 }
@@ -5434,19 +5421,19 @@ html:has(.home) {
 .home-hero .button.secondary,
 .home-close .button.secondary {
   background: transparent;
-  color: #ffffff;
-  border-color: rgb(255 255 255 / 45%);
+  color: var(--chalk-50);
+  border-color: color-mix(in srgb, var(--chalk-50) 45%, transparent);
 }
 
 .home-hero .button.secondary:hover,
 .home-close .button.secondary:hover {
-  background: rgb(255 255 255 / 8%);
-  border-color: #ffffff;
+  background: color-mix(in srgb, var(--chalk-50) 8%, transparent);
+  border-color: var(--chalk-50);
 }
 
 .home-hero a:not(.button),
 .home-close a:not(.button) {
-  color: #ffffff;
+  color: var(--chalk-50);
   text-underline-offset: 3px;
 }
 
@@ -5458,7 +5445,7 @@ html:has(.home) {
   margin: var(--space-3) 0 0;
   max-width: 58ch;
   font-size: 0.88rem;
-  color: rgb(248 250 252 / 72%);
+  color: color-mix(in srgb, var(--chalk-50) 72%, transparent);
 }
 
 .home-close .home-note {
@@ -5469,14 +5456,13 @@ html:has(.home) {
   margin: var(--space-4) 0 0;
   padding-top: var(--space-3);
   max-width: 58ch;
-  border-top: 1px solid rgb(255 255 255 / 14%);
+  border-top: 1px solid color-mix(in srgb, var(--chalk-50) 14%, transparent);
   font-size: 0.92rem;
-  color: rgb(248 250 252 / 85%);
+  color: color-mix(in srgb, var(--chalk-50) 85%, transparent);
 }
 
 .home-maker {
   margin: var(--space-5) 0 0;
-  font-family: var(--font-display);
   font-size: 0.74rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -5504,11 +5490,11 @@ html:has(.home) {
   overflow: hidden;
   pointer-events: none;
   background:
-    conic-gradient(from 135deg at 4% -10%, transparent 0deg, rgb(226 240 255 / 7%) 10deg, transparent 24deg),
-    conic-gradient(from 201deg at 96% -10%, transparent 0deg, rgb(226 240 255 / 6%) 10deg, transparent 24deg),
-    radial-gradient(45% 55% at 6% -10%, rgb(226 240 255 / 20%), transparent 70%),
-    radial-gradient(45% 55% at 94% -10%, rgb(226 240 255 / 16%), transparent 70%),
-    radial-gradient(80% 55% at 50% 110%, rgb(31 120 72 / 40%), transparent 70%);
+    conic-gradient(from 135deg at 4% -10%, transparent 0deg, color-mix(in srgb, var(--chalk-50) 7%, transparent) 10deg, transparent 24deg),
+    conic-gradient(from 201deg at 96% -10%, transparent 0deg, color-mix(in srgb, var(--chalk-50) 6%, transparent) 10deg, transparent 24deg),
+    radial-gradient(45% 55% at 6% -10%, color-mix(in srgb, var(--chalk-50) 20%, transparent), transparent 70%),
+    radial-gradient(45% 55% at 94% -10%, color-mix(in srgb, var(--chalk-50) 16%, transparent), transparent 70%),
+    radial-gradient(80% 55% at 50% 110%, color-mix(in srgb, var(--turf-700) 40%, transparent), transparent 70%);
 }
 
 .home-pitch {
@@ -5522,9 +5508,9 @@ html:has(.home) {
   transform: translateX(-50%) perspective(60rem) rotateX(60deg);
   transform-origin: 50% 100%;
   background: repeating-linear-gradient(90deg, var(--turf-800) 0 7.75%, var(--turf-700) 7.75% 15.5%);
-  mask-image: linear-gradient(to top, #000 30%, transparent 95%);
+  mask-image: linear-gradient(to top, var(--shade) 30%, transparent 95%);
   fill: none;
-  stroke: rgb(255 255 255 / 28%);
+  stroke: color-mix(in srgb, var(--chalk-50) 28%, transparent);
   stroke-width: 2.5;
   opacity: 0.85;
 }
@@ -5557,11 +5543,10 @@ html:has(.home) {
   margin: 0 0 var(--space-4);
   font-family: var(--font-display);
   font-size: clamp(2.6rem, 1.4rem + 4.6vw, 4.9rem);
-  font-weight: 800;
-  font-stretch: 75%;
+  font-weight: 400;
   line-height: 0.98;
   letter-spacing: -0.01em;
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 .home-title span {
@@ -5589,10 +5574,10 @@ html:has(.home) {
   position: relative;
   min-width: 0;
   padding: 0.6rem;
-  border: 1px solid rgb(255 255 255 / 18%);
+  border: 1px solid color-mix(in srgb, var(--chalk-50) 18%, transparent);
   border-radius: calc(var(--radius-lg) + 0.6rem);
-  background: linear-gradient(150deg, rgb(255 255 255 / 16%), rgb(255 255 255 / 4%) 60%);
-  box-shadow: 0 40px 90px rgb(2 6 23 / 55%), inset 0 1px 0 rgb(255 255 255 / 14%);
+  background: linear-gradient(150deg, color-mix(in srgb, var(--chalk-50) 16%, transparent), color-mix(in srgb, var(--chalk-50) 4%, transparent) 60%);
+  box-shadow: 0 40px 90px color-mix(in srgb, var(--shade) 55%, transparent), inset 0 1px 0 color-mix(in srgb, var(--chalk-50) 14%, transparent);
   backdrop-filter: blur(14px);
   animation: home-rise 700ms var(--ease) 200ms both;
 }
@@ -5615,7 +5600,7 @@ html:has(.home) {
   background: var(--surface);
   color: var(--text);
   border-radius: var(--radius-lg);
-  box-shadow: 0 2px 6px rgb(2 6 23 / 30%);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--shade) 30%, transparent);
 }
 
 .hp-bar {
@@ -5625,17 +5610,15 @@ html:has(.home) {
   gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
   background: linear-gradient(100deg, var(--slate-600), var(--slate-700));
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 .hp-club {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  font-family: var(--font-display);
   font-size: 1.05rem;
   font-weight: 700;
-  font-stretch: 87.5%;
   letter-spacing: 0.01em;
 }
 
@@ -5646,12 +5629,11 @@ html:has(.home) {
   width: 1.9rem;
   height: 2.15rem;
   padding-bottom: 0.3rem;
-  background: #ffffff;
+  background: var(--chalk-50);
   color: var(--slate-700);
   clip-path: polygon(0 0, 100% 0, 100% 64%, 50% 100%, 0 64%);
   font-size: 0.7rem;
   font-weight: 800;
-  font-stretch: 80%;
   letter-spacing: 0.02em;
 }
 
@@ -5683,7 +5665,7 @@ html:has(.home) {
 
 .home .hp-tabs button[aria-selected='true'] {
   color: var(--text);
-  border-bottom-color: var(--slate-600);
+  border-bottom-color: var(--accent);
 }
 
 .hp-panel {
@@ -5693,7 +5675,6 @@ html:has(.home) {
 
 .hp-heading {
   margin: 0 0 var(--space-3);
-  font-family: var(--font-display);
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -5729,10 +5710,9 @@ html:has(.home) {
 .hp-tally [data-tone='info'] { --tone: var(--info-dot); }
 
 .hp-tally strong {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 1.7rem;
   font-weight: 800;
-  font-stretch: 80%;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -5784,10 +5764,8 @@ html:has(.home) {
 
 .hp-float strong {
   display: block;
-  font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 700;
-  font-stretch: 87.5%;
 }
 
 .hp-float-roles {
@@ -5803,8 +5781,7 @@ html:has(.home) {
   border-radius: var(--radius-full);
   background: var(--slate-600);
   box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--slate-600);
-  color: #ffffff;
-  font-family: var(--font-display);
+  color: var(--chalk-50);
   font-weight: 800;
 }
 
@@ -5928,13 +5905,13 @@ html:has(.home) {
   margin: 0;
   padding: var(--space-4);
   background:
-    radial-gradient(circle at 50% 46%, transparent 0 7.9rem, rgb(255 255 255 / 7%) 7.9rem 8rem, transparent 8rem),
-    linear-gradient(90deg, transparent calc(50% - 1px), rgb(255 255 255 / 6%) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
-    radial-gradient(60% 55% at 50% 46%, rgb(255 255 255 / 9%), transparent 70%),
+    radial-gradient(circle at 50% 46%, transparent 0 7.9rem, color-mix(in srgb, var(--chalk-50) 7%, transparent) 7.9rem 8rem, transparent 8rem),
+    linear-gradient(90deg, transparent calc(50% - 1px), color-mix(in srgb, var(--chalk-50) 6%, transparent) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    radial-gradient(60% 55% at 50% 46%, color-mix(in srgb, var(--chalk-50) 9%, transparent), transparent 70%),
     var(--slate-800);
   border: 1px solid var(--slate-700);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg), inset 0 1px 0 rgb(255 255 255 / 6%);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 color-mix(in srgb, var(--chalk-50) 6%, transparent);
 }
 
 .rx-hub svg {
@@ -5949,37 +5926,37 @@ html:has(.home) {
 .rx-hub figcaption {
   margin-top: var(--space-3);
   font-size: 0.85rem;
-  color: rgb(248 250 252 / 78%);
+  color: color-mix(in srgb, var(--chalk-50) 78%, transparent);
   text-align: center;
 }
 
 .rx-hub figcaption strong {
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 .rx-link {
-  stroke: rgb(255 255 255 / 18%);
+  stroke: color-mix(in srgb, var(--chalk-50) 18%, transparent);
   stroke-width: 1.5;
   stroke-dasharray: 0.02 0.03;
 }
 
 .rx-link-held {
-  stroke: rgb(255 255 255 / 72%);
+  stroke: color-mix(in srgb, var(--chalk-50) 72%, transparent);
   stroke-width: 2.5;
   stroke-dasharray: 1;
   stroke-dashoffset: 0;
-  filter: drop-shadow(0 0 4px rgb(255 255 255 / 35%));
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--chalk-50) 35%, transparent));
   animation: rx-draw 520ms var(--ease) both;
 }
 
 .rx-link-on {
-  stroke: #ffffff;
+  stroke: var(--chalk-50);
   stroke-width: 4;
 }
 
 .rx-node rect {
-  fill: rgb(255 255 255 / 5%);
-  stroke: rgb(255 255 255 / 24%);
+  fill: color-mix(in srgb, var(--chalk-50) 5%, transparent);
+  stroke: color-mix(in srgb, var(--chalk-50) 24%, transparent);
   stroke-width: 1;
   transition: fill var(--dur) var(--ease), stroke var(--dur) var(--ease);
 }
@@ -5988,22 +5965,22 @@ html:has(.home) {
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 600;
-  fill: rgb(255 255 255 / 62%);
+  fill: color-mix(in srgb, var(--chalk-50) 62%, transparent);
 }
 
 .rx-node-held rect {
   fill: var(--slate-600);
-  stroke: rgb(255 255 255 / 72%);
+  stroke: color-mix(in srgb, var(--chalk-50) 72%, transparent);
   stroke-width: 1.5;
 }
 
 .rx-node-held text {
-  fill: #ffffff;
+  fill: var(--chalk-50);
 }
 
 .rx-node-on rect {
-  fill: #ffffff;
-  stroke: #ffffff;
+  fill: var(--chalk-50);
+  stroke: var(--chalk-50);
 }
 
 .rx-node-on text {
@@ -6012,21 +5989,20 @@ html:has(.home) {
 
 .rx-person {
   fill: var(--slate-600);
-  stroke: #ffffff;
+  stroke: var(--chalk-50);
   stroke-width: 3;
-  filter: drop-shadow(0 0 14px rgb(255 255 255 / 30%));
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--chalk-50) 30%, transparent));
 }
 
 .rx-person-initials {
-  font-family: var(--font-display);
   font-size: 26px;
   font-weight: 800;
-  fill: #ffffff;
+  fill: var(--chalk-50);
 }
 
 /* The active-role marker: it moves to the chosen role and stops. */
 .rx-marker {
-  fill: #ffffff;
+  fill: var(--chalk-50);
   transition: transform 420ms var(--ease);
 }
 
@@ -6057,8 +6033,7 @@ html:has(.home) {
 .rx-who strong {
   font-family: var(--font-display);
   font-size: 1.25rem;
-  font-weight: 700;
-  font-stretch: 87.5%;
+  font-weight: 400;
 }
 
 .rx-as {
@@ -6073,8 +6048,7 @@ html:has(.home) {
   height: 2.75rem;
   border-radius: var(--radius-full);
   background: var(--slate-600);
-  color: #ffffff;
-  font-family: var(--font-display);
+  color: var(--chalk-50);
   font-weight: 800;
 }
 
@@ -6107,7 +6081,7 @@ html:has(.home) {
 .rx-boundary {
   padding: var(--space-3);
   background: var(--accent-soft);
-  border-left: 3px solid var(--slate-600);
+  border-left: 3px solid var(--accent);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   font-size: 0.92rem;
 }
@@ -6197,7 +6171,7 @@ html:has(.home) {
 
   .wk-steps::after {
     width: calc(80% * var(--wk-progress, 0));
-    background: var(--slate-600);
+    background: var(--accent);
     transition: width 420ms var(--ease);
   }
 }
@@ -6258,14 +6232,14 @@ html:has(.home) {
 }
 
 .wk-steps [data-state='done'] .wk-num {
-  border-color: var(--slate-600);
-  color: var(--slate-600);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .wk-steps [data-state='current'] .wk-num {
-  background: var(--slate-600);
-  border-color: var(--slate-600);
-  color: #ffffff;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
 }
 
 .wk-panel {
@@ -6278,7 +6252,6 @@ html:has(.home) {
 
 .wk-count {
   margin: 0 0 var(--space-2);
-  font-family: var(--font-display);
   font-size: 0.74rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -6308,8 +6281,7 @@ html:has(.home) {
   margin: 0;
   font-family: var(--font-display);
   font-size: 1.5rem;
-  font-weight: 700;
-  font-stretch: 87.5%;
+  font-weight: 400;
 }
 
 .wk-who {
@@ -6357,7 +6329,7 @@ html:has(.home) {
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 2px;
-  background: var(--slate-500);
+  background: var(--info-dot);
 }
 
 .wk-checks li {
@@ -6376,7 +6348,7 @@ html:has(.home) {
 
 .wk-human {
   background: var(--bg-sunk);
-  border-left: 3px solid var(--slate-600);
+  border-left: 3px solid var(--accent);
 }
 
 .wk-next {
@@ -6439,7 +6411,7 @@ html:has(.home) {
   height: 2.25rem;
   border-radius: var(--radius-full);
   background: var(--slate-600);
-  color: #ffffff;
+  color: var(--chalk-50);
   font-family: var(--font-mono);
   font-weight: 500;
 }
@@ -6463,10 +6435,8 @@ html:has(.home) {
 }
 
 .home-chain-when {
-  font-family: var(--font-display);
   font-size: 1.2rem;
   font-weight: 700;
-  font-stretch: 87.5%;
 }
 
 .home-chain-then {
@@ -6511,21 +6481,19 @@ html:has(.home) {
 
 .home-trust dt {
   margin-bottom: var(--space-2);
-  font-family: var(--font-display);
   font-size: 1.15rem;
   font-weight: 700;
-  font-stretch: 87.5%;
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 .home-trust dd {
   margin: 0;
   font-size: 0.95rem;
-  color: rgb(248 250 252 / 78%);
+  color: color-mix(in srgb, var(--chalk-50) 78%, transparent);
 }
 
 /* The Assistant's note, as the coach's workspace shows it: the one place
-   on this page electric volt appears, because it marks only the Assistant. */
+   on this page the Assistant's blue appears, because it marks only the Assistant. */
 .home-ai {
   margin: 0;
   padding: var(--space-4);
@@ -6695,7 +6663,7 @@ html:has(.home) {
   width: auto;
 }
 
-/* metric cards: pitch blue by default, gold for the one that needs you */
+/* metric cards: felt by default, gold for the one that needs you */
 .dash-metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
@@ -6713,7 +6681,7 @@ html:has(.home) {
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-lg);
   background: var(--slate-600);
-  color: #ffffff;
+  color: var(--chalk-50);
   box-shadow: var(--shadow-md);
 }
 
@@ -6747,7 +6715,7 @@ html:has(.home) {
   font-weight: 600;
   padding: 0.35rem 0.6rem;
   border-radius: var(--radius-sm);
-  background: rgb(17 38 54 / 10%);
+  background: color-mix(in srgb, var(--slate-800) 10%, transparent);
 }
 
 .dash-metric.is-gold {
@@ -6771,20 +6739,20 @@ html:has(.home) {
   color: var(--muted);
 }
 
-/* White on stadium green is 5:1; the rail grey on it is not, so all white. */
+/* Chalk on stadium green is 8.2:1, so the label and the note are chalk. */
 .dash-metric.is-green {
   background: var(--stadium-700);
 }
 
 .dash-metric.is-green .dash-metric-label,
 .dash-metric.is-green .dash-metric-note {
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 .dash-meter {
   height: 0.4rem;
   border-radius: var(--radius-full);
-  background: rgb(255 255 255 / 15%);
+  background: color-mix(in srgb, var(--chalk-50) 15%, transparent);
   overflow: hidden;
 }
 
@@ -6861,7 +6829,7 @@ html:has(.home) {
 .dash-card.is-dark {
   background: var(--slate-800);
   border-color: var(--slate-700);
-  color: #ffffff;
+  color: var(--chalk-50);
 }
 
 .dash-card-note {
@@ -6938,11 +6906,11 @@ html:has(.home) {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--trophy-500);
+  background: var(--warn-dot);
 }
 
 .dash-bar.is-blue > span {
-  background: var(--slate-500);
+  background: var(--info-dot);
 }
 
 /* quick actions */
@@ -7095,7 +7063,7 @@ html:has(.home) {
   place-items: center;
   border-radius: var(--radius-lg);
   background: linear-gradient(150deg, var(--stadium-500), var(--slate-700));
-  color: #ffffff;
+  color: var(--chalk-50);
   font-size: 1.4rem;
   font-weight: 800;
 }
@@ -7227,17 +7195,17 @@ html:has(.home) {
 
 /* The draft's dark upcoming-schedule card. The panel re-points the theme
    tokens, so whatever it holds (a fixture, a hint, an answer form) turns
-   with it, and primary buttons become the front door's white pill. */
+   with it, and primary buttons become the front door's chalk pill. */
 .panel.is-dark {
   --surface: var(--slate-800);
   --surface-2: var(--slate-600);
-  --text: #ffffff;
+  --text: var(--chalk-50);
   --muted: var(--rail-text-2);
   --subtle: var(--rail-text-2);
   --border: var(--slate-700);
-  --border-strong: #2f5d7e;
-  --link: #ffffff;
-  --accent: #ffffff;
+  --border-strong: var(--slate-400);
+  --link: var(--chalk-50);
+  --accent: var(--chalk-50);
   --accent-hover: var(--chalk-200);
   --accent-text: var(--slate-800);
   background: var(--surface);
@@ -7256,22 +7224,22 @@ html:has(.home) {
 
 /* The club menu's sections: each heading, its rule and the current link in
    the section's own hue, so the long menu reads as four parts. Wayfinding,
-   not status, so there is no dot and no pill, and no volt, which is the
-   Assistant's. Each hue is at least 5.5:1 on the rail in both schemes. */
+   not status, so there is no dot and no pill, and never the Assistant's
+   blue. Each hue is at least 4.5:1 on the rail in both schemes. */
 [data-section] {
   --section: var(--rail-text-2);
 }
 [data-section='Season'] {
-  --section: #fb923c;
+  --section: var(--section-season);
 }
 [data-section='Match day'] {
-  --section: #38bdf8;
+  --section: var(--section-matchday);
 }
 [data-section='Money'] {
   --section: var(--trophy-300);
 }
 [data-section='Club'] {
-  --section: #a78bfa;
+  --section: var(--section-club);
 }
 
 /* ---------------------------------------------------- Season paths (scope 117)
