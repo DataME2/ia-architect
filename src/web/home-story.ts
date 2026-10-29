@@ -1,6 +1,8 @@
 /**
- * What the front door shows (scope 118): the hero's preview, the role
- * explorer and the registration walkthrough.
+ * What the front door shows. Scope 118 wrote it; scope 122 sets it as a
+ * matchday programme. It covers the identity drawing, the role study, the
+ * registration walkthrough, what the platform connects and where it stops,
+ * and the work table.
  *
  * **Everyone here is fictional, and the page says so.** The front door is
  * prerendered and reads no data, so this is an illustration of the product,
@@ -25,50 +27,72 @@ export interface PreviewRow {
 /** The fictional club every preview belongs to. */
 export const DEMO_CLUB = 'Northside United';
 
-// ------------------------------------------------------------------ hero
+// ------------------------------------------------------ identity drawing
 
-export interface HeroTab {
+export interface IdentityRole {
   readonly id: string;
   readonly label: string;
-  readonly heading: string;
-  readonly rows: readonly PreviewRow[];
+  /** The role's reach in a few words, for the drawing's annotation. */
+  readonly tag: string;
+  /** What this role does with the one record, and what it never sees. */
+  readonly text: string;
+  readonly rules: readonly string[];
 }
 
-/** The hero's three tabs: one club's week, seen by what needs doing. */
-export const HERO_TABS: readonly HeroTab[] = [
+/**
+ * The five roles round one Person in the identity drawing. Any of them can
+ * be the same human: a parent who coaches and referees is one record, not
+ * three accounts (P1).
+ */
+export const IDENTITY_ROLES: readonly IdentityRole[] = [
   {
-    id: 'registrations',
-    label: 'Registrations',
-    heading: 'Season 2027 queue',
-    rows: [
-      { label: 'U14 Girls · 18 players', status: { tone: 'ok', word: 'Complete' } },
-      { label: 'U12 Mixed · 6 players', status: { tone: 'warn', word: 'Documents due' } },
-      { label: 'U16 Boys · 2 players', status: { tone: 'stop', word: 'No guardian' } },
-      { label: 'Possible duplicate · 1', status: { tone: 'warn', word: 'Needs a person' } },
-    ],
+    id: 'player',
+    label: 'Player',
+    tag: 'Registered by season',
+    text: 'Takes the field once the governing body’s system confirms them. Sending the club’s pack is recorded as sent, never as registered.',
+    rules: ['BR43', 'BR60'],
   },
   {
-    id: 'money',
-    label: 'Money',
-    heading: 'Fees and claims',
-    rows: [
-      { label: 'Payment plans · 4 families', status: { tone: 'ok', word: 'On track' } },
-      { label: 'Something outstanding · 3 families', status: { tone: 'warn', word: 'Follow up' } },
-      { label: 'Voucher to verify · 1', status: { tone: 'warn', word: 'Waiting' } },
-      { label: 'Referee claims to decide · 5', status: { tone: 'warn', word: 'Waiting' } },
-    ],
+    id: 'guardian',
+    label: 'Parent or guardian',
+    tag: 'Own household only',
+    text: 'Registers each child once, and reads their own household and nothing beyond it.',
+    rules: ['BR121'],
   },
   {
-    id: 'matchday',
-    label: 'Match day',
-    heading: 'Saturday 6 March',
-    rows: [
-      { label: '10:00 · U14 Girls v Harbour', status: { tone: 'ok', word: 'Referee accepted' } },
-      { label: '13:00 · U16 Boys v Rovers', status: { tone: 'warn', word: 'Referee offered' } },
-      { label: 'U12 Mixed bench · 2 players', status: { tone: 'stop', word: 'Not clear to play' } },
-      { label: '09:00 · moved to Field 2', status: { tone: 'info', word: 'Everyone told' } },
-    ],
+    id: 'coach',
+    label: 'Coach',
+    tag: 'Clear to play, never fees',
+    text: 'Sees whether a player is clear to take the field, never what the family owes.',
+    rules: ['BR78'],
   },
+  {
+    id: 'referee',
+    label: 'Referee',
+    tag: 'Own appointments',
+    text: 'Answers their own appointments, and is never appointed to a fixture in which they hold another role.',
+    rules: ['BR109'],
+  },
+  {
+    id: 'committee',
+    label: 'Committee member',
+    tag: 'Positions, AGM, resolutions',
+    text: 'Records the club’s positions, AGM and resolutions, and sees a figure only where the role may read every row behind it.',
+    rules: ['BR142'],
+  },
+];
+
+export interface Definition {
+  readonly term: string;
+  readonly text: string;
+}
+
+/** The idea, defined: the identity section's ruled list. */
+export const DEFINITIONS: readonly Definition[] = [
+  { term: 'Person', text: 'One record for one human, however many roles they hold, at one club or several (P1).' },
+  { term: 'Role', text: 'A responsibility at a club: a player, a parent, a coach, a referee, a committee member.' },
+  { term: 'View', text: 'What one role sees. Switching between roles is explicit, and shows one role at a time (BR61).' },
+  { term: 'Club', text: 'Each club’s records are kept apart by the database, not by the screen.' },
 ];
 
 // --------------------------------------------------------- role explorer
@@ -394,68 +418,141 @@ export function previousStep(i: number): number {
   return Math.max(i - 1, 0);
 }
 
-// ----------------------------------------------------------- connections
+// ------------------------------------------------------- material & practice
 
-export interface Connection {
-  readonly when: string;
-  readonly then: string;
-  readonly rules: string;
+export interface PracticeRow {
+  /** The area, set as a small label. */
+  readonly label: string;
+  /** The question a club asks about its administration. */
+  readonly question: string;
+  /** What PitchPeople does about it. */
+  readonly answer: string;
+  /** Who it serves, and the rules it rests on. */
+  readonly classification: string;
 }
 
-/** What one record does for the next role that needs it. */
-export const CONNECTIONS: readonly Connection[] = [
+/** What the platform connects, one practical question per row. */
+export const PRACTICE: readonly PracticeRow[] = [
   {
-    when: 'A family enters a child once',
-    then: 'The registrar, the coach and the family read the same record, each seeing only their role’s part of it.',
-    rules: 'BR61',
+    label: 'Registration',
+    question: 'Which registrations are ready, and which are waiting on a document or a fee?',
+    answer: 'The season queue groups every registration by what it still waits for. A minor’s is never complete without a guardian, or with anything outstanding.',
+    classification: 'Registrar · BR1 · BR3',
   },
   {
-    when: 'The fees are settled',
-    then: 'The registration can go forward, and the coach sees “clear to play”, never the amount.',
-    rules: 'BR3 · BR78',
+    label: 'Families',
+    question: 'Can a family register two children without typing everything twice?',
+    answer: 'A family enters each child once through the club’s link, and reads its own household and nothing beyond it.',
+    classification: 'Parent or guardian · BR121',
   },
   {
-    when: 'A parent also referees',
-    then: 'They are never offered a match their own child plays in.',
-    rules: 'BR109',
+    label: 'Fees and plans',
+    question: 'Who still owes something, and which payment plans are on track?',
+    answer: 'Only a treasurer or finance admin agrees a plan or records a payment. PitchPeople records money; it does not move it.',
+    classification: 'Treasurer · BR78',
   },
   {
-    when: 'Someone else confirms the match was played',
-    then: 'The referee’s claim can be raised, and the treasurer decides it.',
-    rules: 'BR13 · BR119',
+    label: 'Match officials',
+    question: 'Is every match covered by a cleared official, and which claims can be paid?',
+    answer: 'An official is never appointed to a fixture in which they hold another role, and a claim waits for a match someone verified.',
+    classification: 'Referee coordinator · BR109 · BR13',
   },
   {
-    when: 'The season’s registrations are ready',
-    then: 'The registrar hands Squadi a versioned pack, and “sent” is never mistaken for “registered”.',
-    rules: 'BR58 · BR60',
+    label: 'Teams',
+    question: 'Who can play on Saturday, and who is clear to take the field?',
+    answer: 'The coach’s dugout lists who replied and who is clear to play, never what a family owes.',
+    classification: 'Coach · BR78',
+  },
+  {
+    label: 'Governance',
+    question: 'Who holds which position, and what did the committee resolve?',
+    answer: 'The committee hub records positions, the AGM and resolutions. A report shows no figure its reader may not see in full.',
+    classification: 'Committee · BR142',
   },
 ];
 
-// ----------------------------------------------------------------- trust
-
-export interface TrustPoint {
-  readonly title: string;
-  readonly text: string;
-}
-
-export const TRUST: readonly TrustPoint[] = [
+/** Where PitchPeople stops: the same rows, for the boundaries it keeps. */
+export const BOUNDARIES: readonly PracticeRow[] = [
   {
-    title: 'Each club kept apart by the database',
-    text: 'Row-level security isolates every club, so a query that forgets its filter returns nothing. Inside a club each role reads its own part: a family its household (BR121), a coach whether a player is clear, never what is owed (BR78).',
+    label: 'Separation',
+    question: 'Can one club, or one role, read another’s records?',
+    answer: 'Row-level security keeps each club apart, so a query that forgets its filter returns nothing. Inside a club each role reads only its part.',
+    classification: 'Database · BR121',
   },
   {
-    title: 'Assistance that never decides',
-    text: 'Where PitchPeople assists, it explains, summarises or drafts, in its own colour, and it never approves, sends or pays: a person does (BR15).',
+    label: 'Identity',
+    question: 'Does a parent who coaches need two accounts?',
+    answer: 'One Person record holds every role. Switching between roles is explicit, and shows one role at a time.',
+    classification: 'Person · BR61',
   },
   {
-    title: 'Fictional where it says so',
-    text: 'The demonstration club is a real tenant filled with invented families, named (DEMO) on every screen and read-only for visitors. Everyone on this page is invented too.',
+    label: 'Assistance',
+    question: 'Does the software decide anything on its own?',
+    answer: 'The Assistant explains and drafts beside a screen. It never approves, sends or pays, and no AI model is called yet.',
+    classification: 'Advisory · BR15',
   },
   {
-    title: 'Hosted in Sydney',
-    text: 'Children’s records stay onshore, in Supabase and Vercel’s Sydney region.',
+    label: 'Decisions',
+    question: 'Who approves what?',
+    answer: 'People approve documents, decide claims and record payments. Two records that look like one person are flagged for someone to decide, never merged.',
+    classification: 'People · BR5 · BR15',
+  },
+  {
+    label: 'Demonstration',
+    question: 'Is the demonstration club real?',
+    answer: 'It is a separate tenant of invented families, marked on every screen and read-only for visitors. Everyone on this page is invented too.',
+    classification: 'Fictional',
+  },
+  {
+    label: 'Payments',
+    question: 'Does PitchPeople pay referees?',
+    answer: 'Paying an official online is simulated until a provider is connected: no money moves, and production refuses a simulated payout.',
+    classification: 'Simulated · BR162',
   },
 ];
+
+// -------------------------------------------------------------- work table
+
+export type WorkStatus = 'Delivered' | 'Simulated' | 'Advisory';
+
+export interface WorkRow {
+  readonly capability: string;
+  readonly area: string;
+  /** The problem or responsibility it addresses. */
+  readonly addresses: string;
+  readonly who: string;
+  readonly status: WorkStatus;
+  /** Where it lives, for the test that each screen exists. */
+  readonly routes: readonly string[];
+}
+
+/**
+ * The capabilities, as built. "Delivered" means the application components
+ * table records it as delivered. Paying online is simulated (scope 76), and
+ * the Assistant is advisory, with no model behind it.
+ */
+export const WORK: readonly WorkRow[] = [
+  { capability: 'Season queue', area: 'Registration and families', addresses: 'What each registration still waits for', who: 'Registrar', status: 'Delivered', routes: ['/registrar'] },
+  { capability: 'Registration by link', area: 'Registration and families', addresses: 'Each child entered once, from the club’s link', who: 'Parent or guardian', status: 'Delivered', routes: ['/register'] },
+  { capability: 'Submission pack', area: 'Registration and families', addresses: 'A versioned handover to the governing body', who: 'Registrar', status: 'Delivered', routes: ['/registrar/pack'] },
+  { capability: 'Household', area: 'Registration and families', addresses: 'Children, documents and availability together', who: 'Parent or guardian', status: 'Delivered', routes: ['/me'] },
+  { capability: 'Payment plans and arrears', area: 'Money', addresses: 'Who owes what, and which plans are on track', who: 'Treasurer', status: 'Delivered', routes: ['/registrar/arrears'] },
+  { capability: 'Designations', area: 'Match officials', addresses: 'Matches covered by cleared, eligible officials', who: 'Referee coordinator', status: 'Delivered', routes: ['/registrar/designations'] },
+  { capability: 'Verification and claims', area: 'Match officials', addresses: 'Paying only for a match someone verified', who: 'Coordinator and treasurer', status: 'Delivered', routes: ['/registrar/verification', '/registrar/referee-payments'] },
+  { capability: 'Paying an official online', area: 'Money', addresses: 'A payout to the account an official nominates', who: 'Treasurer', status: 'Simulated', routes: ['/registrar/referee-payments'] },
+  { capability: 'Team dugout', area: 'Teams and academy', addresses: 'Availability, and who is clear to play', who: 'Coach or team manager', status: 'Delivered', routes: ['/me'] },
+  { capability: 'Governance and committee hub', area: 'Club and season', addresses: 'Positions, the AGM and resolutions', who: 'President or secretary', status: 'Delivered', routes: ['/registrar/governance', '/registrar/committee-hub'] },
+  { capability: 'Academy', area: 'Teams and academy', addresses: 'Training nights, game time and the daily check-in', who: 'Technical or academy director', status: 'Delivered', routes: ['/me'] },
+  { capability: 'Season calendars and paths', area: 'Club and season', addresses: 'The governing body’s published season, explained', who: 'Anyone', status: 'Delivered', routes: ['/seasons', '/season-paths'] },
+  { capability: 'Assistant notes', area: 'Assistance', addresses: 'Explaining and drafting beside a screen', who: 'Every role', status: 'Advisory', routes: [] },
+];
+
+/** The work table's rows, gathered by area, in the order each area first appears. */
+export function workByArea(rows: readonly WorkRow[] = WORK): readonly { readonly area: string; readonly rows: readonly WorkRow[] }[] {
+  const groups = new Map<string, WorkRow[]>();
+  for (const r of rows) groups.set(r.area, [...(groups.get(r.area) ?? []), r]);
+  return [...groups].map(([area, grouped]) => ({ area, rows: grouped }));
+}
 
 /** Every rule the front door cites, for the test that checks each exists. */
 export function citedRules(): readonly string[] {
@@ -464,8 +561,9 @@ export function citedRules(): readonly string[] {
     ...new Set([
       ...ROLE_VIEWS.flatMap((r) => [...r.rules, ...fromText(r.boundary)]),
       ...WALK_STEPS.flatMap((s) => [...s.checks.map((c) => c.br), ...fromText(s.next)]),
-      ...CONNECTIONS.flatMap((c) => fromText(c.rules)),
-      ...TRUST.flatMap((t) => fromText(t.text)),
+      ...IDENTITY_ROLES.flatMap((r) => r.rules),
+      ...DEFINITIONS.flatMap((d) => fromText(d.text)),
+      ...[...PRACTICE, ...BOUNDARIES].flatMap((r) => fromText(`${r.answer} ${r.classification}`)),
     ]),
   ];
 }

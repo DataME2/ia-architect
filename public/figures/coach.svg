@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -20 480 1040" width="480" height="1040">
+  <!--
+    A grassroots coach, clipboard in one hand, pointing the way with the
+    other (scope 122). An original drawing for PitchPeople's front door: a
+    club volunteer in a tracksuit and cap, not an elite athlete. Set like an
+    engraving: ink line and ink hatching on light paper, so the wordmark
+    reads where it crosses the figure, and a paper keyline round the whole
+    cut-out. The only pigment is the small oxide club badge.
+  -->
+  <defs>
+    <filter id="cut" x="-8%" y="-4%" width="116%" height="108%">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="7" result="grown" />
+      <feFlood flood-color="#dcd7cb" />
+      <feComposite in2="grown" operator="in" result="edge" />
+      <feMerge>
+        <feMergeNode in="edge" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="#1a1917" stroke-width="1.1" />
+    </pattern>
+    <style>
+      .paper { fill: #f4f1ea; stroke: #1a1917; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+      .ink { fill: #1a1917; stroke: #1a1917; stroke-width: 3; stroke-linejoin: round; }
+      .board { fill: #4a4741; stroke: #1a1917; stroke-width: 3; stroke-linejoin: round; }
+      .hatch { fill: url(#hatch); stroke: none; }
+      .line { fill: none; stroke: #1a1917; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+      .hair { fill: none; stroke: #1a1917; stroke-width: 1.5; stroke-linecap: round; }
+      .stripe { fill: none; stroke: #f4f1ea; stroke-width: 3; stroke-linecap: round; }
+    </style>
+  </defs>
+
+  <g filter="url(#cut)">
+    <!-- Track pants with a side stripe, and trainers -->
+    <path class="ink" d="M162 588 L280 588 L274 940 L232 940 L223 668 L217 668 L208 940 L166 940 Z" />
+    <path class="stripe" d="M172 600 L177 932 M180 600 L184 932" />
+    <path class="stripe" d="M270 600 L265 932 M262 600 L258 932" />
+    <path class="paper" d="M168 936 L208 936 L212 964 C196 974 170 976 154 972 C144 968 148 954 160 950 Z" />
+    <path class="paper" d="M232 936 L272 936 C276 950 290 954 292 964 C290 974 262 974 228 966 Z" />
+    <path class="line" d="M152 962 L210 962 M230 962 L290 962" />
+
+    <!-- The arm at the side, holding the clipboard -->
+    <path class="paper" d="M150 344 C146 360 142 380 140 400 L136 572 L176 576 L182 404 Z" />
+    <path class="hatch" d="M150 350 L164 352 L160 572 L138 570 Z" />
+    <path class="ink" d="M136 560 L177 563 L176 578 L135 575 Z" />
+    <path class="board" d="M92 600 L176 594 L184 714 L100 720 Z" />
+    <path class="paper" d="M102 612 L168 607 L174 704 L109 709 Z" />
+    <path class="hair" d="M114 630 L160 627 M115 646 L162 643 M116 662 L164 659 M117 678 L150 676" />
+    <path class="ink" d="M120 592 L150 590 L151 604 L121 606 Z" />
+    <path class="paper" d="M137 574 C135 592 140 610 156 612 C172 612 178 594 176 576 Z" />
+
+    <!-- The jacket: zip, collar, hem, and the shaded side -->
+    <path class="paper" d="M176 318 C190 308 204 302 210 300 L232 300 C244 304 262 310 278 320 L296 352 L288 420 L282 588 C246 600 196 600 162 588 L160 420 L150 350 Z" />
+    <path class="hatch" d="M162 340 C170 330 180 322 190 316 L196 360 L190 586 C180 584 170 582 164 580 L160 420 Z" />
+    <path class="ink" d="M160 576 C196 588 248 588 282 576 L282 594 C246 606 196 606 160 594 Z" />
+    <path class="line" d="M221 336 L221 578" />
+    <path class="hair" d="M215 350 L227 350 M215 380 L227 380 M215 410 L227 410 M215 440 L227 440 M215 470 L227 470 M215 500 L227 500 M215 530 L227 530 M215 560 L227 560" />
+    <path class="paper" d="M200 296 L221 338 L190 316 Z" />
+    <path class="paper" d="M242 296 L221 338 L252 316 Z" />
+    <rect x="242" y="372" width="14" height="16" fill="#9b3418" />
+
+    <!-- The pointing arm: sleeve, cuff, and a hand with its finger out -->
+    <path class="paper" d="M271 334 L369 178 L399 195 L313 358 Z" />
+    <path class="hatch" d="M296 372 L313 358 L399 195 L386 188 Z" />
+    <path class="ink" d="M355 199 L364 185 L394 203 L387 217 Z" />
+    <path class="paper" d="M372 178 C370 160 382 146 398 148 C412 150 418 166 412 180 C406 192 390 196 380 192 Z" />
+    <path class="paper" d="M396 152 L414 120 C417 115 425 118 423 124 L407 158 Z" />
+    <path class="hair" d="M384 170 C390 166 398 166 404 170" />
+
+    <!-- Neck, ears, face, and the cap -->
+    <path class="paper" d="M204 276 L238 276 L240 304 L202 304 Z" />
+    <path class="hatch" d="M204 286 L238 286 L238 300 L204 300 Z" />
+    <ellipse class="paper" cx="181" cy="258" rx="7" ry="12" />
+    <ellipse class="paper" cx="261" cy="258" rx="7" ry="12" />
+    <path class="paper" d="M221 206 C247 206 261 226 261 254 C261 284 245 304 221 304 C197 304 181 284 181 254 C181 226 195 206 221 206 Z" />
+    <path class="hatch" d="M184 252 C186 276 196 294 210 300 C200 284 196 266 196 248 Z" />
+    <path class="hatch" d="M186 254 C200 264 242 264 256 254 L254 268 C240 274 202 274 188 268 Z" />
+    <path class="ink" d="M178 244 C176 210 196 192 221 192 C246 192 266 210 264 244 C250 236 236 233 221 233 C206 233 192 236 178 244 Z" />
+    <path class="ink" d="M170 246 C190 262 252 262 272 246 C254 254 188 254 170 246 Z" />
+    <path class="hair" d="M212 288 C218 292 224 292 230 288" />
+  </g>
+</svg>

@@ -228,10 +228,29 @@ The system uses a split layout architecture: a fixed identity rail on the left (
 
 Operational views prioritize key status chips at the top right of cards, clear section headers with eyebrows, and stacked form fields with hint texts and inline error notices.
 
+## The Front Door, a Matchday Programme (scope 122)
+
+The public page has its own editorial layer, scoped to `.ed` and to the bar while that page is shown. No workspace, status pill or form elsewhere takes any of it.
+
+- **Palette:** Bone `#E7E3DA` (ground), Secondary bone `#DCD7CB` (masthead and contrasting sections), Ink `#1A1917`, Secondary ink `#4A4741`, Muted ink `#6E6A61`, Oxide `#9B3418`, Hairline `rgba(26,25,23,.16)`.
+  - **Oxide is the single pigment.** It appears only as type (one italic phrase per heading, the page numbers), a thin rule or a small marker. It is never a fill, a gradient or a glow.
+  - **Muted ink is 4.2:1 on bone**, under AA for small text. It draws lines only (the pitch, the leaders); small text is set in Secondary ink.
+- **Type:** Instrument Serif for the voice (masthead, headings, role names, page numbers), at `-0.015em`. Azeret Mono for facts (labels at 10.5 to 12.5px, tracked `0.15em` to `0.17em`; compact descriptions at 12.5 to 14.5px).
+- **Shape:** square corners everywhere, the marker included. No gradients, glass, cards or decorative shadows: the cut-out coach's shadow is the only one.
+- **Status on this page:** still a mark and a word, but the mark is a shape, not a hue. Ready is a solid dot, waiting a ring, blocked a small oxide square, information a diamond. The workspaces keep the green, gold and red pills.
+- **Motion:**
+  - the masthead's opening is started on an animation frame after hydration;
+  - the masthead and the programme follow one scroll progress value each, so scrolling back reverses them (the words part, the coach climbs, the pages turn);
+  - everything else rises once, 18 to 22px, staggered 70ms;
+  - with reduced motion nothing moves and nothing waits.
+- **The figure:** an original engraving-style drawing of a grassroots coach (`public/figures/coach.svg`): ink line and hatching on light paper, a paper keyline, and the club badge the only oxide. It is sized by viewport height so it keeps overlapping both lines across the split.
+- **The pitch:** the halfway line and centre circle under the masthead are construction, not measurement: hairline, unmeasured, and labelled only by name.
+
 ## Gaps & Decisions
 
 - **Academy palette (October 2026):** Replaced the Australian landscape palette (sand, reef, eucalyptus, ochre, oxide, desert orange) with Pitch Slate & Electric Volt. `globals.css` carries the same values, so every screen changes with it.
 - **Volt stays the Assistant's only.** The academy brief also proposed volt for calls to action, KPIs and active navigation; that would make the Assistant's colour an ordinary highlight, so Principle 2 is kept until the club decides otherwise.
 - **Dark rail muted text is `#94a3b8`, not the brief's `#64748b`:** that one is 4.3:1 on the dark rail, under WCAG AA for its small labels.
+- **A matchday-programme front door (scope 122):** a fourth homepage attempt, an alternative to scopes 119 and 120 on its own branch. Its palette and faces are scoped to the page, so choosing it changes nothing in the workspaces. The global footer is hidden on that page only, and the page closes on its own colophon and wordmark.
 - **Font Fallbacks:** System UI fallbacks are configured alongside each face, and the display stack falls back to Arial Narrow so a condensed headline stays condensed.
 - **New type system (scope 118, October 2026):** Saira, Public Sans and IBM Plex Mono replace Archivo and DM Mono. One variable display face carries the athletic character through its width axis, so the interface face can be chosen for readability alone. The 27 KB Public Sans file now carries most of the text, which Archivo's 90 KB file used to. Still self-hosted: nothing is fetched at build or run time.

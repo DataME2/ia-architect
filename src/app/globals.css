@@ -79,6 +79,33 @@
   font-display: swap;
 }
 
+/* The front door's editorial faces (scopes 120, 122), loaded only by the page
+   that names them: Instrument Serif, roman and italic, and Azeret Mono,
+   variable from 400 to 600. OFL, latin subsets, licences beside them. */
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('/fonts/instrumentserif-regular-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('/fonts/instrumentserif-italic-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Azeret Mono';
+  src: url('/fonts/azeretmono-var-latin.woff2') format('woff2-variations');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
 
@@ -375,9 +402,7 @@ a:hover {
 
 /* The default ring is navy, which vanishes on pitch slate. */
 .topbar,
-.site-footer,
-.home-hero,
-.home-dark {
+.site-footer {
   --focus: #4ade80;
 }
 
@@ -618,11 +643,6 @@ a:hover {
   background: var(--reef-800);
   color: var(--rail-text-2);
   font-size: 0.95rem;
-}
-
-/* The front door's last band meets the footer, so the gap goes. */
-.shell:has(.home) + .site-footer {
-  margin-top: 0;
 }
 
 .site-footer p {
@@ -5112,1099 +5132,1875 @@ td {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   THE FRONT DOOR — scope 118
+   THE FRONT DOOR, A MATCHDAY PROGRAMME — scope 122
 
-   Written for the people who run a club. The hero states the benefit and
-   previews one fictional club's week; then the role explorer, the
-   registration walkthrough, what connects, trust, and the pilot.
+   The public page set like the programme handed out at the gate: a
+   masthead split by the halfway line, the draw, a page per role, the team
+   sheet. The ground is warm bone paper and the type near-black ink. Oxide is the one pigment, and
+   only ever as type, a thin rule or a small marker: never a fill, a
+   gradient or a glow. Corners are square. Instrument Serif carries the
+   voice and Azeret Mono the facts. There are no gradients, no glass, no
+   cards and no shadows, save the one under the cut-out coach.
 
-   Full-bleed bands, as since scope 104: each band paints its colour to the
-   window's edges with a spread shadow, clipped to its own height, because
-   breaking out with 100vw would count the scrollbar and scroll the page
-   sideways. Pitch slate carries structure; the status colours appear only
-   in statuses, with their word; electric volt appears once, on the
-   Assistant's note, which is the only thing it ever marks.
+   Everything here is scoped. The tokens sit on `body:has(.ed)`, so the
+   bar above the page can take the same paper and ink. Every rule names
+   `.ed`, or the chrome only while `.ed` is on the page. No workspace,
+   status pill or form elsewhere changes.
 
-   Motion explains a change and then stops: a tab's panel re-enters, the
-   hub's lines draw to the roles a person holds, the marker moves to the
-   chosen role, and each section rises once as it arrives (ScrollReveal).
-   The global reduced-motion rule ends all of it at once, and every state
-   is complete without it.
+   Muted ink (#6e6a61) is 4.2:1 on bone, under AA for small text, so small
+   text is set in secondary ink. Muted ink draws only lines and
+   construction.
+
+   Motion has three kinds. The hero's opening runs once, on an animation
+   frame after hydration (`data-intro`), the pitch's lines fading in under
+   it. The
+   hero and the programme follow the scroll through one progress value
+   each, so scrolling back reverses them: the masthead parts, the coach
+   climbs, the pages turn. Everything else rises once as it arrives (ScrollReveal,
+   `[data-reveal]`), staggered by `--i`. With reduced motion none of it
+   moves, and nothing waits on it.
    ══════════════════════════════════════════════════════════════════════ */
 
-/* The bands meet the top bar and the footer, so the shell's padding goes. */
-.home {
-  display: grid;
-  margin: calc(var(--space-5) * -1) 0 calc(var(--space-7) * -1);
+body:has(.ed) {
+  --ed-bone: #e7e3da;
+  --ed-bone-2: #dcd7cb;
+  --ed-ink: #1a1917;
+  --ed-ink-2: #4a4741;
+  --ed-muted: #6e6a61;
+  --ed-oxide: #9b3418;
+  --ed-hair: rgb(26 25 23 / 16%);
+  --ed-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --ed-mono: 'Azeret Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --ed-ease: cubic-bezier(0.22, 0.61, 0.24, 1);
+  --ed-ease-long: cubic-bezier(0.16, 1, 0.3, 1);
+  --ed-gutter: clamp(1rem, 4vw, 3.5rem);
+  --ed-bar: 60px;
+  --focus: var(--ed-ink);
+  background: var(--ed-bone);
+  background-image: none;
+  color: var(--ed-ink);
+  color-scheme: light;
 }
 
-.home > section {
-  position: relative;
-  padding-block: clamp(3.5rem, 8vw, 6.5rem);
-  background: var(--band);
-  box-shadow: 0 0 0 100vmax var(--band);
-  clip-path: inset(0 -100vmax);
+body:has(.ed) ::selection {
+  background: var(--ed-ink);
+  color: var(--ed-bone);
 }
 
-.home-hero,
-.home-dark {
-  --band: var(--reef-800);
-  color: #ffffff;
-}
-
-.home-close {
-  --band: var(--reef-600);
-  --focus: #4ade80;
-  color: #ffffff;
-  text-align: center;
-}
-
-.home-panel {
-  --band: var(--surface);
-}
-
-.home-sunk {
-  --band: var(--bg-sunk);
-}
-
-/* The hero's pitch is 100vw, which counts a classic scrollbar. Decoration
-   only, so the sideways scroll it would cause is suppressed here and only
-   here; on any other screen a sideways scroll is a bug worth seeing. */
-html:has(.home) {
-  overflow-x: hidden;
-}
-
-@media (max-width: 40rem) {
-  .home {
-    margin: calc(var(--space-4) * -1) 0 calc(var(--space-6) * -1);
-  }
-}
-
-.home-hero .eyebrow,
-.home-dark .eyebrow,
-.home-close .eyebrow {
-  color: var(--rail-text-2);
-}
-
-.home .lede {
-  max-width: 62ch;
-}
-
-.home-hero .lede,
-.home-dark .lede,
-.home-close .lede {
-  color: rgb(248 250 252 / 82%);
-}
-
-.home-heading {
-  margin: 0 0 var(--space-3);
-  max-width: 26ch;
-  font-family: var(--font-display);
-  font-size: clamp(1.9rem, 1.25rem + 2.3vw, 2.9rem);
-  font-weight: 800;
-  font-stretch: 80%;
-  line-height: 1.04;
-  letter-spacing: -0.005em;
-}
-
-.home-dark .home-heading,
-.home-close .home-heading {
-  color: #ffffff;
-}
-
-.home-close .home-heading,
-.home-close .lede {
-  margin-inline: auto;
-}
-
-.home-close .hero-actions {
-  justify-content: center;
-}
-
-/* On the dark bands the primary action is white and the secondary an
-   outline: the same two weights as everywhere else, inverted. */
-.home-hero .button,
-.home-close .button {
-  border-radius: var(--radius-full);
-  padding: 0.8rem 1.6rem;
-  background: #ffffff;
-  color: var(--reef-600);
-  border: 2px solid #ffffff;
-  font-size: 1rem;
-  font-weight: 650;
-}
-
-.home-hero .button:hover,
-.home-close .button:hover {
-  background: var(--sand-100);
-  color: var(--reef-600);
-}
-
-.home-hero .button.secondary,
-.home-close .button.secondary {
-  background: transparent;
-  color: #ffffff;
-  border-color: rgb(255 255 255 / 45%);
-}
-
-.home-hero .button.secondary:hover,
-.home-close .button.secondary:hover {
-  background: rgb(255 255 255 / 8%);
-  border-color: #ffffff;
-}
-
-.home-hero a:not(.button),
-.home-close a:not(.button) {
-  color: #ffffff;
-  text-underline-offset: 3px;
-}
-
-.home-inner {
-  min-width: 0;
-}
-
-.home-note {
-  margin: var(--space-3) 0 0;
-  max-width: 58ch;
-  font-size: 0.88rem;
-  color: rgb(248 250 252 / 72%);
-}
-
-.home-close .home-note {
-  margin-inline: auto;
-}
-
-.home-families {
-  margin: var(--space-4) 0 0;
-  padding-top: var(--space-3);
-  max-width: 58ch;
-  border-top: 1px solid rgb(255 255 255 / 14%);
-  font-size: 0.92rem;
-  color: rgb(248 250 252 / 85%);
-}
-
-.home-maker {
-  margin: var(--space-5) 0 0;
-  font-family: var(--font-display);
-  font-size: 0.74rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--rail-text-2);
-}
-
-.home-more {
-  margin: var(--space-5) 0 0;
-  color: var(--muted);
-}
-
-/* -------------------------------------------------------------- hero */
-
-/* The pitch spans the window, so its boxes sit outside the text column
-   rather than through the headline. Faint: it says football, and gets out
-   of the way of the words. pathLength=1 on every mark, so one dash the
-   length of the whole line draws each of them. */
-.home-pitch {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 100vw;
-  height: 100%;
-  translate: -50% 0;
-  fill: none;
-  stroke: rgb(255 255 255 / 14%);
-  stroke-width: 2;
-  pointer-events: none;
-}
-
-.home-pitch > * {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: home-draw 2s var(--ease) forwards;
-}
-
-.home-pitch > :nth-child(n + 2) {
-  animation-delay: 0.25s;
-}
-
-.home-hero-grid {
-  position: relative;
-  display: grid;
-  gap: var(--space-6);
-  align-items: center;
-}
-
-@media (min-width: 1024px) {
-  .home-hero-grid {
-    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-    gap: var(--space-7);
-  }
-}
-
-.home-title {
-  margin: 0 0 var(--space-4);
-  font-family: var(--font-display);
-  font-size: clamp(2.6rem, 1.4rem + 4.6vw, 4.9rem);
-  font-weight: 800;
-  font-stretch: 75%;
-  line-height: 0.98;
-  letter-spacing: -0.01em;
-  color: #ffffff;
-}
-
-.home-title span {
-  display: block;
-  animation: home-rise 600ms var(--ease) both;
-}
-
-/* The second sentence is the payoff, set a step quieter so the two read
-   as cause and effect rather than one long shout. */
-.home-title span:nth-child(2) {
-  color: var(--rail-text-2);
-  animation-delay: 120ms;
-}
-
-.home-hero .lede {
-  font-size: 1.08rem;
-}
-
-/* --------------------------------------------- the hero's preview (hp) */
-
-.hp {
-  min-width: 0;
-  overflow: hidden;
-  background: var(--surface);
-  color: var(--text);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 24px 60px rgb(2 6 23 / 45%), 0 2px 6px rgb(2 6 23 / 30%);
-  animation: home-rise 700ms var(--ease) 200ms both;
-}
-
-.hp-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  background: var(--reef-600);
-  color: #ffffff;
-}
-
-.hp-club {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 700;
-  font-stretch: 87.5%;
-  letter-spacing: 0.01em;
-}
-
-.hp-tabs {
-  display: flex;
-  gap: var(--space-1);
-  padding: var(--space-2) var(--space-3) 0;
-  overflow-x: auto;
-  box-shadow: inset 0 -1px 0 var(--border);
-}
-
-.home .hp-tabs button,
-.home .hp-tabs button:hover:not(:disabled) {
-  flex: 0 0 auto;
-  min-height: 2.75rem;
-  padding: 0 var(--space-3);
-  background: none;
-  border: 0;
-  border-bottom: 3px solid transparent;
-  border-radius: 0;
+/* One square focus ring, in ink, on the page and its bar. */
+body:has(.ed) :where(a, button, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--ed-ink);
+  outline-offset: 3px;
   box-shadow: none;
-  color: var(--muted);
-  font-weight: 600;
+  border-radius: 0;
 }
 
-.home .hp-tabs button:hover:not(:disabled) {
-  color: var(--text);
-}
-
-.home .hp-tabs button[aria-selected='true'] {
-  color: var(--text);
-  border-bottom-color: var(--reef-600);
-}
-
-.hp-panel {
-  padding: var(--space-4);
-  animation: home-swap 260ms var(--ease) both;
-}
-
-.hp-heading {
-  margin: 0 0 var(--space-3);
-  font-family: var(--font-display);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.hp-rows,
-.rx-rows {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
+/* The page takes the whole width, and closes on its own wordmark rather
+   than on the footer's link columns. */
+.shell:has(.ed) {
+  max-width: none;
   padding: 0;
-  list-style: none;
 }
 
-.hp-rows li,
-.rx-rows li {
+.shell:has(.ed) + .site-footer {
+  display: none;
+}
+
+/* ----------------------------------------------------- the bar, quiet */
+
+body:has(.ed) .topbar {
+  --focus: var(--ed-ink);
+  border-bottom: 1px solid var(--ed-hair);
+  background: rgb(231 227 218 / 84%);
+  backdrop-filter: blur(14px);
+  color: var(--ed-ink);
+}
+
+body:has(.ed) .topbar-inner {
+  max-width: none;
+  min-height: var(--ed-bar);
+  padding-inline: var(--ed-gutter);
+  animation: none;
+}
+
+body:has(.ed) .topbar-brand .brand-mark {
+  display: none;
+}
+
+body:has(.ed) .topbar-brand a {
+  color: var(--ed-ink);
+}
+
+body:has(.ed) .topbar-brand .brand-name {
+  font-family: var(--ed-serif);
+  font-size: 19px;
+  font-weight: 400;
+  font-stretch: normal;
+  letter-spacing: -0.015em;
+}
+
+/* The trailing oxide point. Empty alternative text, so it is not read. */
+body:has(.ed) .topbar-brand .brand-name::after {
+  content: '.' / '';
+  color: var(--ed-oxide);
+}
+
+body:has(.ed) :is(.topbar-links a, .topbar-workspace, .topbar-menu nav a) {
+  color: var(--ed-ink);
+  font-family: var(--ed-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 7px;
+  transition: text-decoration-color var(--dur) var(--ed-ease);
+}
+
+body:has(.ed) :is(.topbar-links a, .topbar-workspace, .topbar-menu nav a):hover {
+  background: none;
+  color: var(--ed-ink);
+  text-decoration-color: var(--ed-oxide);
+}
+
+body:has(.ed) .topbar-register {
+  border: 1px solid var(--ed-ink);
+  border-radius: 0;
+  background: var(--ed-ink);
+  color: var(--ed-bone);
+  font-family: var(--ed-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: background var(--dur) var(--ed-ease), color var(--dur) var(--ed-ease);
+}
+
+body:has(.ed) .topbar-register:hover {
+  background: transparent;
+  color: var(--ed-ink);
+}
+
+body:has(.ed) .topbar-menu summary {
+  border-color: var(--ed-hair);
+  border-radius: 0;
+  color: var(--ed-ink);
+}
+
+body:has(.ed) .topbar-menu nav {
+  border: 1px solid var(--ed-ink);
+  border-radius: 0;
+  background: var(--ed-bone);
+  box-shadow: none;
+}
+
+body:has(.ed) .topbar-menu-workspace {
+  border-top-color: var(--ed-hair);
+}
+
+/* ------------------------------------------------------------ the page */
+
+.ed {
+  overflow-x: clip;
+  color: var(--ed-ink);
+  font-family: var(--ed-mono);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ed a {
+  color: var(--ed-ink);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color var(--dur) var(--ed-ease);
+}
+
+.ed a:hover {
+  color: var(--ed-ink);
+  text-decoration-color: var(--ed-oxide);
+}
+
+.ed em {
+  font-style: italic;
+  color: var(--ed-oxide);
+}
+
+.ed-wrap {
+  max-width: 88rem;
+  margin-inline: auto;
+  padding-inline: var(--ed-gutter);
+}
+
+.ed-section {
+  padding-block: clamp(4rem, 10vw, 8rem);
+  border-top: 1px solid var(--ed-hair);
+}
+
+.ed-eyebrow,
+.ed-label {
+  margin: 0 0 1.1rem;
+  color: var(--ed-ink-2);
+  font-family: var(--ed-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ed-label {
+  margin-bottom: 0.5rem;
+  color: var(--ed-oxide);
+}
+
+.ed .ed-h2,
+.ed .ed-headline,
+.ed .ed-h3 {
+  font-family: var(--ed-serif);
+  font-weight: 400;
+  font-stretch: normal;
+  letter-spacing: -0.015em;
+  color: var(--ed-ink);
+}
+
+.ed .ed-h2 {
+  margin: 0 0 1.25rem;
+  max-width: 20ch;
+  font-size: clamp(2.2rem, 1.3rem + 2.8vw, 3.9rem);
+  line-height: 1.02;
+}
+
+.ed .ed-h2-small {
+  font-size: clamp(1.8rem, 1.2rem + 1.8vw, 2.8rem);
+}
+
+.ed .ed-h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1.65rem;
+  line-height: 1.1;
+}
+
+.ed-intro {
+  max-width: 58ch;
+  margin: 0 0 1.5rem;
+  color: var(--ed-ink-2);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+.ed-note,
+.ed-more {
+  max-width: 70ch;
+  margin: 1.5rem 0 0;
+  color: var(--ed-ink-2);
+  font-size: 12.5px;
+}
+
+/* The two actions: square, ink, a mono label. The primary is filled with
+   ink, the secondary ruled; both move a step on hover, and neither ever
+   fills with oxide. */
+.ed-actions {
   display: flex;
   flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.75rem 0 0;
+}
+
+.ed .ed-button {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-1) var(--space-3);
+  min-height: 3rem;
+  padding: 0 1.4rem;
+  border: 1px solid var(--ed-ink);
+  background: var(--ed-ink);
+  color: var(--ed-bone);
+  font-family: var(--ed-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform var(--dur) var(--ed-ease), background var(--dur) var(--ed-ease), color var(--dur) var(--ed-ease);
+}
+
+.ed .ed-button:hover {
+  transform: translateY(-2px);
+  color: var(--ed-bone);
+  text-decoration: none;
+}
+
+.ed .ed-button-quiet {
+  background: transparent;
+  color: var(--ed-ink);
+}
+
+.ed .ed-button-quiet:hover {
+  color: var(--ed-ink);
+  box-shadow: inset 0 -2px 0 var(--ed-oxide);
+}
+
+/* Every other control on the page: square, ruled, mono. */
+.ed :is(button, .button),
+.ed :is(button, .button):hover:not(:disabled) {
   min-height: 2.75rem;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-  font-size: 0.92rem;
-  font-variant-numeric: tabular-nums;
-}
-
-/* ------------------------------------------------ role explorer (rx) */
-
-.rx {
-  display: grid;
-  gap: var(--space-5);
-  margin-top: var(--space-5);
-}
-
-@media (min-width: 64rem) {
-  .rx {
-    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
-    align-items: start;
-  }
-}
-
-.rx-tabs {
-  display: flex;
-  gap: var(--space-2);
-  padding-bottom: var(--space-1);
-  overflow-x: auto;
-}
-
-@media (min-width: 64rem) {
-  .rx-tabs {
-    flex-direction: column;
-    padding: 0;
-    overflow: visible;
-  }
-}
-
-.home .rx-tabs button,
-.home .rx-tabs button:hover:not(:disabled) {
-  flex: 0 0 auto;
-  display: grid;
-  gap: 2px;
-  justify-content: start;
-  justify-items: start;
-  min-height: 2.75rem;
-  padding: var(--space-2) var(--space-3);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid transparent;
-  border-radius: var(--radius-sm);
+  padding: 0 1rem;
+  border: 1px solid var(--ed-hair);
+  border-radius: 0;
+  background: transparent;
   box-shadow: none;
-  color: var(--text);
-  text-align: left;
-  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  color: var(--ed-ink);
+  font-family: var(--ed-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: border-color var(--dur) var(--ed-ease), transform var(--dur) var(--ed-ease);
 }
 
-.home .rx-tabs button:hover:not(:disabled) {
-  background: var(--surface-2);
+.ed :is(button, .button):hover:not(:disabled) {
+  border-color: var(--ed-ink);
 }
 
-.home .rx-tabs button[aria-selected='true'] {
-  background: var(--accent-soft);
-  border-color: var(--border-strong);
-  border-left-color: var(--reef-600);
-}
-
-.rx-tab-role {
-  font-size: 0.95rem;
-  font-weight: 650;
-}
-
-.rx-tab-who {
-  font-size: 0.78rem;
-  color: var(--muted);
-}
-
-.rx-stage {
-  display: grid;
-  gap: var(--space-5);
-  min-width: 0;
-}
-
-@media (min-width: 80rem) {
-  .rx-stage {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
-    align-items: start;
-  }
-}
-
-/* The hub: the person in the middle, the eight roles round them. */
-.rx-hub {
-  margin: 0;
-  padding: var(--space-4);
-  background: var(--bg-sunk);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-
-.rx-hub svg {
-  display: block;
-  width: 100%;
-  max-width: 26rem;
-  height: auto;
-  margin-inline: auto;
-  overflow: visible;
-}
-
-.rx-hub figcaption {
-  margin-top: var(--space-3);
-  font-size: 0.85rem;
-  color: var(--muted);
-  text-align: center;
-}
-
-.rx-link {
-  stroke: var(--border-strong);
-  stroke-width: 1.5;
-  stroke-dasharray: 0.02 0.03;
-}
-
-.rx-link-held {
-  stroke: var(--reef-500);
-  stroke-width: 2.5;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 0;
-  animation: rx-draw 520ms var(--ease) both;
-}
-
-.rx-link-on {
-  stroke-width: 4;
-}
-
-.rx-node rect {
-  fill: var(--surface);
-  stroke: var(--border-strong);
-  stroke-width: 1;
-  transition: fill var(--dur) var(--ease), stroke var(--dur) var(--ease);
-}
-
-.rx-node text {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 600;
-  fill: var(--muted);
-}
-
-.rx-node-held rect {
-  stroke: var(--reef-500);
-  stroke-width: 1.5;
-}
-
-.rx-node-held text {
-  fill: var(--text);
-}
-
-.rx-node-on rect {
-  fill: var(--reef-600);
-  stroke: var(--reef-600);
-}
-
-.rx-node-on text {
-  fill: #ffffff;
-}
-
-.rx-person {
-  fill: var(--reef-600);
-  stroke: var(--surface);
-  stroke-width: 4;
-}
-
-.rx-person-initials {
-  font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 800;
-  fill: #ffffff;
-}
-
-/* The active-role marker: it moves to the chosen role and stops. */
-.rx-marker {
-  fill: var(--reef-500);
-  transition: transform 420ms var(--ease);
-}
-
-/* The workspace the chosen role sees. */
-.rx-panel {
-  display: grid;
-  gap: var(--space-3);
-  min-width: 0;
-  padding: var(--space-5);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  animation: home-swap 280ms var(--ease) both;
-}
-
-.rx-panel > p {
-  margin: 0;
-}
-
-.rx-who {
-  display: flex;
+/* Status, in the editorial page's own terms: always a mark and a word,
+   and the mark is a shape, not a hue. Ready is a solid dot, waiting a
+   ring, blocked a small oxide square, information a diamond. */
+.ed .pill,
+.ed .ed-status {
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
-}
-
-.rx-who strong {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 700;
-  font-stretch: 87.5%;
-}
-
-.rx-as {
-  color: var(--muted);
-}
-
-.rx-avatar {
-  display: inline-grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: var(--radius-full);
-  background: var(--reef-600);
-  color: #ffffff;
-  font-family: var(--font-display);
-  font-weight: 800;
-}
-
-.rx-problem {
-  color: var(--subtle);
-}
-
-.rx-screen {
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-
-.rx-screen-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  background: var(--bg-sunk);
-  border-bottom: 1px solid var(--border);
-  font-size: 0.85rem;
-  font-weight: 650;
-}
-
-.rx-screen .rx-rows {
-  padding: var(--space-3);
-}
-
-.rx-boundary {
-  padding: var(--space-3);
-  background: var(--accent-soft);
-  border-left: 3px solid var(--reef-600);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  font-size: 0.92rem;
-}
-
-.rx-routes {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-.rx-routes code,
-.home-chain code,
-.wk-checks code {
-  padding: 0.1em 0.4em;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: var(--text);
+  gap: 0.55em;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--ed-ink);
+  font-family: var(--ed-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   white-space: nowrap;
 }
 
-.rx-also {
+.ed .pill::before,
+.ed .ed-status::before {
+  content: '';
+  flex: none;
+  width: 0.62em;
+  height: 0.62em;
+  border-radius: 50%;
+  background: var(--ed-ink-2);
+}
+
+.ed :is(.pill-ok, .ed-status-ok)::before {
+  background: var(--ed-ink);
+}
+
+.ed :is(.pill-warn, .ed-status-warn)::before {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ed-ink);
+}
+
+.ed :is(.pill-stop, .ed-status-stop)::before {
+  border-radius: 0;
+  background: var(--ed-oxide);
+}
+
+.ed :is(.pill-info, .ed-status-info)::before {
+  border-radius: 0;
+  background: var(--ed-ink-2);
+  transform: rotate(45deg) scale(0.85);
+}
+
+.ed code {
+  padding: 0.05em 0.35em;
+  border: 1px solid var(--ed-hair);
+  border-radius: 0;
+  background: none;
+  color: var(--ed-ink);
+  font-family: var(--ed-mono);
+  font-size: 11px;
+}
+
+/* ------------------------------------------------------------ the hero */
+
+.ed-hero {
+  --ed-k: 1;
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background: var(--ed-bone-2);
+}
+
+.ed-hero-stage {
+  position: relative;
   display: grid;
-  gap: var(--space-2);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--border);
+  align-content: center;
+  gap: 2.5rem;
+  min-height: calc(100svh - var(--ed-bar));
+  padding: clamp(2rem, 6vh, 4rem) var(--ed-gutter) 4rem;
 }
 
-.rx-also p {
+/* A short runway: 30vh over which the wordmark parts, then the hero
+   scrolls away as normal. Only where the words and the wordmark sit side
+   by side in a tall enough screen, and motion is allowed. Stacked, the
+   hero is taller than a screen, so it scrolls, and the wordmark parts as
+   it goes. */
+@media (min-width: 64rem) and (min-height: 36rem) and (prefers-reduced-motion: no-preference) {
+  .ed-hero {
+    min-height: calc(100svh - var(--ed-bar) + 30vh);
+  }
+
+  .ed-hero-stage {
+    position: sticky;
+    top: var(--ed-bar);
+    height: calc(100svh - var(--ed-bar));
+    min-height: 32rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .ed-hero-stage {
+    grid-template-columns: minmax(0, 44vw) minmax(0, 1fr);
+    gap: 0;
+  }
+}
+
+.ed-hero-copy {
+  position: relative;
+  z-index: 4;
+  max-width: 40rem;
+}
+
+.ed .ed-headline {
+  margin: 0 0 1.4rem;
+  font-size: clamp(2.4rem, min(1.2rem + 3.7vw, 9vh), 5rem);
+  line-height: 0.98;
+}
+
+.ed-headline em {
+  display: inline-block;
+}
+
+.ed-support {
+  max-width: 46ch;
   margin: 0;
-  font-size: 0.9rem;
-  color: var(--subtle);
+  color: var(--ed-ink-2);
+  font-size: 13.5px;
+  line-height: 1.7;
 }
 
-.rx-also-roles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+.ed-families {
+  margin: 1.25rem 0 0;
+  color: var(--ed-ink-2);
+  font-size: 12px;
 }
 
-/* A phone is too narrow for eight labels round a ring: the panel already
-   names the person and the roles they hold, so the hub steps aside. */
-@media (max-width: 40rem) {
-  .rx-hub {
+.ed-caption {
+  position: absolute;
+  z-index: 4;
+  left: var(--ed-gutter);
+  bottom: 1.25rem;
+  margin: 0;
+  color: var(--ed-ink-2);
+  font-size: 10.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* The split wordmark. PITCH sits above the referee, PEOPLE below, and the
+   figure stands in the gap: its raised arm passes behind PITCH, and its
+   body covers PEOPLE. One progress value parts them: PITCH rises and
+   leaves, PEOPLE sinks, and the referee climbs and grows a little. */
+.ed-mark {
+  position: relative;
+  justify-self: end;
+  display: grid;
+  justify-items: end;
+  font-family: var(--ed-serif);
+  /* Bounded by the height too, so a short, wide screen keeps the two
+     lines and the referee inside the stage. */
+  font-size: clamp(74px, min(17.5vw, 30vh), 258px);
+  font-weight: 400;
+  line-height: 0.82;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.ed-mark-top,
+.ed-mark-bottom {
+  position: relative;
+  display: block;
+  will-change: transform;
+}
+
+.ed-mark-top {
+  z-index: 3;
+  transform: translate3d(calc(var(--p) * var(--ed-k) * 1.5vw), calc(var(--p) * var(--ed-k) * -20vh), 0);
+}
+
+.ed-mark-bottom {
+  z-index: 1;
+  transform: translate3d(calc(var(--p) * var(--ed-k) * -1.5vw), calc(var(--p) * var(--ed-k) * 20vh), 0);
+}
+
+.ed-mark-in {
+  display: inline-block;
+}
+
+.ed-figure {
+  /* Sized by height, so the legs still cover PEOPLE once the lines have
+     parted by 40vh and the coach has climbed 24vh. The head (0.265 of the
+     way down the drawing, and centred across it) stands over the O of
+     PEOPLE, low enough under PITCH's baseline that the climb never brings
+     a serif across the face. The pointing hand reaches up behind PITCH. */
+  --fig-h: min(74vh, 3.1em);
+  position: absolute;
+  z-index: 2;
+  top: calc(1.05em - 0.265 * var(--fig-h));
+  left: calc(1.05em - 0.232 * var(--fig-h));
+  height: var(--fig-h);
+  transform: translate3d(0, calc(var(--p) * var(--ed-k) * -24vh), 0) scale(calc(1 + var(--p) * var(--ed-k) * 0.04));
+  transform-origin: 50% 30%;
+  will-change: transform;
+}
+
+/* Sized by its height, its width following; the shadow is the one on the
+   page, and only to lift the cut-out off the letters behind it. */
+.ed-figure-in {
+  display: block;
+  width: auto;
+  max-width: 60vw;
+  height: 100%;
+  filter: drop-shadow(0 0.06em 0.06em rgb(26 25 23 / 22%));
+}
+
+/* The pitch under the masthead: the halfway line along the seam between
+   PITCH and PEOPLE, and the centre circle round the coach. They are fixed
+   to the stage, so the words part around them. Hairline, behind
+   everything, and never measured: they say where we are, not how big it
+   is. */
+.ed-pitch {
+  position: absolute;
+  z-index: 0;
+  top: 0.82em;
+  left: 1.05em;
+  width: 0;
+  height: 0;
+}
+
+.ed-pitch svg {
+  position: absolute;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ed-muted);
+  stroke-width: 1;
+}
+
+.ed-pitch-halfway {
+  top: -1px;
+  left: -1.4em;
+  width: 300vw;
+  height: 2px;
+}
+
+.ed-pitch-halfway line,
+.ed-pitch-circle circle {
+  vector-effect: non-scaling-stroke;
+}
+
+.ed-pitch-circle {
+  top: -0.62em;
+  left: -0.62em;
+  width: 1.24em;
+  height: 1.24em;
+}
+
+.ed .ed-pitch-spot {
+  fill: var(--ed-oxide);
+  stroke: none;
+}
+
+.ed-pitch-label {
+  position: absolute;
+  top: 0;
+  left: -1.4em;
+}
+
+.ed-pitch-label span {
+  position: absolute;
+  bottom: 0.7rem;
+  left: 0;
+  color: var(--ed-ink-2);
+  font-family: var(--ed-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.15em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ed-pitch {
+  transition: opacity 1200ms var(--ed-ease-long) 120ms;
+}
+
+/* A tablet keeps the split, with less travel. */
+@media (max-width: 64rem) {
+  .ed-hero {
+    --ed-k: 0.55;
+  }
+
+  .ed-caption {
+    position: static;
+  }
+
+  /* Stacked, the wordmark is too small to hold the pitch's label. */
+  .ed-pitch-label {
     display: none;
   }
-}
 
-/* ------------------------------------------------ the walkthrough (wk) */
-
-.wk {
-  display: grid;
-  gap: var(--space-5);
-  margin-top: var(--space-5);
-}
-
-.wk-steps {
-  position: relative;
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-@media (min-width: 56rem) {
-  .wk-steps {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* Stacked, the wordmark keeps clear of the words above as PITCH rises
+     (at most 11vh here), and leaves room below for the referee's legs. */
+  .ed-mark {
+    margin-top: 12vh;
+    padding-bottom: 1.8em;
   }
 
-  /* The touchline under the steps, filled to the current one. */
-  .wk-steps::before,
-  .wk-steps::after {
+  .ed-mark {
+    font-size: clamp(74px, 21vw, 200px);
+  }
+}
+
+/* A phone stacks the wordmark under the words, smaller, with little
+   travel; the headline and the actions come first. */
+@media (max-width: 48rem) {
+  .ed-hero {
+    --ed-k: 0.3;
+  }
+
+  .ed-hero-stage {
+    padding-bottom: 5rem;
+  }
+
+  .ed-mark {
+    justify-self: center;
+    font-size: clamp(64px, 24vw, 140px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ed-hero {
+    --ed-k: 0;
+  }
+}
+
+/* The opening. Only where script runs and motion is allowed: until the
+   component starts it on an animation frame after hydration, the words,
+   the wordmark and the referee wait in their starting pose. If script
+   never runs, a fallback shows them after 2.4s. The actions are never
+   hidden. */
+.ed-in,
+.ed-mark-in,
+.ed-figure-in {
+  transition:
+    opacity 760ms var(--ed-ease) calc(var(--i, 0) * 70ms),
+    transform 760ms var(--ed-ease) calc(var(--i, 0) * 70ms);
+}
+
+.ed-mark-bottom .ed-mark-in {
+  transition-delay: 110ms;
+}
+
+.ed-figure-in {
+  transition-duration: 1200ms;
+  transition-timing-function: var(--ed-ease-long);
+  transition-delay: 180ms;
+}
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .ed-hero:not([data-intro='run']) :is(.ed-in, .ed-mark-in, .ed-figure-in) {
+    opacity: 0;
+    animation: ed-failsafe 1ms 2.4s forwards;
+  }
+
+  .ed-hero:not([data-intro='run']) .ed-in {
+    transform: translateY(20px);
+  }
+
+  .ed-hero:not([data-intro='run']) .ed-mark-top .ed-mark-in {
+    transform: translateY(0.14em);
+  }
+
+  .ed-hero:not([data-intro='run']) .ed-mark-bottom .ed-mark-in {
+    transform: translateY(0.1em);
+  }
+
+  .ed-hero:not([data-intro='run']) .ed-figure-in {
+    transform: translateY(14%);
+  }
+
+  .ed-hero:not([data-intro='run']) .ed-pitch {
+    opacity: 0;
+    animation: ed-failsafe 1ms 2.4s forwards;
+  }
+}
+
+@keyframes ed-failsafe {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------ § 01 the draw */
+
+.ed-identity-grid {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 5rem);
+}
+
+@media (min-width: 64rem) {
+  .ed-identity-grid {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    align-items: start;
+  }
+}
+
+.ed-defs {
+  margin: 2rem 0 0;
+  border-bottom: 1px solid var(--ed-hair);
+}
+
+.ed-defs > div {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 1rem;
+  padding-block: 0.95rem;
+  border-top: 1px solid var(--ed-hair);
+  transition: border-color var(--dur) var(--ed-ease);
+}
+
+.ed-defs > div:hover {
+  border-top-color: var(--ed-ink);
+}
+
+.ed-defs dt {
+  color: var(--ed-oxide);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ed-defs dd {
+  margin: 0;
+  color: var(--ed-ink-2);
+  font-size: 13.5px;
+}
+
+.ed-id {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.ed-id-figure {
+  margin: 0;
+}
+
+.ed-id-figure svg,
+.ed-held svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* The bracket: one record on the left, ruled out to five roles. */
+.ed-branch {
+  stroke: var(--ed-ink);
+  stroke-width: 1;
+}
+
+/* The traced branch, in oxide, redrawn from the record each time. */
+.ed-trace {
+  fill: none;
+  stroke: var(--ed-oxide);
+  stroke-width: 2;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: ed-trace 620ms var(--ed-ease) both;
+}
+
+@keyframes ed-trace {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+.ed-record {
+  fill: var(--ed-ink);
+}
+
+.ed .ed-record-label {
+  fill: var(--ed-bone);
+}
+
+.ed .ed-record-serif {
+  fill: var(--ed-bone);
+}
+
+.ed-person {
+  fill: var(--ed-bone);
+  stroke: var(--ed-ink);
+  stroke-width: 1.2;
+}
+
+.ed-svg-label {
+  fill: var(--ed-ink-2);
+  font-family: var(--ed-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+}
+
+.ed-svg-role {
+  fill: var(--ed-ink);
+  font-family: var(--ed-serif);
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+
+.ed-svg-serif {
+  fill: var(--ed-ink);
+  font-family: var(--ed-serif);
+  font-size: 21px;
+  font-style: italic;
+}
+
+.ed-node rect {
+  fill: var(--ed-bone);
+  stroke: var(--ed-ink);
+  stroke-width: 1.2;
+  transition: fill var(--dur) var(--ed-ease), stroke var(--dur) var(--ed-ease);
+}
+
+.ed-node.is-on rect {
+  fill: var(--ed-oxide);
+  stroke: var(--ed-oxide);
+}
+
+.ed-node.is-on :is(.ed-svg-role, .ed-svg-label) {
+  fill: var(--ed-oxide);
+}
+
+.ed-note line {
+  stroke: var(--ed-muted);
+  stroke-width: 0.8;
+  stroke-dasharray: 3 3;
+}
+
+/* The bracket builds itself: the trunk and spine draw, then the record,
+   then each branch and its role, 70ms apart. Only when ScrollReveal found
+   it below the fold; otherwise it is simply there. */
+.ed-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1000ms var(--ed-ease) calc(var(--i, 0) * 70ms);
+}
+
+.ed-pop {
+  transition: opacity 600ms var(--ed-ease) calc(var(--i, 0) * 70ms + 220ms);
+}
+
+.ed-id-figure[data-reveal='waiting'] {
+  opacity: 1;
+  transform: none;
+}
+
+.ed-id-figure[data-reveal='waiting'] .ed-draw {
+  stroke-dashoffset: 1;
+}
+
+.ed-id-figure[data-reveal='waiting'] :is(.ed-pop, .ed-trace) {
+  opacity: 0;
+}
+
+.ed-id-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ed .ed-id-roles button[aria-pressed='true'],
+.ed .ed-id-roles button[aria-pressed='true']:hover:not(:disabled) {
+  border-color: var(--ed-ink);
+  background: var(--ed-ink);
+  color: var(--ed-bone);
+}
+
+.ed-id-note {
+  padding-top: 1rem;
+  border-top: 1px solid var(--ed-ink);
+}
+
+.ed-id-note p {
+  margin: 0;
+}
+
+.ed-id-note p:nth-child(2) {
+  max-width: 36ch;
+  margin-bottom: 0.6rem;
+  font-family: var(--ed-serif);
+  font-size: 1.55rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.ed-rules {
+  color: var(--ed-ink-2);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+
+/* --------------------------------------- § 02 the programme, pinned */
+
+.ed-study {
+  border-top: 1px solid var(--ed-hair);
+  background: var(--ed-bone-2);
+}
+
+.ed-study-stage {
+  display: grid;
+  grid-template-areas: 'head' 'index' 'pages' 'read';
+  gap: 1.75rem 3rem;
+  max-width: 92rem;
+  margin-inline: auto;
+  padding: clamp(4rem, 9vw, 7rem) var(--ed-gutter);
+}
+
+@media (min-width: 64rem) {
+  .ed-study-stage {
+    grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+    grid-template-areas:
+      'head head'
+      'index pages'
+      'read read';
+  }
+}
+
+.ed-study-head {
+  grid-area: head;
+}
+
+.ed-study-head .ed-h2 {
+  max-width: none;
+}
+
+/* The contents: a numbered list of the eight pages, with the rule the
+   marker runs down beside it. Every row is the same height, so the marker
+   lines up with the row it names. */
+.ed-index {
+  grid-area: index;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.ed-index-line {
+  display: none;
+}
+
+.ed-index-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  border-top: 1px solid var(--ed-ink);
+}
+
+@media (min-width: 64rem) {
+  .ed-index {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+  }
+
+  .ed-index-line {
+    position: relative;
+    display: block;
+  }
+
+  .ed-index-line::before {
     content: '';
     position: absolute;
-    left: 10%;
-    top: 1.35rem;
-    height: 3px;
-    border-radius: 3px;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: var(--ed-hair);
   }
 
-  .wk-steps::before {
-    right: 10%;
-    background: var(--border);
-  }
-
-  .wk-steps::after {
-    width: calc(80% * var(--wk-progress, 0));
-    background: var(--reef-600);
-    transition: width 420ms var(--ease);
+  .ed-index-tabs {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.wk-steps li {
-  position: relative;
-  z-index: 1;
+.ed-index-rule {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 0.75px);
+  width: 1.5px;
+  background: var(--ed-oxide);
 }
 
-.home .wk-steps button,
-.home .wk-steps button:hover:not(:disabled) {
-  display: flex;
-  align-items: center;
+.ed-index-marker {
+  position: absolute;
+  left: 50%;
+  width: 11px;
+  height: 11px;
+  translate: -50% -50%;
+  border: 1.5px solid var(--ed-oxide);
+  background: var(--ed-bone-2);
+}
+
+.ed .ed-index-tabs button,
+.ed .ed-index-tabs button:hover:not(:disabled) {
   justify-content: flex-start;
-  gap: var(--space-2);
-  width: 100%;
+  gap: 0.75rem;
   min-height: 2.75rem;
-  padding: var(--space-1) var(--space-2);
-  background: none;
+  padding: 0 0.75rem 0 0;
   border: 0;
-  box-shadow: none;
-  color: var(--muted);
+  border-bottom: 1px solid var(--ed-hair);
+  font-size: 10.5px;
+  line-height: 1.25;
   text-align: left;
 }
 
-@media (min-width: 56rem) {
-  .home .wk-steps button,
-  .home .wk-steps button:hover:not(:disabled) {
-    flex-direction: column;
-    justify-content: flex-start;
-    text-align: center;
+.ed .ed-index-tabs button[aria-selected='true'] {
+  color: var(--ed-oxide);
+}
+
+.ed-study-num {
+  flex: none;
+  color: var(--ed-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.ed-pages {
+  grid-area: pages;
+  min-width: 0;
+}
+
+/* A page: its number, the role's screen, and who holds it. Unpinned, only
+   the chosen page shows. */
+.ed-page {
+  display: grid;
+  gap: 1.25rem 2.5rem;
+  align-content: start;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ed-ink);
+  animation: ed-swap 320ms var(--ed-ease) both;
+}
+
+.ed-page:not(.is-active) {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .ed-page {
+    grid-template-columns: 6rem minmax(0, 1.15fr) minmax(0, 0.85fr);
+    grid-template-areas:
+      'no head side'
+      'no rows side';
+  }
+
+  .ed-page-no {
+    grid-area: no;
+  }
+
+  .ed-page-head {
+    grid-area: head;
+  }
+
+  .ed-page-rows {
+    grid-area: rows;
+  }
+
+  .ed-page-side {
+    grid-area: side;
   }
 }
 
-.home .wk-steps button:hover:not(:disabled),
-.home .wk-steps [data-state='current'] button {
-  color: var(--text);
+.ed-page-no {
+  margin: 0;
+  color: var(--ed-oxide);
+  font-family: var(--ed-serif);
+  font-size: clamp(3rem, 2rem + 3vw, 5.5rem);
+  line-height: 0.82;
+  letter-spacing: -0.015em;
 }
 
-.wk-num {
-  display: inline-grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: var(--radius-full);
-  background: var(--surface);
-  border: 2px solid var(--border-strong);
-  font-family: var(--font-mono);
-  font-weight: 500;
-  color: var(--muted);
-  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
-}
-
-.wk-step-title {
-  font-size: 0.88rem;
-  font-weight: 600;
-}
-
-.wk-steps [data-state='done'] .wk-num {
-  border-color: var(--reef-600);
-  color: var(--reef-600);
-}
-
-.wk-steps [data-state='current'] .wk-num {
-  background: var(--reef-600);
-  border-color: var(--reef-600);
-  color: #ffffff;
-}
-
-.wk-panel {
-  padding: clamp(var(--space-4), 3vw, var(--space-6));
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-}
-
-.wk-count {
-  margin: 0 0 var(--space-2);
-  font-family: var(--font-display);
-  font-size: 0.74rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.wk-body {
-  display: grid;
-  gap: var(--space-3);
-  animation: home-swap 280ms var(--ease) both;
-}
-
-.wk-body > p {
+.ed-page-head p,
+.ed-page-side p {
   margin: 0;
 }
 
-.wk-head {
+.ed-page-head .ed-page-problem {
+  margin-top: 0.4rem;
+  color: var(--ed-ink-2);
+  font-size: 13px;
+}
+
+.ed-page-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--ed-hair);
+}
+
+.ed-page-rows li {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-2) var(--space-3);
+  gap: 0.25rem 1rem;
+  padding-block: 0.6rem;
+  border-bottom: 1px solid var(--ed-hair);
+  font-size: 12.5px;
 }
 
-.wk-head h3 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 700;
-  font-stretch: 87.5%;
-}
-
-.wk-who {
-  color: var(--subtle);
-}
-
-.wk-cols {
+.ed-page-side {
   display: grid;
-  gap: var(--space-4);
+  align-content: start;
+  gap: 0.9rem;
+}
+
+.ed-held {
+  margin: 0;
+}
+
+.ed-held svg {
+  max-width: 17rem;
+}
+
+.ed-held figcaption {
+  margin-top: 0.4rem;
+  color: var(--ed-ink-2);
+  font-size: 10.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.ed-held-line {
+  stroke: var(--ed-ink);
+  stroke-width: 1;
+}
+
+.ed-held-line.is-on {
+  stroke: var(--ed-oxide);
+  stroke-width: 1.6;
+}
+
+.ed-page-boundary,
+.ed-page-also {
+  color: var(--ed-ink-2);
+  font-size: 12.5px;
+}
+
+.ed-page-boundary strong {
+  color: var(--ed-ink);
+  font-weight: 600;
+}
+
+.ed .ed-page-also button,
+.ed .ed-page-also button:hover:not(:disabled) {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  color: var(--ed-ink);
+  font-size: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+}
+
+.ed .ed-page-also button:hover:not(:disabled) {
+  text-decoration-color: var(--ed-oxide);
+}
+
+/* The readouts: what the page and the index show, as numbers. */
+.ed-readouts {
+  grid-area: read;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--ed-ink);
 }
 
 @media (min-width: 48rem) {
-  .wk-cols {
+  .ed-readouts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.ed-readouts > div {
+  padding: 0.7rem 1rem 0 0;
+}
+
+.ed-readouts > div + div {
+  padding-left: 1rem;
+  border-left: 1px solid var(--ed-hair);
+}
+
+@media (max-width: 48rem) {
+  .ed-readouts > div:nth-child(3) {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
+.ed-readouts dt {
+  color: var(--ed-ink-2);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ed-readouts dd {
+  margin: 0.15rem 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pinned: the stage holds still for a runway of seven page-lengths. The
+   pages stack in one frame, and each wipes up over the last, an ink edge
+   leading it. The query matches PINNED in ProgrammeStudy.tsx. */
+@media (min-width: 64rem) and (min-height: 42rem) and (prefers-reduced-motion: no-preference) {
+  .ed-study-runway {
+    height: calc(100svh - var(--ed-bar) + 7 * 30vh);
+  }
+
+  .ed-study-stage {
+    position: sticky;
+    top: var(--ed-bar);
+    height: calc(100svh - var(--ed-bar));
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 1.25rem 3rem;
+    padding-block: clamp(1.25rem, 3.5vh, 2.75rem);
+  }
+
+  .ed-study-stage .ed-h2 {
+    margin-bottom: 0.5rem;
+    font-size: clamp(2rem, 1rem + 2.2vw, 3.2rem);
+  }
+
+  .ed-study-stage .ed-intro {
+    margin: 0;
+  }
+
+  .ed-pages {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ed-page,
+  .ed-page:not(.is-active) {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    background: var(--ed-bone-2);
+    clip-path: inset(calc((1 - var(--w, 0)) * 100%) 0 0 0);
+    animation: none;
+  }
+
+  .ed-page::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc((1 - var(--w, 0)) * 100%);
+    height: 1px;
+    background: var(--ed-ink);
+  }
+}
+
+@keyframes ed-swap {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------ § 03 the registration, down the side */
+
+.ed-walk {
+  background: var(--ed-bone);
+}
+
+.ed .wk {
+  display: grid;
+  gap: 1.75rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 56rem) {
+  .ed .wk {
+    grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+    gap: 3.5rem;
+    align-items: start;
+  }
+}
+
+/* The steps run down a rule, drawn in oxide to the current one. */
+.ed .wk-steps {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 0 0 0 1.25rem;
+  list-style: none;
+}
+
+.ed .wk-steps::before,
+.ed .wk-steps::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+}
+
+.ed .wk-steps::before {
+  bottom: 0;
+  background: var(--ed-hair);
+}
+
+.ed .wk-steps::after {
+  height: calc(20% + 80% * var(--wk-progress, 0));
+  background: var(--ed-oxide);
+  transition: height 420ms var(--ed-ease);
+}
+
+.ed .wk-steps li {
+  position: relative;
+}
+
+.ed .wk-steps [data-state='current']::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: calc(-1.25rem - 4px);
+  width: 9px;
+  height: 9px;
+  translate: 0 -50%;
+  background: var(--ed-oxide);
+}
+
+.ed .wk-steps button,
+.ed .wk-steps button:hover:not(:disabled) {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.8rem 0.75rem 0.8rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--ed-hair);
+  color: var(--ed-ink-2);
+  letter-spacing: 0.08em;
+  text-align: left;
+}
+
+.ed .wk-steps [data-state='current'] button {
+  color: var(--ed-ink);
+}
+
+.ed .wk-num {
+  flex: none;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--ed-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.ed .wk-num::before {
+  content: '0';
+}
+
+.ed .wk-steps [data-state='current'] .wk-num {
+  color: var(--ed-oxide);
+}
+
+.ed .wk-step-title {
+  font-size: inherit;
+  font-weight: 500;
+}
+
+.ed .wk-panel {
+  padding: 1rem 0 0;
+  border: 0;
+  border-top: 1px solid var(--ed-ink);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.ed .wk-count {
+  margin: 0 0 0.75rem;
+  color: var(--ed-ink-2);
+  font-family: var(--ed-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ed .wk-body {
+  display: grid;
+  gap: 1rem;
+  animation: ed-swap 320ms var(--ed-ease) both;
+}
+
+.ed .wk-body > p {
+  margin: 0;
+}
+
+.ed .wk-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.ed .wk-head h3 {
+  margin: 0;
+  font-family: var(--ed-serif);
+  font-size: clamp(1.7rem, 1.2rem + 1.4vw, 2.4rem);
+  font-weight: 400;
+  font-stretch: normal;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+}
+
+.ed .wk-who {
+  color: var(--ed-ink-2);
+}
+
+.ed .wk-cols {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 48rem) {
+  .ed .wk-cols {
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   }
 }
 
-.wk-label {
-  margin: 0 0 var(--space-2);
-  font-size: 0.8rem;
-  font-weight: 650;
-  color: var(--muted);
+.ed .wk-label {
+  margin: 0 0 0.5rem;
+  color: var(--ed-oxide);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
-.wk-involves,
-.wk-checks {
+.ed .wk-involves,
+.ed .wk-checks {
   display: grid;
-  gap: var(--space-2);
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 0.93rem;
+  border-top: 1px solid var(--ed-hair);
+  font-size: 13px;
 }
 
-.wk-involves li {
-  position: relative;
-  padding-left: var(--space-4);
+.ed .wk-involves li,
+.ed .wk-checks li {
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--ed-hair);
 }
 
-.wk-involves li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.55em;
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 2px;
-  background: var(--reef-500);
+.ed .wk-involves li::before {
+  content: none;
 }
 
-.wk-checks li {
+.ed .wk-checks li {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--space-2);
+  grid-template-columns: 4rem minmax(0, 1fr);
+  gap: 0.75rem;
   align-items: baseline;
 }
 
-.wk-human,
-.wk-next {
-  padding: var(--space-3);
-  border-radius: var(--radius-sm);
-  font-size: 0.93rem;
-}
-
-.wk-human {
-  background: var(--bg-sunk);
-  border-left: 3px solid var(--reef-600);
-}
-
-.wk-next {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-}
-
-.wk-nav {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--space-2);
-  margin-top: var(--space-4);
-}
-
-.wk-nav [aria-disabled='true'] {
-  opacity: 0.5;
-  cursor: default;
-}
-
-/* --------------------------------------------- what connects (chain) */
-
-.home-split {
-  display: grid;
-  gap: var(--space-6);
-}
-
-@media (min-width: 64rem) {
-  .home-split {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    align-items: start;
-  }
-}
-
-.home-chain {
-  display: grid;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: chain;
-}
-
-.home-chain li {
-  position: relative;
-  display: grid;
-  gap: var(--space-1);
-  padding: 0 0 var(--space-5) var(--space-7);
-  counter-increment: chain;
-}
-
-/* Each link numbered, on a line that joins it to the next. */
-.home-chain li::before {
-  content: counter(chain);
-  position: absolute;
-  left: 0;
-  top: 0;
-  display: grid;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: var(--radius-full);
-  background: var(--reef-600);
-  color: #ffffff;
-  font-family: var(--font-mono);
-  font-weight: 500;
-}
-
-.home-chain li::after {
-  content: '';
-  position: absolute;
-  left: calc(1.125rem - 1px);
-  top: 2.25rem;
-  bottom: 0;
-  width: 2px;
-  background: var(--border);
-}
-
-.home-chain li:last-child::after {
-  display: none;
-}
-
-.home-chain p {
-  margin: 0;
-}
-
-.home-chain-when {
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  font-weight: 700;
-  font-stretch: 87.5%;
-}
-
-.home-chain-then {
-  color: var(--subtle);
-}
-
-.home-chain code {
+.ed .wk-checks code {
   justify-self: start;
 }
 
-/* ----------------------------------------------------------- trust */
+.ed .wk-human,
+.ed .wk-next {
+  padding: 0.85rem 0 0.85rem 1rem;
+  border: 0;
+  border-left: 1px solid var(--ed-ink);
+  border-radius: 0;
+  background: none;
+  color: var(--ed-ink-2);
+  font-size: 13px;
+}
 
-.home-trust {
+.ed .wk-human strong,
+.ed .wk-next strong {
+  color: var(--ed-ink);
+}
+
+.ed .wk-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.ed .wk-nav .button:not(.secondary),
+.ed .wk-nav .button:not(.secondary):hover:not(:disabled) {
+  border-color: var(--ed-ink);
+  background: var(--ed-ink);
+  color: var(--ed-bone);
+}
+
+.ed .wk-nav .button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.ed .wk-nav [aria-disabled='true'],
+.ed .wk-nav [aria-disabled='true']:hover:not(:disabled) {
+  opacity: 0.45;
+  transform: none;
+  cursor: default;
+}
+
+/* ------------------------------------- § 04 material and practice */
+
+.ed-split {
   display: grid;
-  gap: var(--space-6);
-  margin-top: var(--space-5);
+  gap: 2rem 4rem;
 }
 
 @media (min-width: 64rem) {
-  .home-trust {
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
+  .ed-split {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
     align-items: start;
   }
 }
 
-.home-trust dl {
+.ed-bounds {
+  margin-top: clamp(3.5rem, 9vw, 7rem);
+}
+
+.ed-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--ed-ink);
+}
+
+.ed-rows li {
+  position: relative;
   display: grid;
-  gap: var(--space-5) var(--space-6);
+  grid-template-columns: 8.5rem minmax(0, 1fr) 10.5rem;
+  gap: 0.4rem 1.5rem;
+  padding-block: 1.15rem;
+  border-bottom: 1px solid var(--ed-hair);
+}
+
+/* A rule that runs in along the row's foot as it is read. */
+.ed-rows li::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 1px;
+  background: var(--ed-ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 520ms var(--ed-ease);
+}
+
+.ed-rows li:hover::after {
+  transform: scaleX(1);
+}
+
+.ed-row-no {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--ed-ink-2);
+  letter-spacing: 0.12em;
+}
+
+.ed-row-label {
+  padding-top: 0.4rem;
+  color: var(--ed-oxide);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ed-row-body p {
   margin: 0;
 }
 
-@media (min-width: 48rem) {
-  .home-trust dl {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+.ed-row-body .ed-row-q {
+  margin-bottom: 0.4rem;
+  font-family: var(--ed-serif);
+  font-size: 1.4rem;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+}
+
+.ed-row-a {
+  color: var(--ed-ink-2);
+  font-size: 13px;
+}
+
+.ed-row-class {
+  padding-top: 0.45rem;
+  color: var(--ed-ink-2);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+@media (max-width: 48rem) {
+  .ed-rows li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ed-row-label,
+  .ed-row-class {
+    padding-top: 0;
+    text-align: left;
+    white-space: normal;
   }
 }
 
-.home-trust dl > div {
-  padding-top: var(--space-3);
-  border-top: 2px solid var(--reef-700);
+/* ------------------------------------------- § 05 the team sheet */
+
+.ed-table {
+  width: 100%;
+  margin-top: 2.5rem;
+  border-collapse: collapse;
+  border-top: 1px solid var(--ed-ink);
+  font-size: inherit;
 }
 
-.home-trust dt {
-  margin-bottom: var(--space-2);
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 700;
-  font-stretch: 87.5%;
-  color: #ffffff;
+.ed .ed-table :is(th, td) {
+  padding: 1rem 1rem 1rem 0;
+  border: 0;
+  background: none;
+  vertical-align: baseline;
+  white-space: normal;
 }
 
-.home-trust dd {
-  margin: 0;
-  font-size: 0.95rem;
-  color: rgb(248 250 252 / 78%);
+.ed .ed-table thead th {
+  padding-block: 0.8rem;
+  color: var(--ed-ink-2);
+  font-family: var(--ed-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
-/* The Assistant's note, as the coach's workspace shows it: the one place
-   on this page electric volt appears, because it marks only the Assistant. */
-.home-ai {
-  margin: 0;
-  padding: var(--space-4);
-  background: var(--surface);
-  border: 1px solid var(--highlight);
-  border-radius: var(--radius);
-  color: var(--text);
+/* Each area opens with its name in oxide, ruled in ink. */
+.ed .ed-table .ed-table-area th {
+  padding: 1.75rem 0 0.55rem;
+  border-bottom: 1px solid var(--ed-ink);
+  color: var(--ed-oxide);
+  font-family: var(--ed-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
-.home-ai figcaption {
-  display: flex;
+.ed .ed-table tbody tr:not(.ed-table-area) {
+  border-bottom: 1px solid var(--ed-hair);
+}
+
+.ed .ed-table tbody tr:not(.ed-table-area):hover {
+  background: rgb(26 25 23 / 3%);
+}
+
+.ed .ed-table tbody tr.ed-table-area:hover {
+  background: none;
+}
+
+.ed .ed-table tbody tr:not(.ed-table-area) th {
+  color: var(--ed-ink);
+  font-family: var(--ed-serif);
+  font-size: clamp(15px, 1.5vw, 21px);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  text-transform: none;
+}
+
+.ed .ed-table td {
+  color: var(--ed-ink-2);
+  font-size: 12.5px;
+}
+
+.ed-mark-status {
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-  font-size: 0.8rem;
-  font-weight: 700;
+  gap: 0.55em;
+  color: var(--ed-ink);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.home-ai-mark {
-  width: 1.1rem;
-  height: 1.1rem;
-  border-radius: var(--radius-full);
-  background: var(--highlight);
+.ed-mark-status::before {
+  content: '';
+  width: 0.62em;
+  height: 0.62em;
+  background: var(--ed-ink);
 }
 
-.home-ai p {
-  margin: 0;
-  font-size: 0.92rem;
+.ed-mark-status.is-simulated::before {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ed-oxide);
 }
 
-.home-ai .home-ai-foot {
-  margin-top: var(--space-3);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--border);
-  font-size: 0.8rem;
-  font-style: italic;
-  color: var(--muted);
+.ed-mark-status.is-advisory::before {
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ed-ink);
 }
 
-/* ---------------------------------------------------------- motion */
+/* A narrow screen keeps every fact, two columns to a row: the capability
+   and its status, then what it addresses, then its people. The roles on
+   the table keep its semantics when it stops displaying as one. */
+@media (max-width: 48rem) {
+  .ed-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
 
-@keyframes home-draw {
-  to { stroke-dashoffset: 0; }
+  .ed-table,
+  .ed-table tbody,
+  .ed .ed-table .ed-table-area,
+  .ed .ed-table .ed-table-area th {
+    display: block;
+  }
+
+  .ed .ed-table tbody tr:not(.ed-table-area) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'cap status'
+      'addr addr'
+      'who who';
+    gap: 0.35rem 1rem;
+    padding-block: 1rem;
+  }
+
+  .ed .ed-table tbody tr:not(.ed-table-area) :is(th, td) {
+    padding: 0;
+  }
+
+  .ed .ed-table tbody tr:not(.ed-table-area) th {
+    grid-area: cap;
+  }
+
+  .ed-td-status {
+    grid-area: status;
+  }
+
+  .ed-td-addr {
+    grid-area: addr;
+  }
+
+  .ed-td-who {
+    grid-area: who;
+  }
 }
 
-@keyframes home-rise {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: none; }
+/* --------------------------------------- the pilot, and the bookend */
+
+.ed-close {
+  position: relative;
+  overflow: clip;
+  padding-top: clamp(4.5rem, 11vw, 9rem);
+  border-top: 1px solid var(--ed-hair);
+  background: var(--ed-bone-2);
 }
 
-@keyframes home-swap {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: none; }
+.ed .ed-close-title {
+  max-width: 16ch;
+  font-size: clamp(2.6rem, 1.3rem + 4.2vw, 5.4rem);
+  line-height: 0.98;
 }
 
-@keyframes rx-draw {
-  from { stroke-dashoffset: 1; }
-  to { stroke-dashoffset: 0; }
+.ed-colophon {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 2rem;
+  margin: 3.5rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ed-hair);
+  color: var(--ed-ink-2);
+  font-size: 10.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
 }
 
-/* ScrollReveal marks what is still below the fold as waiting, then shown.
-   Without it (no script, reduced motion) nothing is ever marked, so
-   nothing is ever hidden. Transform only, so the layout never moves. */
+/* The bookend: the wordmark across the page, sunk so the page's edge cuts
+   its foot. Its letters draw together, from a little apart, as the page
+   ends. */
+.ed-endmark {
+  margin: clamp(2rem, 5vw, 4rem) 0 0;
+  font-family: var(--ed-serif);
+  font-size: clamp(40px, 20vw, 300px);
+  font-weight: 400;
+  line-height: 0.82;
+  letter-spacing: calc(-0.015em + (1 - var(--p)) * 0.03em);
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translateY(0.17em);
+  user-select: none;
+}
+
+/* ------------------------------------------------ the reveal grammar */
+
+/* ScrollReveal marks what is still below the fold as waiting, then
+   shown. Without it (no script, reduced motion) nothing is ever marked,
+   so nothing is ever hidden. Transform only, so the layout never moves;
+   `--i` staggers related elements 70ms apart. */
 [data-reveal] {
-  transition: opacity 560ms var(--ease), transform 560ms var(--ease);
+  transition:
+    opacity 640ms var(--ed-ease, var(--ease)) calc(var(--i, 0) * 70ms),
+    transform 640ms var(--ed-ease, var(--ease)) calc(var(--i, 0) * 70ms);
 }
 
 [data-reveal='waiting'] {

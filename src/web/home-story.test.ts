@@ -3,12 +3,14 @@ import { existsSync, readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 
 import {
-  CONNECTIONS,
-  HERO_TABS,
+  BOUNDARIES,
+  DEFINITIONS,
+  IDENTITY_ROLES,
   PEOPLE,
+  PRACTICE,
   ROLE_VIEWS,
-  TRUST,
   WALK_STEPS,
+  WORK,
   alsoHolds,
   citedRules,
   indexAfterKey,
@@ -16,6 +18,7 @@ import {
   previousStep,
   roleView,
   rolesHeldBy,
+  workByArea,
   type PersonId,
 } from './home-story.ts';
 
@@ -25,12 +28,15 @@ const rulesTable = readFileSync(
 );
 
 const everyText = (): string[] => [
-  ...HERO_TABS.flatMap((t) => [t.heading, ...t.rows.flatMap((r) => [r.label, r.status.word])]),
   ...ROLE_VIEWS.flatMap((v) => [v.problem, v.boundary, ...v.rows.flatMap((r) => [r.label, r.status.word])]),
   ...WALK_STEPS.flatMap((s) => [s.title, s.next, s.human ?? '', ...s.involves, ...s.checks.map((c) => c.text)]),
-  ...CONNECTIONS.flatMap((c) => [c.when, c.then]),
-  ...TRUST.map((t) => t.text),
+  ...IDENTITY_ROLES.map((r) => r.text),
+  ...DEFINITIONS.map((d) => d.text),
+  ...[...PRACTICE, ...BOUNDARIES].flatMap((r) => [r.question, r.answer]),
+  ...WORK.flatMap((w) => [w.capability, w.addresses]),
 ];
+
+const pageExists = (route: string): boolean => existsSync(new URL(`../app${route}/page.tsx`, import.meta.url));
 
 describe('the front door (scope 118)', () => {
   it('cites only rules that are rows in the business rules table', () => {
@@ -40,15 +46,13 @@ describe('the front door (scope 118)', () => {
   });
 
   it('names only screens that exist', () => {
-    for (const v of ROLE_VIEWS) {
-      for (const route of v.screen.routes) {
-        assert.ok(existsSync(new URL(`../app${route}/page.tsx`, import.meta.url)), route);
-      }
+    for (const route of [...ROLE_VIEWS.flatMap((v) => v.screen.routes), ...WORK.flatMap((w) => w.routes)]) {
+      assert.ok(pageExists(route), route);
     }
   });
 
   it('shows every status as a word, and no amount of money anywhere (BR78)', () => {
-    const rows = [...HERO_TABS.flatMap((t) => t.rows), ...ROLE_VIEWS.flatMap((v) => v.rows)];
+    const rows = ROLE_VIEWS.flatMap((v) => v.rows);
     for (const r of rows) assert.ok(r.status.word.trim(), r.label);
     for (const s of WALK_STEPS) assert.ok(s.status.word.trim(), s.id);
     for (const text of everyText()) assert.doesNotMatch(text, /[$€£]\s?\d|\d+\.\d{2}\b/, text);
@@ -90,5 +94,45 @@ describe('the front door (scope 118)', () => {
     assert.equal(last?.status.word, 'Complete');
     assert.ok(last?.checks.some((c) => c.br === 'BR60'));
     for (const s of WALK_STEPS.slice(0, -1)) assert.notEqual(s.status.word, 'Complete', s.id);
+  });
+});
+
+describe('the editorial front door (scope 120)', () => {
+  it('claims a capability as delivered only where it has a screen, and says what is simulated', () => {
+    for (const w of WORK) {
+      if (w.status === 'Advisory') assert.equal(w.routes.length, 0, w.capability);
+      else assert.ok(w.routes.length > 0, w.capability);
+    }
+    assert.equal(WORK.find((w) => w.capability === 'Paying an official online')?.status, 'Simulated');
+    assert.ok(BOUNDARIES.some((b) => /simulated/i.test(b.answer) && /no money moves/.test(b.answer)));
+  });
+
+  it('answers a practical question in every row, and never claims to replace Squadi', () => {
+    for (const r of [...PRACTICE, ...BOUNDARIES]) {
+      assert.ok(r.question.endsWith('?'), r.label);
+      assert.ok(r.answer.trim() && r.classification.trim(), r.label);
+    }
+    for (const text of everyText()) assert.doesNotMatch(text, /replac\w* Squadi/i, text);
+  });
+
+  it('draws five distinct roles round the one Person, each resting on a rule', () => {
+    assert.equal(IDENTITY_ROLES.length, 5);
+    assert.equal(new Set(IDENTITY_ROLES.map((r) => r.id)).size, 5);
+    for (const r of IDENTITY_ROLES) assert.ok(r.rules.length > 0, r.id);
+  });
+});
+
+describe('the matchday programme (scope 122)', () => {
+  it('tags each role of the drawing in a few words', () => {
+    for (const r of IDENTITY_ROLES) assert.ok(r.tag.trim() && r.tag.length <= 28, r.id);
+  });
+
+  it('groups every capability under one area, none lost and none twice', () => {
+    const groups = workByArea();
+    assert.deepEqual(
+      groups.map((g) => g.area),
+      ['Registration and families', 'Money', 'Match officials', 'Teams and academy', 'Club and season', 'Assistance'],
+    );
+    assert.deepEqual(groups.flatMap((g) => g.rows).map((r) => r.capability).sort(), WORK.map((r) => r.capability).sort());
   });
 });
