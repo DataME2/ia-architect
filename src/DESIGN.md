@@ -1,113 +1,135 @@
 ---
+name: "PitchPeople — Tactics Board"
+option: "C"
+defaultTheme: "dark"  # prefers-color-scheme: light switches to colorsLight
 colors:
-  background: "#f8fafc"
-  backgroundSunk: "#f1f5f9"
-  surface: "#ffffff"
-  surfaceSubtle: "#f8fafc"
-  foreground: "#0f172a"
+  background: "#0d2b20"
+  backgroundSunk: "#0a2219"
+  surface: "#12382a"
+  surfaceSubtle: "#184634"
+  foreground: "#f2f0e6"
   muted:
-    DEFAULT: "#64748b"
-    foreground: "#475569"
+    DEFAULT: "#b9c7bc"
+    foreground: "#dbe3dc"
   border:
-    DEFAULT: "#e2e8f0"
-    strong: "#cbd5e1"
+    DEFAULT: "#2b6049"
+    strong: "#6f9f88"
   primary:
-    DEFAULT: "#0f172a"
-    hover: "#1e293b"
-    soft: "#f1f5f9"
+    DEFAULT: "#f2f0e6"
+    hover: "#ffffff"
+    soft: "#1d523d"
+    foreground: "#12382a"
+  secondary:
+    DEFAULT: "#184634"
+    foreground: "#f2f0e6"
+  accent:  # the Assistant, and only the Assistant
+    DEFAULT: "#dbe9ff"
+    hover: "#c6dcff"
+    foreground: "#14233a"
+  signal:  # the style's highlight: live, now, this one
+    DEFAULT: "#f5d547"
+    foreground: "#12382a"
+  success:
+    DEFAULT: "#173f2c"
+    foreground: "#9df0c0"
+    indicator: "#7ee2a8"
+  warning:
+    DEFAULT: "#3a3a12"
+    foreground: "#f5d547"
+    indicator: "#f5d547"
+  destructive:
+    DEFAULT: "#4a1d1f"
+    foreground: "#ffb0b2"
+    indicator: "#ff8a8d"
+  info:
+    DEFAULT: "#173a4a"
+    foreground: "#a8dcf5"
+    indicator: "#6cc4ee"
+  rail:
+    DEFAULT: "#0a2219"
+    line: "#1d523d"
+    foreground: "#f2f0e6"
+    muted: "#b9c7bc"
+  magnet:
+    home: "#c62828"
+    away: "#2563eb"
+    you: "#f5d547"
+  frame: "#6b4b2e"
+colorsLight:
+  background: "#f6f7f4"
+  backgroundSunk: "#eceee8"
+  surface: "#ffffff"
+  surfaceSubtle: "#f1f3ee"
+  foreground: "#13211a"
+  muted:
+    DEFAULT: "#4f5f56"
+    foreground: "#34433a"
+  border:
+    DEFAULT: "#d3d9d2"
+    strong: "#7f8e85"
+  primary:
+    DEFAULT: "#12382a"
+    hover: "#184634"
+    soft: "#e1ece5"
     foreground: "#ffffff"
   secondary:
-    DEFAULT: "#f1f5f9"
-    foreground: "#0f172a"
-  accent:
-    DEFAULT: "#84cc16"
-    hover: "#65a30d"
-    foreground: "#0f172a"
+    DEFAULT: "#f1f3ee"
+    foreground: "#13211a"
+  accent:  # the Assistant, and only the Assistant
+    DEFAULT: "#dbe9ff"
+    hover: "#c6dcff"
+    foreground: "#14233a"
+  signal:  # the style's highlight: live, now, this one
+    DEFAULT: "#8a6d00"
+    foreground: "#ffffff"
   success:
-    DEFAULT: "#dcfce7"
-    foreground: "#14532d"
-    indicator: "#16a34a"
+    DEFAULT: "#dcf3e4"
+    foreground: "#0f5132"
+    indicator: "#12a150"
   warning:
-    DEFAULT: "#fef3c7"
-    foreground: "#78350f"
-    indicator: "#d97706"
+    DEFAULT: "#fff3c4"
+    foreground: "#6b4e00"
+    indicator: "#a87f00"
   destructive:
-    DEFAULT: "#fee2e2"
-    foreground: "#7f1d1d"
-    indicator: "#dc2626"
+    DEFAULT: "#fde2e2"
+    foreground: "#8a1c1c"
+    indicator: "#d32f2f"
   info:
-    DEFAULT: "#e0f2fe"
-    foreground: "#0c4a6e"
-    indicator: "#0284c7"
+    DEFAULT: "#dde9fb"
+    foreground: "#1e3a6e"
+    indicator: "#2563eb"
   rail:
-    DEFAULT: "#090d16"
-    line: "#1e293b"
-    foreground: "#f8fafc"
-    muted: "#94a3b8"
-colorsDark:
-  background: "#070b14"
-  backgroundSunk: "#02040a"
-  surface: "#0f172a"
-  surfaceSubtle: "#1e293b"
-  foreground: "#f8fafc"
-  muted:
-    DEFAULT: "#94a3b8"
-    foreground: "#cbd5e1"
-  border:
-    DEFAULT: "#1e293b"
-    strong: "#334155"
-  primary:
-    DEFAULT: "#38bdf8"
-    hover: "#7dd3fc"
-    soft: "#0c4a6e"
-    foreground: "#070b14"
-  secondary:
-    DEFAULT: "#1e293b"
-    foreground: "#f8fafc"
-  accent:
-    DEFAULT: "#a3e635"
-    foreground: "#070b14"
-  success:
-    DEFAULT: "#064e3b"
-    foreground: "#86efac"
-    indicator: "#4ade80"
-  warning:
-    DEFAULT: "#451a03"
-    foreground: "#fde047"
-    indicator: "#facc15"
-  destructive:
-    DEFAULT: "#450a0a"
-    foreground: "#fca5a5"
-    indicator: "#f87171"
-  info:
-    DEFAULT: "#0c4a6e"
-    foreground: "#7dd3fc"
-    indicator: "#38bdf8"
-  rail:
-    DEFAULT: "#02040a"
-    line: "#0f172a"
-    foreground: "#f8fafc"
-    muted: "#94a3b8"
+    DEFAULT: "#12382a"
+    line: "#1d523d"
+    foreground: "#f2f0e6"
+    muted: "#b9c7bc"
+  magnet:
+    home: "#c62828"
+    away: "#1d4ed8"
+    you: "#d4a800"
+  frame: "#9aa4a0"
 typography:
   fontFamily:
-    display: "'Saira', 'Arial Narrow', ui-sans-serif, system-ui, sans-serif"
-    sans: "'Public Sans', ui-sans-serif, system-ui, -apple-system, sans-serif"
-    mono: "'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace"
+    sans: "'Space Grotesk', ui-sans-serif, system-ui, sans-serif"
+    mono: "'Space Mono', ui-monospace, SFMono-Regular, monospace"
+    hand: "'Permanent Marker', 'Comic Sans MS', cursive"
   fontSize:
-    xs: "0.72rem"
-    sm: "0.85rem"
+    xs: "0.75rem"
+    sm: "0.875rem"
     base: "1rem"
-    lg: "1.125rem"
-    xl: "1.5rem"
-    2xl: "2rem"
+    lg: "1.25rem"
+    xl: "2.125rem"
+    2xl: "3.5rem"
+    hand: "clamp(2.5rem, 5vw, 4rem)"
   fontWeight:
     normal: "400"
     medium: "500"
     semibold: "600"
     bold: "700"
   lineHeight:
-    tight: "1.25"
-    normal: "1.55"
+    hand: "1"
+    tight: "1.2"
+    normal: "1.5"
 spacing:
   1: "0.25rem"
   2: "0.5rem"
@@ -119,124 +141,156 @@ spacing:
 rounded:
   sm: "6px"
   DEFAULT: "10px"
-  lg: "16px"
+  lg: "14px"
+  card: "4px"
   full: "999px"
 shadows:
-  xs: "0 1px 2px rgba(15, 23, 42, 0.05)"
-  sm: "0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04)"
-  md: "0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.04)"
-  lg: "0 12px 32px rgba(15, 23, 42, 0.12), 0 4px 8px rgba(15, 23, 42, 0.06)"
+  xs: "0 2px 0 rgb(0 0 0 / 25%)"
+  sm: "0 5px 0 -1px rgb(0 0 0 / 35%)"
+  magnet: "inset 0 -5px 0 rgb(0 0 0 / 22%), 0 6px 10px rgb(0 0 0 / 35%)"
+  card: "0 10px 18px -10px rgb(0 0 0 / 55%)"
 borderWidth:
-  DEFAULT: "1px"
+  DEFAULT: "2px"
+  frame: "6px"
+motion:
+  duration:
+    fast: "120ms"
+    base: "260ms"
+    magnet: "700ms"
+    chalk: "1100ms"
+  easing:
+    magnet: "cubic-bezier(0.5, 1.6, 0.4, 1)"
+    chalk: "ease-out"
+    pin: "cubic-bezier(0.3, 1.4, 0.5, 1)"
+  reducedMotion: "magnets jump, chalk lines appear drawn, cards appear pinned"
 ---
 
-# LTD - Football
+# PitchPeople — Tactics Board
 
-LTD - Football is a high-density, mission-critical administration design system built for Australian grassroots football. Its academy palette—Pitch Slate, Stadium Green, Trophy Gold, Card Red, and Electric Volt—gives a modern, athletic look while the visual language still prioritizes instant scanning, multi-role identity clarity, high operational speed under matchday pressure, and unequivocal accessibility.
+The Tactics Board is the coach's whiteboard turned into the club's interface: green felt, chalk lines, magnets you can move, index cards pinned to the board and arrows that draw themselves. Every role is a magnet, every task a card, every plan a drawing. It is hands-on and slightly scruffy on purpose, and it makes the platform feel like something the club does rather than something it fills in.
 
 ## Principles
 
-1. **No State by Hue Alone:** Every status indicator pairs a visual dot with an explicit textual state label. Never rely solely on color to communicate eligibility, approval, or arrears.
-2. **Electric Volt Belongs to the Assistant:** The high-visibility electric volt palette is reserved strictly for AI assistant suggestions, drafts, and guidance. It is never used for primary actions, warnings, or statuses.
-3. **Identity Rail is Immutable Across Lenses:** A user's core identity remain anchored in the persistent rail while switching operational context lenses across player, guardian, referee, coach, and administrator roles.
-4. **Speed Over Decor:** Controls are tuned for touch targets at the ground (minimum 44px) and high-contrast focus rings for fast keyboard traversal on club laptops.
+1. **No state by hue alone.** Statuses are a dot and a word in mono caps; on index cards the word is dark ink.
+2. **Magnets are things you can move.** Anything round and raised (roles, players) is interactive and answers with a springy move. Flat chalk is never interactive.
+3. **Chalk yellow means "look here".** `signal` (#f5d547) draws arrows, circles the number that matters, rings the selected magnet and marks you ("you are here"). It is never a button fill on the board.
+4. **The Assistant leaves a blue card.** `accent` (#dbe9ff), a pale blue index card labelled "Assistant · draft". It suggests; the coach decides.
+5. **One person in the middle.** On the home board you are the yellow magnet at the centre spot; every role runs out from you.
+6. **Fat fingers welcome.** Magnets are at least 52px, buttons 44px, and nothing needs precise dragging: a tap moves things.
 
 ## Color & Theming
 
-The system employs a dual-theme architecture (Light Slate & Pitch Night). Surface layers stack systematically: page background (`background`), sunken containers (`backgroundSunk`), default cards (`surface`), and elevated panels (`surfaceSubtle`).
+Dark-first ("Felt", `colors`), with a light "Whiteboard" counterpart (`colorsLight`) for bright clubrooms and projectors.
 
-- **Pitch Slate (`primary`):** Structure, primary navigation, brand identity, and primary call-to-actions.
-- **Stadium Green (`success`):** Cleared, ready, available, and verified statuses.
-- **Trophy Gold (`warning`):** Pending approvals, outstanding tasks, and demo tenant markers.
-- **Card Red (`destructive`):** Blocked clearances, expired compliance (WWCC), lapsed clearances, or irreversible actions.
-- **Electric Volt (`accent`):** Assistant notes, draft suggestions, and advisory guidance only.
-- **Identity Rail (`rail`):** Persistent pitch-black ground anchored across both light and dark operational modes.
-- **Turf (ground only):** Grass under the front door's bands: light turf with mown stripes, and deep turf for the floodlit pitch and the close (scope 119). Turf is a surface, never a status, so Stadium Green stays the one green that means ready. Muted text steps to `muted.foreground` on light turf to keep AA.
-
-In `globals.css` the ramps carry these names: `--slate-*`, `--stadium-*`, `--trophy-*`, `--redcard-*`, `--volt-*`, `--chalk-*` (neutrals) and `--turf-*`. Screens use the semantic aliases (`--accent`, `--ok-*`, `--warn-*`, `--stop-*`, `--highlight`, `--turf-ground`), never a ramp directly.
+- **Felt** (`background` #0d2b20, `surface` #12382a, `surfaceSubtle` #184634) with a faint brushed texture and chalk smudges (radial gradients at 4–5% white).
+- **Chalk** (`foreground` #f2f0e6, `muted` #b9c7bc): text, pitch markings at 35–55% opacity, primary buttons (chalk pill with felt text).
+- **Chalk yellow** (`signal`): arrows, rings, circles, the "you" magnet.
+- **Magnets** (`magnet.home` #c62828, `magnet.away` #2563eb, `magnet.you` #f5d547): team colours with white numbers at 19px bold (large text).
+- **Index cards** (#fbfaf4 with faint blue ruling): where work lands. Cards use dark ink text and the light status colours.
+- **Frame** (`frame` #6b4b2e): the wooden ledge under the header.
 
 ## Typography
 
-Type roles are strictly assigned across three self-hosted font families (scope 118). All three are SIL Open Font License faces, served as latin-subset woff2 from `public/fonts/`, with their licences in `public/fonts/licenses/`:
+- **Permanent Marker** (`hand`): headings and annotations only, never controls, never under 20px. It is the coach's handwriting.
+- **Space Grotesk** (`sans`): everything else.
+- **Space Mono** (`mono`): numbers on magnets, clocks, money, step names and status words.
 
-- **Display (`typography.fontFamily.display`): Saira**, variable on width (50–125%) and weight. Page titles (`h2`), the front door's headlines, eyebrows and the brand name, set semi-condensed (`font-stretch: 87.5%`) for titles and condensed (75–80%) for the front door, bold to extra-bold. The width axis is the football in the system: it reads as a kit number or a scoreboard, not a report heading.
-- **Interface and body (`typography.fontFamily.sans`): Public Sans**, variable on weight. Running text, labels, tables, forms, card titles (`h3`, semibold) and buttons. It was drawn for dense government services, and stays legible at small sizes on a club laptop.
-- **Data, rules and identifiers (`typography.fontFamily.mono`): IBM Plex Mono** (400, 500). Business rule tags (BR1, BR61), routes, timestamps, squad numbers and figures, where a 0 must never read as an O.
+## Spacing & Density
 
-Figures use tabular numbers (`font-variant-numeric: tabular-nums`) in every face.
-
-## Spacing, Sizing & Density
-
-Layout rhythm stays strictly on a 7-step scale:
-- `spacing.1` (0.25rem) & `spacing.2` (0.5rem): Micro gaps, badge padding, dot-label offsets.
-- `spacing.3` (0.75rem) & `spacing.4` (1rem): Standard input padding, list item gap, card inner padding.
-- `spacing.5` (1.5rem) & `spacing.6` (2rem): Grid gap, section spacing, page block margins.
-- `spacing.7` (3rem): Shell outer margins and major layout breaks.
-Interactive controls maintain a minimum height of `2.75rem` (44px) for field accessibility.
+The 7-step scale is unchanged. The board is the layout: a large 16:9 or 105:68 board on the left, a column of pinned cards on the right, wrapping under it on a phone.
 
 ## Shape & Elevation
 
-Surfaces rely on structured borders (`border.DEFAULT`) paired with purposeful elevation:
-- `rounded.sm` (6px): Inputs, buttons, status pills, and small badges.
-- `rounded.DEFAULT` (10px): Cards, table wrappers, panels, and forms.
-- `rounded.lg` (16px): Hero section, modal shells, and the identity rail.
-- `rounded.full` (999px): Avatar, filter chips, and pill badges.
-
-Shadows range from `shadows.xs` for quiet inline elements to `shadows.lg` for floating overlays and hero cards.
-
-## States & Interaction
-
-- **Hover:** Surface controls shift to `surfaceSubtle` or primary hover tones with smooth transition (`120ms` ease).
-- **Focus Visible:** Loud double focus treatment—2px solid primary outline with a 5px soft halo for immediate keyboard navigation visibility.
-- **Disabled:** Muted background (`backgroundSunk`) and subdued text (`muted.foreground`) with `cursor-not-allowed`.
-- **Selected / Active:** Active navigation links receive left accent border accents (`border-primary`) and soft primary background (`primary.soft`).
+- Magnets: circles with an inset bottom shade and a drop shadow (`shadows.magnet`).
+- Strips (tabs, chips, buttons): full pills with a 2px border; the active strip is chalk yellow.
+- Index cards: 4px corners, a red pin, a slight rotation (−1.5° to 1.2°), `shadows.card`.
+- The board has a 3px chalk frame; the header sits on a wooden ledge (`borderWidth.frame`).
 
 ## Motion
 
-All transitions use standard duration `180ms` (fast `120ms`) with cubic-bezier `cubic-bezier(0.2, 0.6, 0.3, 1)`. All motion strictly respects `prefers-reduced-motion: reduce` by setting durations to `0.01ms`.
+| Moment | What moves | Timing |
+| --- | --- | --- |
+| Role pick | The magnet pops (scale 1.14, yellow ring), a chalk arrow draws from you to it, a ring pulses | 260ms + 1100ms chalk |
+| Cards | Waiting cards drop in and settle at their tilt, staggered 90ms | 600ms `pin` |
+| Formation | Switching 4-3-3 / 4-4-2 / 3-5-2 slides every magnet to its new spot with a springy overshoot; the runs redraw | 700ms `magnet` |
+| Registration | A runner slides cone to cone along a dashed drill path | 800ms |
+| Cleared | A big chalk tick draws itself | 900ms |
+| Whiteboard | The number that needs attention gets a hand-drawn circle | 1400ms |
+| Approve | A claim card moves from "To approve" into "Approved" | 500ms `pin` |
 
-## Responsive & Accessibility
+Under reduced motion, magnets jump to place, chalk appears already drawn and cards appear pinned.
 
-- **Breakpoints:** Mobile layout collapses at `40rem` (640px) and `55rem` (880px) for navigation rails into toggle panels.
-- **Touch Targets:** All clickable areas maintain a minimum target of 44x44px.
-- **High Contrast:** Text and background pairs meet at least WCAG AA (4.5:1) in both Light Slate and Pitch Night modes; most reach AAA.
+## Imagery
+
+- The board is the image: pitch markings drawn in SVG with non-scaling chalk strokes.
+- Photos appear only on index cards (a polaroid with a pin) and on player profiles.
+- Stock (when added): free-licence training and coaching photos (Unsplash or Pexels) with the coach's annotations drawn over them in chalk yellow.
+
+## Interaction patterns (JavaScript)
+
+- **Role magnets**: tapping one sets the acting role, redraws the chalk arrow (path computed from the two positions), pulses the ring and re-pins the cards.
+- **Formation board**: positions per formation in percentages; magnets carry `left`/`top` transitions so a change animates for free; tapping a player shows their minutes on a pinned card.
+- **Drill-path wizard**: five cones; the runner's position is the current step's cone; Next is gated on required consent.
+- **Kanban approval**: approving moves a card between two columns, with counts updating.
+- **Hand-drawn emphasis**: an SVG ellipse with `stroke-dasharray` circles the metric that needs attention.
+
+## The four screens
+
+- **Home**: "Today's plan, Sam" board with five role magnets around you, the cards for the selected role, the Assistant's blue card.
+- **Matchday**: the score in marker, the clock in a chalk box, the formation switcher, the full board with home and away magnets and drawn runs, the selected player's card.
+- **Register**: "Registration drill", the cone path and runner, a clipboard card with the fields, the chalk tick.
+- **Committee**: "Committee whiteboard": four KPI frames (arrears circled), a two-column approval board, chalk-outlined weekly bars.
 
 ## Component Conventions
 
-- **Variant Naming:** `primary`, `secondary`, `ghost`, `destructive`, `outline`.
-- **Size Naming:** `sm`, `md`, `lg`.
-- **Status Pills:** Standardized status states: `cleared` (`success`), `pending` (`warning`), `blocked` (`destructive`), `info` (`info`), `neutral`.
-- **Composition Style:** Slot-based React functional components using clean tailwind utility classes, explicit ARIA roles, and keyboard navigation.
+- Variants: `primary` (chalk pill), `outline` (2px chalk pill), on cards `primary` becomes a felt pill.
+- Sizes: `md` 44px, magnets 52px (players) and 96px (roles).
+- Status: mono caps word and a raised dot.
 
 ## Content Guidance
 
-- **Labels:** Sentence casing for action buttons and labels ("Record result", "Withdraw clearance", "Submit registration").
-- **Rule Annotations:** Always format business rule citations using mono chips (e.g. `BR1`, `BR61`).
-- **Numeric Figures:** Use tabular numbers (`font-variant-numeric: tabular-nums`) for currency, squad numbers, and match scores.
+Coach's voice: imperative and brief. "Pick a magnet." "Tap a magnet. Switch the shape and watch them move." Annotations can be playful; labels and buttons stay plain.
+
+## Accessibility
+
+Contrast as specified (WCAG 2):
+
+| Pair | Where | Dark | Light |
+| --- | --- | --- | --- |
+| `foreground` on `background` | Body text on the page | 13.3:1 | 15.5:1 |
+| `foreground` on `surface` | Body text on cards | 11.3:1 | 16.7:1 |
+| `muted` on `surface` | Secondary text on cards | 7.4:1 | 6.8:1 |
+| `primaryFg` on `primary` | Label on the primary button | 11.3:1 | 12.9:1 |
+| `accentFg` on `accent` | Text on an Assistant note | 12.9:1 | 12.9:1 |
+| `signalFg` on `signal` | Text on a signal fill | 8.9:1 | 4.9:1 |
+| `okFg` on `okBg` | Cleared pill | 8.8:1 | 8.0:1 |
+| `warnFg` on `warnBg` | Waiting pill | 8.1:1 | 7.0:1 |
+| `stopFg` on `stopBg` | Blocked pill | 8.1:1 | 7.6:1 |
+| `infoFg` on `infoBg` | Info pill | 8.2:1 | 9.1:1 |
+| `railMuted` on `rail` | Small labels on the rail | 9.5:1 | 7.4:1 |
+| `borderStrong` on `surface` | Control borders (needs 3:1) | 4.3:1 | 3.4:1 |
+| `stopInd` on `surface` | Blocked dot (needs 3:1) | 5.7:1 | 5.0:1 |
+
+Magnet numbers are 19px bold (large text) at 5.6:1 on the home red. Focus is a 3px chalk-yellow outline offset 3px. Every magnet is a real `<button>` with an `aria-label` ("#9 Okafor, Striker").
 
 ## Do's and Don'ts
 
-- **Do** always pair status color pills with an explicit status label and dot indicator.
-- **Do** reserve `accent` (Electric Volt) exclusively for Assistant advice and draft notes.
-- **Do** use `font-mono` for all business rule citations (`BR1`, `BR2`) and financial quantities.
-- **Do** ensure interactive controls have minimum 44px touch target height.
-- **Don't** use hue alone to convey status or eligibility.
-- **Don't** use Electric Volt for primary buttons or warning alerts.
-- **Don't** omit ARIA roles and keyboard event handlers on custom interactive components.
-- **Don't** use raw hex colors or hardcoded pixel spacing when token classes exist.
-
-## Composition
-
-The system uses a split layout architecture: a fixed identity rail on the left (or collapsing rail in administration views) and a fluid content workspace on the right. Key flows structure data in high-density summary grids, data tables with scroll wrappers, and clear action button bars.
-
-Operational views prioritize key status chips at the top right of cards, clear section headers with eyebrows, and stacked form fields with hint texts and inline error notices.
+- **Do** make anything movable look like a magnet, and nothing else.
+- **Do** keep Permanent Marker for headings and notes.
+- **Do** keep pitch lines in chalk at 35–55%.
+- **Don't** use red magnets for errors: blocked is the status word and dot.
+- **Don't** require dragging; a tap must always do it.
+- **Don't** use chalk yellow as a button fill.
 
 ## Gaps & Decisions
 
-- **Academy palette (October 2026):** Replaced the Australian landscape palette (sand, reef, eucalyptus, ochre, oxide, desert orange) with Pitch Slate & Electric Volt. `globals.css` carries the same values, so every screen changes with it.
-- **Volt stays the Assistant's only.** The academy brief also proposed volt for calls to action, KPIs and active navigation; that would make the Assistant's colour an ordinary highlight, so Principle 2 is kept until the club decides otherwise.
-- **Dark rail muted text is `#94a3b8`, not the brief's `#64748b`:** that one is 4.3:1 on the dark rail, under WCAG AA for its small labels.
-- **Ramps renamed, values kept (scope 119):** the CSS ramps had kept the landscape names (reef, euc, ochre, oxide, desert, sand) after the academy palette replaced their values. They now carry the football names above, with every value unchanged, so no screen moves. Trophy Gold is still amber (`#d97706`). A truer gold would restyle every pending pill, so it waits for the workspace pass.
-- **The front door's premium layer (scope 119):** floodlight gradients, a perspective pitch, glass on the hero preview's frame only, a dark tactics board for the identity hub, and turf bands. Cartoon footballs, stock imagery and feature-card grids were left out, since they work against the clean, credible surface this system asks for. Everything is CSS and SVG, with no dependency.
-- **Font Fallbacks:** System UI fallbacks are configured alongside each face, and the display stack falls back to Arial Narrow so a condensed headline stays condensed.
-- **New type system (scope 118, October 2026):** Saira, Public Sans and IBM Plex Mono replace Archivo and DM Mono. One variable display face carries the athletic character through its width axis, so the interface face can be chosen for readability alone. The 27 KB Public Sans file now carries most of the text, which Archivo's 90 KB file used to. Still self-hosted: nothing is fetched at build or run time.
+- Replaces Pitch Slate and Electric Volt; volt is retired and the Assistant becomes a blue index card.
+- Dark-first (Felt); the Whiteboard theme is the light counterpart for projectors and sunlight.
+- Token names match the existing Tailwind layer; `signal`, `magnet.*` and `frame` are additions.
+- Space Grotesk, Space Mono and Permanent Marker are self-hosted as latin woff2 in `public/fonts/`, with their licences (scope 123).
+- **Applied as tokens first (scope 123).** `globals.css` and the Tailwind layer carry these values, and every colour in `globals.css` is a token. The magnets, index cards, motion patterns and the four screens are not built yet.
+- `--font-display` is Permanent Marker, so it stays on headings of 20px or more. Eyebrows, the brand name, small labels and initials fall back to Space Grotesk, and tallies to Space Mono.
+- The Whiteboard is also the print scheme, so paper is never felt.
+- A pressed chip is the active strip in chalk yellow, since a felt fill would vanish on felt.
+- `shadows.md` and `shadows.lg` are not in this file. The black versions are kept for the panels and popovers that use them.
+- Tailwind's type scale is not remapped, because the components' `text-lg` and `text-2xl` would jump to 2.125rem and 3.5rem. Only `text-hand` is added.

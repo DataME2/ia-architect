@@ -1,5 +1,5 @@
 /*
- * The LTD - Football design system's Tailwind layer (src/DESIGN.md).
+ * The Tactics Board design system's Tailwind layer (src/DESIGN.md).
  *
  * Three constraints shape it, all so the existing screens do not change:
  *
@@ -41,7 +41,7 @@
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
 
-  /* Pitch slate — structure and primary actions */
+  /* Chalk on felt — structure and primary actions */
   --color-primary: var(--accent);
   --color-primary-hover: var(--accent-hover);
   --color-primary-soft: var(--accent-soft);
@@ -49,10 +49,20 @@
   --color-secondary: var(--surface-2);
   --color-secondary-foreground: var(--text);
 
-  /* Electric volt — the Assistant's only (DESIGN.md Principle 2) */
+  /* The Assistant's blue — the Assistant's only (DESIGN.md Principle 4) */
   --color-accent: var(--highlight);
   --color-accent-hover: var(--highlight-hover);
-  --color-accent-foreground: var(--accent-text);
+  --color-accent-foreground: var(--highlight-text);
+
+  /* Chalk yellow — "look here", never a button fill (Principle 3) */
+  --color-signal: var(--signal);
+  --color-signal-foreground: var(--signal-text);
+
+  /* Magnets and the wooden ledge */
+  --color-magnet-home: var(--magnet-home);
+  --color-magnet-away: var(--magnet-away);
+  --color-magnet-you: var(--magnet-you);
+  --color-frame: var(--frame);
 
   /* Status families: background, text, and the dot beside it */
   --color-success: var(--ok-bg);
@@ -85,12 +95,26 @@
   --spacing-ds-6: var(--space-6);
   --spacing-ds-7: var(--space-7);
 
-  /* rounded / rounded-DEFAULT are the card radius (10px) */
+  /* rounded / rounded-DEFAULT are the panel radius (10px); rounded-card is
+     the index card's 4px, stated because the names coincide */
   --radius-DEFAULT: var(--radius);
+  --radius-card: 4px;
+
+  /* The coach's handwriting, headings of 20px or more only */
+  --font-hand: var(--font-display);
+  --text-hand: clamp(2.5rem, 5vw, 4rem);
+  --text-hand--line-height: 1;
+
+  /* Motion (DESIGN.md), stated because the names coincide */
+  --ease-magnet: cubic-bezier(0.5, 1.6, 0.4, 1);
+  --ease-chalk: ease-out;
+  --ease-pin: cubic-bezier(0.3, 1.4, 0.5, 1);
 
   /* Shadows are inlined by Tailwind, so they are stated here (DESIGN.md) */
-  --shadow-xs: 0 1px 2px rgb(15 23 42 / 5%);
-  --shadow-sm: 0 1px 3px rgb(15 23 42 / 8%), 0 1px 2px rgb(15 23 42 / 4%);
-  --shadow-md: 0 4px 12px rgb(15 23 42 / 8%), 0 2px 4px rgb(15 23 42 / 4%);
-  --shadow-lg: 0 12px 32px rgb(15 23 42 / 12%), 0 4px 8px rgb(15 23 42 / 6%);
+  --shadow-xs: 0 2px 0 rgb(0 0 0 / 25%);
+  --shadow-sm: 0 5px 0 -1px rgb(0 0 0 / 35%);
+  --shadow-md: 0 2px 6px rgb(0 0 0 / 45%), 0 12px 28px rgb(0 0 0 / 40%);
+  --shadow-lg: 0 4px 10px rgb(0 0 0 / 50%), 0 22px 46px rgb(0 0 0 / 48%);
+  --shadow-magnet: inset 0 -5px 0 rgb(0 0 0 / 22%), 0 6px 10px rgb(0 0 0 / 35%);
+  --shadow-card: 0 10px 18px -10px rgb(0 0 0 / 55%);
 }
