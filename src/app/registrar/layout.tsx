@@ -61,7 +61,9 @@ export default async function RegistrarLayout({
     ? await loadNotifications(client, user.id)
     : [];
 
-  return (
+  // Scope 125: the banner and the session strip head the content column, so
+  // the club menu runs from the bar to the foot of the window beside them.
+  const head = (
     <>
       {demo && (
         <p className="demo-banner" role="status">
@@ -76,6 +78,11 @@ export default async function RegistrarLayout({
         </div>
         {user !== null && tenant !== null && <NotificationBell notifications={notifications} />}
       </div>
+    </>
+  );
+
+  return (
+    <>
       {user !== null && tenant !== null ? (
         <RegistrarShell
           // Left, as on /me: the rail sits where the eye starts in every workspace.
@@ -86,10 +93,14 @@ export default async function RegistrarLayout({
             </Suspense>
           }
         >
+          {head}
           {children}
         </RegistrarShell>
       ) : (
-        children
+        <>
+          {head}
+          {children}
+        </>
       )}
     </>
   );

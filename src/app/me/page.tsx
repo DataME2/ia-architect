@@ -69,7 +69,7 @@ export default async function MePage({
   const personName = me.person?.name ?? (user.email ?? 'Signed in');
 
   return (
-    <div className="role-shell">
+    <div className="role-shell ws-frame">
       <IdentityRail
         personName={personName}
         legalName={me.person?.legalName ?? 'not linked to a person yet'}
@@ -81,7 +81,7 @@ export default async function MePage({
         signOut={signOutAction}
       />
 
-      <main className="work-body" id="main">
+      <main className="work-body ws-content" id="main">
         <div className="me-bell">
           <NotificationBell notifications={notifications} />
         </div>

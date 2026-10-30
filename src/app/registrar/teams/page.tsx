@@ -10,7 +10,6 @@ import {
   unclearedOfficials,
   type RosterEntry,
 } from '../../../web/team-view.ts';
-import { todayIn } from '../../../web/today.ts';
 import {
   calendarsForSeason,
   changeSentence,
@@ -25,7 +24,7 @@ import {
   loadTeamCompetitions,
   type TeamCompetition,
 } from '../../../data/team-competitions.ts';
-import { AddMemberForm, EnterCompetitionForm, NewTeamForm, RecordClearanceForm } from './TeamForms.tsx';
+import { AddMemberForm, EnterCompetitionForm, NewTeamForm } from './TeamForms.tsx';
 import { removeMemberAction, withdrawCompetitionAction } from './actions.ts';
 
 export const dynamic = 'force-dynamic';
@@ -244,14 +243,10 @@ export default async function TeamsPage({
     label: `${displayNameFor(person)} — ${fullLegalName(person)}`,
   });
 
-  // Two lists, because they answer different questions. A team roster can
-  // include a nine-year-old; a Working with Children Check cannot — a child
-  // is exempt from needing one (BR84), so offering them would invite a
-  // registrar to record something that cannot exist.
+  // A team roster can include a nine-year-old. Working with Children Checks,
+  // which only adults need (BR84), are recorded on their own screen
+  // (/registrar/clearances, scope 125).
   const people = (await loadAssignablePeople(client, tenant.clubId)).map(toOption);
-  const adults = (
-    await loadAssignablePeople(client, tenant.clubId, { adultsOnly: true, asAt: todayIn() })
-  ).map(toOption);
 
   // BR179: where each team plays, offered from the calendars this season covers.
   const canEdit = mayEditCompetitions(tenant.roles);
@@ -350,16 +345,11 @@ export default async function TeamsPage({
         </section>
       )}
 
-      <section className="card">
-        <h3 style={{ marginTop: 0 }}>Record a Working with Children Check</h3>
-        <p className="hint" style={{ marginTop: 0 }}>
-          Needed before anyone can be added as a coach, manager or team official. The check is
-          against the <strong>end of this season</strong> ({season.ends_on}), not against today
-          &mdash; a card expiring mid-season is caught now, with months to replace it, rather
-          than on the morning it lapses (BR54).
-        </p>
-        <RecordClearanceForm people={adults} />
-      </section>
+      <p className="hint">
+        A coach, manager or team official needs a verified Working with Children Check before they
+        can be added.{' '}
+        <a href={`/registrar/clearances?season=${encodeURIComponent(season.id)}`}>Record a check</a>
+      </p>
     </>
   );
 }

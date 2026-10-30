@@ -46,24 +46,27 @@ export const RegistrarShell = React.forwardRef<HTMLDivElement, RegistrarShellPro
     return (
       <div
         ref={ref}
-        className={cn('w-full mx-auto font-sans', maxWidth, className)}
+        // ws-frame (globals.css, scope 125): the frame runs the full width and
+        // pins the nav to the window's left edge from 64rem.
+        className={cn('ws-frame w-full mx-auto font-sans', maxWidth, className)}
         {...props}
       >
         {topBar && <div className="mb-ds-5">{topBar}</div>}
 
         <div
           className={cn(
-            'grid grid-cols-1 gap-ds-5 items-start',
+            'grid grid-cols-1 items-start',
             // One template only: cn() does not merge, so passing both would
-            // leave the winner to stylesheet order.
-            isNavRight ? 'md:grid-cols-[minmax(0,1fr)_260px]' : 'md:grid-cols-[260px_minmax(0,1fr)]'
+            // leave the winner to stylesheet order. lg, not md: on a tablet the
+            // nav folds above the page and the work gets the width.
+            isNavRight ? 'lg:grid-cols-[minmax(0,1fr)_17rem]' : 'lg:grid-cols-[17rem_minmax(0,1fr)]'
           )}
         >
           {/* Content. A <div>, not <main>: the page's single <main> landmark is
               the root layout's, and a second one is invalid. Normal flow, not a
               flex column, so every screen keeps its own vertical rhythm. */}
           {isNavRight && (
-            <div className="min-w-0 w-full order-2 md:order-1">
+            <div className="ws-content w-full order-2 lg:order-1">
               {children}
             </div>
           )}
@@ -74,8 +77,8 @@ export const RegistrarShell = React.forwardRef<HTMLDivElement, RegistrarShellPro
           {nav && (
             <div
               className={cn(
-                'w-full md:sticky md:top-ds-4 shrink-0',
-                isNavRight ? 'order-1 md:order-2' : 'order-1'
+                'ws-side w-full shrink-0',
+                isNavRight ? 'order-1 lg:order-2' : 'order-1'
               )}
             >
               {nav}
@@ -83,7 +86,7 @@ export const RegistrarShell = React.forwardRef<HTMLDivElement, RegistrarShellPro
           )}
 
           {!isNavRight && (
-            <div className="min-w-0 w-full order-2">
+            <div className="ws-content w-full order-2">
               {children}
             </div>
           )}

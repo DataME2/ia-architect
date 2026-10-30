@@ -29,6 +29,7 @@ export const REGISTRAR_NAV: readonly NavItem[] = [
   { href: '/registrar/duplicates', label: 'Duplicates', seasonScoped: false, group: 'Season' },
   { href: '/registrar/pack', label: 'Submission pack', seasonScoped: true, group: 'Season' },
   { href: '/registrar/reports', label: 'Reports', seasonScoped: true, group: 'Season' },
+  { href: '/registrar/clearances', label: 'Working with Children Checks', seasonScoped: true, group: 'Season' },
   { href: '/registrar/fixtures', label: 'Fixtures', seasonScoped: true, group: 'Match day' },
   { href: '/registrar/referees', label: 'Match officials', seasonScoped: true, group: 'Match day' },
   { href: '/registrar/designations', label: 'Designations', seasonScoped: true, group: 'Match day' },

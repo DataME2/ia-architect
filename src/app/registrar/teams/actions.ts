@@ -146,6 +146,7 @@ export async function recordClearanceAction(
   if (!result.ok) return formFailed(result.error);
 
   revalidatePath('/registrar/teams');
+  revalidatePath('/registrar/clearances');
   revalidatePath('/registrar/people');
   return formOk(
     verified
