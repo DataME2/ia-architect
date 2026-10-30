@@ -7,8 +7,11 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 - Migration 0100 was dry-run on DEV inside a rolled-back transaction, with
   every scenario of its test passing.
-- It is applied to DEV only with the product owner's approval, then to PROD
-  after their review.
+- It was applied by hand to DEV (`sxsloxdtpcjpdobwpwsm`) on 31 October 2026,
+  with the product owner's approval. PROD follows their review.
+- North Star FC's schedule is loaded on DEV (WP4). The season's existing
+  registrations were **not** re-priced: the product owner left that to the
+  treasurer, through *Current players*.
 
 [Scope 130](./130_the_clubs_fee_schedule.md) gave each club a fee schedule,
 but a registration still opened owing the season's single fee. On 30 October
@@ -84,6 +87,15 @@ They also asked for Season requirements to be livelier.
   the governing body reads them; for example, *U8 to U12* is ages 7 to 11.
   The standard lines are the community ones: MiniRoos, Metro, Seniors
   Metro, and FQ MiniRoos, Juniors and Seniors.
+- **Loaded on 31 October 2026.** The product owner chose to retire their two
+  test lines that the screenshots repeat (the FQ MiniRoos fee and the levy),
+  so the levy is not charged twice. Their two Academy lines are kept, not
+  standard, so they are charged only through the teams mapped to them.
+- **What *Current players* will show,** read on DEV without changing anything:
+  - ages 12 to 17: Metro $0, FQ Juniors $66 and the levy $50, so $116.00;
+  - age 10: MiniRoos $530, FQ MiniRoos $50 and the levy, so $630.00;
+  - a third and a fourth sibling at 8 and 9: $630.00 less 15% of $530, so $550.50 each;
+  - adults: Seniors Metro $440, FQ Seniors $130 and the levy, so $620.00.
 - **Outcome:** the club's real prices to review with.
 
 ## In scope / out of scope
