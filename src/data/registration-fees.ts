@@ -28,7 +28,7 @@ export async function loadRegistrationFees(client: SupabaseClient, clubId: strin
   const [lines, settings, terms] = await Promise.all([
     client
       .from('fee_line')
-      .select('id, kind, name, amount_cents, deposit_cents, min_age, max_age, admin_only')
+      .select('id, kind, name, amount_cents, deposit_cents, min_age, max_age, admin_only, standard')
       .eq('club_id', clubId)
       .eq('season_id', seasonId)
       .is('retired_at', null)
@@ -48,6 +48,7 @@ export async function loadRegistrationFees(client: SupabaseClient, clubId: strin
       minAge: r.min_age === null ? null : Number(r.min_age),
       maxAge: r.max_age === null ? null : Number(r.max_age),
       adminOnly: Boolean(r.admin_only),
+      standard: Boolean(r.standard),
     })),
     discountBps:
       settings.data === null ? DEFAULT_SIBLING_DISCOUNT_BPS : Number((settings.data as { sibling_discount_bps: number }).sibling_discount_bps),
@@ -72,6 +73,7 @@ export async function addFeeLine(client: SupabaseClient, clubId: string, seasonI
     min_age: line.minAge,
     max_age: line.maxAge,
     admin_only: line.adminOnly,
+    standard: line.standard,
   });
   return error === null ? { ok: true } : failed(error);
 }
@@ -106,4 +108,101 @@ export async function saveTerms(
     .from('registration_terms')
     .upsert({ club_id: clubId, body, placeholder_values: values, updated_at: new Date().toISOString() }, { onConflict: 'club_id' });
   return error === null ? { ok: true } : failed(error);
+}
+
+/** A team this season, and the club line its players are charged (0100). */
+export interface TeamLine {
+  readonly teamId: string;
+  readonly teamName: string;
+  readonly ageGroup: string | null;
+  readonly players: number;
+  readonly feeLineId: string | null;
+}
+
+export async function loadTeamLines(client: SupabaseClient, clubId: string, seasonId: string): Promise<TeamLine[]> {
+  const { data: teams } = await client
+    .from('team')
+    .select('id, name, age_group')
+    .eq('club_id', clubId)
+    .eq('season_id', seasonId)
+    .order('name');
+  const ids = ((teams ?? []) as { id: string }[]).map((t) => t.id);
+  if (ids.length === 0) return [];
+  const [{ data: maps }, { data: members }] = await Promise.all([
+    client.from('team_fee_line').select('team_id, fee_line_id').in('team_id', ids),
+    client.from('team_member').select('team_id').in('team_id', ids).eq('role', 'player'),
+  ]);
+  const line = new Map(((maps ?? []) as { team_id: string; fee_line_id: string }[]).map((m) => [m.team_id, m.fee_line_id]));
+  const count = new Map<string, number>();
+  for (const m of (members ?? []) as { team_id: string }[]) count.set(m.team_id, (count.get(m.team_id) ?? 0) + 1);
+  return ((teams ?? []) as { id: string; name: string; age_group: string | null }[]).map((t) => ({
+    teamId: t.id,
+    teamName: t.name,
+    ageGroup: t.age_group,
+    players: count.get(t.id) ?? 0,
+    feeLineId: line.get(t.id) ?? null,
+  }));
+}
+
+/** Charges a team's players this line, or (null) their age's standard line. */
+export async function saveTeamLine(
+  client: SupabaseClient,
+  clubId: string,
+  teamId: string,
+  feeLineId: string | null,
+): Promise<Done> {
+  const { error } =
+    feeLineId === null
+      ? await client.from('team_fee_line').delete().eq('club_id', clubId).eq('team_id', teamId)
+      : await client
+          .from('team_fee_line')
+          .upsert({ club_id: clubId, team_id: teamId, fee_line_id: feeLineId, updated_at: new Date().toISOString() }, { onConflict: 'team_id' });
+  return error === null ? { ok: true } : failed(error);
+}
+
+/** One registration this season: what it owes now, and what the schedule says it would. */
+export interface RepriceRow {
+  readonly registrationId: string;
+  readonly personName: string;
+  readonly status: string;
+  readonly hasPlan: boolean;
+  readonly paidCents: number;
+  readonly owesCents: number;
+  readonly lineName: string | null;
+  readonly siblingIndex: number;
+  readonly totalCents: number;
+  readonly wouldOweCents: number;
+}
+
+export async function previewSeasonPrices(client: SupabaseClient, clubId: string, seasonId: string): Promise<RepriceRow[]> {
+  const { data, error } = await client.rpc('app_preview_season_prices', { p_club_id: clubId, p_season_id: seasonId });
+  if (error !== null || data === null) return [];
+  return (data as Record<string, unknown>[]).map((r) => ({
+    registrationId: String(r.registration_id),
+    personName: String(r.person_name),
+    status: String(r.status),
+    hasPlan: Boolean(r.has_plan),
+    paidCents: Number(r.paid_cents),
+    owesCents: Number(r.owes_cents),
+    lineName: r.line_name === null ? null : String(r.line_name),
+    siblingIndex: Number(r.sibling_index),
+    totalCents: Number(r.total_cents),
+    wouldOweCents: Number(r.would_owe_cents),
+  }));
+}
+
+/** Applies the preview; returns how many registrations changed. */
+export async function repriceSeason(
+  client: SupabaseClient,
+  clubId: string,
+  seasonId: string,
+  includeComplete: boolean,
+): Promise<{ readonly changed: number } | { readonly error: string }> {
+  const { data, error } = await client.rpc('app_reprice_season', {
+    p_club_id: clubId,
+    p_season_id: seasonId,
+    p_include_complete: includeComplete,
+  });
+  if (error !== null) return failed(error) as { error: string };
+  return { changed: Number(data) };
 }

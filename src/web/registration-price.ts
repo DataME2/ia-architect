@@ -1,9 +1,10 @@
 /**
  * What a registration costs (BR195, scope 130), decided once and tested:
  *
- * - the club's fee line for the player, chosen by their age in the season
- *   (a line with no ages applies to everyone);
- * - plus the governing body's fee for that age;
+ * - the club's fee line for the player: their team's line, else the
+ *   cheapest *standard* line for their age, else the cheapest that fits
+ *   (`defaultLine`, as 0100's `registration_breakdown` chooses);
+ * - plus the governing body's fee for that age, chosen the same way;
  * - plus each levy;
  * - less the club's sibling discount on the **club line only**, for every
  *   player after the first that the same parent or guardian registered in
@@ -26,6 +27,16 @@ export interface FeeLine {
   readonly maxAge: number | null;
   /** Shown to the club only (*admin only* on the pilot club's schedule). */
   readonly adminOnly: boolean;
+  /** Charged to a player with no team yet, for their age (0100). */
+  readonly standard: boolean;
+}
+
+/**
+ * A player's age for a fee: the age they turn in the season's year, as the
+ * governing body counts age groups (an Under 9 turns eight).
+ */
+export function ageThisSeason(dateOfBirth: string, seasonStartsOn: string): number {
+  return Number(seasonStartsOn.slice(0, 4)) - Number(dateOfBirth.slice(0, 4));
 }
 
 export interface PriceLine {
@@ -53,6 +64,20 @@ export function linesFor(lines: readonly FeeLine[], kind: FeeKind, age: number):
 }
 
 /**
+ * The line a player of `age` is charged without a team: the cheapest standard
+ * line that fits, else the cheapest that fits, then by name. The same order
+ * as 0100's `registration_breakdown`, so the calculator agrees with the
+ * database.
+ */
+export function defaultLine(lines: readonly FeeLine[], kind: FeeKind, age: number): FeeLine | null {
+  return (
+    [...linesFor(lines, kind, age)].sort(
+      (a, b) => Number(b.standard) - Number(a.standard) || a.amountCents - b.amountCents || a.name.localeCompare(b.name),
+    )[0] ?? null
+  );
+}
+
+/**
  * The player's place among their guardian's registrations this season: 0 for
  * the first, 1 for the second, and so on. Earlier means opened earlier.
  */
@@ -67,7 +92,7 @@ export function priceRegistration({
   siblingIndex,
   discountBps,
 }: {
-  /** The club line chosen for this player, or null when the club has none. */
+  /** The player's club line (their team's, or `defaultLine`), or null when the club has none. */
   readonly clubLine: FeeLine | null;
   readonly lines: readonly FeeLine[];
   readonly age: number;
@@ -76,8 +101,8 @@ export function priceRegistration({
 }): Price {
   const out: PriceLine[] = [];
   if (clubLine !== null) out.push({ label: clubLine.name, cents: clubLine.amountCents });
-  const governing = linesFor(lines, 'governing', age)[0];
-  if (governing !== undefined) out.push({ label: governing.name, cents: governing.amountCents });
+  const governing = defaultLine(lines, 'governing', age);
+  if (governing !== null) out.push({ label: governing.name, cents: governing.amountCents });
   for (const levy of linesFor(lines, 'levy', age)) out.push({ label: levy.name, cents: levy.amountCents });
 
   const discountCents =

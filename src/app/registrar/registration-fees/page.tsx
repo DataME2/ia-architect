@@ -2,12 +2,12 @@ import { redirect } from 'next/navigation';
 
 import { Tabs } from '../../../components/ui/Tabs.tsx';
 import { loadSeasons, loadTenantContext } from '../../../data/queries.ts';
-import { loadRegistrationFees } from '../../../data/registration-fees.ts';
+import { loadRegistrationFees, loadTeamLines, previewSeasonPrices } from '../../../data/registration-fees.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { formatCents } from '../../../web/money.ts';
 import { STARTER_TERMS } from '../../../web/registration-fee-form.ts';
 import type { FeeKind, FeeLine } from '../../../web/registration-price.ts';
-import { AddFeeLine, DiscountForm, PricePreview, RetireFeeLine, TermsEditor } from './FeeScheduleForms.tsx';
+import { AddFeeLine, DiscountForm, FamilyPreview, RepricePanel, RetireFeeLine, TeamLineSelect, TermsEditor } from './FeeScheduleForms.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +19,9 @@ const GROUPS: readonly { readonly kind: FeeKind; readonly title: string }[] = [
 
 const TABS = [
   { id: 'schedule', label: 'Fee schedule' },
+  { id: 'teams', label: 'Teams' },
   { id: 'discount', label: 'Sibling discount' },
+  { id: 'players', label: 'Current players' },
   { id: 'terms', label: 'Terms' },
 ] as const;
 
@@ -37,8 +39,11 @@ function ages(l: FeeLine): string | null {
  * admin and the treasurer only, which 0099's policies enforce whatever this
  * page offers.
  *
- * What a registration opens owing still comes from the season's single fee
- * until the checkout (scope 130, WP4) prices it from this schedule.
+ * Since 0100 every registration opens owing what this schedule says:
+ * its team's line, else the standard line for the player's age (BR195). The
+ * Teams tab says which line each team is charged, and Current players brings
+ * the season's existing registrations onto the schedule, every change shown
+ * before it is applied.
  */
 export default async function RegistrationFeesPage({
   searchParams,
@@ -76,8 +81,14 @@ export default async function RegistrationFeesPage({
     );
   }
 
-  const fees = await loadRegistrationFees(client, tenant.clubId, season.id);
   const tab = TABS.find((t) => t.id === params.tab)?.id ?? 'schedule';
+  const [fees, teams, repricing] = await Promise.all([
+    loadRegistrationFees(client, tenant.clubId, season.id),
+    loadTeamLines(client, tenant.clubId, season.id),
+    // The preview is the admin's and the treasurer's (0100); the registrar does not see it.
+    tab === 'players' && mayWrite ? previewSeasonPrices(client, tenant.clubId, season.id) : Promise.resolve([]),
+  ]);
+  const clubLines = fees.lines.filter((l) => l.kind === 'club');
   const query = (id: string) => {
     const q = new URLSearchParams({ season: season.id });
     if (id !== 'schedule') q.set('tab', id);
@@ -134,6 +145,7 @@ export default async function RegistrationFeesPage({
                             <span className="fee-name">
                               {l.name}
                               {l.adminOnly && <em className="fee-admin"> Admin only</em>}
+                              {l.standard && <span className="pill pill-ok fee-standard">Standard</span>}
                               {ages(l) !== null && <span className="hint"> &middot; {ages(l)}</span>}
                             </span>
                             <span className="fee-amount">
@@ -154,7 +166,7 @@ export default async function RegistrationFeesPage({
                 <h3 id="fees-preview" style={{ marginTop: 0 }}>
                   What would a family pay?
                 </h3>
-                <PricePreview lines={fees.lines} bps={fees.discountBps} />
+                <FamilyPreview lines={fees.lines} bps={fees.discountBps} teams={teams} />
               </section>
               {mayWrite && (
                 <section className="card" aria-labelledby="fees-add">
@@ -166,6 +178,61 @@ export default async function RegistrationFeesPage({
               )}
             </div>
           </div>
+        )}
+
+        {tab === 'teams' && (
+          <section className="card" aria-labelledby="fees-teams" style={{ maxWidth: '52rem' }}>
+            <h3 id="fees-teams" style={{ marginTop: 0 }}>
+              Which line each team&rsquo;s players are charged
+            </h3>
+            <p className="hint" style={{ marginTop: 0 }}>
+              A player in a team pays its line; a player not yet in one pays the standard line for their age. Siblings in
+              different teams each pay their own team&rsquo;s line, and the discount comes off each later sibling&rsquo;s own.
+            </p>
+            {teams.length === 0 ? (
+              <p className="empty" style={{ margin: 0 }}>
+                No teams in {season.name} yet.
+              </p>
+            ) : !mayWrite ? (
+              <ul className="fee-lines">
+                {teams.map((t) => (
+                  <li key={t.teamId}>
+                    <span className="fee-name">{t.teamName}</span>
+                    <span>{clubLines.find((l) => l.id === t.feeLineId)?.name ?? <span className="hint">The standard line</span>}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="team-lines">
+                {teams.map((t) => (
+                  <TeamLineSelect key={t.teamId} team={t} clubLines={clubLines} />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {tab === 'players' && (
+          <section className="card" aria-labelledby="fees-players">
+            <h3 id="fees-players" style={{ marginTop: 0 }}>
+              Bring this season&rsquo;s players onto the schedule
+            </h3>
+            {!mayWrite ? (
+              <p style={{ margin: 0 }}>The admin and the treasurer re-price the season&rsquo;s registrations (BR196).</p>
+            ) : repricing.length === 0 ? (
+              <p className="empty" style={{ margin: 0 }}>
+                {fees.lines.length === 0 ? 'Add the fee schedule first: with no lines, registrations keep the season’s own fee.' : 'No registrations in this season yet.'}
+              </p>
+            ) : (
+              <>
+                <p className="hint" style={{ marginTop: 0 }}>
+                  Each registration&rsquo;s price under the schedule today, less what has been paid. Nothing changes until you
+                  apply it, and each change is kept with what it was priced from.
+                </p>
+                <RepricePanel seasonId={season.id} rows={repricing} />
+              </>
+            )}
+          </section>
         )}
 
         {tab === 'discount' && (

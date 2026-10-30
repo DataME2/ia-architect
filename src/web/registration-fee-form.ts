@@ -14,6 +14,7 @@ export interface FeeLineInput {
   readonly minAge: number | null;
   readonly maxAge: number | null;
   readonly adminOnly: boolean;
+  readonly standard: boolean;
 }
 
 type Parsed<T> = { readonly ok: true; readonly value: T } | { readonly ok: false; readonly error: string };
@@ -35,6 +36,7 @@ export function parseFeeLine(fields: {
   readonly minAge: string;
   readonly maxAge: string;
   readonly adminOnly: boolean;
+  readonly standard: boolean;
 }): Parsed<FeeLineInput> {
   const kind = KINDS.find((k) => k === fields.kind);
   if (kind === undefined) return { ok: false, error: 'Choose what kind of fee this is.' };
@@ -66,7 +68,17 @@ export function parseFeeLine(fields: {
 
   return {
     ok: true,
-    value: { kind, name, amountCents: amount.cents, depositCents, minAge: minAge.value, maxAge: maxAge.value, adminOnly: fields.adminOnly },
+    value: {
+      kind,
+      name,
+      amountCents: amount.cents,
+      depositCents,
+      minAge: minAge.value,
+      maxAge: maxAge.value,
+      adminOnly: fields.adminOnly,
+      // A levy is charged to everyone it fits, so "standard" means nothing for it.
+      standard: kind !== 'levy' && fields.standard,
+    },
   };
 }
 

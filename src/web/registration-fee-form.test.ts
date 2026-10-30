@@ -12,6 +12,7 @@ const fields = {
   minAge: '8',
   maxAge: '12',
   adminOnly: true,
+  standard: true,
 };
 
 test('a line as the pilot club writes it', () => {
@@ -63,4 +64,10 @@ test('the starter terms name no particular club', () => {
   assert.equal(/northstar/i.test(STARTER_TERMS), false);
   assert.ok(placeholdersIn(STARTER_TERMS).includes('club'));
   assert.ok(placeholdersIn(STARTER_TERMS).includes('club_email'));
+});
+
+test('a levy is never "standard": it is charged to everyone it fits', () => {
+  const p = parseFeeLine({ ...fields, kind: 'levy', name: 'Volunteer levy', amount: '50', minAge: '', maxAge: '' });
+  assert.ok(p.ok);
+  assert.equal(p.value.standard, false);
 });
