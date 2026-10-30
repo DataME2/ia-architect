@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { loadTenantContext } from '../../../data/queries.ts';
-import { addFeeLine, retireFeeLine, saveSiblingDiscount, saveTerms } from '../../../data/registration-fees.ts';
+import { addFeeLine, repriceSeason, retireFeeLine, saveSiblingDiscount, saveTeamLine, saveTerms } from '../../../data/registration-fees.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { formFailed, formOk, type FormResult } from '../../../web/form-result.ts';
 import { parseDiscount, parseFeeLine, termsValues } from '../../../web/registration-fee-form.ts';
@@ -33,6 +33,7 @@ export async function addFeeLineAction(_previous: FormResult, formData: FormData
     minAge: String(formData.get('minAge') ?? ''),
     maxAge: String(formData.get('maxAge') ?? ''),
     adminOnly: formData.get('adminOnly') === 'on',
+    standard: formData.get('standard') === 'on',
   });
   if (!parsed.ok) return formFailed(parsed.error);
   const seasonId = String(formData.get('seasonId') ?? '');
@@ -75,4 +76,35 @@ export async function saveTermsAction(_previous: FormResult, formData: FormData)
   if ('error' in done) return formFailed(done.error);
   revalidatePath(PATH);
   return formOk('Terms saved. Families will read them as previewed.');
+}
+
+export async function saveTeamLineAction(_previous: FormResult, formData: FormData): Promise<FormResult> {
+  const c = await club();
+  if (c === null) return formFailed('Sign in first.');
+  const line = String(formData.get('feeLineId') ?? '');
+  const done = await saveTeamLine(c.client, c.clubId, String(formData.get('teamId') ?? ''), line === '' ? null : line);
+  if ('error' in done) return formFailed(done.error);
+  revalidatePath(PATH);
+  return formOk(line === '' ? 'Its players are charged their age\u2019s standard line.' : 'Saved. New registrations in this team are charged this line.');
+}
+
+/**
+ * Brings the season's registrations onto the schedule (BR195), once the
+ * treasurer has seen every change. A registration on a payment plan is left
+ * alone: its plan's total is what the family agreed.
+ */
+export async function repriceSeasonAction(_previous: FormResult, formData: FormData): Promise<FormResult> {
+  if (formData.get('confirm') !== 'on') return formFailed('Tick the box to confirm you have read the changes.');
+  const seasonId = String(formData.get('seasonId') ?? '');
+  const c = await club();
+  if (c === null) return formFailed('Sign in first.');
+  const done = await repriceSeason(c.client, c.clubId, seasonId, formData.get('includeComplete') === 'on');
+  if ('error' in done) return formFailed(done.error);
+  revalidatePath(PATH);
+  revalidatePath('/registrar');
+  return formOk(
+    done.changed === 0
+      ? 'Nothing needed changing: every registration already owes what the schedule says.'
+      : `${done.changed} registration${done.changed === 1 ? '' : 's'} now owe${done.changed === 1 ? 's' : ''} what the schedule says, less what was already paid.`,
+  );
 }

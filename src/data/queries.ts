@@ -947,21 +947,21 @@ export async function setSeasonRole(
 
 // ------------------------------------------ documents, fees, and BR2/BR3
 
-/** The season's registration configuration: the checklist, and the fee. */
+/**
+ * The season's checklist (BR2). The fee is the club's schedule since scope
+ * 130 (BR195); `season.registration_fee_cents` is left as it was, and still
+ * prices a registration only at a club with no schedule for the season.
+ */
 export async function updateSeasonRequirements(
   client: SupabaseClient,
   clubId: string,
   seasonId: string,
   requiredDocumentTypes: readonly string[],
-  registrationFeeCents: number,
   actorUserId: string,
 ): Promise<void> {
   const { error } = await client
     .from('season')
-    .update({
-      required_document_types: [...requiredDocumentTypes],
-      registration_fee_cents: registrationFeeCents,
-    })
+    .update({ required_document_types: [...requiredDocumentTypes] })
     .eq('id', seasonId)
     .eq('club_id', clubId);
   if (error !== null) throw new QueryError('season', error.message);
@@ -970,7 +970,7 @@ export async function updateSeasonRequirements(
     action: 'season_requirements_updated',
     entity: 'season',
     entityId: seasonId,
-    detail: { requiredDocumentTypes, registrationFeeCents, rules: ['BR2', 'BR3'] },
+    detail: { requiredDocumentTypes, rules: ['BR2'] },
   });
 }
 
