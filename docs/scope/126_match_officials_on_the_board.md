@@ -3,7 +3,10 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** **planned**, not built. To be built on its own branch.
+**Delivered as:** branch `claude/officials-board`, stacked on
+[scope 127](./127_club_settings_in_tabs.md). **WP1 and WP3 are built.** WP2
+waits for open question 120. WP4, WP5 and WP6's board motion are still
+planned, and WP5 needs a migration applied by hand.
 
 The product owner asked for three things on 30 October 2026:
 
@@ -39,11 +42,20 @@ actions. This document is the implementation plan.
 
 ## Work packages and deliverables
 
-### WP1 — The figures (pure, tested)
+### WP1 — The figures (pure, tested) — built
 
 - **Deliverables:** `src/web/official-figures.ts` and its tests, computing one
-  official's season from `match_official_appointment`, `fixture` and the match
-  verification:
+  official's record from `match_official_appointment` and `fixture` (read by
+  `src/data/official-record.ts`). As built:
+  - **Reliability:** matches officiated ÷ commitments that have come due
+    (an accepted match whose day has passed, or a withdrawal). A match still
+    to come proves nothing yet.
+  - **Cancellation rate:** withdrawals ÷ everything accepted. A decline is
+    availability, not a cancellation.
+  - A fixture that was cancelled, abandoned or forfeited counts for nobody.
+  - Hours wait for question 120.
+
+  As planned:
   - **Reliability:** matches officiated ÷ appointments accepted.
   - **Cancellation rate:** withdrawals after acceptance, with a reason ÷
     appointments accepted (BR42, BR112).
@@ -61,14 +73,24 @@ actions. This document is the implementation plan.
 - **Outcome:** hours come from something written down rather than a
   guessed ninety minutes.
 
-### WP3 — The coordinator's official page
+### WP3 — The coordinator's official page — built
 
-- **Deliverables:** `src/app/registrar/referees/[personId]/page.tsx`. It has:
+- **Deliverables:** `src/app/registrar/referees/[personId]/page.tsx`, linked
+  from each name on Match officials. It has:
   - the profile card (classification, credentials sighted, this weekend's
     availability) and the four figures;
   - the history table, with a CSV export like scope 111's;
   - what is coming up, with the pinned-card offers;
   - quick actions: propose for a fixture, record a swap, open documents.
+- **As built:**
+  - the profile card, with the initials in flat chalk;
+  - the four figures rising in turn and counting up. The two hour figures
+    say *Waiting* with a dot and a word;
+  - *Coming up* as pinned cards dropping in;
+  - the history, with each decline's and withdrawal's reason, and a
+    *Propose for a fixture* action.
+  - The CSV export and the swap and documents actions wait for the board
+    (WP4).
 - **Outcome:** the draft's page, in the Tactics Board style.
 
 ### WP4 — The designations board

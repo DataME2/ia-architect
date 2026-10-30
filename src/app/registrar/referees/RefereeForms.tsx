@@ -453,7 +453,8 @@ export function RefereeRoster({
         return (
           <div className="card" key={referee.personId}>
             <h3 style={{ marginTop: 0 }}>
-              {referee.name}{' '}
+              {/* Scope 126: the official's own page, their figures and history. */}
+              <a href={`/registrar/referees/${referee.personId}`}>{referee.name}</a>{' '}
               {referee.officialNumber !== null && (
                 <span className="hint mono">{referee.officialNumber}</span>
               )}
