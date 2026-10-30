@@ -124,4 +124,7 @@ actions. This document is the implementation plan.
 
 - **Q120.** Which source sets the match length per age group: Football
   Queensland's published durations, the competition's rules, or the club?
-  WP2 seeds from the first until answered.
+  **Waiting for the governing body's instructions (30 October 2026).** Until
+  they arrive, WP2 is not built and total hours and the average per season
+  are not shown. Reliability and the cancellation rate need no lengths, so
+  WP1 ships without the two hour figures.

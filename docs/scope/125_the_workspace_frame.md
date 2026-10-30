@@ -99,7 +99,9 @@ its own scope, written before it is built.
   - Is a player's line decided by their age group, by a programme the
     family chooses, or both?
   - Who is a sibling: the same guardian, the same family email, or a linked
-    Person?
+    Person? **Answered 30 October 2026:** another player registered by the
+    same parent or guardian. The amount of each discount is the club's to
+    set.
   - Does a discount apply to the club fee only, or to the governing body's
     fee too?
 - **The hero media.**
@@ -122,6 +124,10 @@ its own scope, written before it is built.
 
 - **Q118.** How is a player matched to a fee line, who counts as a sibling,
   and which fees does a discount reduce? Asked here, applied by initiative 1.
+  **Partially answered 30 October 2026:** a sibling is another player
+  registered by the same parent or guardian, and the discount for the 2nd,
+  3rd and subsequent player is an amount the club sets in its settings. The
+  fee line and which fees the discount reduces are still open.
 - **Q119.** May the hero backgrounds use the supplied machine-generated
   videos, overturning scope 32's rule for this use? What is the supplied
   photo's source and licence? **Answered 30 October 2026:** yes to the
