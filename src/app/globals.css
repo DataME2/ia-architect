@@ -209,6 +209,12 @@
   --crest-asset: none;
   --motif-layer: none;
 
+  /* Photographs behind the banners (scope 128), credited in
+     public/media/README.md: a floodlit pitch at night, and a ball on the
+     grass by day. */
+  --photo-night: url('/media/floodlit-pitch.webp');
+  --photo-day: url('/media/ball-on-grass.webp');
+
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -1124,6 +1130,74 @@ h3 {
    hairline keeps it a panel rather than the background. */
 .hero {
   border: 1px solid var(--slate-700);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FOOTBALL BEHIND THE BANNERS — scope 128
+
+   Every banner (a page's .hero, the front door's hero band and sign-in's
+   side) stands on a photograph of a pitch, under a felt veil that is
+   densest where the words are, so chalk text keeps its contrast whatever
+   the photograph does behind it. The photograph drifts closer, slowly, as
+   a camera on a crane would; under reduced motion it holds still. Print
+   drops it, because paper is the Whiteboard.
+   ══════════════════════════════════════════════════════════════════════ */
+.hero {
+  --photo: var(--photo-day);
+}
+
+.auth-aside,
+.home-hero {
+  --photo: var(--photo-night);
+}
+
+.hero::before,
+.auth-aside::before,
+.home-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      100deg,
+      color-mix(in srgb, var(--slate-800) 96%, transparent) 0%,
+      color-mix(in srgb, var(--slate-800) 84%, transparent) 45%,
+      color-mix(in srgb, var(--slate-800) 45%, transparent) 100%
+    ),
+    var(--photo) center / cover no-repeat;
+  animation: photo-drift 26s var(--ease) infinite alternate;
+}
+
+/* The front door's band runs the window's width, as its other layers do. */
+.home-hero::before {
+  inset: 0 auto;
+  left: 50%;
+  width: 100vw;
+  translate: -50% 0;
+}
+
+@keyframes photo-drift {
+  to {
+    scale: 1.08;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero::before,
+  .auth-aside::before,
+  .home-hero::before {
+    animation: none;
+  }
+}
+
+@media print {
+  .hero::before,
+  .auth-aside::before,
+  .home-hero::before {
+    display: none;
+  }
 }
 
 /* ------------------------------------------------------------ cards */
