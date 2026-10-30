@@ -85,7 +85,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         role={onClick && !href ? 'button' : undefined}
         tabIndex={onClick && !href ? 0 : undefined}
         className={cn(
-          'relative overflow-hidden rounded-card border transition-all duration-180 flex flex-col justify-between text-foreground',
+          'ds-card relative overflow-hidden rounded-card border transition-all duration-180 flex flex-col justify-between text-foreground',
           variantStyles[variant],
           paddingStyles[padding],
           isInteractive &&

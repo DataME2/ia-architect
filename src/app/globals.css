@@ -6987,6 +6987,182 @@ html:has(.home) {
   font-weight: 400;
 }
 
+/* Sponsors' showcase (scope 129): a wall of campaign cards, each with its
+   creative (or the sponsor's monogram in flat chalk, since it is not
+   something to tap), what it says, how it is paid and what it has done.
+   The card leans toward a mouse (TiltCard). */
+.sponsor-wall {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: var(--space-5);
+}
+
+.sponsor-tile {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.sponsor-tile:hover {
+  border-color: var(--border-strong);
+}
+
+.sponsor-art {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 7;
+  border-bottom: 1px solid var(--border);
+  background:
+    radial-gradient(ellipse at 30% 20%, color-mix(in srgb, var(--chalk-50) 6%, transparent), transparent 60%),
+    var(--slate-800);
+}
+
+.sponsor-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sponsor-mono {
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, var(--chalk-50) 70%, transparent);
+  color: var(--chalk-50);
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+}
+
+.sponsor-body {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-4);
+}
+
+.sponsor-body p {
+  margin: 0;
+}
+
+.sponsor-kind {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sponsor-headline {
+  font-weight: 600;
+}
+
+.sponsor-paid {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.sponsor-figs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font-size: 0.85rem;
+}
+
+.sponsor-figs b {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+}
+
+/* The Committee Hub's storage set-up card (scope 129): five numbered
+   steps, each ticked off in chalk as the IT Manager goes. */
+.hub-setup {
+  max-width: 46rem;
+  margin-top: var(--space-6);
+}
+
+.setup-steps {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.setup-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.setup-steps li p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.setup-steps li.is-done b {
+  color: var(--muted);
+}
+
+.setup-tick,
+.setup-tick:hover:not(:disabled) {
+  position: relative;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.setup-tick .setup-n {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.setup-steps li.is-done .setup-n {
+  opacity: 0;
+}
+
+.setup-tick svg {
+  position: absolute;
+  inset: 4px;
+  width: 32px;
+  height: 32px;
+  fill: none;
+  stroke: var(--ok-dot);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.setup-tick svg path {
+  stroke-dasharray: 1;
+  animation: tick-draw 500ms var(--ease-chalk) both;
+}
+
+@keyframes tick-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .setup-tick svg path {
+    animation: none;
+  }
+}
+
 /* One match official (scope 126), after the Superdesign draft *Referee
    Profile Detail*: the profile card, four figures rising in turn, what is
    coming up on pinned cards, and the history. The initials are flat chalk,

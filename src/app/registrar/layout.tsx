@@ -9,6 +9,7 @@ import { createRequestClient, currentUser } from '../../data/server.ts';
 import { isDemoClub } from '../../web/nav.ts';
 import { NotificationBell } from './_components/NotificationBell.tsx';
 import { RegistrarNav } from './_components/RegistrarNav.tsx';
+import { WorkspaceMotion } from '../_components/WorkspaceMotion.tsx';
 import { SessionStrip } from './_components/SessionStrip.tsx';
 
 /**
@@ -95,6 +96,10 @@ export default async function RegistrarLayout({
         >
           {head}
           {children}
+          {/* Scope 129: cards rise into place as they scroll in. */}
+          <Suspense fallback={null}>
+            <WorkspaceMotion />
+          </Suspense>
         </RegistrarShell>
       ) : (
         <>

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { CountUp } from '../../../components/ui/CountUp.tsx';
 import { IdentityRail } from '../../../components/ui/IdentityRail.tsx';
@@ -9,6 +10,7 @@ import { PinnedCard } from '../../../components/ui/PinnedCard.tsx';
 import { StatusPill } from '../../../components/ui/StatusPill.tsx';
 import { Tabs } from '../../../components/ui/Tabs.tsx';
 import { REGISTRAR_NAV } from '../../../web/nav.ts';
+import { WorkspaceMotion } from '../../_components/WorkspaceMotion.tsx';
 import type { RoleHolding } from '../../../web/role-context.ts';
 
 const HOLDINGS: RoleHolding[] = [
@@ -119,6 +121,9 @@ export default async function FramePreview({
           grid
         )}
       </div>
+      <Suspense fallback={null}>
+        <WorkspaceMotion />
+      </Suspense>
     </RegistrarShell>
   );
 }

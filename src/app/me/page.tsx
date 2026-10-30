@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { loadNotifications } from '../../data/inbox.ts';
 import { loadMe, type ClubLink } from '../../data/me.ts';
@@ -10,6 +11,7 @@ import { ROLE_LABEL, resolveActive, type RoleHolding } from '../../web/role-cont
 import { rangeFrom } from '../../web/academy.ts';
 import { todayIn } from '../../web/today.ts';
 import { IdentityRail } from '../_components/IdentityRail.tsx';
+import { WorkspaceMotion } from '../_components/WorkspaceMotion.tsx';
 import { NotificationBell } from '../registrar/_components/NotificationBell.tsx';
 import { signOutAction } from '../sign-in/actions.ts';
 import { CoachWorkspace } from './_workspaces/CoachWorkspace.tsx';
@@ -144,6 +146,10 @@ export default async function MePage({
         ) : (
           <Prompt me={me} notifications={notifications} />
         )}
+        {/* Scope 129: cards rise into place as they scroll in. */}
+        <Suspense fallback={null}>
+          <WorkspaceMotion />
+        </Suspense>
       </main>
     </div>
   );

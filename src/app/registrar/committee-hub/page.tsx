@@ -5,7 +5,9 @@ import { loadGovernance } from '../../../data/governance.ts';
 import { loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { HUB_KIND_LABEL } from '../../../web/committee-hub.ts';
+import { PinnedCard } from '../../../components/ui/PinnedCard.tsx';
 import { FileDocumentForm, HubSettingsForm, RemoveDocumentButton } from './HubForms.tsx';
+import { StorageSetup } from './StorageSetup.tsx';
 
 /**
  * The Management Committee Hub (scope 81, BR168): the committee's minutes
@@ -138,6 +140,19 @@ export default async function CommitteeHubPage() {
             approve an app registration; what it needs is in the SharePoint integration annex.
           </p>
         </div>
+      )}
+
+      {/* Scope 129: how to set up the club's own storage, for the one person
+          who can switch it. Shown while the hub still uses the platform. */}
+      {hub.mayControl && !sharepoint && (
+        <PinnedCard tilt={-0.8} className="hub-setup">
+          <h3 className="club-card-title">Set up the club&rsquo;s own storage</h3>
+          <p>
+            A club on Microsoft 365 can keep its committee files in its own SharePoint and file them here as links.
+            Tick each step as you go.
+          </p>
+          <StorageSetup />
+        </PinnedCard>
       )}
     </>
   );
