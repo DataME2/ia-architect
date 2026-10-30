@@ -6,8 +6,12 @@ import { loadFixtures } from '../../../data/performance.ts';
 import { loadPeopleRoleSummary, loadSeasons, loadTenantContext } from '../../../data/queries.ts';
 import { createRequestClient, currentUser } from '../../../data/server.ts';
 import { loadTeams } from '../../../data/teams.ts';
+import { CountUp } from '../../../components/ui/CountUp.tsx';
+import { PinnedCard } from '../../../components/ui/PinnedCard.tsx';
+import { Tabs } from '../../../components/ui/Tabs.tsx';
 import { formatMoney } from '../../../domain/finance/money.ts';
 import { COMMITTEE_POSITIONS, governingTerm, serving } from '../../../domain/governance/term.ts';
+import { CLUB_TABS, clubTab, clubTabHref } from '../../../web/club-tabs.ts';
 import { dayMonthYear, jurisdictionName, standingWord } from '../../../web/club-profile-view.ts';
 import { share } from '../../../web/dashboard-view.ts';
 import { POSITION_LABEL } from '../../../web/governance-view.ts';
@@ -27,11 +31,16 @@ export const dynamic = 'force-dynamic';
  * member policy (P5). Read-only on purpose. The draft's edit, upload and
  * upgrade buttons had nothing behind them; the screens that change a team
  * or the committee are linked instead.
+ *
+ * Since scope 127 it is in tabs, after the Superdesign draft *Tactics Board
+ * Settings*: the club's head stays put and each tab is a URL (`?tab=…`), so
+ * the server renders the right panel and the panel fades in when it
+ * changes. The figures count up as they appear.
  */
 export default async function ClubProfilePage({
   searchParams,
 }: {
-  readonly searchParams: Promise<{ readonly season?: string }>;
+  readonly searchParams: Promise<{ readonly season?: string; readonly tab?: string }>;
 }) {
   const client = await createRequestClient();
   const user = await currentUser(client);
@@ -65,6 +74,8 @@ export default async function ClubProfilePage({
   const toPlay = fixtures.filter((f) => f.played_on >= today).length;
   const registered = share(registrations.complete, registrations.total);
   const seasonQuery = season === null ? '' : `?season=${season.id}`;
+  const tab = clubTab(params.tab);
+  const tabs = CLUB_TABS.map((t) => ({ id: t.id, label: t.label, href: clubTabHref(t.id, season?.id ?? null) }));
 
   return (
     <div className="dash">
@@ -96,6 +107,7 @@ export default async function ClubProfilePage({
       {seasons.length > 1 && season !== null && (
         <form method="get" className="dash-season">
           <label htmlFor="season">Season</label>
+          {tab !== 'profile' && <input type="hidden" name="tab" value={tab} />}
           <select id="season" name="season" defaultValue={season.id}>
             {seasons.map((s) => (
               <option key={s.id} value={s.id}>
@@ -109,36 +121,63 @@ export default async function ClubProfilePage({
         </form>
       )}
 
-      <div className="dash-metrics is-five">
-        <div className="dash-metric">
-          <p className="dash-metric-label">People on record</p>
-          <p className="dash-metric-n">{people?.total ?? 0}</p>
-          <p className="dash-metric-note">{people?.unrostered ?? 0} with no role this season</p>
-        </div>
-        <div className="dash-metric is-light">
-          <p className="dash-metric-label">Teams</p>
-          <p className="dash-metric-n">{teams.length}</p>
-          <p className="dash-metric-note">{players} players on team sheets</p>
-        </div>
-        <div className="dash-metric is-light">
-          <p className="dash-metric-label">Fixtures</p>
-          <p className="dash-metric-n">{fixtures.length}</p>
-          <p className="dash-metric-note">{toPlay} still to play</p>
-        </div>
-        <div className="dash-metric is-light">
-          <p className="dash-metric-label">Registrations</p>
-          <p className="dash-metric-n">{registrations.total}</p>
-          <p className="dash-metric-note">this season</p>
-        </div>
-        <div className="dash-metric is-green">
-          <p className="dash-metric-label">Registered</p>
-          <p className="dash-metric-n">{registered === null ? '—' : `${registered}%`}</p>
-          <p className="dash-metric-note">confirmed by the federation</p>
-        </div>
-      </div>
+      <Tabs items={tabs} current={tab} label="Club settings" className="club-tabs" />
 
-      <div className="dash-grid">
-        <div className="dash-main">
+      <div key={tab} className="tab-panel">
+        {tab === 'profile' && (
+          <>
+            <div className="dash-metrics is-five">
+              <div className="dash-metric">
+                <p className="dash-metric-label">People on record</p>
+                <p className="dash-metric-n"><CountUp value={people?.total ?? 0} /></p>
+                <p className="dash-metric-note">{people?.unrostered ?? 0} with no role this season</p>
+              </div>
+              <div className="dash-metric is-light">
+                <p className="dash-metric-label">Teams</p>
+                <p className="dash-metric-n"><CountUp value={teams.length} /></p>
+                <p className="dash-metric-note">{players} players on team sheets</p>
+              </div>
+              <div className="dash-metric is-light">
+                <p className="dash-metric-label">Fixtures</p>
+                <p className="dash-metric-n"><CountUp value={fixtures.length} /></p>
+                <p className="dash-metric-note">{toPlay} still to play</p>
+              </div>
+              <div className="dash-metric is-light">
+                <p className="dash-metric-label">Registrations</p>
+                <p className="dash-metric-n"><CountUp value={registrations.total} /></p>
+                <p className="dash-metric-note">this season</p>
+              </div>
+              <div className="dash-metric is-green">
+                <p className="dash-metric-label">Registered</p>
+                <p className="dash-metric-n">{registered === null ? '—' : <CountUp value={registered} suffix="%" />}</p>
+                <p className="dash-metric-note">confirmed by the federation</p>
+              </div>
+            </div>
+            <div className="club-cards">
+              <section className="dash-card" aria-labelledby="club-contacts">
+                <h3 id="club-contacts">Contacts</h3>
+                {profile.contacts.length === 0 ? (
+                  <p className="hint">No contact is recorded.</p>
+                ) : (
+                  <dl className="dash-facts">
+                    {profile.contacts.map((c) => (
+                      <div key={c.kind}>
+                        <dt>{c.kind === 'primary' ? 'Primary contact' : 'Secondary contact'}</dt>
+                        <dd>
+                          {c.fullName}
+                          <br />
+                          <a href={`mailto:${c.email}`}>{c.email}</a>
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </section>
+            </div>
+          </>
+        )}
+
+        {tab === 'teams' && (
           <section className="dash-card" aria-labelledby="club-teams">
             <div className="dash-card-head">
               <h3 id="club-teams">Teams this season</h3>
@@ -177,7 +216,9 @@ export default async function ClubProfilePage({
               </div>
             )}
           </section>
+        )}
 
+        {tab === 'committee' && (
           <section className="dash-card" aria-labelledby="club-committee">
             <div className="dash-card-head">
               <h3 id="club-committee">The committee{term !== null && ` · ${term.name}`}</h3>
@@ -222,58 +263,87 @@ export default async function ClubProfilePage({
               </div>
             )}
           </section>
-        </div>
+        )}
 
-        <div className="dash-side">
-          <section className="dash-card is-dark" aria-labelledby="club-licence">
-            <h3 id="club-licence">Licence</h3>
-            <p>
-              <span className={licence.tone}>{licence.label}</span>
-            </p>
-            {profile.licence !== null && (
-              <dl className="dash-facts">
-                <div>
-                  <dt>Term</dt>
-                  <dd>
-                    {dayMonthYear(profile.licence.startsOn)} – {dayMonthYear(profile.licence.endsOn)}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Agreed fee</dt>
-                  <dd>
-                    {profile.licence.feeCents === null
-                      ? 'No fee agreed'
-                      : `${formatMoney(profile.licence.feeCents)} ${profile.licence.currency}`}
-                  </dd>
-                </div>
-              </dl>
-            )}
-            <p className="dash-card-note">
-              The price is agreed with each club, so there is no plan to change here. Ask the platform owner about a
-              renewal.
-            </p>
-          </section>
+        {tab === 'integrations' && (
+          <div className="club-cards">
+            <PinnedCard tilt={-1.2}>
+              <h3 className="club-card-title">The committee&rsquo;s files</h3>
+              <p>
+                Where the Committee Hub keeps minutes, policies and reports: on the platform, or in the club&rsquo;s own
+                SharePoint. The Hub explains how to set up the club&rsquo;s own storage.
+              </p>
+              <a className="button" href="/registrar/committee-hub">
+                Open the Committee Hub
+              </a>
+            </PinnedCard>
+            <PinnedCard tilt={0.9}>
+              <h3 className="club-card-title">Calendars</h3>
+              <p>
+                Each person subscribes to their own matches from their workspace, and the feed carries only their own
+                appointments (BR30). There is no club-wide feed to switch on, on purpose.
+              </p>
+              <a className="button" href="/me">
+                Open your workspace
+              </a>
+            </PinnedCard>
+          </div>
+        )}
 
-          <section className="dash-card" aria-labelledby="club-contacts">
-            <h3 id="club-contacts">Contacts</h3>
-            {profile.contacts.length === 0 ? (
-              <p className="hint">No contact is recorded.</p>
-            ) : (
-              <dl className="dash-facts">
-                {profile.contacts.map((c) => (
-                  <div key={c.kind}>
-                    <dt>{c.kind === 'primary' ? 'Primary contact' : 'Secondary contact'}</dt>
+        {tab === 'export' && (
+          <div className="club-cards">
+            <PinnedCard tilt={0.8}>
+              <h3 className="club-card-title">Submission pack</h3>
+              <p>
+                The season&rsquo;s registrations as the governing body asks for them: frozen, versioned, and kept as
+                they were sent (BR58&ndash;BR60).
+              </p>
+              <a className="button" href={`/registrar/pack${seasonQuery}`}>
+                Open the pack
+              </a>
+            </PinnedCard>
+            <PinnedCard tilt={-1}>
+              <h3 className="club-card-title">Reports</h3>
+              <p>The season in figures: registrations, money and match officials, each downloadable.</p>
+              <a className="button" href={`/registrar/reports${seasonQuery}`}>
+                Open reports
+              </a>
+            </PinnedCard>
+          </div>
+        )}
+
+        {tab === 'licence' && (
+          <div className="club-cards">
+            <section className="dash-card is-dark" aria-labelledby="club-licence">
+              <h3 id="club-licence">Licence</h3>
+              <p>
+                <span className={licence.tone}>{licence.label}</span>
+              </p>
+              {profile.licence !== null && (
+                <dl className="dash-facts">
+                  <div>
+                    <dt>Term</dt>
                     <dd>
-                      {c.fullName}
-                      <br />
-                      <a href={`mailto:${c.email}`}>{c.email}</a>
+                      {dayMonthYear(profile.licence.startsOn)} – {dayMonthYear(profile.licence.endsOn)}
                     </dd>
                   </div>
-                ))}
-              </dl>
-            )}
-          </section>
-        </div>
+                  <div>
+                    <dt>Agreed fee</dt>
+                    <dd>
+                      {profile.licence.feeCents === null
+                        ? 'No fee agreed'
+                        : `${formatMoney(profile.licence.feeCents)} ${profile.licence.currency}`}
+                    </dd>
+                  </div>
+                </dl>
+              )}
+              <p className="dash-card-note">
+                The price is agreed with each club, so there is no plan to change here. Ask the platform owner about a
+                renewal.
+              </p>
+            </section>
+          </div>
+        )}
       </div>
     </div>
   );
