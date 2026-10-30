@@ -6913,8 +6913,90 @@ html:has(.home) {
   font-weight: 400;
 }
 
+/* One match official (scope 126), after the Superdesign draft *Referee
+   Profile Detail*: the profile card, four figures rising in turn, what is
+   coming up on pinned cards, and the history. The initials are flat chalk,
+   not a magnet: nothing here moves. */
+.official {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.official-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  animation: tab-in var(--dur) var(--ease) both;
+}
+
+.official-head > div {
+  flex: 1 1 16rem;
+}
+
+.official-head h2 {
+  margin: 0 0 var(--space-2);
+}
+
+.official-badge {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, var(--chalk-50) 70%, transparent);
+  background: var(--slate-800);
+  color: var(--chalk-50);
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.official-facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.official-figures .dash-metric {
+  animation: tab-in var(--dur) var(--ease) both;
+}
+
+.official-figures .dash-metric:nth-child(2) {
+  animation-delay: 70ms;
+}
+
+.official-figures .dash-metric:nth-child(3) {
+  animation-delay: 140ms;
+}
+
+.official-figures .dash-metric:nth-child(4) {
+  animation-delay: 210ms;
+}
+
+.official-section {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.official-history {
+  margin: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .tab-panel {
+  .tab-panel,
+  .official-head,
+  .official-figures .dash-metric {
     animation: none;
   }
 }
