@@ -65,7 +65,7 @@ export const Panel = React.forwardRef<HTMLDivElement, PanelProps>(
       <div
         ref={ref}
         className={cn(
-          'rounded-card border font-sans text-foreground overflow-hidden shadow-card transition-colors',
+          'ds-panel rounded-card border font-sans text-foreground overflow-hidden shadow-card transition-colors',
           comingSoon
             ? 'border-dashed border-border-strong bg-[repeating-linear-gradient(135deg,var(--surface)_0_10px,var(--border)_10px_11px)]'
             : variantStyles[variant],
