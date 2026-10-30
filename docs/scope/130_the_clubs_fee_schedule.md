@@ -3,9 +3,13 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** **planned.** Branch `claude/fee-schedule`, stacked on
-[scope 129](./129_the_workspaces_in_motion.md). Its migration is applied by
-hand, to DEV and then to PROD, only with the product owner's approval.
+**Delivered as:** branch `claude/fee-schedule`. **WP1 to WP3 are built.**
+
+- Migration 0099 was applied by hand to DEV (`sxsloxdtpcjpdobwpwsm`) on 30
+  October 2026, with the product owner's approval. PROD follows their review
+  on DEV.
+- WP4, the family's checkout, is the next step. It changes how a
+  registration opens, so it is reviewed on its own.
 
 On 30 October 2026 the product owner asked for each club to set its own fees,
 and for only the admin and the treasurer to set them. Their reference is the
@@ -36,7 +40,7 @@ opening outstanding amount reads.
 | 1_strategy    | **No change.** It serves G3, consolidated player finance |
 | 2_business    | **Changed.** New BR195: what a registration costs. New BR196: who may set the fees, the discount and the terms. BR3 is unchanged: a registration is still not COMPLETE with anything outstanding. Only the amount it opens with changes. BR192 to BR194 stay reserved for [scope 126](./126_match_officials_on_the_board.md)'s proposals |
 | 3_information | **Changed.** New data objects: a **fee line** (club, season, name, team or age group, amount, optional deposit, admin-only flag), a **governing-body fee** (club, season, age band, amount), a **levy** (club, season, name, amount), the club's **sibling discount** (a percentage, 15 by default), and the **registration terms** (the club's text with its placeholders' values). All of them have a `club_id` and RLS |
-| 4_application | **Changed.** `/registrar/fees` gains tabs: *Registration fees*, *Discounts and levies*, *Terms*, and the existing *Match official fees*. The registration's checkout shows the lines, the discount and the terms, with a box to accept the terms. The amounts are decided in `src/web/registration-price.ts`, pure and tested |
+| 4_application | **Changed.** A new page, `/registrar/registration-fees` (*Registration fees* under Money), in tabs: *Fee schedule*, *Sibling discount* and *Terms*. `/registrar/fees` stays the match officials' rates, which the 30 October request asks to join their payments. The registration's checkout will show the lines, the discount and the terms, with a box to accept the terms (WP4). The amounts are decided in `src/web/registration-price.ts`, pure and tested |
 | 5_technology  | **Changed.** One migration with RLS for the new tables, applied by hand. `check_rls.py` and `test_rls.sh` cover them |
 
 ## The rules (added to the rules table)
@@ -67,7 +71,7 @@ opening outstanding amount reads.
 
 ## Work packages and deliverables
 
-### WP1 — The rules and the price (pure)
+### WP1 — The rules and the price (pure) — built
 
 - **Deliverables:** `src/web/registration-price.ts` and its tests:
   - matching a team or an age group to its line;
@@ -77,22 +81,29 @@ opening outstanding amount reads.
   - and the BR195 and BR196 rows in the rules table.
 - **Outcome:** the sum is decided once and tested, before any screen shows it.
 
-### WP2 — The schedule's tables
+### WP2 — The schedule's tables — built, applied to DEV
 
-- **Deliverables:** a migration for `fee_line`, `governing_fee`, `levy`, `fee_settings` (the discount percentage) and `registration_terms`.
-  - It adds RLS: read by the club's members, write by its admin and treasurer only (BR196).
-  - It adds a database function that opens a registration with BR195's amount.
-  - Its RLS tests.
+- **Deliverables, as built:**
+  - `supabase/migrations/0099_a_club_sets_its_own_fees.sql`:
+    - `fee_line`: one table, whose `kind` is `club`, `governing` or `levy`, rather than one table per kind;
+    - `fee_settings`, the discount in basis points, 1500 by default;
+    - `registration_terms`, the body with its placeholder values.
+    - Lines are retired, never deleted.
+    - RLS: read by the admin, the registrar and the treasurer; written by the admin and the treasurer only (BR196).
+    - It registers its receipt, and `src/data/migration-drift.ts` expects it.
+  - `supabase/tests/97_a_club_sets_its_own_fees.sql`, 11 scenarios. It runs in CI, since this machine has no `psql`.
+  - The database function that opens a registration at BR195's price belongs to WP4.
 - **Outcome:** the schedule lives in the database, and only the two roles can
   change it.
 
-### WP3 — Setting it up (admin and treasurer)
+### WP3 — Setting it up (admin and treasurer) — built
 
-- **Deliverables:** `/registrar/fees` in tabs:
-  - fee lines grouped as the pilot club groups them: club registration, governing body, levy and discounts;
-  - each line's deposit and *admin only* marker;
-  - the discount's percentage;
-  - the terms, with their placeholders filled from the club's own values and previewed as a family will read them.
+- **Deliverables, as built:**
+  - `src/app/registrar/registration-fees/` (page, forms and actions), with `src/data/registration-fees.ts` and `src/web/registration-fee-form.ts` (7 tests). It is in tabs:
+    - **Fee schedule:** lines grouped as the pilot club groups them (club registration, governing body fees, levies), each with its *admin only* marker, ages, amount and fixed deposit, and a *Retire* button for the two roles. Beside it, *What would a family pay?* works out the breakdown live for an age, a child number and a line, by the same rule (BR195), with the total pulsing as it changes.
+    - **Sibling discount:** the percentage.
+    - **Terms:** an editor in which each placeholder gets its own field and a paper preview shows the family's reading as it is typed. A club with no terms starts from the product owner's text, with the pilot club's addresses turned into placeholders.
+  - *Registration fees* is in the club menu under Money.
 - **Outcome:** the reference screen, kept by the club itself.
 
 ### WP4 — The family's checkout

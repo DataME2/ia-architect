@@ -35,6 +35,7 @@ export const REGISTRAR_NAV: readonly NavItem[] = [
   { href: '/registrar/designations', label: 'Designations', seasonScoped: true, group: 'Match day' },
   { href: '/registrar/verification', label: 'Verify a match', seasonScoped: true, group: 'Match day' },
   { href: '/registrar/carnivals', label: 'Carnivals', seasonScoped: false, group: 'Match day' },
+  { href: '/registrar/registration-fees', label: 'Registration fees', seasonScoped: true, group: 'Money' },
   { href: '/registrar/referee-payments', label: 'Match official payments', seasonScoped: true, group: 'Money' },
   // Not season-scoped: a fee schedule is dated from a day and runs until
   // the next one supersedes it (BR115), which is not the same shape as a
