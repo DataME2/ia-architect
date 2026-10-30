@@ -203,7 +203,9 @@
 
   /* Reserved for commissioned artwork. Empty by design — scope 32 WP6 and
      open question 66. A club crest lands in the first; a licensed motif
-     lands in the second. Neither is ever machine-generated. */
+     lands in the second. Scope 32 said neither would be machine-generated;
+     the product owner withdrew that rule on 30 October 2026 (open question
+     119), so a licensed or generated image may land in either. */
   --crest-asset: none;
   --motif-layer: none;
 
@@ -6875,6 +6877,48 @@ html:has(.home) {
 }
 
 /* metric cards: felt by default, gold for the one that needs you */
+/* The club settings' tabs (scope 127): a panel fades up when its tab is
+   chosen, and the index cards share one grid. */
+.club-tabs {
+  margin: var(--space-4) 0 var(--space-5);
+}
+
+.tab-panel {
+  animation: tab-in var(--dur) var(--ease) both;
+}
+
+@keyframes tab-in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+.club-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--space-6) var(--space-5);
+  align-items: start;
+  margin-top: var(--space-5);
+}
+
+.club-cards .paper p {
+  color: var(--muted);
+}
+
+.club-card-title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 400;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-panel {
+    animation: none;
+  }
+}
+
 .dash-metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
