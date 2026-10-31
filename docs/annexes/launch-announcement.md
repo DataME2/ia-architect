@@ -67,33 +67,51 @@ inbox ([scope 116](../scope/116_contact_and_demo_requests_reach_an_inbox.md)).
 
 ## Facebook
 
-> ⚽ **Big news for grassroots football clubs!** ⚽
+> ⚽ **To everyone who keeps a grassroots football club running**
 >
-> PitchPeople, a platform to make running a football club easier, is now
-> ready to test! 🎉
+> Fees keep going up, budgets are tight, and most clubs run on volunteers
+> who are already stretched. For a while now I've been quietly building
+> something to take some of that weight off. It's called PitchPeople.
 >
-> We know how much clubs rely on volunteers. Too many evenings go on
-> chasing forms, checking who has paid, and entering the same details
-> again and again. That time (and cost) should go back to the football.
+> It brings a club's registrations, fees, documents and referees into one
+> place. Each person has one profile, so the parent who coaches the U9s,
+> sits on the committee and referees on Sundays is one record, not five.
 >
-> With PitchPeople, registrations, families, club fees, teams and
-> referees all live in **one place**, and each person has one profile,
-> whether they're a player, a parent, a coach or a ref.
+> It also helps clubs bring money in. Sponsors can appear inside the
+> platform and pay per click, per thousand views, or per sign-up,
+> whichever suits them. The club sees exactly what each sponsor owes.
 >
-> 🙌 **We'd love your help.** This is being built *with* clubs, not just
-> *for* them. Whether you're on a committee, coach a team, referee, or
-> register your kids every season, your feedback matters.
+> Behind it sit nearly 200 rules, written with real club situations in
+> mind. Two examples:
+> • A registration isn't marked complete while anything is still owed,
+> payment plan or not. Money in credit never holds a player back.
+> • A registration isn't complete while a required document is missing.
 >
-> 👀 Have a look around our demo club (all made-up data):
+> The bigger goal is simple: a parent should register their child once,
+> not three times on three different systems. We're not there yet,
+> because Squadi is still the official system, but everything in
+> PitchPeople is built to get there.
+>
+> You can try it now with a demo club full of made-up families:
 > https://pitchpeople-test.datamanagementengineer.com/demo
-> 💬 Interested in trying it at your club? Tell us here:
-> https://pitchpeople-test.datamanagementengineer.com/interest
 >
-> Please tag your club secretary, treasurer or registrar, or share this
-> post with your club. Together we can give volunteers their weekends
-> back! 💚
->
-> #GrassrootsFootball #CommunitySport #ClubVolunteers #PitchPeople
+> I'd really value your feedback. Whether you're on a committee, coach a
+> team, referee, or register your kids every season, tell me what works
+> and what doesn't. And please tag your club's secretary or treasurer 🙏
+
+Rewritten 31 October 2026 from the product owner's own draft. The sponsor
+models are [scope 84](../scope/84_sponsors_in_the_workspace.md)'s CPC, CPM
+and CPA, and "what each sponsor owes" is
+[scope 85](../scope/85_sponsor_invoices_and_club_referrals.md)'s invoicing.
+The two rules are BR3 and BR2, and the count is the 193 rules in the
+[rules table](../ea/2_business/5_domain-context-and-rules.md). The draft's
+claim that the club becomes the governing body's source of truth was
+replaced by the goal it describes: PitchPeople is the source of truth for
+the club's own registration data, but Squadi stays authoritative for
+eligibility (BR39) and a parent still registers there, so "register once"
+is stated as where the platform is heading, not as delivered ([motivation](../ea/1_strategy/1_motivation.md), G6). Its
+mention of carnivals was dropped, since carnival management is deferred
+past the MVP.
 
 ## What the posts deliberately do not say
 
