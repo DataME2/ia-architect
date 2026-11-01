@@ -11,7 +11,7 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
   approval. PROD is untouched.
 - The pilot club's 2024, 2025 and 2026 exports were staged and masked on
   the platform owner's machine, and the masked copy was loaded on 1 November
-  2026 into *North Star FC (masked history)* on DEV (WP4).
+  2026 into a test club on DEV, now *Light Horse FC* (WP4).
 
 On 1 November 2026 the product owner shared the pilot club's Power BI model
 (`ns_data_transform.pbix`). It is built from the club's Majestri exports for
@@ -138,8 +138,12 @@ minimisation.
 
 - **Deliverables:**
   - 0101 applied to DEV *(done, 1 November 2026)*;
-  - a club named *North Star FC (masked history)*, provisioned the usual way,
-    with an admin account the product owner signs in with;
+  - a club provisioned the usual way as *North Star FC (masked history)*,
+    with an admin account the product owner signs in with. **Renamed on
+    2 November 2026 to *Light Horse FC***, and its admin's email changed to
+    `jairo.suarez@masked.test`, at the product owner's request, so nobody
+    mistakes it for North Star FC. A `.test` address receives no email, so
+    that account signs in with its password;
   - the three masked seasons loaded into it, and the counts compared with
     the staging report.
 - **Loaded:** every count matches the staging report, and none of the
