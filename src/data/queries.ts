@@ -111,6 +111,43 @@ function unwrap<T>(table: string, result: { data: T | null; error: { message: st
 }
 
 /**
+ * Reads sized by a season or a club. Supabase returns at most 1,000 rows a
+ * request, and `.in()` writes every id into the URL, which its gateway
+ * refuses with a 400 somewhere past 16 kB, about 400 uuids. A season of the
+ * pilot club is 800 registrations and its people 2,300, so a list that size
+ * failed the queue outright, and an unpaged read of the club's people came
+ * back silently short. These page at 1,000 and take ids 100 at a time.
+ *
+ * A paged query must be ordered, by `id` at least, or a row can move
+ * between pages.
+ */
+const PAGE = 1000;
+const SLICE = 100;
+
+type Rows<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
+
+export async function selectAll<T>(table: string, query: (from: number, to: number) => Rows<T>): Promise<T[]> {
+  const rows: T[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await query(from, from + PAGE - 1);
+    if (error !== null) throw new QueryError(table, error.message);
+    rows.push(...(data ?? []));
+    if ((data ?? []).length < PAGE) return rows;
+  }
+}
+
+export async function selectIn<T>(
+  table: string,
+  ids: readonly string[],
+  query: (slice: string[], from: number, to: number) => Rows<T>,
+): Promise<T[]> {
+  const slices: string[][] = [];
+  for (let i = 0; i < ids.length; i += SLICE) slices.push(ids.slice(i, i + SLICE));
+  const parts = await Promise.all(slices.map((s) => selectAll(table, (from, to) => query(s, from, to))));
+  return parts.flat();
+}
+
+/**
  * Which club this user acts for.
  *
  * Returns `null` rather than throwing when the user has no membership: under
@@ -282,116 +319,100 @@ interface SliceData {
 }
 
 /**
- * One round trip per table, then joined in memory.
+ * A few round trips per table, then joined in memory.
  *
- * Five queries rather than one per registration: a season is ~700 rows for
- * the pilot club, and an N+1 here would be a page that times out in the week
- * it matters most.
+ * Per table rather than per registration: a season is ~700 rows for the
+ * pilot club, and an N+1 here would be a page that times out in the week it
+ * matters most. Each table is read 100 registrations at a time (selectIn),
+ * because the whole season's ids in one URL is a request Supabase refuses.
  */
 async function loadSlice(
   client: SupabaseClient,
   clubId: string,
   seasonId: string,
 ): Promise<SliceData> {
-  const registrations = await withMoney(client, unwrap<RegistrationBaseRow[]>(
-    'registration',
-    await client
+  const registrations = await withMoney(client, await selectAll<RegistrationBaseRow>('registration', (from, to) =>
+    client
       .from('registration')
       .select(REGISTRATION_COLUMNS)
       .eq('club_id', clubId)
-      .eq('season_id', seasonId),
-  ));
+      .eq('season_id', seasonId)
+      .order('id')
+      .range(from, to)));
 
   // Merged tombstones are excluded everywhere they would otherwise be
   // matched or listed: a resolved duplicate must not come back as a new one
   // (BR82).
-  const clubPersonRows = unwrap<PersonRow[]>(
-    'person',
-    await client
+  const clubPersonRows = await selectAll<PersonRow>('person', (from, to) =>
+    client
       .from('person')
       .select('*')
       .eq('club_id', clubId)
-      .is('merged_into_person_id', null),
-  );
+      .is('merged_into_person_id', null)
+      .order('id')
+      .range(from, to));
 
   const personIds = registrations.map((r) => r.person_id);
   const registrationIds = registrations.map((r) => r.id);
 
-  const documentRows =
-    registrationIds.length === 0
-      ? []
-      : unwrap<RegistrationDocumentRow[]>(
-          'registration_document',
-          await client
-            .from('registration_document')
-            .select('id, club_id, registration_id, document_type, storage_path, required, provided_at, submitted_at')
-            .eq('club_id', clubId)
-            .in('registration_id', registrationIds),
-        );
+  const documentRows = await selectIn<RegistrationDocumentRow>('registration_document', registrationIds, (ids, from, to) =>
+    client
+      .from('registration_document')
+      .select('id, club_id, registration_id, document_type, storage_path, required, provided_at, submitted_at')
+      .eq('club_id', clubId)
+      .in('registration_id', ids)
+      .order('id')
+      .range(from, to));
 
-  const guardianships =
-    personIds.length === 0
-      ? []
-      : unwrap<GuardianshipRow[]>(
-          'guardianship',
-          await client
-            .from('guardianship')
-            .select('id, club_id, person_id, guardian_person_id, is_authority, is_contact')
-            .eq('club_id', clubId)
-            .in('person_id', personIds),
-        );
+  const guardianships = await selectIn<GuardianshipRow>('guardianship', personIds, (ids, from, to) =>
+    client
+      .from('guardianship')
+      .select('id, club_id, person_id, guardian_person_id, is_authority, is_contact')
+      .eq('club_id', clubId)
+      .in('person_id', ids)
+      .order('id')
+      .range(from, to));
 
-  const consents =
-    personIds.length === 0
-      ? []
-      : unwrap<ConsentRow[]>(
-          'consent',
-          await client
-            .from('consent')
-            .select('id, club_id, person_id, purpose, granted_by_person_id, granted_at, revoked_at, channels')
-            .eq('club_id', clubId)
-            .in('person_id', personIds),
-        );
+  const consents = await selectIn<ConsentRow>('consent', personIds, (ids, from, to) =>
+    client
+      .from('consent')
+      .select('id, club_id, person_id, purpose, granted_by_person_id, granted_at, revoked_at, channels')
+      .eq('club_id', clubId)
+      .in('person_id', ids)
+      .order('id')
+      .range(from, to));
 
   // BR3 asks whether payment is *in arrears*, not whether a balance exists,
   // so the plan and its receipts have to be here before the rules run.
-  const planRows =
-    registrationIds.length === 0
-      ? []
-      : unwrap<PaymentPlanRow[]>(
-          'payment_plan',
-          await client
-            .from('payment_plan')
-            .select('id, club_id, registration_id, total_cents, cadence, created_by_user_id, cancelled_at, created_at')
-            .eq('club_id', clubId)
-            .in('registration_id', registrationIds)
-            .is('cancelled_at', null),
-        );
+  const planRows = await selectIn<PaymentPlanRow>('payment_plan', registrationIds, (ids, from, to) =>
+    client
+      .from('payment_plan')
+      .select('id, club_id, registration_id, total_cents, cadence, created_by_user_id, cancelled_at, created_at')
+      .eq('club_id', clubId)
+      .in('registration_id', ids)
+      .is('cancelled_at', null)
+      .order('id')
+      .range(from, to));
 
-  const installmentRows =
-    planRows.length === 0
-      ? []
-      : unwrap<PaymentInstallmentRow[]>(
-          'payment_installment',
-          await client
-            .from('payment_installment')
-            .select('id, club_id, payment_plan_id, sequence, due_on, amount_cents')
-            .eq('club_id', clubId)
-            .in('payment_plan_id', planRows.map((p) => p.id)),
-        );
+  const installmentRows = await selectIn<PaymentInstallmentRow>('payment_installment', planRows.map((p) => p.id), (ids, from, to) =>
+    client
+      .from('payment_installment')
+      .select('id, club_id, payment_plan_id, sequence, due_on, amount_cents')
+      .eq('club_id', clubId)
+      .in('payment_plan_id', ids)
+      .order('id')
+      .range(from, to));
 
-  const paymentRows =
-    registrationIds.length === 0
-      ? []
-      : unwrap<PaymentRow[]>(
-          'payment',
-          await client
-            .from('payment')
-            .select('id, club_id, registration_id, amount_cents, received_on, method, reference, reverses_payment_id, recorded_by_user_id, created_at')
-            .eq('club_id', clubId)
-            .in('registration_id', registrationIds)
-            .order('received_on', { ascending: true }),
-        );
+  // A registration's receipts all fall in one slice, so each stays in date order.
+  const paymentRows = await selectIn<PaymentRow>('payment', registrationIds, (ids, from, to) =>
+    client
+      .from('payment')
+      .select('id, club_id, registration_id, amount_cents, received_on, method, reference, reverses_payment_id, recorded_by_user_id, created_at')
+      .eq('club_id', clubId)
+      .in('registration_id', ids)
+      .order('received_on', { ascending: true })
+      .order('id')
+      .range(from, to));
 
   const plans = new Map(
     planRows.map((row) => [row.registration_id, toPaymentPlan(row, installmentRows)]),
@@ -716,37 +737,6 @@ export interface LoadPeopleOptions {
   readonly pageSize?: number;
 }
 
-async function personIdsWithRole(
-  client: SupabaseClient,
-  clubId: string,
-  seasonId: string,
-  role: SeasonRole | typeof UNROSTERED,
-): Promise<readonly string[]> {
-  const roleRows = unwrap<{ person_id: string; role: SeasonRole }[]>(
-    'person_role',
-    await client
-      .from('person_role')
-      .select('person_id, role')
-      .eq('club_id', clubId)
-      .eq('season_id', seasonId),
-  );
-
-  if (role !== UNROSTERED) {
-    return roleRows.filter((r) => r.role === role).map((r) => r.person_id);
-  }
-
-  const rostered = new Set(roleRows.map((r) => r.person_id));
-  const everyoneIds = unwrap<{ id: string }[]>(
-    'person',
-    await client
-      .from('person')
-      .select('id')
-      .eq('club_id', clubId)
-      .is('merged_into_person_id', null),
-  );
-  return everyoneIds.map((r) => r.id).filter((id) => !rostered.has(id));
-}
-
 /**
  * One page of the club, with the roles its people hold in one season.
  *
@@ -773,26 +763,26 @@ export async function loadPeople(
   const pageSize = options.pageSize;
   const pattern = ilikePattern(options.query ?? '');
 
-  const personIdFilter =
-    options.role == null ? null : await personIdsWithRole(client, clubId, seasonId, options.role);
-
-  if (personIdFilter !== null && personIdFilter.length === 0) {
-    return { people: [], totalCount: 0 };
-  }
-
+  // The role filter is a join, not a list of ids: a season's players are
+  // more ids than one URL holds (see selectAll). `!inner` keeps the people
+  // holding the role this season; an empty embed keeps those holding none.
+  const role = options.role ?? null;
+  const columns: string = role === null ? '*' : role === UNROSTERED ? '*, person_role(season_id)' : '*, person_role!inner(role)';
   let personQuery = client
     .from('person')
-    .select('*', { count: 'exact' })
+    .select(columns, { count: 'exact' })
     .eq('club_id', clubId)
     .is('merged_into_person_id', null);
+  if (role === UNROSTERED) {
+    personQuery = personQuery.eq('person_role.season_id', seasonId).is('person_role', null);
+  } else if (role !== null) {
+    personQuery = personQuery.eq('person_role.season_id', seasonId).eq('person_role.role', role);
+  }
 
   if (pattern !== null) {
     personQuery = personQuery.or(
       `legal_given_names.ilike.${pattern},legal_family_name.ilike.${pattern},preferred_name.ilike.${pattern},email.ilike.${pattern}`,
     );
-  }
-  if (personIdFilter !== null) {
-    personQuery = personQuery.in('id', personIdFilter as string[]);
   }
 
   const { from, to } = rangeFor(page, pageSize);
@@ -803,7 +793,7 @@ export async function loadPeople(
     .range(from, to);
   if (error !== null) throw new QueryError('person', error.message);
 
-  const personRows = (data ?? []) as PersonRow[];
+  const personRows = (data ?? []) as unknown as PersonRow[];
   const pageIds = personRows.map((r) => r.id);
 
   const roleRows =
@@ -1166,14 +1156,14 @@ export async function loadDuplicates(
   client: SupabaseClient,
   clubId: string,
 ): Promise<readonly DuplicateGroup[]> {
-  const personRows = unwrap<PersonRow[]>(
-    'person',
-    await client
+  const personRows = await selectAll<PersonRow>('person', (from, to) =>
+    client
       .from('person')
       .select('*')
       .eq('club_id', clubId)
-      .is('merged_into_person_id', null),
-  );
+      .is('merged_into_person_id', null)
+      .order('id')
+      .range(from, to));
 
   const people = personRows.map(toPerson);
   const pairs = findDuplicatePairs(people);
@@ -1184,31 +1174,31 @@ export async function loadDuplicates(
 
   const involved = [...new Set(pairs.flatMap((p) => [p.aId, p.bId]))];
 
-  const registrations = await withMoney(client, unwrap<RegistrationBaseRow[]>(
-    'registration',
-    await client
+  const registrations = await withMoney(client, await selectIn<RegistrationBaseRow>('registration', involved, (ids, from, to) =>
+    client
       .from('registration')
       .select(REGISTRATION_COLUMNS)
       .eq('club_id', clubId)
-      .in('person_id', involved),
-  ));
+      .in('person_id', ids)
+      .order('id')
+      .range(from, to)));
 
-  const guardianships = unwrap<GuardianshipRow[]>(
-    'guardianship',
-    await client
+  const guardianships = await selectAll<GuardianshipRow>('guardianship', (from, to) =>
+    client
       .from('guardianship')
       .select('id, club_id, person_id, guardian_person_id, is_authority, is_contact')
-      .eq('club_id', clubId),
-  );
+      .eq('club_id', clubId)
+      .order('id')
+      .range(from, to));
 
-  const roles = unwrap<PersonRoleRow[]>(
-    'person_role',
-    await client
+  const roles = await selectIn<PersonRoleRow>('person_role', involved, (ids, from, to) =>
+    client
       .from('person_role')
       .select('id, club_id, person_id, season_id, role')
       .eq('club_id', clubId)
-      .in('person_id', involved),
-  );
+      .in('person_id', ids)
+      .order('id')
+      .range(from, to));
 
   const weigh = (personId: string): PersonWeight => ({
     registrations: registrations.filter((r) => r.person_id === personId).length,

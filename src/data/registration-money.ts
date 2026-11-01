@@ -23,20 +23,24 @@ export async function withMoney(
   rows: readonly RegistrationBaseRow[],
 ): Promise<RegistrationRow[]> {
   if (rows.length === 0) return [];
-  const { data, error } = await client.rpc('app_registration_money', {
-    p_registration_ids: rows.map((r) => r.id),
-  });
-  if (error !== null) throw new QueryError('app_registration_money', error.message);
-  const byId = new Map(
-    ((data ?? []) as {
-      registration_id: string;
-      outstanding_amount_cents: number | null;
-      owes: boolean;
-      hardship_until: string | null;
-      owes_earlier: boolean | null;
-    }[])
-      .map((m) => [m.registration_id, m]),
-  );
+  // Supabase returns at most 1,000 rows a call, and a season can hold more
+  // registrations than that, so the ids go 500 at a time.
+  const ids = rows.map((r) => r.id);
+  const calls = [];
+  for (let i = 0; i < ids.length; i += 500) {
+    calls.push(client.rpc('app_registration_money', { p_registration_ids: ids.slice(i, i + 500) }));
+  }
+  const byId = new Map<string, {
+    registration_id: string;
+    outstanding_amount_cents: number | null;
+    owes: boolean;
+    hardship_until: string | null;
+    owes_earlier: boolean | null;
+  }>();
+  for (const { data, error } of await Promise.all(calls)) {
+    if (error !== null) throw new QueryError('app_registration_money', error.message);
+    for (const m of data ?? []) byId.set(m.registration_id, m);
+  }
   return rows.map((r) => {
     const m = byId.get(r.id);
     return {

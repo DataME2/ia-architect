@@ -21,24 +21,9 @@ import {
 import { recordGuardianInvitation } from './family.ts';
 import { toPerson } from './mappers.ts';
 import { recordPlayerInvitation } from './player-invitation.ts';
-import { QueryError } from './queries.ts';
+import { selectAll } from './queries.ts';
 import type { PersonRow } from './schema.ts';
 
-const PAGE = 1000;
-
-/** Supabase returns at most 1,000 rows a request; a club-wide read pages past it. */
-async function selectAll<T>(
-  table: string,
-  query: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
-): Promise<T[]> {
-  const rows: T[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await query(from, from + PAGE - 1);
-    if (error !== null) throw new QueryError(table, error.message);
-    rows.push(...(data ?? []));
-    if ((data ?? []).length < PAGE) return rows;
-  }
-}
 
 interface Invitation {
   /** The login that claimed it, or null if nobody has yet. */
