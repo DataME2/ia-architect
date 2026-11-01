@@ -6,7 +6,9 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 **Delivered as:** branch `claude/pilot-history-import` (local, not pushed).
 
 - Migration 0101 was dry-run on DEV inside a rolled-back transaction, and
-  all 10 scenarios of its test passed. It is **not applied** anywhere yet.
+  all 10 scenarios of its test passed. It was applied by hand to DEV
+  (`sxsloxdtpcjpdobwpwsm`) on 1 November 2026, with the product owner's
+  approval. PROD is untouched.
 - The pilot club's 2024, 2025 and 2026 exports are staged and masked on the
   platform owner's machine. Nothing has been loaded.
 
@@ -131,10 +133,10 @@ minimisation.
 - **Outcome:** the same tool makes the real import and the test copy, so
   testing the copy tests the import.
 
-### WP4 — The masked test club on DEV *(waiting on approval)*
+### WP4 — The masked test club on DEV *(approved 1 November 2026)*
 
 - **Deliverables:**
-  - 0101 applied to DEV;
+  - 0101 applied to DEV *(done, 1 November 2026)*;
   - a club named *North Star FC (masked history)*, provisioned the usual way,
     with an admin account the product owner signs in with;
   - the three masked seasons loaded into it, and the counts compared with
