@@ -541,3 +541,12 @@ The extraction account is granted `SELECT`/`READ` only — never
 `INSERT`/`UPDATE`/`DELETE`/`DROP`/`ALTER` — for the pilot club's source
 systems (Principle P2,
 [1_strategy/1_motivation.md](../1_strategy/README.md)).
+
+[Scope 28](../../scope/28_onboarding-a-club-and-its-history.md) replaced the extraction account with a
+**club-supplied export**, and [scope 132](../../scope/132_the_pilot_clubs_history_masked_and_imported.md) builds that
+route. The club's Majestri exports are RAW. The batch
+`scripts/import_history.py` writes is STAGING, with its report of what
+linked. `import_history_season` writes the unified model, one season at
+a time and as history (BR90), deciding who each row is by BR197. The
+steps and the columns are in the
+[historical import annex](../../annexes/historical-import.md).

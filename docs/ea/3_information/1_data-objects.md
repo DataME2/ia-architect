@@ -301,6 +301,24 @@ notification and BR64's fixture-change notification remain the unwired
 email functions `src/data/notifications.ts` has carried since scope 36;
 whether they also gain a row here is the next initiative's question.
 
+## A club's history
+
+Migration 0101 ([scope 132](../../scope/132_the_pilot_clubs_history_masked_and_imported.md)),
+written only by `import_history_season`. **An imported registration is an
+ordinary `registration`** (P1: the child who played in 2024 is the same
+Person registering in 2027). It is marked, and the money is kept beside it
+rather than on it.
+
+| Data Object | Realises | Notes |
+| ----------- | -------- | ----- |
+| **`person.gender`**, **`person.ffa_number`**, **`person.mobile`** | Person | Gender ∈ {female, male, non-binary, not-stated}. The FFA number is not unique, because two records of one child exist until the duplicates screen merges them; indexed per club for BR197's match. A mobile is digits only. An import fills each only when it is empty |
+| **`registration.playing_group`** | Player Registration | What the family asked for, as the club's previous system named it ("MiniRoos - Girls - Under 10"). For a season with no team list it is the only age-group history |
+| **`registration.imported_from`** | Imported Registration | The `historical_import` it came from. **Set means history (BR90):** the registration is COMPLETE and owes nothing, and `registration_imported_is_history` refuses any change to its status, balance or season, and any setting of the column outside an import |
+| **`team.category`** | Team | Miniroos, Academy, Metro Junior Boys and the like, as the club groups its teams |
+| **`historical_import`** | Historical Import | One per club and season: the files it came from, whether it was masked (BR198), how many rows were read, and when. Read by the admin, registrar and treasurer |
+| **`historical_invoice`**, **`historical_invoice_line`** | Historical Invoice | What a season invoiced, collected, credited and left outstanding, as the previous system recorded it, with each line's category (club fee, governing body, levy, discount, adjustment) and, where a line names a player, their registration. **A record, not a debt**: nothing chases it (BR90). Read by the admin, registrar and treasurer |
+| **`emergency_contact`** | Emergency Contact | Who to call about a person: name, mobile, optional email, and when it was recorded. Read and kept by the admin and registrar. An import brings only the current season's |
+
 ## Not yet modeled
 
 Competition **Regulations** as documents (the catalogue above holds names,

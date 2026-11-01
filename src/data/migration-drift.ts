@@ -24,8 +24,8 @@ import { resendTransport, type MessageTransport } from './messaging.ts';
  * CI failure, not a false alarm nobody notices until it fires in
  * production.
  */
-export const EXPECTED_MIGRATION_VERSION = '0100';
-export const EXPECTED_MIGRATION_NAME = '0100_a_registration_is_priced_from_the_schedule';
+export const EXPECTED_MIGRATION_VERSION = '0101';
+export const EXPECTED_MIGRATION_NAME = '0101_a_clubs_history_is_imported';
 
 export interface DriftCheckResult {
   readonly drifted: boolean;

@@ -13,3 +13,8 @@ grant execute on all functions in schema public to anon, authenticated;
 -- blanket grant above runs after every migration, so it is narrowed again.
 revoke select on registration from anon, authenticated;
 grant select (id, club_id, person_id, season_id, status, created_at) on registration to anon, authenticated;
+grant select (playing_group, imported_from) on registration to authenticated;
+
+-- 0101 (BR90): an import is the platform owner's, run with the database
+-- role; no club user may call it, so the blanket grant is narrowed here too.
+revoke execute on function import_history_season(uuid, jsonb) from anon, authenticated;
