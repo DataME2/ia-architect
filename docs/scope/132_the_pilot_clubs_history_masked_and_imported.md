@@ -9,8 +9,9 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
   all 10 scenarios of its test passed. It was applied by hand to DEV
   (`sxsloxdtpcjpdobwpwsm`) on 1 November 2026, with the product owner's
   approval. PROD is untouched.
-- The pilot club's 2024, 2025 and 2026 exports are staged and masked on the
-  platform owner's machine. Nothing has been loaded.
+- The pilot club's 2024, 2025 and 2026 exports were staged and masked on
+  the platform owner's machine, and the masked copy was loaded on 1 November
+  2026 into *North Star FC (masked history)* on DEV (WP4).
 
 On 1 November 2026 the product owner shared the pilot club's Power BI model
 (`ns_data_transform.pbix`). It is built from the club's Majestri exports for
@@ -133,7 +134,7 @@ minimisation.
 - **Outcome:** the same tool makes the real import and the test copy, so
   testing the copy tests the import.
 
-### WP4 — The masked test club on DEV *(approved 1 November 2026)*
+### WP4 — The masked test club on DEV *(done, 1 November 2026)*
 
 - **Deliverables:**
   - 0101 applied to DEV *(done, 1 November 2026)*;
@@ -141,6 +142,27 @@ minimisation.
     with an admin account the product owner signs in with;
   - the three masked seasons loaded into it, and the counts compared with
     the staging report.
+- **Loaded:** every count matches the staging report, and none of the
+  registrations was refused as already held:
+
+  | Season | Registrations | Teams | In a team | Invoices | Invoiced | Paid | Outstanding |
+  | ------ | ------------- | ----- | --------- | -------- | -------- | ---- | ----------- |
+  | 2024 | 817 | 69 | 813 | 795 | $584,930.00 | $583,960.00 | $970.00 |
+  | 2025 | 729 | 59 | 688 | 667 | $654,532.00 | $641,988.50 | $12,543.50 |
+  | 2026 | 783 | 67 | 773 | 754 | $686,751.00 | $653,372.98 | $33,378.02 |
+
+  - **BR90 holds:** every imported registration is COMPLETE, owes nothing,
+    and was never priced.
+  - **BR197 found the club's returning players:** 2,341 Persons, 1,419 of
+    them players. 473 players came back from 2024 to 2025, 416 from 2025 to
+    2026, and 284 played all three seasons.
+  - **Left for the duplicates screen:** 26 groups of Persons sharing a name
+    and birth date, and one FFA number held by two Persons with different
+    birth dates.
+  - **Masked:** all 1,225 emails are `@masked.test`, and the three imports
+    are marked masked.
+  - The amounts are the club's own, unmasked, so they can be checked
+    against its Power BI model.
 - **Outcome:** the current screens can be tried against the club's real
   shape: 2,329 player registrations across three seasons, siblings,
   duplicates, and teams.
