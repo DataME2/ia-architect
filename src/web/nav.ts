@@ -28,13 +28,14 @@ export const REGISTRAR_NAV: readonly NavItem[] = [
   { href: '/registrar/teams', label: 'Teams', seasonScoped: true, group: 'Season' },
   { href: '/registrar/duplicates', label: 'Duplicates', seasonScoped: false, group: 'Season' },
   { href: '/registrar/pack', label: 'Submission pack', seasonScoped: true, group: 'Season' },
-  { href: '/registrar/reports', label: 'Reports', seasonScoped: true, group: 'Season' },
   { href: '/registrar/clearances', label: 'Working with Children Checks', seasonScoped: true, group: 'Season' },
   { href: '/registrar/fixtures', label: 'Fixtures', seasonScoped: true, group: 'Match day' },
   { href: '/registrar/referees', label: 'Match officials', seasonScoped: true, group: 'Match day' },
   { href: '/registrar/designations', label: 'Designations', seasonScoped: true, group: 'Match day' },
   { href: '/registrar/verification', label: 'Verify a match', seasonScoped: true, group: 'Match day' },
   { href: '/registrar/carnivals', label: 'Carnivals', seasonScoped: false, group: 'Match day' },
+  // Under Money since scope 133: it opens on the finance report.
+  { href: '/registrar/reports', label: 'Reports', seasonScoped: true, group: 'Money' },
   { href: '/registrar/registration-fees', label: 'Registration fees', seasonScoped: true, group: 'Money' },
   { href: '/registrar/referee-payments', label: 'Match official payments', seasonScoped: true, group: 'Money' },
   // Not season-scoped: a fee schedule is dated from a day and runs until
