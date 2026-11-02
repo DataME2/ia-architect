@@ -3,7 +3,7 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** branch `claude/pilot-history-import` (local, not pushed).
+**Delivered as:** branch `claude/pilot-history-import`.
 
 - Migration 0101 was dry-run on DEV inside a rolled-back transaction, and
   all 10 scenarios of its test passed. It was applied by hand to DEV
