@@ -92,8 +92,8 @@ CI. A policy can be present and wrong, and that failure is silent.
 
 **The repository is connected to Supabase**, so a migration merged to `main`
 runs against the linked project with no second confirmation. That project is
-the **development** one (`sxsloxdtpcjpdobwpwsm`, synthetic data only, also
-behind the public test site). Production is a separate project,
+the **development** one (`sxsloxdtpcjpdobwpwsm`, synthetic data only, plus
+one masked tenant under BR198, also behind the public test site). Production is a separate project,
 `sqzqausvkgjsdwcgicxn`, which receives migrations only
 by hand and which nothing points at until a real club arrives — see
 [`docs/ea/5_technology/2_deployment.md`](./docs/ea/5_technology/2_deployment.md).

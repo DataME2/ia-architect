@@ -58,6 +58,10 @@ jobs:
       # one advisory surface, committing nothing, and no model called.
       - name: Assistant autonomy
         run: python3 scripts/check_assistant.py
+      # Scope 132 (BR198). A masked copy of a club's history that still held
+      # one real name would be a child's record on a test site.
+      - name: History masking
+        run: python3 scripts/import_history.py --self-test
 
   # check_rls.py proves a policy exists. This proves it works — a policy can
   # be present and wrong, and the failure is silent until one club reads

@@ -14,7 +14,7 @@ must never appear**.
 | ----------- | ------- | -------- | -------------- |
 | **Local** | `next dev` on a developer machine | **The development Supabase project** (`sxsloxdtpcjpdobwpwsm`) | One developer |
 | **Preview** | Vercel preview deployment, one per pull request | The same development project — **never production** | Anyone with the PR link |
-| **Test** | Vercel, the deployment of `main`, at **`pitchpeople-test.datamanagementengineer.com`** (DNS in Route 53) ([scope 114](../../scope/114_a_public_test_site_and_a_production_project.md)) | The development project — **synthetic data only** | Anyone: it is shown to clubs |
+| **Test** | Vercel, the deployment of `main`, at **`pitchpeople-test.datamanagementengineer.com`** (DNS in Route 53) ([scope 114](../../scope/114_a_public_test_site_and_a_production_project.md)) | The development project — **synthetic data only**, and one masked copy of the pilot club's history in a tenant of its own (BR198, [scope 132](../../scope/132_the_pilot_clubs_history_masked_and_imported.md)) | Anyone: it is shown to clubs |
 | **Production** | Vercel, Sydney region | **`sqzqausvkgjsdwcgicxn`**, tagged PROD, Supabase `ap-southeast-2`, migrations 0001–0100 applied (0001–0098 on 2026-10-28, 0099 and 0100 on 2026-10-31), no rows ([scope 115](../../scope/115_production_moves_to_a_new_project.md); 0098 from [scope 116](../../scope/116_contact_and_demo_requests_reach_an_inbox.md); 0099 and 0100 from [scopes 130](../../scope/130_the_clubs_fee_schedule.md) and [131](../../scope/131_every_registration_priced_from_the_schedule.md)) — **guarded**, not yet pointed at. It supersedes `pitchpeople-prod` (`afufvmkxjkulygeoajpw`, [scope 114](../../scope/114_a_public_test_site_and_a_production_project.md)) and `ltd-production` (`jqyfbgojgxpymjgecxgx`) | Club users |
 
 > **A production project now exists — `ltd-production`, Sydney — and
@@ -61,7 +61,7 @@ must never appear**.
 > and the reasoning are in
 > [scope 49's runbook](../../scope/49_an_environment_of_its_own.md).
 >
-> **Two more, confirmed by the product owner October 2026** ([scope 78](../../scope/78_thirteen_decides_money_and_saturdays.md)). The development project holds **synthetic data only** — no real family, referee or bank detail — and production will be a **new Supabase project, tagged prod**, created when the product meets expectations. In it:
+> **Two more, confirmed by the product owner October 2026** ([scope 78](../../scope/78_thirteen_decides_money_and_saturdays.md)). The development project holds **synthetic data only** — no real family, referee or bank detail — and production will be a **new Supabase project, tagged prod**, created when the product meets expectations. **Amended 1 November 2026** ([scope 132](../../scope/132_the_pilot_clubs_history_masked_and_imported.md)): the product owner allowed a masked copy of the pilot club's history onto the development project, in its own tenant. BR198 says what masked means; no real name, contact, number or note is in it. In production:
 >
 > 1. **The simulated referee payout is refused** (BR162, [decision 16](../../decisions/16_the_platform_records_a_payout_a_provider_moves_it.md)) — only a connected provider may mark a run paid.
 > 2. **`payout_nomination.bsb` and `account_number` are encrypted at rest** (Supabase Vault / pgsodium), on top of the masking and the three-role read already enforced.
