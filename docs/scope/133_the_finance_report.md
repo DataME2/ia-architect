@@ -3,7 +3,7 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** branch `claude/finance-report` (local, not pushed), built on
+**Delivered as:** branch `claude/finance-report`, built on
 [scope 132](./132_the_pilot_clubs_history_masked_and_imported.md)'s branch,
 whose tables it reads.
 
