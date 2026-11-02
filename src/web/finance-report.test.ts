@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import {
-  billsPage, collectionRate, compactCents, componentRows, delta, monthColumns, monthLabel, niceTicks,
+  billsPage, collectionRate, compactCents, componentRows, delta, money, monthColumns, monthLabel, niceTicks,
   parseTeamSort, pickSeason, previousSeason, seasonBars, sortTeams, type FinanceSeason, type FinanceTeam,
 } from './finance-report.ts';
 
@@ -43,6 +43,10 @@ test('the figures say what changed, and which way is good news', async (t) => {
   await t.test('nothing to compare with says nothing', () => {
     assert.equal(delta(5, null, true), null);
     assert.equal(delta(5, 0, true), null);
+  });
+  await t.test('totals with separators, to the cent', () => {
+    assert.equal(money(686_751_00), '$686,751.00');
+    assert.equal(money(-4_025_00), '-$4,025.00');
   });
   await t.test('compact amounts for axes and bar ends', () => {
     assert.equal(compactCents(970_00), '$970');

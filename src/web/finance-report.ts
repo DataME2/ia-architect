@@ -6,8 +6,6 @@
  * what the bills were made of, when they went out, and each team's share.
  * Money stays in cents; only these functions turn it into words.
  */
-import { formatMoney } from '../domain/finance/money.ts';
-
 export type Category = 'club' | 'governing' | 'levy' | 'adjustment' | 'discount';
 
 export interface FinanceTeam {
@@ -122,7 +120,12 @@ export function compactCents(cents: number): string {
   return `${sign}$${Math.round(dollars)}`;
 }
 
-export const money = formatMoney;
+const AUD = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' });
+
+/** $686,751.00: a season's totals are read across a room, so they carry separators. */
+export function money(cents: number): string {
+  return AUD.format(cents / 100);
+}
 
 /** "2025-10" → "Oct 2025". */
 export function monthLabel(month: string): string {

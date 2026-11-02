@@ -192,7 +192,7 @@ export function FinanceReport({
                         <tr key={t.team} aria-current={query.team === t.team ? 'true' : undefined}>
                           <th scope="row">
                             <a href={href({ team: query.team === t.team ? null : t.team, page: null })}>{t.team}</a>
-                            {t.category !== null && <span className="hint"> · {t.category}</span>}
+                            {t.category && <span className="hint"> · {t.category}</span>}
                           </th>
                           <td className="num">{t.players}</td>
                           <td className="num">{money(t.invoiced)}</td>

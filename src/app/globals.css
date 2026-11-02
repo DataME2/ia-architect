@@ -8884,6 +8884,13 @@ html:has(.home) {
 .fin-teams tr[aria-current='true'] {
   background: var(--surface-2);
 }
+.fin-teams tbody th {
+  background: transparent;
+  font-size: inherit;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
 .fin-meter {
   display: inline-block;
   width: 6rem;
