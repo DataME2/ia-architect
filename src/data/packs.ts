@@ -10,7 +10,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { recordsForHandover } from '../domain/submission/build-pack.ts';
 import { statusAfterHandover, statusAfterSubmissionOutcome } from '../domain/submission/status.ts';
 import type { SubmissionPack, SubmissionState } from '../domain/submission/types.ts';
-import { QueryError, recordAudit } from './queries.ts';
+import { QueryError, recordAudit, selectIn } from './queries.ts';
 import type { RegistrationRow, SubmissionPackRow, SubmissionRecordRow } from './schema.ts';
 
 function unwrap<T>(table: string, result: { data: T | null; error: { message: string } | null }): T {
@@ -194,16 +194,17 @@ export async function recordHandover(
   // Move each covered registration to the eligibility gate.
   const personIds = pack.manifest.map((r) => r.personId);
   if (personIds.length > 0) {
-    const affected = unwrap<Pick<RegistrationRow, 'id' | 'status'>[]>(
-      'registration',
-      await client
+    // A season's pack can name more people than one URL holds (selectIn).
+    const affected = await selectIn<Pick<RegistrationRow, 'id' | 'status'>>('registration', personIds, (ids, from, to) =>
+      client
         .from('registration')
         // Not '*': the balance column is not selectable since 0070.
         .select('id, status')
         .eq('club_id', clubId)
         .eq('season_id', pack.season_id)
-        .in('person_id', personIds),
-    );
+        .in('person_id', ids)
+        .order('id')
+        .range(from, to));
 
     for (const registration of affected) {
       const next = statusAfterHandover(registration.status);

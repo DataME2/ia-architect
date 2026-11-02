@@ -13,7 +13,7 @@ import { mayHoldRole } from '../domain/teams/clearance.ts';
 import type { Clearance, Team, TeamRole } from '../domain/teams/types.ts';
 import { ageAt, type IsoDate, type Person } from '../domain/types.ts';
 import { toClearance, toPerson, toTeam } from './mappers.ts';
-import { QueryError, recordAudit } from './queries.ts';
+import { QueryError, recordAudit, selectIn } from './queries.ts';
 import type { ClearanceRow, PersonRow, TeamMemberRow, TeamRow } from './schema.ts';
 import { buildRoster, type Roster, type RosterEntry } from '../web/team-view.ts';
 import { displayNameFor, fullLegalName } from '../web/queue-view.ts';
@@ -55,35 +55,23 @@ export async function loadTeams(
   );
   if (teamRows.length === 0) return [];
 
-  const memberRows = unwrap<TeamMemberRow[]>(
-    'team_member',
-    await client
-      .from('team_member')
-      .select('*')
-      .eq('club_id', clubId)
-      .in('team_id', teamRows.map((t) => t.id)),
-  );
+  // A season's rosters and their people outgrow one request (selectIn).
+  const memberRows = await selectIn<TeamMemberRow>('team_member', teamRows.map((t) => t.id), (ids, from, to) =>
+    client.from('team_member').select('*').eq('club_id', clubId).in('team_id', ids).order('id').range(from, to));
 
   const personIds = [...new Set(memberRows.map((m) => m.person_id))];
-  const people =
-    personIds.length === 0
-      ? []
-      : unwrap<PersonRow[]>(
-          'person',
-          await client.from('person').select('*').eq('club_id', clubId).in('id', personIds),
-        );
+  const people = await selectIn<PersonRow>('person', personIds, (ids, from, to) =>
+    client.from('person').select('*').eq('club_id', clubId).in('id', ids).order('id').range(from, to));
   const byId = new Map(people.map((p) => [p.id, toPerson(p)]));
 
   // Clearances may be unreadable to this caller — a coordinator or coach can
   // see the roster but not the card numbers — and that is a policy decision,
   // not an error. An empty list simply means every official reads as
   // unverified to them, which is the safe way round.
-  const clearanceRows = await client
-    .from('clearance')
-    .select('*')
-    .eq('club_id', clubId)
-    .in('person_id', personIds.length === 0 ? ['00000000-0000-0000-0000-000000000000'] : personIds);
-  const clearances = (clearanceRows.data ?? []).map((row) => toClearance(row as ClearanceRow));
+  const clearanceRows = await selectIn<ClearanceRow>('clearance', personIds, (ids, from, to) =>
+    client.from('clearance').select('*').eq('club_id', clubId).in('person_id', ids).order('id').range(from, to))
+    .catch(() => []);
+  const clearances = clearanceRows.map(toClearance);
 
   const clearancesFor = (personId: string): readonly Clearance[] =>
     clearances.filter((c) => c.personId === personId);
