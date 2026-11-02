@@ -8631,3 +8631,393 @@ html:has(.home) {
     grid-column: 1 / -1;
   }
 }
+
+/* ------------------------------------------------- finance report (scope 133)
+   Three series roles, from the data-viz reference palette, validated on
+   this board's surfaces (dark #12382a, light #ffffff): collected, still
+   outstanding, and billed for the single-series charts. A reduction (the
+   sibling discount) is neutral ink, labelled. Text never wears a series
+   colour; the key beside it carries identity. */
+.fin {
+  --fin-collected: #3987e5;
+  --fin-outstanding: #d95926;
+  --fin-billed: #199e70;
+  --fin-reduces: var(--border-strong);
+}
+@media (prefers-color-scheme: light), print {
+  .fin {
+    --fin-collected: #2a78d6;
+    --fin-outstanding: #eb6834;
+    --fin-billed: #1baf7a;
+  }
+}
+.paper .fin {
+  --fin-collected: #2a78d6;
+  --fin-outstanding: #eb6834;
+  --fin-billed: #1baf7a;
+}
+
+.fin .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.fin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.fin-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--space-3);
+}
+.fin-delta {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.fin-delta--good {
+  color: var(--ok-text);
+}
+.fin-delta--bad {
+  color: var(--stop-text);
+}
+
+.fin-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.fin-key {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 0.4rem;
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+.fin-key--collected {
+  background: var(--fin-collected);
+}
+.fin-key--outstanding {
+  background: var(--fin-outstanding);
+}
+
+/* Every season: one horizontal bar each, collected then outstanding, a 2px
+   surface gap between them, square at the baseline and rounded at the end. */
+.fin-bars {
+  list-style: none;
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+}
+.fin-bar-row {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius);
+  color: var(--text);
+  text-decoration: none;
+}
+.fin-bar-row:hover {
+  background: var(--surface-2);
+}
+.fin-bar-row[aria-current='true'] {
+  background: var(--surface-2);
+  box-shadow: inset 3px 0 0 var(--signal);
+  font-weight: 650;
+}
+.fin-bar-track {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+.fin-seg {
+  display: block;
+  height: 20px;
+  transform-origin: left;
+  animation: fin-grow 600ms var(--ease-chalk) both;
+}
+.fin-seg--end {
+  border-radius: 0 4px 4px 0;
+}
+.fin-seg--collected {
+  background: var(--fin-collected);
+}
+.fin-seg--outstanding {
+  background: var(--fin-outstanding);
+}
+.fin-bar-total {
+  margin-left: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* What the bills were made of: ranked bars, one hue, the reduction in ink. */
+.fin-hbars {
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+}
+.fin-hbars li {
+  display: grid;
+  grid-template-columns: 10rem 1fr 7.5rem;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+}
+.fin-hbar-label {
+  font-size: 0.9rem;
+}
+.fin-hbar {
+  display: block;
+  height: 16px;
+  border-radius: 0 4px 4px 0;
+  background: var(--fin-billed);
+  transform-origin: left;
+  animation: fin-grow 600ms var(--ease-chalk) both;
+}
+.fin-hbar--reduces {
+  background: var(--fin-reduces);
+}
+.fin-hbar-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* When the bills went out: columns on one axis, the count in the tooltip
+   and the table, never on a second axis. */
+.fin-cols-chart {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2);
+  height: 200px;
+}
+.fin-axis {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: calc(100% - 1.4rem);
+  margin: 0;
+  padding: 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.fin-axis li {
+  line-height: 0;
+}
+.fin-cols {
+  list-style: none;
+  display: flex;
+  gap: 2px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.fin-cols li {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+.fin-col-plot {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  border-bottom: 1px solid var(--border);
+}
+.fin-col {
+  display: block;
+  width: min(24px, 80%);
+  border-radius: 4px 4px 0 0;
+  background: var(--fin-billed);
+  transform-origin: bottom;
+  animation: fin-rise 600ms var(--ease-chalk) both;
+}
+.fin-col-label {
+  height: 1.4rem;
+  line-height: 1.4rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.fin-seg:hover,
+.fin-hbar:hover,
+.fin-hbar:focus-visible,
+.fin-col:hover,
+.fin-col:focus-visible {
+  filter: brightness(1.15);
+}
+.fin-table-view {
+  margin-top: var(--space-3);
+}
+.fin-table-view summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.fin-teams tr[aria-current='true'] {
+  background: var(--surface-2);
+}
+.fin-teams tbody th {
+  background: transparent;
+  font-size: inherit;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.fin-meter {
+  display: inline-block;
+  width: 6rem;
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fin-collected) 25%, transparent);
+  vertical-align: middle;
+}
+.fin-meter .fin-seg {
+  height: 8px;
+  border-radius: 999px;
+}
+.fin-meter-value {
+  margin-left: var(--space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.fin-bill-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.fin-bill-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.fin-bill-filters .fin-check {
+  flex-direction: row;
+  align-items: center;
+  min-height: 44px;
+}
+.fin-bills {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+.fin-bills > li {
+  border-bottom: 1px solid var(--border);
+}
+.fin-bills summary {
+  display: grid;
+  grid-template-columns: minmax(12rem, 2fr) minmax(8rem, 1fr) 7rem 7rem 9rem;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) 0;
+  cursor: pointer;
+}
+.fin-bill-who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.fin-owed {
+  color: var(--warn-text);
+  font-weight: 650;
+}
+.fin-lines {
+  margin: var(--space-2) 0;
+}
+.fin-pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.fin-tip {
+  position: fixed;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  min-width: 9rem;
+  padding: 0.45rem 0.65rem;
+  transform: translate(-50%, calc(-100% - 10px));
+  pointer-events: none;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  font-size: 0.8rem;
+}
+.fin-tip strong {
+  font-size: 0.95rem;
+}
+.fin-tip span {
+  color: var(--muted);
+}
+
+@keyframes fin-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes fin-rise {
+  from {
+    transform: scaleY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fin-seg,
+  .fin-hbar,
+  .fin-col {
+    animation: none;
+  }
+}
+@media (max-width: 40rem) {
+  .fin-bar-row {
+    grid-template-columns: 4.5rem 1fr;
+  }
+  .fin-hbars li {
+    grid-template-columns: 1fr auto;
+  }
+  .fin-hbars .fin-hbar-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .fin-bills summary {
+    grid-template-columns: 1fr auto;
+  }
+  .fin-bill-when {
+    grid-column: 1 / -1;
+  }
+}
