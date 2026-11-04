@@ -99,6 +99,21 @@ as scope 134 designed it. It implements 134's WP2a; it does not change
     **every** page, so the link moved to the footer;
   - the scenario table and a figure tile overflowed the estimate panel.
 
+## Housekeeping on DEV
+
+At the product owner's request (4 November 2026), DEV's own migration
+history (`supabase_migrations.schema_migrations`) gained an entry for
+**0103**, which had been applied through the SQL editor and so was missing
+from it. The entry follows the one 0102 has: version `20261104205449`, the
+moment 0103's receipt was written; the file's name; and the file's text as
+its one statement. Only the history was written: nothing was re-run.
+
+**What it does not fix.** From 0021 onwards that history is versioned by
+the time each migration was applied, not by its file number. It has never
+matched this repository's file names, so `supabase db push` against these
+files would not line up with it, with or without this entry. The entry makes
+the history complete; it does not make the CLI safe to point at DEV.
+
 ## In scope / out of scope
 
 | In scope | Out of scope (gaps, candidate future work) |
