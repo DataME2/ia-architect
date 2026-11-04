@@ -44,3 +44,37 @@ the Q4 2026 MVP — see the adopted interpretation in
 [2_capabilities-and-resources.md](./2_capabilities-and-resources.md)'s
 Courses of action. It joins the platform in a later initiative once
 C1–C11 are live.
+
+## Run a club's money with every figure explained
+
+Added November 2026 for Goal **G9**
+([scope 134](../../scope/134_pitchpeople_financial_intelligence.md)). The
+stream above is how the *platform* is delivered; this one is how a *club*
+gets value from its finance once it is live. It is a cycle a season turns
+once: what was learned in **Improve** sets next season's **Configure**.
+
+```mermaid
+flowchart LR
+  configure["Configure<br><i>fees, policies,<br>financial year, currency</i>"]:::strategy
+  plan["Plan<br><i>event budgets,<br>scenarios</i>"]:::strategy
+  charge["Charge<br><i>registrations,<br>event entries</i>"]:::strategy
+  collect["Collect<br><i>payments, plans,<br>relief</i>"]:::strategy
+  reconcile["Reconcile<br><i>provider records<br>against the club's</i>"]:::strategy
+  report["Report & explain<br><i>dashboards,<br>charge explanations</i>"]:::strategy
+  improve["Improve<br><i>season comparison,<br>opt-in benchmarks</i>"]:::strategy
+
+  configure --> plan --> charge --> collect --> reconcile --> report --> improve
+  improve -.->|next season| configure
+
+  classDef strategy fill:#f5deaa,stroke:#c8a24a,color:#333
+```
+
+| Stage | Delivers | Capabilities exercised | Built today |
+| ----- | -------- | ---------------------- | ----------- |
+| **Configure** | The club's fee schedule and terms, governing-body charges, the policies that apply to it, its financial year and its currency | C3, C23 | Fee schedule and terms ([scope 130](../../scope/130_the_clubs_fee_schedule.md)); **no** policy versions, financial year or currency |
+| **Plan** | An event's budget and its sanctioning estimate, before the club commits; scenarios compared; a forecast to the season's and financial year's end (BR220) | C22, C26 | **Nothing** |
+| **Charge** | What each family and each event entrant owes, priced from the schedule and kept as history | C3, C22 | Registrations priced and the pricing kept ([scope 131](../../scope/131_every_registration_priced_from_the_schedule.md)); **no** event charges |
+| **Collect** | Payments, payment plans, voucher and hardship relief | C3, C24 | Recorded by hand (BR77), plans (BR74–BR76), vouchers (BR81), hardship (BR164); **no** provider |
+| **Reconcile** | The club's records matched to what a provider or bank confirms, with exceptions for a person | C24 | **Nothing** |
+| **Report & explain** | Role dashboards; every figure with its basis, period, currency and as-at (BR143); every charge with the policy version behind it | C8, C23 | The finance report across seasons ([scope 133](../../scope/133_the_finance_report.md)) and the arrears view ([scope 48](../../scope/48_arrears_visibility_wwcc_reminders_and_the_administrator_constraint.md)) |
+| **Improve** | Season-on-season comparison, financial health indicators (BR221) and, for a club that opted in, anonymised benchmarks | C8, C25, C26 | Season comparison (scope 133); **no** benchmarking |

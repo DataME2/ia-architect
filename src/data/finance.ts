@@ -12,12 +12,11 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { buildSchedule, finishesWithinSeason, totalReceived } from '../domain/finance/plan.ts';
+import { buildSchedule, finishesWithinSeason } from '../domain/finance/plan.ts';
 import type { Payment, PaymentMethod, PaymentPlan, PlanCadence } from '../domain/finance/types.ts';
 import type { IsoDate } from '../domain/types.ts';
 import { toPayment, toPaymentPlan } from './mappers.ts';
 import { QueryError, recordAudit } from './queries.ts';
-import { withMoney, type RegistrationBaseRow } from './registration-money.ts';
 import type { PaymentInstallmentRow, PaymentPlanRow, PaymentRow } from './schema.ts';
 
 function unwrap<T>(table: string, result: { data: T | null; error: { message: string } | null }): T {
@@ -203,11 +202,15 @@ export async function cancelPaymentPlan(
  * Returns the receipt's id, which voucher verification needs so the relief
  * it applies can be pointed at the payment that carries it (BR81).
  *
- * `registration.outstanding_amount_cents` is kept as the running balance so
- * BR3's no-plan branch and the queue's totals stay a single column read.
- * It is derived here from the receipts rather than decremented, so a
- * reversing entry (BR77) corrects it by the same route as an ordinary
- * payment and the two can never disagree.
+ * **One database call, not two** (migration 0103, scope 134 WP1a). This used
+ * to insert the payment and then update `registration.outstanding_amount_cents`
+ * in a second request — which RLS lets the admin, registrar and IT manager
+ * do but not the treasurer, so a treasurer's payment was recorded and the
+ * balance silently stayed where it was. `app_record_payment` checks the
+ * caller is the admin or treasurer (BR78), writes the receipt, its audit
+ * line and the new balance together, and refuses the lot if any part fails.
+ * The balance arithmetic is unchanged: with a live plan, the plan total less
+ * every receipt; without one, the balance less this receipt.
  */
 export async function recordPayment(
   client: SupabaseClient,
@@ -220,61 +223,17 @@ export async function recordPayment(
     readonly reference: string | null;
     readonly reversesPaymentId: string | null;
   },
-  actorUserId: string,
 ): Promise<string> {
-  const inserted = unwrap<PaymentRow[]>(
-    'payment',
-    await client
-      .from('payment')
-      .insert({
-        club_id: clubId,
-        registration_id: registrationId,
-        amount_cents: input.amountCents,
-        received_on: input.receivedOn,
-        method: input.method,
-        reference: input.reference,
-        reverses_payment_id: input.reversesPaymentId,
-        recorded_by_user_id: actorUserId,
-      })
-      .select('id, club_id, registration_id, amount_cents, received_on, method, reference, reverses_payment_id, recorded_by_user_id, created_at'),
-  );
-  const row = inserted[0];
-  if (row === undefined) throw new QueryError('payment', 'insert returned no row');
-
-  const { plan, payments } = await loadFinance(client, clubId, registrationId);
-
-  // With a plan, the balance is re-derived from the plan total and every
-  // receipt, so a reversing entry (BR77) corrects it by the same route as an
-  // ordinary payment and the two can never disagree. Without one there is no
-  // recorded total to derive from — the registration's own figure is the
-  // only statement of what was charged — so the receipt is subtracted from
-  // it.
-  const outstanding =
-    plan !== null
-      ? plan.totalCents - totalReceived(payments)
-      : (await withMoney(client, [{ id: registrationId } as RegistrationBaseRow]))[0]?.outstanding_amount_cents ?? 0;
-
-  const nextOutstanding = plan !== null ? outstanding : outstanding - input.amountCents;
-
-  const { error } = await client
-    .from('registration')
-    .update({ outstanding_amount_cents: nextOutstanding })
-    .eq('id', registrationId)
-    .eq('club_id', clubId);
-  if (error !== null) throw new QueryError('registration', error.message);
-
-  await recordAudit(client, clubId, actorUserId, {
-    action: 'payment_recorded',
-    entity: 'payment',
-    entityId: row.id,
-    detail: {
-      registrationId,
-      amountCents: input.amountCents,
-      method: input.method,
-      reversesPaymentId: input.reversesPaymentId,
-      rule: 'BR77',
-    },
+  const { data, error } = await client.rpc('app_record_payment', {
+    p_club_id: clubId,
+    p_registration_id: registrationId,
+    p_amount_cents: input.amountCents,
+    p_received_on: input.receivedOn,
+    p_method: input.method,
+    p_reference: input.reference,
+    p_reverses_payment_id: input.reversesPaymentId,
   });
-
-  return row.id;
+  if (error !== null) throw new QueryError('payment', error.message);
+  if (typeof data !== 'string') throw new QueryError('payment', 'recording a payment returned no id');
+  return data;
 }

@@ -61,7 +61,33 @@ with users and real data.
   deferred until the registration slice is working — it does not block it,
   and the API this stack exposes serves either.
 - **Payments.** Square is the adopted provider (C3), not in the first
-  slice.
+  slice. **Restated November 2026
+  ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md),
+  [decision 20](../../decisions/20_payments_through_a_provider_port_never_on_the_platform.md)):**
+  Square and Stripe are candidate adapters behind one provider port, and
+  the first is still to be chosen.
 - **SMS.** Email arrived with C7 ([scope 36](../../scope/36_the_platform_learns_to_send_and_to_stop.md));
   SMS buys little that email does not until a club asks. Push notification
   (BR64) still belongs with the mobile decision.
+
+## Financial Intelligence: what it needs from the stack
+
+Assessed November 2026 for [scope 134](../../scope/134_pitchpeople_financial_intelligence.md).
+**No new infrastructure** — every need is met by a service already in the
+table above, and the one that might later outgrow it is named.
+
+| Need | Met by | Change |
+| ---- | ------ | ------ |
+| Ledger, event budgets, policies, grants, benchmarks | **Supabase Postgres**, under RLS, with definer functions where a read must refuse rather than under-count | New migrations only. Two new tenantless tables (policy versions, benchmark aggregates) need `check_rls.py` exemptions argued the way decision 15 argued the catalogue's |
+| Webhook ingress | **Next.js Route Handlers on Vercel** (`src/app/api/webhooks/[provider]/route.ts`), reading the raw body for signature verification | One new `createAdminClient` reason, `provider-webhook`, that calls one definer function |
+| Retries, reconciliation sweeps, benchmark runs | **Vercel Cron** calling ordinary route handlers, as BR50 and BR51 already do | New `vercel.json` entries. A provider's own retries cover delivery; a sweep covers anything left unmatched. **A queue is the first thing this would outgrow**, and is not needed at pilot volume |
+| Secrets | **Vercel server-scoped environment variables**; per-club provider tokens in **Supabase Vault** | Names in [the deployment configuration](./2_deployment.md#configuration); `.env.example` gains them with no values |
+| Monitoring | The existing migration-drift alert pattern ([scope 94](../../scope/94_a_migration_proves_it_ran.md)) | A platform alert when webhook signatures start failing or exceptions accumulate — an operator alert, not a message to a data subject (BR146) |
+| Backup and recovery | Supabase's backups and the rehearsed restore ([annex](../../annexes/backup-and-restore.md)) | The restore rehearsal gains the new tables and must show their policies came back (the RLS-first check it already performs). Provider transactions can be re-fetched from the provider; the club's own records cannot, which is why they stay the system of record |
+| Currency formatting | `Intl.NumberFormat` with the club's currency | No dependency |
+| The public event calculator | **A prerendered Next.js page on Vercel**, computing in the browser | None: no API, no database, no secret. The page ships the pure functions to the browser, which `src/domain/` already allows (no I/O, no DOM dependency) |
+
+**What would justify a change**, recorded so it is not made early: a
+provider whose events arrive faster than a Route Handler can record them,
+or reconciliation sweeps that exceed a cron run's time limit. Neither is
+plausible at one club's volume of about 700 registrations a season.

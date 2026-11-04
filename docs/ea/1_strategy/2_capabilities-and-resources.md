@@ -13,25 +13,89 @@ What PitchPeople must be able to do to realize the goals in
 | - | ---------- | ------------------ |
 | C1 | **Identity & role management** — maintain one `Person` per human, with roles (player, referee, coach, guardian, committee member, …) that can overlap and change over time | G1 |
 | C2 | **Player registration management** — season registrations, guardians, required documents, registration status, and international transfer clearance (ITC) for players whose last registration was overseas | G2 |
-| C3 | **Player finance management** — fees, payment plans, installments, vouchers, reconciliation | G3 |
+| C3 | **Player finance management** — fees, payment plans, installments, vouchers, reconciliation. **Extended by G9** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP1): a derived balance rather than a typed one, authorised and categorised adjustments, refunds as their own kind, and currency on every amount — still the club's ledger of obligations, never its books of account | G3, G9 |
 | C4 | **Referee lifecycle management** — profile, classification pathway, fitness/training/knowledge requirements, availability, appointments, role-conflict detection, post-match verification | G4 |
 | C5 | **Referee finance management** — fee schedules, payment claims, approval, payment batches, remittances | G4 |
 | C6 | **Data quality & compliance** — deterministic rule evaluation, duplicate detection, exception lists, audit trail | G2, G4, G5 |
 | C7 | **Communications** — templated transactional messages, reminders, generic-question FAQ handling | G5 |
-| C8 | **Reporting & dashboards** — registration, financial, and referee dashboards for administrative decisions | G2, G3, G4 |
+| C8 | **Reporting & dashboards** — registration, financial, and referee dashboards for administrative decisions. **Extended by G9** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP4): role-appropriate financial dashboards (president, treasurer, registrar, events coordinator, referee coordinator), each metric stating its calculation basis, period, currency and as-at moment (BR143) | G2, G3, G4, G9 |
 | C9 | **Historical data consolidation** — a club's multi-year data brought into a RAW → STAGING → unified model pipeline, feeding C8's dashboards. **Restated August 2026** from a one-off read-only extraction against *the pilot club's* systems to a **repeatable onboarding step driven by a club-supplied export**: a club exporting its own data has an unambiguous authorisation basis under BR68, which sidesteps BR53 entirely, and Majestri bulk export is confirmed available. Getting its own history back is a large part of why a club signs — see [scope 28](../../scope/28_onboarding-a-club-and-its-history.md), and **BR90**, which keeps imported rows out of the live queue and out of submission packs | G6 |
 | C20 | **Player performance record** — what a player actually did: appearances, minutes, goals and assists per season, against fixtures the club records itself. Distinct from C2, which knows a player is *enrolled*, and from C8, which would report on this if it existed. The advanced metrics (xG, shots, big chances) are designed and unbuilt — they need event data with pitch coordinates, which no volunteer records and no provider sells for junior football ([scope 30](../../scope/30_the-player-record-and-what-a-statistic-costs.md)) | G1, G2 |
 | C21 | **Athlete development (the academy)** — what an academy needs about its players week to week, read only by the people the club names: training nights and who came, minutes by position, and, still planned, wellbeing, RPE, game reflections and player reports. Driven by the pilot club's technical director ([scope 112](../../scope/112_the_academy_in_the_technical_directors_workspace.md)). **Training and game time realised** (BR181–BR183), and the **daily check-in, under its own consent** (BR184–BR187, [scope 113](../../scope/113_the_academy_tab_and_the_daily_check_in.md)); reflections and reports still planned | G5 |
 | C19 | **Club governance & administration** — the committee as a record: who holds which office, elected at which Annual General Meeting, serving until the next. Gives the rules that rest on Committee authority (BR21, BR22) something to point at | G1, G3 |
 | C10 | **Multitenant platform operations** — tenant provisioning, role-based access control, per-club branding and season configuration, central super-administration | G1–G6 (cross-cutting). Provisioning's shape is settled ([decision 7](../../decisions/7_tenant-provisioning-by-owner-issued-invitation.md), **BR89**): owner-authorised, contract-evidenced, delivered by a single-use link — and today still the hand-run sequence in the [annex](../../annexes/tenant-provisioning.md). **Central super-administration is unbuilt and needs its own decision record before it is**: a cross-tenant reader is a P5 exception, and provisioning does not require one |
 | C11 | **Competition & calendar management** — maintain each governing association's competition catalog (tiers, format), its **Competition Regulations and Playing Formats** (small-sided rules, field and ball dimensions, match duration, squad sizes per age group), each club's season entries into those competitions, and the resulting match calendar that referee appointment and team/registration structure depend on | G2, G4 |
-| C12 | **Carnival & event management** — create and manage one-off, multi-club carnival/grassroots events (draws or fixtures, results), and publish an account-free public view of them for coaches, parents, and the general public | G7 |
+| C12 | **Carnival & event management** — create and manage one-off, multi-club carnival/grassroots events (draws or fixtures, results), and publish an account-free public view of them for coaches, parents, and the general public. Its money is **C22**, on the same event rather than a second one | G7 |
 | C13 | **Calendar distribution** — publish a Person's own confirmed commitments (initially referee appointments) as a standards-based calendar feed their existing Gmail, Outlook, or Apple calendar subscribes to, so appointments, changes, and cancellations appear in the calendar they already use | G4, G5 |
 | C14 | **External registration reconciliation** — continuously match the club's own registrations against the governing bodies' systems (SQUADI, PlayFootball/Football Australia), identify who is missing from which, resolve identity across systems that no longer share a stable identifier, and surface each gap as an actionable exception carrying its eligibility consequence (BR43) rather than as a spreadsheet row | G2, G6 |
 | C15 | **Consent & privacy rights management** — capture explicit, scoped, revocable guardian consent for minors; service data-subject requests (access, correction, erasure) against a recorded lawful basis; and hold the per-jurisdiction privacy configuration that determines which framework applies to which tenant | G1, G5 (cross-cutting, with P7) |
 | C16 | **External registration submission** — assemble the club's own validated registrations into a structured, versioned **Registration Submission Pack** that the governing body can import into its own system, hand it over through a controlled channel, and track what was sent, when, to whom, and what came back. The platform produces a file; it never connects to the governing body's system | G2, G6 |
 | C17 | **Role-based mobile experience** — one app per `Person`, showing the information and actions of whichever role they are currently acting in, with an explicit switch when they hold several. For a player or match official: the next fixture with venue and kick-off, what they need to bring or know, and a one-tap **available / not available** response carrying a brief reason. For a coach, technical director, or coordinator: who has responded, who has not, and who is unavailable and why. For a guardian: all of the above on behalf of their child. **Read-only offline** (BR66): fixture information is readable without connectivity and carries its last-synced time; responses require a connection and say so | G1, G4, G5 |
 | C18 | **Life member register & recognition** — record honorary life membership as an indefinite `Person` role (no season, no automatic expiry), keep a living life member's contact details demonstrably current for celebration outreach, and maintain a permanent honour roll that includes those who have died — retained regardless of BR40's participation-based window, and never contacted | G8 |
+| C22 | **Event economics** — an event's budget, expected and actual revenue and expenses, applicable governing-body sanctioning charges, profitability, cost and revenue per participant, break-even participant numbers, and scenarios simulated before a budget is approved. **Integrated into C12's existing event** (`carnival_event`), never a second event entity. **First delivered as an account-free public calculator** (BR222): anyone planning a carnival, a football holiday clinic or a tournament estimates its financial impact with the same model a club's budget will use, entering their own figures, with nothing read from any club and nothing stored. **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP2) | G9, G7 |
+| C23 | **Financial governance & transparency** — versioned fee and sanctioning policies with an identifiable source, jurisdiction, version, effective dates and approval status; a charge explained by the policy version that produced it; publication, consultation and decision history; club-authorised reporting to a governing body; and published transparency reports that distinguish *reported* allocation from *audited* expenditure. Club side first; the governing-body side within **P8** (accepted 4 November 2026). **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP5) | G9 |
+| C24 | **Payment integration & reconciliation** — a provider-independent port with one adapter per provider (Square, Stripe, Australian and New Zealand bank files and statements), inbound collections and outbound payouts as separate capabilities, signed and idempotent webhook ingestion, provider transactions kept apart from the club's own records, and a reconciliation engine whose unmatched items are exceptions for a person, never silently closed. The platform records; a provider moves money ([decision 16](../../decisions/16_the_platform_records_a_payout_a_provider_moves_it.md), [decision 20](../../decisions/20_payments_through_a_provider_port_never_on_the_platform.md)). **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP3) | G9, G3, G4 |
+| C25 | **Financial benchmarking** — a club's figures compared with an anonymised, aggregated cohort of other clubs, only after it opts in, only for defined metric categories, and only above a minimum cohort size with small and dominated cohorts suppressed. Off by default; never a route around P5 ([decision 21](../../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md)). **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP6) | G9 |
+| C26 | **Financial insight & forecasting** — what the figures mean and where they are heading: a club's *financial health* as a small set of named, explained indicators (collection rate, share overdue, assistance as a share of charges, event surplus or deficit, cash expected against commitments) rather than one score, deterministic forecasts to the end of the season and the financial year from scheduled instalments, the club's own collection history and approved event budgets, and season-on-season performance. Builds on C8's reports; never a model's guess (BR220, BR221). **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP4) | G9 |
+
+### Financial Intelligence, as six connected domains
+
+Adopted November 2026 at the product owner's direction ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md)).
+Goal **G9**'s capabilities are organised as **six connected domains over one
+set of shared financial services, with the Assistant serving all of them**.
+A domain groups capabilities; it is not a new tenant, product or
+application, and every domain reads the same ledger rather than keeping its
+own figures.
+
+```mermaid
+flowchart TB
+  shared["«Capability»<br>Shared financial intelligence services<br>money and currency · one derived ledger · financial year and GST ·<br>explained metrics · access and audit"]:::strategy
+
+  subgraph DOMAINS["Six connected domains"]
+    direction TB
+    subgraph ROW1[" "]
+      direction LR
+      cf["«Capability»<br>Club Finance<br><i>existing foundation</i>"]:::strategy
+      ee["«Capability»<br>Event Economics<br><i>extends existing events</i>"]:::strategy
+    end
+    subgraph ROW2[" "]
+      direction LR
+      ps["«Capability»<br>Payment Services<br><i>new integrations</i>"]:::strategy
+      fg["«Capability»<br>Financial Governance<br><i>new capabilities</i>"]:::strategy
+    end
+    subgraph ROW3[" "]
+      direction LR
+      fi["«Capability»<br>Financial Intelligence<br><i>new capabilities</i>"]:::strategy
+      bm["«Capability»<br>Benchmarking<br><i>future capability</i>"]:::strategy
+    end
+  end
+
+  ai["«Business Actor (AI)»<br>AI Financial Assistant<br>advisory — human decisions remain mandatory"]:::business
+
+  shared -->|serves| DOMAINS
+  ai -.->|explains, summarises, flags| DOMAINS
+
+  classDef strategy fill:#f5deaa,stroke:#c8a24a,color:#333
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+| Domain | Covers | Capabilities | Status | Work package | Release |
+| ------ | ------ | ------------ | ------ | ------------ | ------- |
+| **Shared financial intelligence services** | Money with its currency (BR200); one derived balance and the eight kinds of figure (BR201, BR202); the club's financial year and GST statement (BR219); explained metrics — basis, period, currency, as-at (BR143, BR208); access, refusal and audit (BR142, P5, P8) | The foundation of C3 and C8, shared by every domain | Partly built: integer money, refusing reports, audit; **currency, the derived ledger and the financial year are not** | WP1 | 1 |
+| **Club Finance** | Billing, payments, payment plans, arrears, vouchers, hardship, refunds and adjustments, referee claims and batches | C3, C5 | **Existing foundation** — built and tested, with WP1a's fix (0103); adjustments, refunds as a kind and the debt dashboard are not | WP1a, WP1 | 1 |
+| **Event Economics** | A public calculator of an event's estimated financial impact (BR222); then budgets, entry revenue, expenses, sanctioning estimates, profitability, break-even and scenarios beside the existing event | C22 (on C12's event) | **Extends existing events** — nothing built | WP2a, WP2 | 1 |
+| **Payment Services** | The provider port and adapters, collections, refunds, payouts, signed events, and reconciliation of provider records against Club Finance's | C24 | **New integrations** — payouts simulated only | WP3 | 2 |
+| **Financial Governance** | Versioned fee and sanctioning policies, charge explanations, approvals, consultation, financial returns, grants, transparency and allocation reporting (reported, never audited) | C23 | **New capabilities** — nothing built; grants within P8 | WP5 | 3 |
+| **Financial Intelligence** | Role dashboards, financial health indicators, forecasting, season and financial-year performance, insights | C8 (extended), C26 | **New capabilities** — scope 133's report and the arrears view exist | WP4 | 1–2 (dashboards), 4 (forecasting, health) |
+| **Benchmarking** | Opt-in, privacy-preserving comparison across clubs | C25 | **Future capability** — nothing built; within P8 | WP6 | 4 |
+| **AI Financial Assistant** | Advisory insight across authorised financial information: explain, summarise, flag, draft. Decides nothing | No capability of its own: the Assistant actor (decision 1), across C7 and C8 | Surface built (`AssistantNote.tsx`), no model and no financial drafting | WP7 | 4 |
+
+**Two placements worth stating.** *Reconciliation* lives in Payment Services:
+it matches what a provider reports against Club Finance's records, so Club
+Finance owns the ledger and Payment Services owns the matching. *Referee
+finance* (C5) is Club Finance's obligation and Payment Services' payout —
+the claim and the batch are the club's, the money movement is the
+provider's.
 
 ## Resources
 
@@ -39,7 +103,9 @@ What PitchPeople must be able to do to realize the goals in
 | -------- | ----- |
 | Pilot club's ≥3 years of historical data | Read-only access (Principle P2); the primary asset for validating C6, C8, C9 before wider rollout |
 | Football Queensland *Referee Pathway & Promotion Structure for Match Officials* | External reference document; source of the classification and administrative-requirement rules C4/C6 must encode as data, not code |
-| Square (initial payment provider) | First integration for C3, per pilot-club confirmation (supersedes the discovery document's original Stripe assumption — see [docs/scope/open-questions.md](../../scope/open-questions.md)); Xero is the next post-MVP priority for treasurer/accounting integration (see Courses of action) |
+| Square (initial payment provider) | First integration for C3, per pilot-club confirmation (supersedes the discovery document's original Stripe assumption — see [docs/scope/open-questions.md](../../scope/open-questions.md)); Xero is the next post-MVP priority for treasurer/accounting integration (see Courses of action). **Restated November 2026 ([decision 20](../../decisions/20_payments_through_a_provider_port_never_on_the_platform.md)):** Square and Stripe are both *candidate* adapters behind one provider port (C24), not a commitment to deliver either in the first release; which adapter comes first is [open question #126](../../scope/open-questions.md). **Still unintegrated** — nothing in `src/` calls any payment provider |
+| **Football Queensland Sanctioning Policy (October 2026)** — the named example of an external event policy (relayed by the product owner, 4 November 2026) | The kind of governing-body policy C23 must hold as **configuration, not code**: commercial and non-commercial classification, participant-based and event-based charges, thresholds, exemptions, approval requirements and effective dates. The figures relayed with it — **$15 per junior and $20 per senior carnival participant, and an illustrative $3.30 commercial clinic charge** — are recorded here as an example of shape only: **the policy document is not held in this repository, none of its figures has been verified against it, and none may be hardcoded as a universal rule** (BR211). [Open question #123](../../scope/open-questions.md) asks for the published document |
+| **Payment provider capabilities (candidate, unverified)** | Square, Stripe, and Australian (ABA Direct Entry, NPP/PayID) and New Zealand bank mechanisms each support a different subset of collect, refund, payout and statement import; no adapter may assume an operation its provider does not offer, and each declares what it supports ([decision 20](../../decisions/20_payments_through_a_provider_port_never_on_the_platform.md)). The payout side is already assessed in the [payout providers annex](../../annexes/payout-providers.md); the collection side is not, and must be assessed against each provider's current documentation before an adapter is built |
 | *Australia Competitions per State* discovery reference (state associations + New Zealand Football) | External reference document cataloguing each state/regional association's competitions, tiers, and format taxonomy (Weekly Competition / Tournament; Knock Out, Round Robin, Double Round Robin, Enhanced Round Robin — Fixed Number of Rounds / Full Rounds Only); source of the Competition object C11 must encode as configuration data, not code. Confirms real structural variance between Australian state associations and New Zealand Football (national + regional leagues, Chatham Cup, Kate Sheppard Cup), relevant to [open question #14](../../scope/open-questions.md) |
 | CSV import/export tooling | No official SQUADI or Football Australia API is available to affiliated clubs (confirmed in writing 31 July 2026 — see the Football Queensland response row below); C2/C4/C9 depend on CSV-based reconciliation rather than live integration. **This fallback is no longer unqualified:** the same reply states SQUADI's terms of use do not permit club accounts or Squadi data to be connected or integrated with unauthorised third-party systems, and whether a club-exported CSV consumed by PitchPeople falls inside that restriction is unresolved (BR53, [open question #39](../../scope/open-questions.md)) |
 | **Football Queensland's response to the API access request (31 July 2026)** | The pilot club (North Star FC) made a written developer-access request; Football Queensland's Registrations team replied with four material statements. **(1) Access tiering:** Squadi *does* support API integrations, but access is "generally restricted to Football Australia, Football Queensland and approved system partners", and credentials "are not ordinarily provided directly to affiliated clubs" — so the route is **approved system partner status**, not a club-issued key. **(2) Mandated platform:** affiliated clubs "are required to use Squadi for competition administration and related functionality" — the SQUADI dependency (BR43) is contractual, not merely practical. **(3) The terms-of-use restriction:** the terms "do not permit club accounts or Squadi data to be connected or integrated with unauthorised third-party systems" — the single most consequential sentence for this architecture, because it reaches the CSV fallback and not only the API. **(4) An open door:** FQ asked what functionality, information, use, and internal system are involved, and offered to advise whether Squadi already covers it or what supported process applies. The door is open, and the answer given to those four questions determines which side of statement (3) the platform lands on. Source of BR53 and [open questions #39–#41](../../scope/open-questions.md); see [scope document 13](../../scope/13_squadi-access-refusal-and-the-terms-of-use-constraint.md) |
@@ -291,6 +357,47 @@ What PitchPeople must be able to do to realize the goals in
   rather than discovered mid-build. See
   [open question #31](../../scope/open-questions.md); nothing in the
   current business layer assumes this tier exists.
+
+  > **Narrowed, not answered (November 2026).** Financial Intelligence
+  > ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md))
+  > needs a governing body to *participate* — publish a sanctioning policy,
+  > receive an event application, read a report a club chose to send — and
+  > that is a far smaller thing than a tenant that sees across its clubs.
+  > Principle **P8** (accepted 4 November 2026) draws it as a grant the club makes, per
+  > purpose and per period, rather than a hierarchy
+  > ([decision 19](../../decisions/19_a_club_grants_what_a_governing_body_reads.md)).
+  > The association *tenant* this course describes is still not designed.
+- **Financial Intelligence ships in four releases, club first** (adopted
+  November 2026, [scope 134](../../scope/134_pitchpeople_financial_intelligence.md)).
+  The first commercial priority is the individual club, so each release has
+  to be worth buying on its own:
+
+  | Release | Delivers | Capabilities | Outcome |
+  | ------- | -------- | ------------ | ------- |
+  | **1 — Club Financial Control** | **First, the public event calculator** (WP2a, product owner's objective, 4 November 2026); then the existing finance made trustworthy (a derived balance, categorised adjustments, currency), an outstanding-debt dashboard, and event economics with profitability and scenarios inside the club | C3, C8, C22 | A club understands its financial position and makes better event decisions |
+  | **2 — Connected Payments** | The provider port, the first approved adapter, transaction ingestion, reconciliation and refunds | C24 | Less re-keying, and collection visible as it happens |
+  | **3 — Financial Governance** | Versioned fee and sanctioning policies, charge explanations, event approvals, club-authorised reporting to a governing body, consultation | C23 | Accountability and collaboration between clubs and governing bodies |
+  | **4 — Financial Intelligence** | Assistant-drafted reports and summaries, deterministic forecasting and financial health indicators, anomaly flags, opt-in benchmarking | C8, C25, C26 | A differentiated financial intelligence platform |
+
+  Releases 3 and 4 both cross P5, within **P8**'s two exceptions
+  (accepted 4 November 2026); releases 1 and 2 do not cross it at all.
+- **Two product experiences over one architecture.** *PitchPeople Club
+  Finance* is sold to clubs and academies; *PitchPeople Football Governance*
+  to associations and governing bodies. They share the data model, the
+  rules and the tenancy boundary, and differ in their dashboards,
+  permissions, workflows and commercial terms — a Football Queensland
+  administrator publishes a sanctioning policy, and a club treasurer
+  calculates what that policy costs *their* event. Showing both parties one
+  dashboard would be the weaker proposition. The governance experience is
+  **Pending**, within the bounds P8 sets.
+- **The long-term vision: a neutral financial information layer between
+  clubs and governing bodies** — helping clubs understand their costs and
+  recover revenue, and governing bodies explain policies, administer charges
+  and demonstrate *reported* expenditure. A **course of action under
+  consideration**, like the association tier above: the first release stays
+  focused on measurable benefit to individual clubs, and nothing in the
+  architecture claims the platform can verify how a governing body spends
+  its revenue (BR216).
 - **Free/low-cost tiers first.** Infrastructure for the prototype and
   pilot stays on free or low-cost tiers where possible, with a deliberate
   decision point before moving to paid plans as volume grows — see

@@ -328,20 +328,14 @@ export async function recordPaymentAction(
 
   const referenceRaw = String(formData.get('reference') ?? '').trim();
 
-  const { client, user, tenant } = await requireTenant();
-  await recordPayment(
-    client,
-    tenant.clubId,
-    registrationId,
-    {
-      amountCents: amount.cents,
-      receivedOn,
-      method,
-      reference: referenceRaw === '' ? null : referenceRaw,
-      reversesPaymentId: null,
-    },
-    user.id,
-  );
+  const { client, tenant } = await requireTenant();
+  await recordPayment(client, tenant.clubId, registrationId, {
+    amountCents: amount.cents,
+    receivedOn,
+    method,
+    reference: referenceRaw === '' ? null : referenceRaw,
+    reversesPaymentId: null,
+  });
 
   revalidatePath(`/registrar/${registrationId}`);
   revalidatePath('/registrar');

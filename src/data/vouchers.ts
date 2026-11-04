@@ -175,7 +175,6 @@ export async function verifyVoucher(
       reference: `${voucher.program} ${voucher.code}`,
       reversesPaymentId: null,
     },
-    actorUserId,
   );
 
   const { error } = await client
@@ -241,7 +240,6 @@ export async function rejectVoucher(
         reference: `Reversal — ${voucher.program} ${voucher.code} rejected`,
         reversesPaymentId: voucher.reliefPaymentId,
       },
-      actorUserId,
     );
   }
 

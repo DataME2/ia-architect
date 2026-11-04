@@ -46,6 +46,25 @@ verification (**C4**). The front door applies the claim boundaries below: it
 says Squadi stays the competition system, that the Assistant never decides,
 and that nothing moves money.
 
+## Financial Intelligence (proposed, November 2026)
+
+> **PitchPeople Financial Intelligence** helps football organisations
+> understand, manage and improve their financial position through connected
+> financial management, transparent policies, payment integration and
+> actionable insights.
+
+Added for Goal **G9** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md)).
+**A statement of direction, not of the product today**: most of what it
+names is Pending (C22–C26). It is offered as two experiences over one
+architecture:
+
+| Experience | Primary customer | Says to them |
+| ---------- | ---------------- | ------------ |
+| **PitchPeople Club Finance** | Clubs and academies | What you are owed, what you collected, what an event will cost you before you commit to it, where the year is heading, and why every charge is what it is — all six domains |
+| **PitchPeople Football Governance** | Associations and governing bodies | Publish a policy once, explain every charge it produces, receive your clubs' applications, and report what your revenue is said to fund — reading a club's figures only where the club has granted it (P8) |
+
+Both experiences sit on the same [six domains](./2_capabilities-and-resources.md#financial-intelligence-as-six-connected-domains): Club Finance uses all of them, and Football Governance is Financial Governance plus the aggregated side of Benchmarking.
+
 The commercial statement's "**replaces**" is deliberate and consistent
 with [decision 5](../../decisions/5_replace-the-incumbent-rather-than-integrate.md):
 PitchPeople competes for the incumbent's market rather than
@@ -65,6 +84,13 @@ complementing it.
 | AI-assisted | Principle **P3**, **C6**, **C7** |
 | Replaces spreadsheets, registration systems, payment tools, communication channels | [Decision 5](../../decisions/5_replace-the-incumbent-rather-than-integrate.md); **C7**, **C8**, **C9** |
 | Complete view of every participant | **C8**, **G1** |
+| Understand and improve the club's financial position | **G9**, **C3**, **C8** — Pending beyond scope 133's report |
+| Forecasting and financial health | **C26**, BR220, BR221 — Pending |
+| Event profitability before committing | **G9**, **C22** — Pending |
+| A public calculator for a carnival or holiday clinic | **C22**, BR222 — Pending (WP2a) |
+| Transparent policies; every charge explained | **G9**, **C23** — Pending |
+| Payment integration | **C24**, [decision 20](../../decisions/20_payments_through_a_provider_port_never_on_the_platform.md) — Pending |
+| Benchmarks against other clubs | **C25**, **P8** — Pending |
 
 ## Claim boundaries
 
@@ -103,6 +129,39 @@ needs to have already read.
   versioning, expiry, or sharing. Either the claim is read narrowly
   (registration documents) or a capability is needed; today the
   architecture supports only the narrow reading.
+
+### Financial Intelligence's own boundaries
+
+Five more, added with G9. Each is a sentence a salesperson will be tempted
+to drop, and each is load-bearing.
+
+- **"Payment integration" moves no money until a provider is approved and
+  tested.** Today every receipt is typed by a treasurer and every payout is
+  simulated ([decision 16](../../decisions/16_the_platform_records_a_payout_a_provider_moves_it.md)).
+  Even once integrated, the provider moves the money and the platform
+  records it ([decision 20](../../decisions/20_payments_through_a_provider_port_never_on_the_platform.md)).
+- **"Financial management" is not accounting.** The platform keeps the
+  club's obligations, receipts and the reasons behind them. It does not keep
+  the books of account, lodge a BAS or GST return, or decide a tax
+  treatment: GST and financial-year settings are the club's own statements,
+  confirmed with its accountant (BR219).
+- **"Transparency" never means verification.** A governing body's
+  *reported* allocation of its revenue is shown as reported, with its
+  source, and distinguished from independently *audited* expenditure. The
+  platform cannot verify how a governing body spends its money, and must not
+  imply it does (BR216).
+- **"Benchmarking" is opt-in, aggregated and suppressible.** No club is in a
+  cohort it did not join, and no figure is shown for a cohort small or
+  lopsided enough to identify a member (BR217). It is never a way to see
+  another club's numbers.
+- **"Calculator" means an estimate from the visitor's own figures, not a
+  quote.** The public event calculator (BR222) works only with what the
+  visitor enters, plus a governing body's charge only where a published,
+  approved policy version is held; it is not financial, tax or legal
+  advice, and it says so on the page.
+- **"Governing-body reporting" happens only by the club's grant.** An
+  association is not entitled to a club's financial records by being its
+  association (P8; BR214).
 
 ## Where these statements are used
 

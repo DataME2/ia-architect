@@ -140,6 +140,21 @@ acceptable.
 | `SUPABASE_DB_PASSWORD` | **Yes** | Developer's local shell or password manager | Supabase CLI only, for migrations. Not needed at run time |
 | `CRON_SECRET` | **Yes** | `.env.local`, Vercel env vars (server scope only) | Checked against the bearer token Vercel Cron sends automatically. A cron route has no signed-in user, so this is what stops anyone who finds the URL from triggering it |
 
+**Planned by [scope 134](../../scope/134_pitchpeople_financial_intelligence.md),
+none set anywhere yet.** Each arrives with its adapter (WP3), server scope
+only, and is never read by browser code or written to a log (BR207):
+
+| Variable | Secret? | For |
+| -------- | ------- | --- |
+| `SQUARE_ACCESS_TOKEN`, `SQUARE_WEBHOOK_SIGNATURE_KEY` | **Yes** | The Square adapter, if it is the first approved ([#126](../../scope/open-questions.md)) |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | **Yes** | The Stripe adapter — the names the [payout annex](../../annexes/payout-providers.md) already gives |
+| `PAYMENTS_MODE` | No | `simulation` or `live`. **Production refuses `simulation` once any real adapter is enabled there**, which is the environment setting decision 16's consequences asked for |
+
+A per-club provider connection (a club's own Square or Stripe account)
+stores only an opaque reference in `payment_provider_account`; where a
+provider issues a per-club token, it is held encrypted (Supabase Vault) and
+read only by the adapter, never returned to a client.
+
 [`.env.example`](../../../.env.example) carries the names with no values.
 Copy it to `.env.local`, which is gitignored.
 

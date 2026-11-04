@@ -88,7 +88,7 @@ full process, actors, and definition of done.
   instructions, payout providers, SharePoint integration, backup and
   restore, and more.
 - [`docs/decisions/`](./docs/decisions/README.md) — smaller, consequential
-  calls that don't rise to a full initiative (17 so far), starting with the
+  calls that don't rise to a full initiative (21 so far), starting with the
   AI assistant's autonomy level.
 - [`docs/steering/`](./docs/steering/README.md) — standing rules for how
   work is done here: the [git workflow](./docs/steering/1_git-workflow.md)
