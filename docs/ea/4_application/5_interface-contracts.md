@@ -81,21 +81,27 @@ function reconcile(
 
 ## `eventEconomics()`
 
-`src/domain/events/economics.ts` — pure (BR208, BR209, BR212).
+`src/domain/events/economics.ts` — pure (BR208, BR209, BR212). **Built**
+([scope 135](../../scope/135_the_public_event_calculator.md)); the public event calculator calls it, and scope 134's
+WP2 will call it unchanged.
 
 ```ts
 function eventEconomics(
-  lines: readonly BudgetLine[],          // revenue | expense; unit: fixed | perDay | perTeam | perParticipant | perParticipantPerDay;
-                                         // expected, actual?, basis
-  shape: { days: number; teams?: number; participants: { expected: number; actual?: number } },
-): EventFigures;                          // revenue, cost, surplus, per-participant, breakEven, each by basis
+  lines: readonly BudgetLine[],   // revenue | expense; category; unit: fixed | perDay | perTeam |
+                                  // perParticipant | perParticipantPerDay; participants: all | junior | senior;
+                                  // amountCents; basis
+  shape: EventShape,              // { days, teams, juniors, seniors }
+  driver: 'participants' | 'teams',
+  currency: Currency,
+): EventFigures;                  // revenue, cost, surplus, line totals, by category, per participant,
+                                  // breakEven, basis
 ```
 
 | | |
 | - | - |
-| **Preconditions** | All lines in one currency (else throws). Days, teams and participant counts are non-negative integers; a per-team line needs a team count |
-| **Postconditions** | Expected and actual figures reported separately, never blended. `breakEven` is a non-negative integer or `'not-reachable'`. Per-participant figures are absent, not zero, when the count is zero |
-| **Invariants** | The basis of every output is the weakest basis of its inputs: a surplus computed from one *club assumption* is not a *published-policy* figure. A scenario is a call with modified lines; nothing is written. **The public event calculator calls exactly this function** (BR222), so a public estimate and a club's budget over the same lines cannot differ |
+| **Preconditions** | Amounts are whole, non-negative cents and counts whole, non-negative numbers; anything else **throws** rather than being rounded. One currency by construction: lines carry none, and the caller names it once |
+| **Postconditions** | `breakEven` is *reached* at a whole count (0 when fixed income already covers fixed costs), *not reachable* when each extra participant or team costs at least what it brings in, or *needs* the teams or participants it depends on. Per-participant figures are absent, not zero, when nobody is entered. Expected and actual figures are **two calls** — one with what was planned, one with what happened — so they are never blended |
+| **Invariants** | The basis is the weakest among lines that carry an amount: a surplus resting on one *assumption* is not a *published-policy* figure. The order of the lines changes nothing but `lineTotals`' order. A scenario is a call with a scaled shape (`scaleShape`); nothing is written. **The public event calculator calls exactly this function** (BR222), so a public estimate and a club's budget over the same lines cannot differ |
 
 ## `assessSanctioning()`
 

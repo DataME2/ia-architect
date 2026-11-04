@@ -152,6 +152,9 @@ export const FOOTER_NAV: readonly { readonly heading: string; readonly links: re
     links: [
       { href: '/seasons', label: 'Season calendars' },
       { href: '/season-paths', label: 'Season paths' },
+      // Scope 135 (BR222). In the footer and not the bar: a sixth link in the
+      // bar pushed Register off it at 1280px, on every page.
+      { href: '/event-calculator', label: 'Event calculator' },
       { href: '/register', label: 'Start a registration' },
       { href: '/me', label: 'Your workspace' },
     ],
