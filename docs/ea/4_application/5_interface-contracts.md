@@ -132,7 +132,7 @@ function suppressCohort(
 ## `app_governing_body_read()`
 
 A `security definer` SQL function — the only route by which a governing
-body reads a club's figures (BR214, BR215). **Conditional on P8.**
+body reads a club's figures (BR214, BR215). **Within P8(a).**
 
 | | |
 | - | - |

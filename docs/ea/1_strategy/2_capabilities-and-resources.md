@@ -33,7 +33,7 @@ What PitchPeople must be able to do to realize the goals in
 | C17 | **Role-based mobile experience** — one app per `Person`, showing the information and actions of whichever role they are currently acting in, with an explicit switch when they hold several. For a player or match official: the next fixture with venue and kick-off, what they need to bring or know, and a one-tap **available / not available** response carrying a brief reason. For a coach, technical director, or coordinator: who has responded, who has not, and who is unavailable and why. For a guardian: all of the above on behalf of their child. **Read-only offline** (BR66): fixture information is readable without connectivity and carries its last-synced time; responses require a connection and say so | G1, G4, G5 |
 | C18 | **Life member register & recognition** — record honorary life membership as an indefinite `Person` role (no season, no automatic expiry), keep a living life member's contact details demonstrably current for celebration outreach, and maintain a permanent honour roll that includes those who have died — retained regardless of BR40's participation-based window, and never contacted | G8 |
 | C22 | **Event economics** — an event's budget, expected and actual revenue and expenses, applicable governing-body sanctioning charges, profitability, cost and revenue per participant, break-even participant numbers, and scenarios simulated before a budget is approved. **Integrated into C12's existing event** (`carnival_event`), never a second event entity. **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP2) | G9, G7 |
-| C23 | **Financial governance & transparency** — versioned fee and sanctioning policies with an identifiable source, jurisdiction, version, effective dates and approval status; a charge explained by the policy version that produced it; publication, consultation and decision history; club-authorised reporting to a governing body; and published transparency reports that distinguish *reported* allocation from *audited* expenditure. Club side first; the governing-body side waits on proposed **P8**. **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP5) | G9 |
+| C23 | **Financial governance & transparency** — versioned fee and sanctioning policies with an identifiable source, jurisdiction, version, effective dates and approval status; a charge explained by the policy version that produced it; publication, consultation and decision history; club-authorised reporting to a governing body; and published transparency reports that distinguish *reported* allocation from *audited* expenditure. Club side first; the governing-body side within **P8** (accepted 4 November 2026). **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP5) | G9 |
 | C24 | **Payment integration & reconciliation** — a provider-independent port with one adapter per provider (Square, Stripe, Australian and New Zealand bank files and statements), inbound collections and outbound payouts as separate capabilities, signed and idempotent webhook ingestion, provider transactions kept apart from the club's own records, and a reconciliation engine whose unmatched items are exceptions for a person, never silently closed. The platform records; a provider moves money ([decision 16](../../decisions/16_the_platform_records_a_payout_a_provider_moves_it.md), [decision 20](../../decisions/20_payments_through_a_provider_port_never_on_the_platform.md)). **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP3) | G9, G3, G4 |
 | C25 | **Financial benchmarking** — a club's figures compared with an anonymised, aggregated cohort of other clubs, only after it opts in, only for defined metric categories, and only above a minimum cohort size with small and dominated cohorts suppressed. Off by default; never a route around P5 ([decision 21](../../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md)). **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP6) | G9 |
 
@@ -303,7 +303,7 @@ What PitchPeople must be able to do to realize the goals in
   > needs a governing body to *participate* — publish a sanctioning policy,
   > receive an event application, read a report a club chose to send — and
   > that is a far smaller thing than a tenant that sees across its clubs.
-  > Proposed Principle **P8** draws it as a grant the club makes, per
+  > Principle **P8** (accepted 4 November 2026) draws it as a grant the club makes, per
   > purpose and per period, rather than a hierarchy
   > ([decision 19](../../decisions/19_a_club_grants_what_a_governing_body_reads.md)).
   > The association *tenant* this course describes is still not designed.
@@ -319,8 +319,8 @@ What PitchPeople must be able to do to realize the goals in
   | **3 — Financial Governance** | Versioned fee and sanctioning policies, charge explanations, event approvals, club-authorised reporting to a governing body, consultation | C23 | Accountability and collaboration between clubs and governing bodies |
   | **4 — Financial Intelligence** | Assistant-drafted reports and summaries, forecasting, anomaly flags, opt-in benchmarking | C8, C25 | A differentiated financial intelligence platform |
 
-  Releases 3 and 4 both cross P5 and wait on **P8**'s acceptance; releases
-  1 and 2 do not.
+  Releases 3 and 4 both cross P5, within **P8**'s two exceptions
+  (accepted 4 November 2026); releases 1 and 2 do not cross it at all.
 - **Two product experiences over one architecture.** *PitchPeople Club
   Finance* is sold to clubs and academies; *PitchPeople Football Governance*
   to associations and governing bodies. They share the data model, the
@@ -329,7 +329,7 @@ What PitchPeople must be able to do to realize the goals in
   administrator publishes a sanctioning policy, and a club treasurer
   calculates what that policy costs *their* event. Showing both parties one
   dashboard would be the weaker proposition. The governance experience is
-  **Pending** and conditional on P8.
+  **Pending**, within the bounds P8 sets.
 - **The long-term vision: a neutral financial information layer between
   clubs and governing bodies** — helping clubs understand their costs and
   recover revenue, and governing bodies explain policies, administer charges

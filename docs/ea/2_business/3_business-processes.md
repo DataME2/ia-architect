@@ -684,7 +684,7 @@ used (BR210).
 
 ## Governing-body access grant process
 
-**Pending, and conditional on proposed Principle P8** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md),
+**Pending — permitted by Principle P8 (accepted 4 November 2026)** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md),
 WP5; [decision 19](../../decisions/19_a_club_grants_what_a_governing_body_reads.md)).
 
 ```mermaid
@@ -714,7 +714,7 @@ narrow rather than the audit thorough.
 
 ## Benchmarking participation process
 
-**Pending, and conditional on proposed Principle P8** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md),
+**Pending — permitted by Principle P8 (accepted 4 November 2026)** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md),
 WP6; [decision 21](../../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md)).
 
 ```mermaid

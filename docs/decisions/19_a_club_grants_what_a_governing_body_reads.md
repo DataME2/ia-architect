@@ -2,12 +2,13 @@
 
 _[← Decisions index](./README.md) · [scope 134](../scope/134_pitchpeople_financial_intelligence.md)_
 
-**Status:** Proposed. The direction was approved by the product owner on
-4 November 2026 (scope 134's *Decision B*); the mechanism below, and
-Principle P8's wording, await review in scope 134's Stage 4.
+**Status:** Accepted (4 November 2026). The direction was the product
+owner's *Decision B*; they accepted Principle P8, which this decision
+explains, the same day ([open question #121](../scope/open-questions.md)).
+Who in a club decides a grant is still [open question #122](../scope/open-questions.md).
 **Date:** 2026-11-04
 **Touches:** [1_strategy/1_motivation.md](../ea/1_strategy/1_motivation.md)
-(P8, proposed), [2_business/5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md)
+(P8), [2_business/5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md)
 (BR214, BR215), [2_business/1_business-actors-and-roles.md](../ea/2_business/1_business-actors-and-roles.md#external-actor)
 (Governing Body Policy Administrator)
 
@@ -56,8 +57,8 @@ the platform's own operators ([decision 9](./9_platform_administration_provision
 
 ## Consequences
 
-- P5 gains a second named exception, P8(a), once accepted. Until then
-  nothing is built against this decision.
+- P5 gains a second named exception, P8(a), accepted 4 November 2026.
+  Nothing is built under it yet.
 - Option 1 can ship in Release 3 without P8. Option 2 needs P8, an
   association-account model, and a behavioural suite proving that an
   ungranted, expired or revoked read returns nothing and that a family's

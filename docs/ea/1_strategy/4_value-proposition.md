@@ -61,7 +61,7 @@ architecture:
 | Experience | Primary customer | Says to them |
 | ---------- | ---------------- | ------------ |
 | **PitchPeople Club Finance** | Clubs and academies | What you are owed, what you collected, what an event will cost you before you commit to it, and why every charge is what it is |
-| **PitchPeople Football Governance** | Associations and governing bodies | Publish a policy once, explain every charge it produces, receive your clubs' applications, and report what your revenue is said to fund — reading a club's figures only where the club has granted it (P8, proposed) |
+| **PitchPeople Football Governance** | Associations and governing bodies | Publish a policy once, explain every charge it produces, receive your clubs' applications, and report what your revenue is said to fund — reading a club's figures only where the club has granted it (P8) |
 
 The commercial statement's "**replaces**" is deliberate and consistent
 with [decision 5](../../decisions/5_replace-the-incumbent-rather-than-integrate.md):
@@ -86,7 +86,7 @@ complementing it.
 | Event profitability before committing | **G9**, **C22** — Pending |
 | Transparent policies; every charge explained | **G9**, **C23** — Pending |
 | Payment integration | **C24**, [decision 20](../../decisions/20_payments_through_a_provider_port_never_on_the_platform.md) — Pending |
-| Benchmarks against other clubs | **C25**, proposed **P8** — Pending |
+| Benchmarks against other clubs | **C25**, **P8** — Pending |
 
 ## Claim boundaries
 
@@ -152,7 +152,7 @@ to drop, and each is load-bearing.
   another club's numbers.
 - **"Governing-body reporting" happens only by the club's grant.** An
   association is not entitled to a club's financial records by being its
-  association (P8, proposed; BR214).
+  association (P8; BR214).
 
 ## Where these statements are used
 

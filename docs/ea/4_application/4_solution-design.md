@@ -189,8 +189,7 @@ which on every call checks a live grant for that association, purpose and
 category, returns club-level figures only, and writes the access log in the
 same transaction. There is no table policy that admits them and no
 service-role path, so a missing check returns nothing rather than
-everything — the property RLS gives every other read (P5). **Conditional on
-P8 and [decision 19](../../decisions/19_a_club_grants_what_a_governing_body_reads.md).**
+everything — the property RLS gives every other read (P5). **Within P8 and [decision 19](../../decisions/19_a_club_grants_what_a_governing_body_reads.md).**
 
 ## 6. Benchmarks are computed, not queried
 
@@ -200,7 +199,7 @@ the cohort and dominance rules (`src/domain/benchmarking/suppression.ts`,
 mirrored in SQL and tested to agree), and writes only the result. A club
 reads the cohort figure beside its own. No function returns another club's
 value, and the result table has nothing to join back to a club.
-**Conditional on P8 and [decision 21](../../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md).**
+**Within P8 and [decision 21](../../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md).**
 
 ## 7. Deliberately not designed
 

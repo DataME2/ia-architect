@@ -394,7 +394,7 @@ them. Second, the event has to stay one entity, but its money has to live
 **beside** it, because the event's own row is public once published.
 Third, the only two objects with no tenant column are both *reference*
 (policies, transparency reports, under decision 15's reasoning) or
-*aggregate* (benchmarks, under proposed P8): nothing that names a family
+*aggregate* (benchmarks, under P8): nothing that names a family
 or a club's own ledger loses its `club_id`.
 
 ## Not yet modeled

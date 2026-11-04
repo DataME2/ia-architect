@@ -114,8 +114,8 @@ is there.
 | FR-C22 | Event economics beside the existing event: budgets, basis, profitability, break-even, scenarios, approval, sanctioning | BR208–BR213 | **Designed** | Scope 134 WP2 |
 | FR-C24 | Provider port, adapters, signed idempotent webhooks, reconciliation, refunds | BR204–BR207 | **Designed** | Scope 134 WP3, [decision 20](../decisions/20_payments_through_a_provider_port_never_on_the_platform.md) |
 | FR-C8.x | Role financial dashboards, comparisons, export | BR142, BR143, BR202 | **Designed** | Scope 134 WP4 |
-| FR-C23 | Policy register, explanations, consultation, returns; grants | BR210, BR211, BR214–BR216 | **Designed**; grants conditional on P8 | Scope 134 WP5, [decision 19](../decisions/19_a_club_grants_what_a_governing_body_reads.md) |
-| FR-C25 | Opt-in benchmarking | BR217 | **Designed**; conditional on P8 | Scope 134 WP6, [decision 21](../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md) |
+| FR-C23 | Policy register, explanations, consultation, returns; grants | BR210, BR211, BR214–BR216 | **Designed**; grants within P8 | Scope 134 WP5, [decision 19](../decisions/19_a_club_grants_what_a_governing_body_reads.md) |
+| FR-C25 | Opt-in benchmarking | BR217 | **Designed**; within P8 | Scope 134 WP6, [decision 21](../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md) |
 | FR-C8.y | Assistant financial drafts | BR218 | **Designed** | Scope 134 WP7 |
 
 ### FR-C4 — Referee lifecycle

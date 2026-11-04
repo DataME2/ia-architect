@@ -30,7 +30,7 @@ handled.
 | ----- | ------------- | -------- |
 | **Sensitive — financial** (a named part of *Sensitive — personal*) | What a family owes, paid, was refunded or was relieved of; hardship reasons; payout nominations; provider transactions that carry a payer's name or email | Tenant-isolated; read by the money roles and the family itself (BR78, BR121); **never** to a governing body (BR215), a benchmark (BR217) or an uncontrolled AI service (P4). Where the payer or beneficiary is a minor it inherits *Regulated — children* |
 | **Public reference** | Governing bodies' published fee and sanctioning policies and transparency reports | No tenant column; readable by every club, written by the platform administrator — the competition catalogue's settlement ([decision 15](../../decisions/15_the_competition_catalogue_is_shared_reference_data.md)), and justified the same way: no column can carry a club's or a person's data |
-| **Aggregated — non-identifying** | Benchmark cohort figures | No tenant column and no list of contributors; published only above the cohort and dominance thresholds (BR217). The single place a figure about several clubs exists, and conditional on proposed P8 |
+| **Aggregated — non-identifying** | Benchmark cohort figures | No tenant column and no list of contributors; published only above the cohort and dominance thresholds (BR217). The single place a figure about several clubs exists, permitted by P8(b) |
 
 **A grant is not a class either.** A club-level figure read by a governing
 body under a grant (BR214) stays *Internal — operational* about the club; the

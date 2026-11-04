@@ -86,8 +86,8 @@ components are listed in
 | **Payment reconciliation** | C24 | Deterministic matching of provider transactions to the club's records, and a queue of exceptions resolved by a person with a reason (BR205) | WP3 | WP3's ingestion |
 | **Financial dashboards** | C8 | The president's, treasurer's, registrar's, events coordinator's and referee coordinator's views, each metric with its basis, period, currency and as-at (BR143), each refusing a reader who may not have it (BR142) | WP4 | WP1 |
 | **Financial governance** | C23 | Policy versions with sources, effective dates and approval status; charge explanations; clarification and exemption requests with their history; event approvals | WP5 | WP2 |
-| **Governing-body reporting** | C23 | Club grants (BR214) and the scoped read behind them, club-level only (BR215); transparency reports marked reported or audited (BR216) | WP5 | **P8 accepted** |
-| **Financial benchmarking** | C25 | Opt-in consent, club-level metrics, aggregation with cohort and dominance suppression (BR217) | WP6 | **P8 accepted**; WP4 |
+| **Governing-body reporting** | C23 | Club grants (BR214) and the scoped read behind them, club-level only (BR215); transparency reports marked reported or audited (BR216) | WP5 | WP2; P8 (accepted) bounds it |
+| **Financial benchmarking** | C25 | Opt-in consent, club-level metrics, aggregation with cohort and dominance suppression (BR217) | WP6 | WP4; P8 (accepted) bounds it |
 | **Financial assistant** | C8, C7 | Drafts, summaries and flags over already-computed figures (BR218) | WP7 | WP4; a decision record before any model is called |
 
 ## Not started

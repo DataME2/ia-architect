@@ -198,8 +198,8 @@ migration. Each becomes a real row above as it lands. See the
 | **Reconciliation engine** | `src/domain/reconciliation/match.ts`; `/registrar/reconciliation` | BR205: deterministic matching and an exception queue | WP3 |
 | **Financial dashboards** | `src/web/finance-dashboard.ts`; `/registrar/reports` (extended) and the `/me` committee workspace | Role views over the derived figures, each with basis, period, currency and as-at (BR143) | WP4 |
 | **Policy register** | migration (`financial_policy`, `financial_policy_version`, `policy_enquiry`); `/registrar/policies` | BR210, BR211; club-entered policies first | WP5 |
-| **Governing-body grant** | migration (`governing_body_access_grant`, `governing_body_access_log`, `app_governing_body_read()`) | BR214, BR215 — **conditional on P8** | WP5 |
-| **Benchmarking** | `src/domain/benchmarking/suppression.ts`; migration (`benchmarking_consent`, `aggregated_financial_metric`, `app_run_benchmarks()`) | BR217 cohort and dominance rules, pure — **conditional on P8** | WP6 |
+| **Governing-body grant** | migration (`governing_body_access_grant`, `governing_body_access_log`, `app_governing_body_read()`) | BR214, BR215 — within P8 | WP5 |
+| **Benchmarking** | `src/domain/benchmarking/suppression.ts`; migration (`benchmarking_consent`, `aggregated_financial_metric`, `app_run_benchmarks()`) | BR217 cohort and dominance rules, pure — within P8 | WP6 |
 | **Financial assistant drafts** | `src/web/finance-assistant.ts`, rendered only through `AssistantNote.tsx` | BR218: drafts from computed figures; `scripts/check_assistant.py` unchanged until a decision record extends it | WP7 |
 
 ## Three structural rules for the code

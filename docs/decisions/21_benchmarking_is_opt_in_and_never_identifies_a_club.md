@@ -2,12 +2,13 @@
 
 _[← Decisions index](./README.md) · [scope 134](../scope/134_pitchpeople_financial_intelligence.md)_
 
-**Status:** Proposed. The direction was approved by the product owner on
-4 November 2026 (scope 134's *Decision D*); the thresholds and Principle P8's
-wording await review.
+**Status:** Accepted (4 November 2026). The direction was the product
+owner's *Decision D*; they accepted Principle P8 the same day
+([open question #121](../scope/open-questions.md)). The thresholds below are
+still proposed ([open question #130](../scope/open-questions.md)).
 **Date:** 2026-11-04
 **Touches:** [1_strategy/1_motivation.md](../ea/1_strategy/1_motivation.md)
-(P8, proposed), [2_business/5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md)
+(P8), [2_business/5_domain-context-and-rules.md](../ea/2_business/5_domain-context-and-rules.md)
 (BR217), [3_information/3_data-architecture.md](../ea/3_information/3_data-architecture.md)
 (the *Aggregated — non-identifying* class)
 
@@ -46,7 +47,7 @@ no club more than **half** of a summed metric's total
 
 ## Consequences
 
-- P5 gains P8(b) once accepted; until then nothing is built against this.
+- P5 gains P8(b), accepted 4 November 2026; nothing is built under it yet.
 - In early markets many cohorts will be suppressed. That is the design
   working: an empty comparison is better than an identifying one, and the
   screen says why.

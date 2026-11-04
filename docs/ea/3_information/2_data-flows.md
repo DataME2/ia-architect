@@ -11,7 +11,7 @@ are described beside their [data objects](./1_data-objects.md). Every flow
 below is **Pending** unless a row says otherwise.
 
 Two boundaries matter more than any arrow: the **tenant boundary** (P5),
-which only P6's published events and proposed P8's grants and aggregates may
+which only P6's published events and P8's grants and aggregates may
 cross, and the **provider boundary**, across which money moves and the
 platform receives only evidence of it (decisions
 [16](../../decisions/16_the_platform_records_a_payout_a_provider_moves_it.md)
@@ -140,8 +140,7 @@ flowchart LR
 
 Inbound is reference data and crosses no tenant boundary. Outbound is the
 P8 exception, and only through the function, which refuses a read with no
-live grant and writes the log in the same transaction. **Conditional on
-P8.**
+live grant and writes the log in the same transaction. **Permitted by P8.**
 
 ## 5. Benchmarking
 
@@ -165,7 +164,7 @@ flowchart LR
 No row leaves a club: only a club-level value, computed by the same
 functions the club's own dashboards use, and only for a club with a live
 consent. The aggregate keeps the cohort's size and never its members.
-**Conditional on P8.**
+**Permitted by P8.**
 
 ## 6. The Assistant
 

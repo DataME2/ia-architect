@@ -27,16 +27,17 @@ that would build it, and what is still undecided.
 | | Decision | Where it now lives |
 | - | -------- | ------------------ |
 | **A** | **Event economics is integrated into the existing carnival and event management** — no second event entity. Budgets, revenue, expenses, sanctioning and profitability extend the existing event lifecycle | C22; [solution design §3](../ea/4_application/4_solution-design.md#3-event-economics-beside-the-event). Discovery adds one constraint: the money must live *beside* `carnival_event`, because that table's public policy publishes every column of a published event |
-| **B** | **Clubs first, governing bodies progressively.** No automatic access to club financial records; access explicit, authorised, auditable, purpose-limited | Proposed Principle **P8**(a); [decision 19](../decisions/19_a_club_grants_what_a_governing_body_reads.md) (Proposed); BR214, BR215 |
+| **B** | **Clubs first, governing bodies progressively.** No automatic access to club financial records; access explicit, authorised, auditable, purpose-limited | Principle **P8**(a), accepted 4 November 2026; [decision 19](../decisions/19_a_club_grants_what_a_governing_body_reads.md) (Accepted); BR214, BR215 |
 | **C** | **Provider-agnostic payments.** An adapter architecture for Square, Stripe and AU/NZ bank mechanisms; collections and payouts separate; the platform records, a provider moves money; no card data; secrets server-side; simulated payouts kept until a real provider is approved and tested | C24; [decision 20](../decisions/20_payments_through_a_provider_port_never_on_the_platform.md) (Accepted); BR204–BR207 |
-| **D** | **Opt-in benchmarking**, anonymised and aggregated, with thresholds and small-cohort suppression; never a way round tenant isolation | Proposed Principle **P8**(b); [decision 21](../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md) (Proposed); BR217 |
+| **D** | **Opt-in benchmarking**, anonymised and aggregated, with thresholds and small-cohort suppression; never a way round tenant isolation | Principle **P8**(b), accepted 4 November 2026; [decision 21](../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md) (Accepted); BR217 |
 
-**One conflict is surfaced rather than resolved.** Decisions B and D both
+**One conflict was surfaced, and the product owner resolved it.** Decisions B and D both
 put club financial information across a tenant boundary, which Principle
 **P5** forbids without a named exception ([decision 3](../decisions/3_public-event-data-crosses-tenant-isolation.md)'s
-rule). This scope therefore *proposes* **P8** as P5's second scoped
-exception and builds nothing against it until it is accepted ([#121](./open-questions.md)).
-Releases 1 and 2 do not depend on it.
+rule). This scope proposed **P8** as P5's second scoped exception, and the
+product owner **accepted it on 4 November 2026** ([#121](./open-questions.md)).
+It permits those two exceptions and nothing else; Releases 1 and 2 do not
+cross P5 at all.
 
 ## Business context
 
@@ -115,7 +116,7 @@ serving the new Goal **G9**.
 
 | Layer         | Impact |
 | ------------- | ------ |
-| 1_strategy    | **Changed.** Goal **G9**; two stakeholder rows (club financial officers; governing bodies as policy authors); **Principle P8 proposed** as P5's second scoped exception; capabilities **C22–C25**, with C3, C8 and C12 annotated; two resources (Football Queensland's Sanctioning Policy as an example of shape, unverified; payment provider capabilities); the Square resource restated per decision C; courses of action for the four releases, the two product experiences and the long-term vision; a second value stream (*Run a club's money*); positioning, traceability and five new claim boundaries in the value proposition |
+| 1_strategy    | **Changed.** Goal **G9**; two stakeholder rows (club financial officers; governing bodies as policy authors); **Principle P8** (accepted 4 November 2026) as P5's second scoped exception; capabilities **C22–C25**, with C3, C8 and C12 annotated; two resources (Football Queensland's Sanctioning Policy as an example of shape, unverified; payment provider capabilities); the Square resource restated per decision C; courses of action for the four releases, the two product experiences and the long-term vision; a second value stream (*Run a club's money*); positioning, traceability and five new claim boundaries in the value proposition |
 | 2_business    | **Changed.** Actors: the Payment Provider and the prospective Governing Body Policy Administrator; the Assistant's finance decision rights listed (autonomy unchanged — advisory); two stale Majestri cells corrected. Services: four proposed services; the Player finance row corrected and the defect recorded. Five proposed processes. A *Financial intelligence* section of business objects (built-but-unlisted and proposed). Seventeen glossary terms. **BR200–BR219 proposed.** A role × financial-operation matrix |
 | 3_information | **Changed.** The finance tables built since scope 76 that the data objects never listed; the running-balance defect recorded; **all 26 candidate objects assessed** against the schema (reuse, extend or new, with source, retention, access, audit, sensitivity). A new [data flows](../ea/3_information/2_data-flows.md) document for the financial flows. Two classes and a sharpened one in [data architecture](../ea/3_information/3_data-architecture.md), and the retention rows the schedule still needs |
 | 4_application | **Changed.** Eleven proposed application services; seventeen planned components with intended paths; a new [solution design](../ea/4_application/4_solution-design.md) (the ledger, event economics beside the event, the provider port, webhooks, the adapter recipe, grant-scoped reads, benchmarks); a new [interface contracts](../ea/4_application/5_interface-contracts.md) document |
@@ -165,7 +166,7 @@ architectural change before it can be built.
 | 30 | Multi-season comparison | **Tested** | Scope 133 | Registration trends not yet |
 | 31 | Committee governance and permissions | **Tested** | 0049, 0058, 0059, 0079, 0084, 0092; BR123, BR153, BR166, BR167, BR175 | — |
 | 32 | Governing body as an actor | **Documented** (external, read-only) | `association` catalogue (0032), [decision 15](../decisions/15_the_competition_catalogue_is_shared_reference_data.md) | No accounts; no relationship but `club_competition` |
-| 33 | Governing-body access to club information | **Re-architect** | P5; [#31](./open-questions.md) | P8 proposed |
+| 33 | Governing-body access to club information | **Re-architect** | P5; [#31](./open-questions.md) | P8 accepted; nothing built |
 | 34 | Policy versions, publication, consultation, transparency reports | **Absent** | — | — |
 | 35 | Inbound collections (Square) | **Documented** | The Square resource; technology services "deferred" | Nothing in `src/` calls a provider |
 | 36 | Outbound payouts | *Incomplete* (simulation) | 0072 `app_simulate_batch_payout`, `referee_payout`; [payout annex](../annexes/payout-providers.md) | No real provider |
@@ -173,7 +174,7 @@ architectural change before it can be built.
 | 38 | Bank file and statement import | **Documented** (ABA payouts) / **Absent** (statements) | Payout annex | — |
 | 39 | Reconciliation engine | **Absent** | The [payment plan process](../ea/2_business/3_business-processes.md#payment-plan-process) diagram shows *paid via provider → reconciled*, which no code does | — |
 | 40 | Provider credential management | **Documented** | Payout annex's variable names | — |
-| 41 | Financial benchmarking | **Absent**; **Re-architect** | — | P8 proposed |
+| 41 | Financial benchmarking | **Absent**; **Re-architect** | — | P8 accepted; nothing built |
 | 42 | AI assistant | **Documented**, surface built | [Decision 1](../decisions/1_ai-assistant-autonomy-level.md); `src/app/_components/AssistantNote.tsx`; `scripts/check_assistant.py` forbids any model client | No model is called; financial drafting **Absent** |
 | 43 | Tenant isolation of finance tables | **Tested** | `scripts/check_rls.py`; `scripts/test_rls.sh`; `supabase/tests/10_*` and each slice's suite | — |
 
@@ -306,7 +307,7 @@ forgives no debt.**
    nothing — in the same migration commit.
 2. **No governing-body or benchmarking access through a service-role
    query.** Only definer functions that check a grant or a consent and
-   refuse otherwise; conditional on P8.
+   refuse otherwise (P8).
 3. **No card numbers, CVVs or bank logins** stored or passed through browser
    code (BR207). Provider secrets in Vercel's server scope; per-club tokens
    in Supabase Vault.
@@ -329,7 +330,7 @@ forgives no debt.**
 
 | Dependency | Gates | Owner |
 | ---------- | ----- | ----- |
-| Acceptance of **P8** ([#121](./open-questions.md)) | WP5's grant half, WP6 | Product owner |
+| Acceptance of **P8** ([#121](./open-questions.md)) — **met**, accepted 4 November 2026 | WP5's grant half, WP6 | Product owner |
 | The first adapter ([#126](./open-questions.md)) and a sandbox account | WP3 | Product owner, pilot club |
 | Football Queensland's Sanctioning Policy document ([#123](./open-questions.md)) | WP2's published-policy figures (club assumptions work without it) | Pilot club or FQ |
 | The pilot club's financial year and GST status ([#128](./open-questions.md), [#129](./open-questions.md)) | WP1's settings defaults | Pilot club's treasurer and accountant |
@@ -464,13 +465,13 @@ flowchart LR
 
 - **Deliverables:** `financial_policy`, `financial_policy_version` (shared
   reference, argued exemption), `policy_enquiry`; `/registrar/policies`;
-  line-by-line charge explanations; generated financial returns (no P8);
-  then, **once P8 is accepted**, association accounts, grants, the scoped
+  line-by-line charge explanations; generated financial returns (no
+  exception needed); then, under P8, association accounts, grants, the scoped
   read and its log, and transparency reports.
 - **Outcome:** a club sees why it was charged what it was, and chooses what
   its governing body sees.
 
-### WP6 — Benchmarking (Release 4, once P8 is accepted)
+### WP6 — Benchmarking (Release 4)
 
 - **Deliverables:** `benchmarking_consent`, `aggregated_financial_metric`,
   `app_run_benchmarks()`, `src/domain/benchmarking/suppression.ts`; the
@@ -510,7 +511,7 @@ flowchart LR
 - **WP4:** every metric carries kind, basis, period, currency and as-at; a
   reader without the role is refused, never shown zero.
 - **WP5:** an assessment names its policy version and every line applied;
-  without P8, no governing-body read path exists; with it, a read without a
+  no governing-body read path exists outside the grant function; a read without a
   live grant raises and every read is logged.
 - **WP6:** a cohort of four is suppressed; a dominated cohort is suppressed;
   no minimum or maximum is shown; an opted-out club is absent from the next
@@ -550,14 +551,14 @@ flowchart LR
 | ------- | ------------- | ------- |
 | **1 — Club Financial Control** | WP1a, F3, WP1, WP2, WP4 (treasurer, president) | A club understands its financial position and makes better event decisions |
 | **2 — Connected Payments** | WP3, WP4 (remaining roles) | Less re-keying; collection visible as it happens |
-| **3 — Financial Governance** | WP5 (returns, policies; grants once P8 is accepted) | Accountability between clubs and governing bodies |
+| **3 — Financial Governance** | WP5 (returns and policies, then grants under P8) | Accountability between clubs and governing bodies |
 | **4 — Financial Intelligence** | WP6, WP7 | A differentiated financial intelligence platform |
 
 ## Risks
 
 | Risk | Consequence | Mitigation |
 | ---- | ----------- | ---------- |
-| **P8 is not accepted** | WP5's grants and WP6 cannot be built | Both are last; Releases 1–2 and WP5's returns and policy register need no exception |
+| **P8 is later read as a general licence** | Some other feature crosses P5 citing it | P8 names exactly two exceptions; anything else needs its own decision record (decision 3's rule), and each P8 feature ships with a suite proving the excluded reader reads nothing |
 | **The derived balance differs from today's figures** | A club sees a balance change it did not make | WP1's staged switch: the differences are listed and reviewed by the treasurer on DEV before any read changes; nothing is resolved silently |
 | **A provider cannot do what a screen assumes** | A refund or payout offered and refused, or money moved twice | Capabilities declared per adapter, assessed against current provider documentation before building; idempotency keys from the platform's own record ids |
 | **PCI or privacy scope creeps in** | A volunteer-run platform holding card data, or disclosing payer data offshore | Hosted provider pages only (BR207); the collection notice updated before WP3 ships (APP 8) |
@@ -573,7 +574,7 @@ flowchart LR
 | Plateau                | State |
 | ---------------------- | ----- |
 | **Baseline** (before)  | Registration money priced and recorded by hand; a typed balance a treasurer's payment may not move; relief counted as collected; AUD assumed; carnivals with no money; no provider; no policy; no governing-body participation; no benchmarking |
-| **Transition** (this branch) | The architecture for all of it written into the five layers, three decisions recorded, twenty rules proposed, P8 proposed, and the defect and harness findings documented. Nothing built |
+| **Transition** (this branch) | The architecture for all of it written into the five layers, three decisions recorded, twenty rules proposed, P8 accepted, and the defect and harness findings documented. Nothing built |
 | **Target** (Releases 1–4) | One derived, explained ledger per club; event economics before commitment; reconciled provider payments; versioned policies with explanations; club-granted governing-body reporting and opt-in benchmarks under P8; an Assistant that explains and decides nothing |
 
 ## Gap notes
@@ -597,11 +598,10 @@ flowchart LR
 
 ## Open questions
 
-Fourteen, mirrored in the [open-questions log](./open-questions.md) as
-#121–#134, each with the interpretation this document adopted:
+Fourteen were raised, mirrored in the [open-questions log](./open-questions.md)
+as #121–#134. Thirteen are open, each with the interpretation this document
+adopted:
 
-- **#121** Is P8, both halves, acceptable as P5's second exception? *Adopted:
-  proposed as written; nothing built against it until accepted.*
 - **#122** Who in a club grants a governing body access? *Adopted: a
   committee resolution (BR123), recorded by the admin or treasurer.*
 - **#123** The published Football Queensland Sanctioning Policy (version,
@@ -632,3 +632,10 @@ Fourteen, mirrored in the [open-questions log](./open-questions.md) as
 - **#134** Which model, under what data agreement, may draft financial
   summaries? *Adopted: none yet; deterministic drafts only until a decision
   record.*
+
+### Resolved
+
+- **#121 — Principle P8.** *Accepted by the product owner, 4 November 2026.*
+  P8 is a Principle in [1_motivation.md](../ea/1_strategy/1_motivation.md);
+  decisions 19 and 21 are Accepted. It permits the governing-body grant and
+  the opt-in aggregate, and builds nothing by itself.
