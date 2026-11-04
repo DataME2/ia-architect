@@ -319,6 +319,84 @@ rather than on it.
 | **`historical_invoice`**, **`historical_invoice_line`** | Historical Invoice | What a season invoiced, collected, credited and left outstanding, as the previous system recorded it, with each line's category (club fee, governing body, levy, discount, adjustment) and, where a line names a player, their registration. **A record, not a debt**: nothing chases it (BR90). Read by the admin, registrar and treasurer |
 | **`emergency_contact`** | Emergency Contact | Who to call about a person: name, mobile, optional email, and when it was recorded. Read and kept by the admin and registrar. An import brings only the current season's |
 
+## Finance tables built since scope 76, not listed above
+
+Recorded November 2026 by [scope 134](../../scope/134_pitchpeople_financial_intelligence.md)'s
+discovery: each exists, is under RLS and has a behavioural suite, and this
+document had not named it.
+
+| Data Object | Realises | Notes |
+| ----------- | -------- | ----- |
+| **`hardship_request`** | Hardship Request | BR164 (0077). Reason, state (`requested` → `approved` until a date, or `declined` with a note), decider and time written by the database. At most one open per registration. Read by the deciders (admin, committee, secretary, treasurer), the registrar and the player's own family. **Changes no amount**: `app_registration_money()` reports `hardship_until` beside the balance, never instead of it |
+| **`payout_nomination`** | Payout Nomination | BR161 (0072). Bank (BSB, account number, name), PayPal email or Stripe account id; replaced, never edited. Read by the nominator, treasurer and admin, masked on screen. **Not encrypted at rest yet** ([payout annex](../../annexes/payout-providers.md)) |
+| **`referee_payout`** | Referee Payout | BR162 (0072, 0076). One row per claim, written only by the paying function; `provider` ∈ {simulation, stripe, paypal, bank_file}, `status` ∈ {simulated, sent, failed}. **Every row today is `simulation`** |
+| **`sponsor_campaign`**, **`sponsor_tally`**, **`sponsor_seen`**, **`club_sponsor_settings`** | Sponsor Campaign | BR169, BR170, BR173 (0081, 0082, 0086). Counts, never tracking ([decision 17](../../decisions/17_sponsors_are_counted_never_tracked.md)) |
+| **`sponsor_invoice`** | Sponsor Invoice | BR171 (0083, 0085). Amount with the club's and the platform's shares (a check constraint keeps them summing), status issued → paid, payment method and provider — **`simulation`** until one is connected. An unpaid invoice issued in error is deleted with a reason; the audit keeps its number |
+| **`referral_partner`**, **`referral_attribution`**, **`referral_payout`** | Referral Partner | BR172 (0083). A partner's UTM link, completed registrations attributed within 15 minutes, and simulated payouts |
+
+**A finding the assessment below rests on.** `registration.outstanding_amount_cents`
+(0001) is a **running balance written by application code**, not a derived
+one: `recordPayment` (`src/data/finance.ts`) inserts the `payment` and then
+updates the column in a second statement, and `setOutstandingAmount`
+(`src/data/queries.ts`) overwrites it outright. Only `registration_manage`
+(admin, registrar, IT manager — 0058) may update a registration, so for a
+treasurer who is not also an admin **the second statement updates nothing
+and reports no error**: the receipt is recorded and the balance does not
+move. Reproduced against the real migrations in November 2026 (a treasurer
+records $50.00 against $120.00 owed; the balance stays $120.00). Because
+`app_finance_report` (0102) reads *collected* from `payment` and
+*outstanding* from this column, the report can then show a season that
+billed $120, collected $50 and still has $120 outstanding. BR201 is the
+correction ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP1).
+
+## Financial intelligence: candidate objects, assessed
+
+Scope 134 named twenty-six conceptual objects. **They are concepts, not
+table names**, and each was checked against the schema before anything new
+was proposed. *Retention* refers to the [retention schedule](../../annexes/retention-schedule.md);
+*7 years FY* is its financial-records row, which counts from the end of the
+club's financial year (BR219). *Access* names who reads (R) and writes (W).
+
+| Concept | Exists today | Decision | Source of truth | Retention | Access | Audit | Sensitivity |
+| ------- | ------------ | -------- | --------------- | --------- | ------ | ----- | ----------- |
+| FinancialAccount | No — a family's position is its registrations, grouped by guardian (`finance_bills`, 0102) | **No table.** A derived view over the household's registrations; a second account identity would duplicate the guardian (P1) | The registrations and their ledger | — (derived) | Money readers (`app_registration_money`), own family | — | Sensitive — financial |
+| FinancialTransaction | `payment` (0007) | **Reuse; extend** with `currency` and a `kind` (receipt, refund, correction). Stays append-only (BR77) | The club's own record of money received or returned | 7 years FY | W admin, treasurer; R money readers, own family | `audit_event` on insert (exists) | Sensitive — financial |
+| Payment | `payment` | **The same object as FinancialTransaction** — one table, not two | — | — | — | — | — |
+| Refund | A negative `payment` with `reverses_payment_id` | **Extend** `payment.kind` = `refund` with a required reason; a provider refund also links to its provider transaction (BR204) | The club's record; the provider's confirmation beside it | 7 years FY | As `payment` | Exists | Sensitive — financial |
+| FeeSchedule | `fee_line`, `fee_settings`, `registration_terms` (0099), `team_fee_line` (0100) | **Reuse; extend** `fee_line` with a GST treatment (BR219). Currency is the club's | The club's own schedule (BR196) | 7 years FY after the season | W admin, treasurer; R + registrar | Exists (0099) | Internal — operational |
+| RegistrationCharge | `registration_price` (0100): every pricing kept | **Reuse as the registration's charge.** Its latest row is what is charged; backfill a row for registrations priced from the season fee, so every registration has one | The pricing functions (0100), never a typed value | 7 years FY | W functions only; R admin, registrar, treasurer | Exists | Sensitive — financial |
+| PaymentPlan, PaymentPlanInstallment | `payment_plan`, `payment_installment` (0007) | **Reuse unchanged** (BR74–BR76) | The agreed plan | 7 years FY | W admin, treasurer; R money readers, own family | Exists | Sensitive — financial |
+| FinancialAdjustment | **None** — done today by an `adjustment` payment or by overwriting the balance | **New** `financial_adjustment`: category (waiver, write-off, correction, credit applied), amount, currency, reason, authoriser, resolution where required; append-only (BR203) | The authoriser's recorded decision | 7 years FY | W admin, treasurer (and a resolution above the threshold); R money readers | New rows, and `audit_event` | Sensitive — financial |
+| Voucher | `registration_voucher`, `club_voucher_program_enablement` (0008, 0049) | **Reuse.** Relief stays a `payment` of method `voucher` (BR81 unchanged) and is *reported* as relief, not as received (BR202) | The verification | 7 years FY | As today | Exists | Regulated — children where the beneficiary is a minor |
+| HardshipArrangement | `hardship_request` (0077) | **Reuse unchanged.** It is not an adjustment and moves no amount (BR164) | The committee's decision | 7 years FY | As today | Exists | Sensitive — financial; regulated where the player is a minor |
+| Event | `carnival_event` (0034) | **Reuse — no second event entity** (decision A). **No financial column may be added to it**: `carnival_event_select_public` publishes *every column* of a published event to anyone (P6) | The host club | As C12 | As today | Exists | Public once published |
+| EventRegistration | `carnival_entry` (0034): a team entry, no fee | **Reuse for the entry; new** `event_entry_charge` for what an entrant owes, host-club-only, for the same reason as above | The host club's charge | 7 years FY | W admin, treasurer, the event's coordinator; R committee | New | Internal — operational (entrants are clubs and teams, not people) |
+| EventBudget | None | **New** `event_budget`, one versioned budget per event, keyed to `carnival_event`, with approval (BR213) | The coordinator's proposal and the approver's decision | 7 years FY | W coordinator (own event), admin, treasurer; R committee | New, and `audit_event` on approval | Internal — operational |
+| EventExpense, EventRevenue | None | **New** `event_budget_line`: one table, a direction (revenue or expense), a category, a basis (BR208), fixed or per participant, expected and actual amounts | As above | 7 years FY | As above | Versioned with the budget | Internal — operational |
+| EventFinancialAssessment | None | **No table.** Computed by a pure function (BR209) from the lines; an *adopted* scenario's figures are stored with the budget version | `src/domain/events/` (planned) | — (derived) | As above | — | Internal — operational |
+| SanctioningPolicy | None | **New** `financial_policy` and `financial_policy_version`: **shared reference data** with no tenant column, like the competition catalogue ([decision 15](../../decisions/15_the_competition_catalogue_is_shared_reference_data.md)), plus a club-scoped twin for a policy a club entered itself (BR211) | The governing body's published document | Indefinite (a version is history) | R every club; W platform admin (later the governing body's administrator) | Versioned | Public reference |
+| SanctioningAssessment | None | **New** `sanctioning_assessment`, host-club-only: the event, the policy version, the inputs, the result, its status (estimate, confirmed, paid) — frozen (BR210) | The calculation at the time | 7 years FY | W coordinator, treasurer, admin; R committee | Frozen row, and `audit_event` | Internal — operational |
+| PaymentProvider | None (payout providers are a column value) | **New** `payment_provider_account`: provider, capabilities for this club, status, an opaque reference to server-held credentials — never the secret (BR207) | The club's connection | Life of the connection + 7 years | W admin; R treasurer | `audit_event` on connect and disconnect | Internal — security-relevant |
+| ProviderTransaction | None | **New** `provider_transaction` and `provider_event` (raw event id, signature verdict, processing state) (BR205, BR206) | The provider | 7 years FY; the raw event body for a shorter period ([#30](../../scope/open-questions.md)) | W the ingestion function only; R admin, treasurer | Append-only | Sensitive — financial (may carry a payer's name and email) |
+| ReconciliationRecord | None. `Reconciliation Run` (BR46) compares registrations, not money | **New** `payment_reconciliation`: a match (automatic or manual with a reason) or an exception, linking a club record to a provider transaction (BR205) | The match decision | 7 years FY | W admin, treasurer, the matching function; R registrar | Append-only | Sensitive — financial |
+| FinancialReport | `app_finance_summary` (0036), `app_finance_report`, `app_finance_bills` (0102) — functions, not tables | **Reuse; extend** to the eight kinds of BR202, the club's financial year (BR219) and a currency per figure (BR200). Read from the ledger, never from a typed balance (BR201) | The ledger | — (derived) | R admin, treasurer, committee; bills admin, treasurer | — | Sensitive — financial |
+| RevenueAllocationReport | None | **New** `transparency_report`: shared reference data published by a governing body, marked reported or audited (BR216) | The governing body | Indefinite | R every club; W platform admin (later the governing body) | Versioned | Public reference |
+| BenchmarkingConsent | None | **New** `benchmarking_consent`: club, categories, the resolution, opted-in and opted-out times (BR217) | The club's decision | Life of participation + 7 years | W admin, treasurer under a resolution; R committee | Append-only | Internal — operational |
+| AggregatedFinancialMetric | None | **New** `aggregated_financial_metric`: metric, period, cohort definition, cohort size, value or *suppressed*. **No `club_id` and no club list** — the only finance table without one, written by one definer function (BR217) | The aggregation run | Until superseded by the next run, plus history | R opted-in clubs; W the aggregation function | Each run recorded | Aggregated — non-identifying |
+| GoverningBodyAccessGrant *(added)* | None | **New** `governing_body_access_grant`: club, association, purpose, categories, period, expiry, resolution, revoked time; and `governing_body_access_log` of every read (BR214) | The club's decision | Life of the grant + 7 years | W admin, treasurer under a resolution; R committee | Every read logged | Internal — governance |
+| FinancialPeriod *(added)* | None — `season` is not a financial year | **Extend** `club` (or a `club_finance_settings` row) with the financial year's start, the currency and GST registration (BR200, BR219) | The club's statement | Life of the club | W admin, treasurer; R money readers | `audit_event` on change | Internal — operational |
+
+**Three conclusions.** First, the ledger mostly exists — `payment`,
+`registration_price`, `payment_plan`, `registration_voucher` and
+`hardship_request` — and what is missing is the **adjustment**, the
+**currency**, and a **balance derived from them** rather than typed beside
+them. Second, the event has to stay one entity, but its money has to live
+**beside** it, because the event's own row is public once published.
+Third, the only two objects with no tenant column are both *reference*
+(policies, transparency reports, under decision 15's reasoning) or
+*aggregate* (benchmarks, under proposed P8): nothing that names a family
+or a club's own ledger loses its `club_id`.
+
 ## Not yet modeled
 
 Competition **Regulations** as documents (the catalogue above holds names,

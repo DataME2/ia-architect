@@ -20,6 +20,22 @@ platform (BR59), and what may reach an AI service (Principle P4).
 | **Internal — operational** | Validation results, submission packs and records, audit events, configuration | Tenant-isolated; not personal in itself but frequently *about* someone, so it inherits their class where it names them |
 | **Public** | Published carnival schedules and results, club/team level only (BR26, P6) | The single scoped exception to P5, and the only class readable without authentication |
 
+### Financial information (proposed, scope 134)
+
+[Scope 134](../../scope/134_pitchpeople_financial_intelligence.md) adds
+two classes and sharpens one. None changes how an existing table is
+handled.
+
+| Class | What is in it | Handling |
+| ----- | ------------- | -------- |
+| **Sensitive — financial** (a named part of *Sensitive — personal*) | What a family owes, paid, was refunded or was relieved of; hardship reasons; payout nominations; provider transactions that carry a payer's name or email | Tenant-isolated; read by the money roles and the family itself (BR78, BR121); **never** to a governing body (BR215), a benchmark (BR217) or an uncontrolled AI service (P4). Where the payer or beneficiary is a minor it inherits *Regulated — children* |
+| **Public reference** | Governing bodies' published fee and sanctioning policies and transparency reports | No tenant column; readable by every club, written by the platform administrator — the competition catalogue's settlement ([decision 15](../../decisions/15_the_competition_catalogue_is_shared_reference_data.md)), and justified the same way: no column can carry a club's or a person's data |
+| **Aggregated — non-identifying** | Benchmark cohort figures | No tenant column and no list of contributors; published only above the cohort and dominance thresholds (BR217). The single place a figure about several clubs exists, and conditional on proposed P8 |
+
+**A grant is not a class either.** A club-level figure read by a governing
+body under a grant (BR214) stays *Internal — operational* about the club; the
+grant decides who may read it, not what it is.
+
 **A pack is not its own class.** A `submission_pack` containing hundreds of
 children's names and photographs is regulated data in a file, and BR59's
 minimisation exists because classification does not survive export — once
@@ -60,6 +76,21 @@ preferences, two seasons for operational ephemera — and **decades for
 participation and incident records involving minors**, where Queensland's
 removal of limitation periods for child sexual abuse claims puts the
 requirement far beyond BR40's two-year ceiling.
+
+**Financial retention needs a date the platform cannot name yet.** The
+schedule keeps financial records seven years *from the end of the financial
+year the transaction falls in*, and no club has a recorded financial year
+(BR219, proposed). Until one exists, the conservative reading — the latest
+plausible financial-year end after the transaction — is the one any
+retention tracking must use. Scope 134 adds rows the schedule does not yet
+list: provider transactions and payment reconciliations (seven years, as
+financial records), raw provider webhook bodies (a short operational
+period, since the parsed transaction is the record), event budgets and
+sanctioning assessments (seven years), governing-body grants and their
+access logs (the grant's life plus seven years), and benchmarking consents
+(participation plus seven years). Each needs a row in the
+[retention annex](../../annexes/retention-schedule.md) before its table is
+built.
 
 **Nothing deletes automatically until [#30](../../scope/open-questions.md)
 is answered.** The platform builds retention *tracking* — every row knows

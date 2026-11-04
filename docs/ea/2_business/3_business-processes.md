@@ -550,3 +550,197 @@ linked. `import_history_season` writes the unified model, one season at
 a time and as history (BR90), deciding who each row is by BR197. The
 steps and the columns are in the
 [historical import annex](../../annexes/historical-import.md).
+
+## Event budgeting and sanctioning assessment process
+
+**Pending — proposed by [scope 134](../../scope/134_pitchpeople_financial_intelligence.md),
+WP2 and WP5.** Runs on an existing Carnival/Grassroots Event (the
+[Carnival event lifecycle process](#carnival-event-lifecycle-process)),
+never on a second event record.
+
+```mermaid
+flowchart LR
+  event["Event exists<br>(carnival_event)"]:::business
+  classify["Classified<br>type, duration,<br>commercial or not"]:::business
+  policy["Applicable policy<br>version found"]:::business
+  assess["Sanctioning<br>assessment<br>(estimate, frozen)"]:::business
+  budget["Budget lines<br>each with its basis"]:::business
+  scenarios["Scenarios<br>compared"]:::business
+  approve["Budget approved<br>by a person"]:::business
+  actuals["Actuals<br>recorded"]:::business
+  result["Estimated vs actual<br>surplus or deficit"]:::business
+
+  event --> classify --> policy --> assess --> budget --> scenarios --> approve --> actuals --> result
+  policy -.->|no approved version in force| budget
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+The Events Coordinator responsible for the event (BR29) classifies it —
+its type, duration, participant numbers, and whether it is commercial —
+because the classification is what a governing body's policy charges on.
+The platform then looks for a policy version that is **approved and in
+force on the event's dates** for the event's jurisdiction (BR210, BR211).
+Where one exists, the charge it produces is a *published-policy estimate*,
+recorded with the version, the inputs and the result, and never recomputed
+when the policy later changes (the same reason BR116 stores a referee
+claim's amount). Where none exists, the coordinator may enter the charge as
+a *club assumption*, labelled as one.
+
+Every budget line carries one of four bases — published policy, club
+assumption, calculated estimate, or confirmed/actual — and a figure only
+becomes *actual* by an actual being recorded, never by relabelling (BR208).
+Profitability, revenue and cost per participant and break-even participants
+are computed deterministically from those lines (BR209). Scenarios change
+nothing until a person adopts one (BR212), and the budget is approved by a
+person, not by the calculation (BR213, [open question #125](../../scope/open-questions.md)).
+Where the policy itself requires the governing body's approval, the event
+application is a separate, club-initiated submission (BR214's grant
+mechanism, Release 3).
+
+## Payment collection and reconciliation process
+
+**Pending — proposed by [scope 134](../../scope/134_pitchpeople_financial_intelligence.md),
+WP1 and WP3.** The half of the [Payment plan process](#payment-plan-process)'s
+"paid via provider → reconciled" steps that has never existed: today a
+treasurer types what arrived.
+
+```mermaid
+flowchart LR
+  charge["Charge<br>(registration price,<br>event entry)"]:::business
+  collect["Collection<br>requested through<br>a provider adapter"]:::business
+  hand["Receipt recorded<br>by hand"]:::business
+  event["Provider event<br>signed, once"]:::business
+  ptx["Provider<br>transaction kept"]:::business
+  match{"Matched to<br>a club record?"}:::business
+  balance["Balance derived<br>(BR201)"]:::business
+  exception["Payment<br>reconciliation<br>exception"]:::business
+  person["Treasurer resolves<br>with a reason"]:::business
+
+  charge --> collect --> event --> ptx --> match
+  charge --> hand --> match
+  match -- yes --> balance
+  match -- no --> exception --> person --> balance
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+A collection may start in the platform (a family pays through the
+provider's own page, so no card detail reaches the platform, BR207) or
+outside it (cash, a bank transfer, a terminal), which a treasurer records
+as today. Either way the club's record and the provider's record are
+**two facts**: the provider's arrives as a signed event, verified before it
+is read and processed once per provider event id (BR206), and is kept as a
+provider transaction beside — never instead of — the club's own record
+(BR205).
+
+Matching is deterministic: provider reference first, then amount, currency
+and date within the club. A match closes both sides; anything else is a
+*payment reconciliation exception* (distinct from BR47's registration
+kind) for the Treasurer or Finance Admin, resolved by a recorded manual
+match or a recorded correction, each with a reason. **Nothing
+is closed silently**, in either direction: a provider payment with no club
+record is money the club has not accounted for, and a club record with no
+provider confirmation is money the club may not have received. A refund is
+requested by a person and recorded once the provider confirms it (BR204).
+
+Outbound payouts — referee batches (BR162), referral partners (BR172) —
+move onto the same port, keeping their simulation until a real provider is
+approved and tested ([decision 16](../../decisions/16_the_platform_records_a_payout_a_provider_moves_it.md)).
+
+## Financial policy publication and consultation process
+
+**Pending — proposed by [scope 134](../../scope/134_pitchpeople_financial_intelligence.md),
+WP5.**
+
+```mermaid
+flowchart LR
+  draft["Policy version<br>drafted: source,<br>jurisdiction, dates"]:::business
+  approve["Approved"]:::business
+  publish["Published"]:::business
+  apply["Applied in an<br>assessment, citing<br>the version"]:::business
+  ask["Club asks:<br>clarification<br>or exemption"]:::business
+  answer["Response and<br>decision recorded"]:::business
+  supersede["New version<br>supersedes; old kept"]:::business
+
+  draft --> approve --> publish --> apply --> ask --> answer
+  answer -.-> supersede --> publish
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+A policy is **shared reference data**, in the way the competition
+catalogue is ([decision 15](../../decisions/15_the_competition_catalogue_is_shared_reference_data.md)):
+it describes what a governing body charges and holds no club's data, so
+publishing and reading it crosses no tenant boundary. Until a governing
+body publishes its own, a club's treasurer may enter a governing body's
+published policy, citing its source, and it is labelled *entered by the
+club, not verified by the governing body* (BR211). A club sees which version
+produced each charge and may ask for clarification or an exemption; the
+request, the response and the decision are recorded, append-only, the way a
+committee resolution is (BR123). A changed policy is a new version from a
+date; the old one stays readable and every assessment keeps the version it
+used (BR210).
+
+## Governing-body access grant process
+
+**Pending, and conditional on proposed Principle P8** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md),
+WP5; [decision 19](../../decisions/19_a_club_grants_what_a_governing_body_reads.md)).
+
+```mermaid
+flowchart LR
+  resolve["Club decides<br>(committee resolution)"]:::business
+  grant["Grant recorded:<br>body, purpose,<br>categories, period"]:::business
+  read["Governing body reads<br>through a scoped<br>function"]:::business
+  audit["Every read<br>audited"]:::business
+  endg["Revoked<br>or expired"]:::business
+
+  resolve --> grant --> read --> audit
+  grant --> endg
+  endg -.->|reads refused from now| read
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+Affiliation grants nothing. A club that wants to report to its governing
+body records a decision (BR123, [open question #122](../../scope/open-questions.md)
+on who decides), and the grant names the governing body, the purpose, the
+data categories — club-level aggregates only, never a family's or a
+player's figures (BR215) — the period, and an expiry. The governing body
+reads through a function that checks the grant on every call and audits
+it, never through a service-role query. Revocation takes effect on the next
+read. What was already read cannot be recalled, which is why the grant is
+narrow rather than the audit thorough.
+
+## Benchmarking participation process
+
+**Pending, and conditional on proposed Principle P8** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md),
+WP6; [decision 21](../../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md)).
+
+```mermaid
+flowchart LR
+  optin["Club opts in<br>(resolution,<br>categories)"]:::business
+  derive["Club's metrics<br>derived inside<br>its tenant"]:::business
+  pool["Aggregated across<br>opted-in clubs"]:::business
+  check{"Cohort large and<br>balanced enough?"}:::business
+  show["Club sees its figure<br>beside the cohort"]:::business
+  suppress["Suppressed,<br>and says so"]:::business
+  optout["Opts out:<br>future aggregates<br>exclude it"]:::business
+
+  optin --> derive --> pool --> check
+  check -- yes --> show
+  check -- no --> suppress
+  optin -.-> optout
+
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+Off by default. A club opts in by recording a decision and the metric
+categories it contributes; its metrics are computed inside its own tenant
+from the same derived figures its dashboards show, and only the club-level
+value — never a row — leaves for the pool. A cohort figure is published only
+when enough opted-in clubs contribute and no single club dominates it
+(BR217, [open question #130](../../scope/open-questions.md) on the thresholds);
+otherwise it is suppressed and the screen says so rather than showing a
+number that could identify a club. Opting out removes the club from every
+aggregate computed afterwards.

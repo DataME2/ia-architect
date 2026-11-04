@@ -80,6 +80,49 @@ become a data object in [3_information/1_data-objects.md](../3_information/READM
 | **Voucher Verification** | A check of a Voucher's code against the issuing government's own public verification interface, performed by the Assistant (AI, advisory) or manually by Finance Admin/Treasurer, with its result and timestamp recorded before the Voucher can be applied (BR25) |
 | **Voucher Claim** | The club's request to a Voucher Program's issuing government for reimbursement of a Voucher already applied to an invoice, moving `NOT_CLAIMED → SUBMITTED → PAID \| REJECTED`, submitted through that program's own CSV/portal mechanism (BR23, BR24) |
 
+## Financial intelligence
+
+Added November 2026 by [scope 134](../../scope/134_pitchpeople_financial_intelligence.md).
+The first block lists finance objects **already built** that this document
+never named; the second, the objects Goal G9 proposes. Conceptual names, not
+table names: [3_information/1_data-objects.md](../3_information/1_data-objects.md#financial-intelligence-candidate-objects-assessed)
+records, for each, whether an existing table already realises it.
+
+### Built, and not listed here before
+
+| Object | What it represents |
+| ------ | -------------------- |
+| **Fee Line** | One line of a club's fee schedule for a season — club, governing-body or levy — retired rather than deleted (BR195, BR196). Realises the **Fee / Invoice** object's *fee* half |
+| **Registration Price** | Every pricing of one registration, kept: the lines, the sibling discount, the total, and whether it was opened or re-priced (0100). The nearest thing to a charge the platform has today |
+| **Hardship Request** | A family's (or an officer's on their behalf) request that an owing player may take the field, approved until a date or declined with a reason by a committee member. **Forgives nothing** (BR164) |
+| **Arrears Follow-up** | The treasurer's recorded response to a debt from an earlier season: payment requested, or an amendment with its reason (BR79, scope 48) |
+| **Payout Nomination** / **Referee Payout** | Where an official is paid, replaced rather than edited (BR161), and one payout per claim, written only by the function that performs it — today always a simulation (BR162) |
+| **Sponsor Invoice** / **Referral Payout** | A sponsor billed for a closed period with the club's and the platform's shares (BR171), and a partner paid per completed registration (BR172) — both simulated |
+
+### Proposed (all Pending)
+
+| Object | What it represents |
+| ------ | -------------------- |
+| **Charge** | One amount a person or entrant is asked to pay — a registration's price, an event entry fee — in its currency, dated, and traceable to the fee line or policy version that set it. The *invoiced* figure BR202 reports. Proposed as the generalisation of Registration Price, not beside it |
+| **Financial Adjustment** | An authorised, reasoned change to what is owed that is **not money received**: a waiver, a write-off, a correction, a credit applied. Append-only, categorised, approved by the role or resolution BR203 names. Never recorded as a payment, and never by setting a balance |
+| **Refund** | Money returned to a payer: a reversing payment with a reason and a category (refund or correction), and, when made through a provider, the provider's confirmation (BR204) |
+| **Assistance Relief** | The part of a charge covered by a voucher (BR81) or another assistance programme, reported separately from money received (BR202). Hardship is **not** relief: it defers play's consequence, not the debt (BR164) |
+| **Financial Period** | A club's own financial year, distinct from its season, against which reports, GST and the seven-year retention clock run (BR219) |
+| **Event Budget** / **Event Budget Line** | An event's planned and actual revenue and expenses, each line in a category (venue, equipment, coaching, referees, insurance, marketing, administration, sanctioning, other; entry fees, sponsorship, other income) and on one of four bases — published policy, club assumption, calculated estimate, confirmed/actual (BR208). Attached to the existing Carnival/Grassroots Event |
+| **Event Scenario** | A named set of changed assumptions — participants, fees, costs — evaluated against a budget without changing it, until a person adopts it (BR212) |
+| **Event Financial Assessment** | The computed result for a budget or scenario: expected and actual revenue, expenses and surplus, revenue and cost per participant, break-even participants (BR209). Derived, never typed |
+| **Sanctioning Policy** / **Policy Version** | A governing body's rule set for charging events — classifications, thresholds, participant- and event-based charges, duration rules, exemptions, approval requirements — held as configuration with its source, jurisdiction, version, effective dates and approval status (BR210, BR211) |
+| **Sanctioning Assessment** | One application of one policy version to one event: inputs, the charge, the basis, and whether it is an estimate, confirmed by the governing body, or paid. Frozen once made |
+| **Policy Enquiry** | A club's request for clarification or exemption against a policy version, with the response and the decision |
+| **Payment Provider Account** | A club's connection to one provider: which provider, which capabilities it supports for this club, and a reference to server-held credentials — **never** the credentials themselves (BR207) |
+| **Provider Transaction** | What a provider reports — a collection, refund, payout, fee or failure — under the provider's own reference, kept apart from the club's records (BR205) |
+| **Provider Event** | One signed notification from a provider, recorded once by its event id whether or not it changes anything (BR206) |
+| **Payment Reconciliation Match** / **Payment Reconciliation Exception** | A recorded pairing of a club record with a provider transaction, automatic or manual (with a reason), and an unmatched item awaiting a person. Distinct from the registration *Reconciliation Run* above (BR46), which compares registrations, not money |
+| **Governing-Body Access Grant** | A club's explicit, purpose-limited, time-bounded, revocable permission for a named governing body to read named categories of its club-level financial information, with every read audited (BR214, BR215) |
+| **Transparency Report** | A governing body's published account of its revenue and how it reports allocating it, stating its source and whether it was independently audited (BR216) |
+| **Benchmarking Consent** | A club's opt-in to contribute named metric categories to aggregated comparison, with who decided, when, and any withdrawal (BR217) |
+| **Aggregated Financial Metric** | A cohort figure computed from opted-in clubs' club-level values, with its cohort size and whether it was published or suppressed. Carries no club identifier |
+
 ## Match officials
 
 | Object | What it represents |

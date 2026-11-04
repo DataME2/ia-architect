@@ -12,6 +12,14 @@ screens stay as they are.
 This annex says what each option needs before it can be switched on. It is
 drafted, **not legally or commercially reviewed**.
 
+**Collections are not assessed here.** Since November 2026 every money
+movement, in or out, goes through one provider port
+([decision 20](../decisions/20_payments_through_a_provider_port_never_on_the_platform.md),
+[scope 134](../scope/134_pitchpeople_financial_intelligence.md) WP3). The
+same assessment for collecting from families and sponsors — what Square,
+Stripe and the banks support, and how each signs its events — is a
+precondition of the first collection adapter, and belongs beside this one.
+
 ## The four options, compared
 
 | | **Bank file (ABA)** | **Stripe Connect** | **PayPal Payouts** | **PayID / NPP via a payments API** |

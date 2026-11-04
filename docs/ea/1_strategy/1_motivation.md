@@ -14,6 +14,8 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
 | Pilot club | Wants measurable proof that the platform reduces admin work and errors before recommending it further | Committed at least three years of historical data (~700 seasonal registrations/year) to validate against |
 | Let's Data Talk (the vendor, maker of PitchPeople) | Needs a sellable, multitenant SaaS product across many AU/NZ clubs, not a one-off tool for a single club | Revenue depends on subscription and data-services income across multiple tenants |
 | Governing bodies / state associations (Football Queensland the named example) — **prospective customer; first contact made July 2026** | Would want jurisdiction-wide control of Competition Regulations, Playing Formats, and the registration process its member clubs follow, rather than each club re-keying the same reference data | Currently modeled only as an external, read-only data source ([2_business/1_business-actors-and-roles.md](../2_business/1_business-actors-and-roles.md)). Serving one as a *tenant* would need an association tier that can see across member clubs — which Principle P5 forbids today; see [open question #31](../../scope/open-questions.md). **Football Queensland's 31 July 2026 reply to the pilot club's API request** establishes the counterparty's stated position: SQUADI API access is restricted to Football Australia, Football Queensland, and *approved system partners*, and is not issued to affiliated clubs — so the relationship PitchPeople needs is **partner status, not credentials** (see the response Resource, [2_capabilities-and-resources.md](./2_capabilities-and-resources.md), and [open questions #39–#41](../../scope/open-questions.md)) |
+| Club presidents, treasurers and management committees, as the people answerable for a club's money (raised November 2026) | Cannot see the club's financial position in one place at the moment a decision is made: what was charged, received, relieved by a voucher, waived, refunded, overdue, or owed by an event | Finance runs across Majestri, a payment terminal, bank statements, accounting software and spreadsheets, kept by volunteers; the pilot club reads its own seasons in a separate Power BI model ([scope 133](../../scope/133_the_finance_report.md)). Events are committed to before anyone works out whether they pay for themselves, and governing-body charges such as Football Queensland's October 2026 Sanctioning Policy add per-participant costs a club must estimate before it commits ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md)) |
+| Governing bodies as authors of fees and event policies (Football Queensland's October 2026 Sanctioning Policy the named example) — **prospective participant, not modelled** | Publishing a fee or sanctioning policy, explaining how a charge is calculated, receiving event applications, and showing member clubs what their payments are reported to fund | A club cannot check a charge whose basis it cannot see. Serving a governing body as a *participant* rather than an external data source crosses P5, so it waits on proposed Principle **P8** below: access by the club's own grant, never by affiliation ([decision 19](../../decisions/19_a_club_grants_what_a_governing_body_reads.md)) |
 | General public, coaches, and parents following grassroots events; clubs and Football Queensland as event hosts | Regional carnivals and grassroots events (MiniRoos Invitational Carnivals, Girls United Carnivals, WinterFest, Pacific Championships, talent-ID tournaments) currently have no consolidated draw/schedule/results support, so families and the public rely on ad hoc social media posts and printed programs | These events span multiple clubs by design and are meant to be followed by people who don't have (and shouldn't need) a PitchPeople account |
 | Life Members — individuals a club has honoured with lifetime membership for service, including those who have since died | Every club maintains this group informally, and their current contact details go stale between the occasions a club actually needs them — an anniversary, a reunion, an honour board. A person who dies is exactly the record a participation-based retention rule would eventually discard, which loses club history rather than merely tidying it (raised August 2026) | No existing capability distinguishes "stopped playing" from "life member" or from "deceased" — BR40's retention job cannot tell them apart today |
 
@@ -104,6 +106,20 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   by G1–G7, which assume a person is either currently participating or
   fading toward disposal, never permanently honoured regardless of
   participation.
+- **G9 — Financial intelligence: a club understands, manages and improves
+  its financial position, and every figure explains itself.** Charges,
+  receipts, voucher and assistance relief, authorised adjustments, refunds
+  and what remains owed are distinct, reconcilable facts, each in the
+  currency it was incurred in. An event's viability is calculated before the
+  club commits to it; a governing-body charge is traceable to the policy
+  version that produced it; and a club compares itself with others only
+  through opt-in, aggregated figures. Raised by the product owner,
+  4 November 2026 ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md)).
+  It extends G3 from a registration's money to the club's whole position,
+  **without becoming an accounting system**: the club's books of account,
+  tax returns and audit stay with its treasurer, its accountant and its
+  accounting software. **Pending — nothing beyond G3's existing slice and
+  scope 133's report is built.**
 
 ## Principles
 
@@ -183,9 +199,30 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   without recorded consent, or that leaves someone on a future match sheet
   after their clearance lapses, contradicts this principle.
 
+- **P8 — A club's financial information leaves its tenant only by the
+  club's own grant, or as an aggregate that cannot identify it.**
+  ***Proposed** (November 2026, [scope 134](../../scope/134_pitchpeople_financial_intelligence.md)),
+  awaiting review. Nothing is built against it, and until it is accepted P5
+  stands unqualified for financial data.* A second scoped exception to P5,
+  beside P6, and deliberately narrower than "an association tier that sees
+  across its clubs" ([open question #31](../../scope/open-questions.md)):
+  (a) a governing body reads a club's financial information only under an
+  **explicit, purpose-limited, time-bounded and revocable grant the club
+  makes**, every use of which is audited, and affiliation by itself grants
+  nothing ([decision 19](../../decisions/19_a_club_grants_what_a_governing_body_reads.md));
+  (b) a figure computed across clubs is published only from clubs that
+  **opted in**, only above a minimum cohort size, and never in a form that
+  identifies a club, a family or a player
+  ([decision 21](../../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md)).
+  Family-level and player-level financial records leave the tenant under
+  neither. A change that lets a governing body read a club's money because
+  it is the club's association, that reaches the data through a
+  service-role query rather than a grant, or that computes a cross-club
+  figure from a club that has not opted in, contradicts this principle.
+
 A proposed change that would give an AI actor authority to act on identity,
 payment, or promotion decisions without a human, that would write to a
 club's production system without a scoped exception to P2, or that would
 publish personal/registration/finance data beyond what P6 explicitly
-carves out, contradicts a Principle here — surface it instead of
-proceeding (`ea-first-change`, step 1).
+carves out (or, once accepted, what P8 does), contradicts a Principle here
+— surface it instead of proceeding (`ea-first-change`, step 1).

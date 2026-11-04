@@ -171,6 +171,37 @@ says nothing about the ones that were never started.
 | **The function scope 45 refused** | `app_record_alert_outcome()` | Scope 45 declined a *mark as notified* function because the enquiry path is anonymous by definition and it would have to be granted to `anon`, letting a stranger write delivery records into a sales log. This is that same shape, safe for one reason: **a retry starts from the console**, by somebody already on the platform allowlist. The difference is not the function, it is who can reach it | **Delivered** |
 | **One composer, two callers** | `alertInputFor`, `alertPlatform` | The first alert is built from the submitted form and a retry from the row it became, so two composers would drift — and the divergence would only ever show in the **retried** copy, the one nobody is watching, sent when something has already gone wrong once. A test composes both and asserts they are identical, verified to fail by mapping one field wrongly | **Delivered** |
 
+## Planned components — Financial Intelligence (scope 134)
+
+**Planned, no code.** The paths are where each component is intended to
+land, chosen to follow the three structural rules below: arithmetic and
+matching in `src/domain/` (pure, typechecked with no DOM), the screens'
+decisions in `src/web/`, I/O and provider calls in `src/data/`, routes in
+`src/app/`, and every constraint that must hold against any writer in a
+migration. Each becomes a real row above as it lands. See the
+[solution design](./4_solution-design.md) for how they fit and the
+[interface contracts](./5_interface-contracts.md) for what each promises.
+
+| Component | Intended source | Provides | Work package |
+| --------- | --------------- | -------- | ------------ |
+| **Money with a currency** | `src/domain/finance/money.ts` (extended), `src/domain/finance/currency.ts` | A `Money` value (minor units and currency), refusing arithmetic across currencies (BR200); formatting by the club's currency rather than a hardcoded `$` | WP1 |
+| **The derived balance** | `src/domain/finance/ledger.ts`; a migration's `app_registration_balance` | BR201: charges − received − relief − adjustments + refunds, the same in the domain and in the database, and the eight kinds of figure (BR202) | WP1 |
+| **Adjustments and refunds** | migration (`financial_adjustment`, `payment.kind`, `payment.currency`); `src/data/finance.ts`; `src/web/adjustment-form.ts` | BR203, BR204; `setOutstandingAmount` and its form retired | WP1 |
+| **Club finance settings** | migration (`club_finance_settings`); `/registrar/club` *Finance* tab | Currency, financial-year start, GST registration (BR200, BR219) | WP1 |
+| **Event economics calculator** | `src/domain/events/economics.ts` | BR209 profitability, per-participant figures, break-even (or *not reachable*), scenario comparison — pure and exhaustively tested | WP2 |
+| **Event budget tables** | migration (`event_budget`, `event_budget_line`, `event_entry_charge`); `src/data/event-economics.ts` | Host-club-only, keyed to `carnival_event`, **never columns on it** (it is public once published) | WP2 |
+| **Sanctioning calculator** | `src/domain/events/sanctioning.ts` | BR210, BR211: one policy version applied to one event's inputs, returning the charge, its basis and the rule lines that produced it | WP2 |
+| **Event budget screen** | `src/app/registrar/carnivals/[eventId]/budget/`, `src/web/event-budget-view.ts` | Lines with their basis, scenarios side by side, approval | WP2 |
+| **Payment provider port** | `src/data/payments/provider.ts` | The adapter interface and capability declaration ([contract](./5_interface-contracts.md#paymentprovideradapter)) | WP3 |
+| **Adapters** | `src/data/payments/simulation.ts`, then the first approved of `square.ts`, `stripe.ts`, `bank-file-au.ts`, `bank-statement.ts` | One per provider; secrets read from server-side configuration only (BR207) | WP3 |
+| **Webhook ingress** | `src/app/api/webhooks/[provider]/route.ts`; migration `ingest_provider_event()` | Verify, then record once (BR206), through one definer function and a new `createAdminClient('provider-webhook')` reason | WP3 |
+| **Reconciliation engine** | `src/domain/reconciliation/match.ts`; `/registrar/reconciliation` | BR205: deterministic matching and an exception queue | WP3 |
+| **Financial dashboards** | `src/web/finance-dashboard.ts`; `/registrar/reports` (extended) and the `/me` committee workspace | Role views over the derived figures, each with basis, period, currency and as-at (BR143) | WP4 |
+| **Policy register** | migration (`financial_policy`, `financial_policy_version`, `policy_enquiry`); `/registrar/policies` | BR210, BR211; club-entered policies first | WP5 |
+| **Governing-body grant** | migration (`governing_body_access_grant`, `governing_body_access_log`, `app_governing_body_read()`) | BR214, BR215 — **conditional on P8** | WP5 |
+| **Benchmarking** | `src/domain/benchmarking/suppression.ts`; migration (`benchmarking_consent`, `aggregated_financial_metric`, `app_run_benchmarks()`) | BR217 cohort and dominance rules, pure — **conditional on P8** | WP6 |
+| **Financial assistant drafts** | `src/web/finance-assistant.ts`, rendered only through `AssistantNote.tsx` | BR218: drafts from computed figures; `scripts/check_assistant.py` unchanged until a decision record extends it | WP7 |
+
 ## Three structural rules for the code
 
 **The rules engine holds no I/O and no framework.** Each business rule is a

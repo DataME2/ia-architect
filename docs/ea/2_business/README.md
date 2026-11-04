@@ -56,9 +56,9 @@ flowchart TB
 
 See [1_business-actors-and-roles.md](./1_business-actors-and-roles.md) for
 the full actor/role table (46 human roles, the AI Assistant, and the
-external Governing Body / Association actor),
-[2_business-services.md](./2_business-services.md) for all thirteen
-services, and [4_business-objects.md](./4_business-objects.md) for the
+external actors: governing bodies, Football Australia and payment providers),
+[2_business-services.md](./2_business-services.md) for every
+service (four of them proposed by [scope 134](../../scope/134_pitchpeople_financial_intelligence.md)), and [4_business-objects.md](./4_business-objects.md) for the
 full object inventory.
 
 Every business service is realized by application services — the mapping is
