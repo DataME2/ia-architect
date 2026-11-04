@@ -5,9 +5,9 @@ _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 **ArchiMate viewpoint:** Implementation & Migration.
 **Delivered as:** branch `claude/funny-thompson-ncu476`. **Stages 1–3:
 discovery, architecture and this scope. On 4 November 2026 the product
-owner accepted P8 and asked for WP1a first: WP1a is built** (migration 0103,
-not applied to any Supabase project). Every other work package waits for its
-own review.
+owner accepted P8 and asked for WP1a first: WP1a is built, and migration 0103
+is applied to DEV** (by the product owner, 4 November 2026; not production).
+Every other work package waits for its own review.
 
 On 4 November 2026 the product owner asked for PitchPeople to grow from
 registration and administration into a **connected financial intelligence
@@ -426,7 +426,16 @@ flowchart LR
     scenarios, passing among 87 suites. **Run against a copy of 0103 without
     its balance update, it fails with the defect's exact figures** (balance
     12000; billed 12000, collected 5000, outstanding 12000).
-  - **Not applied** to DEV or production.
+  - **Applied to DEV** (`sxsloxdtpcjpdobwpwsm`) by the product owner through
+    the SQL editor on 4 November 2026 at 20:54 UTC, and verified read-only
+    through the Supabase connection: the receipt reads `0103`, the function
+    is `security definer` with its comment in place. **Not applied to
+    production.** Supabase's security advisor lists it among 110 `security
+    definer` functions that `anon` may execute — a project-wide grant
+    pattern (Supabase grants `anon` directly, and the migrations revoke only
+    from `public`). The function refuses an anonymous caller itself (suite
+    65, scenario 8); revoking the grant project-wide is queued as its own
+    change.
 - **Outcome:** F1 is gone, before WP1 replaces the column. One documented
   side effect: a payment against imported history (BR90), which used to
   leave a stray receipt behind its error, is now refused whole.
