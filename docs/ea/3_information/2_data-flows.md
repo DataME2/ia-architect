@@ -43,7 +43,7 @@ flowchart LR
 
 | | Today | Target |
 | - | ----- | ------ |
-| The balance | `registration.outstanding_amount_cents`, written by `recordPayment` and `setOutstandingAmount` — and refused, silently, for a treasurer-only account | Derived from the four sources above, by one database function both the screens and the report call |
+| The balance | `registration.outstanding_amount_cents`, a typed running balance: moved by `app_record_payment` with each receipt (0103, which fixed a treasurer's payment leaving it unmoved) and overwritten by `setOutstandingAmount` | Derived from the four sources above, by one database function both the screens and the report call |
 | *Collected* in the report | Every `payment` row, relief and adjustments included | *Received* (money only) apart from *relief*, *adjusted* and *refunded* |
 | Currency | Implicit AUD everywhere | The club's recorded currency on every figure; no cross-currency arithmetic (BR200) |
 

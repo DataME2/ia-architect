@@ -346,8 +346,11 @@ move. Reproduced against the real migrations in November 2026 (a treasurer
 records $50.00 against $120.00 owed; the balance stays $120.00). Because
 `app_finance_report` (0102) reads *collected* from `payment` and
 *outstanding* from this column, the report can then show a season that
-billed $120, collected $50 and still has $120 outstanding. BR201 is the
-correction ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP1).
+billed $120, collected $50 and still has $120 outstanding. **Fixed by
+migration 0103** (`app_record_payment`, [scope 134](../../scope/134_pitchpeople_financial_intelligence.md)
+WP1a): the payment and the balance are now written in one transaction, for
+the admin or the treasurer, proved by `supabase/tests/65_*`. The column is
+still a typed running balance; BR201 is the correction of that (WP1).
 
 ## Financial intelligence: candidate objects, assessed
 

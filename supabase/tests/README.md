@@ -65,6 +65,8 @@ Numbered by concern, run in order:
 | `35` | The competition catalogue — every club reads it, **no club writes it**, and a minimum cannot cross associations. These scenarios are what makes `check_rls.py`'s three new exemptions safe rather than argued |
 | `34` | Privacy rights — an erasure deletes or refuses naming its reasons, the request outlives its subject, the review proposes without deleting, and a deceased life member is never proposed |
 | `33` | Communications — a withdrawal is honoured, indistinguishable when refused, separate per purpose, and not undoable by an officer's ordinary update |
+| `51`–`98`, except `65` | **Not yet listed here** — each file's header states what it proves, as the failure it would catch |
+| `65` | A treasurer's payment moves the balance (0103) — a treasurer-only payment moves the balance and the finance report agrees with itself, a plan's balance is its total less every receipt, a reversal corrects it and cannot name another registration's payment, a registrar, another club's treasurer, a stranger and an anonymous caller record nothing, and a refusal against imported history leaves no stray receipt. **Fails against a copy of 0103 without its balance update**, reproducing the defect |
 | `99_grants.sql` | Table privileges for the Supabase roles. **RLS decides which rows; GRANT decides whether the role may touch the table at all** — a policy without a grant denies everything, and a grant without a policy is the leak `check_rls.py` exists to catch |
 
 ## Writing one

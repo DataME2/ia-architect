@@ -37,8 +37,10 @@ function `app_registration_money()` returns its result instead of the
 column. `src/domain/finance/ledger.ts` mirrors the same arithmetic for
 tests and previews, and a suite asserts the two agree on the same inputs.
 
-Two consequences are deliberate. **The treasurer-payment defect disappears
-at its cause**: there is no second statement for RLS to refuse.
+Two consequences are deliberate. **The treasurer-payment defect is gone at
+its cause**: WP1a (migration 0103) already fixed the symptom by writing the
+payment and the balance in one function, and with nothing writing the column
+there is no second write left to go wrong.
 **`setOutstandingAmount` is retired**: what it did becomes either a
 re-pricing (0100) or a recorded adjustment (BR203).
 

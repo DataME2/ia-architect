@@ -94,7 +94,7 @@ worse than an absent feature, because somebody relies on it.
 | T2.3 | **BR15 made testable.** The assistant never changes a status — structurally true because no generative step exists. It should stay true *by test* before one does | BR15, P3 | S | A test that fails if an assistant surface gains a committing control |
 | T2.4 | **BR122 made a gate rather than a convention.** A read policy naming roles must ship with a scenario asserting the excluded role reads nothing — today that is discipline, not a check | BR122 | M | `check_rls.py` (or a sibling) fails a role-narrowed policy with no exclusion scenario |
 | T2.5 | **BR75 given a source reference.** The partial unique index enforces one live plan; no comment names the rule, so it is invisible to a reviewer diffing rules against code | BR75 | S | The identifier appears where the constraint is defined |
-| T2.6 | **A treasurer's payment moves the balance.** Recorded and shown as paid, while the balance stays where it was for a treasurer-only account ([scope 134](../scope/134_pitchpeople_financial_intelligence.md) F1) | BR77, BR78 | S | A suite: a `treasurer`-only payment moves the balance; a `registrar`'s is refused. Bugfix template — scope 134's WP1a |
+| ~~T2.6~~ | **A treasurer's payment moves the balance.** Recorded and shown as paid, while the balance stayed where it was for a treasurer-only account ([scope 134](../scope/134_pitchpeople_financial_intelligence.md) F1). **Done** — migration 0103, `supabase/tests/65_*` | BR77, BR78 | S | A suite: a `treasurer`-only payment moves the balance; a `registrar`'s is refused. Bugfix template — scope 134's WP1a |
 
 ---
 

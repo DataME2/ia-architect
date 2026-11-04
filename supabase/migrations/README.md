@@ -79,6 +79,8 @@ The next migration takes the next number.
 | `0033` | Officiating interest: what a family declared at registration, and the review that turns a claim into a referee |
 | `0032` | The competition catalogue: shared reference data, ranked classification levels, and the reference a fixture carries |
 | `0031` | Privacy rights: the reasons a record must stay, erasure, retention proposed rather than executed, life membership, and the club's export |
+| `0050`–`0102` | **Not yet listed here** — each file's banner names its scope document and what it settled, and [the data objects](../../docs/ea/3_information/1_data-objects.md) describe the tables |
+| `0103` | A treasurer's payment moves the balance (scope 134, WP1a): `app_record_payment` records the payment, its audit line and the new balance in one transaction, for the admin or treasurer only (BR77, BR78). Before it, the balance update ran as a second request that RLS refused, silently, for a treasurer who was not also an admin |
 
 **Each file opens with a banner** naming the number, the outcome in one
 line, the scope document and work package, and what was settled and what was

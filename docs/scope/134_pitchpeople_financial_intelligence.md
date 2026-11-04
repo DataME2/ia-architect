@@ -3,9 +3,11 @@
 _[← Scope index](./README.md) · [EA home](../ea/README.md)_
 
 **ArchiMate viewpoint:** Implementation & Migration.
-**Delivered as:** branch `claude/funny-thompson-ncu476`. **Stages 1–3 only:
-discovery, architecture and this scope. No code, no migration and no test
-has been written. Implementation (Stage 5) waits for the review in Stage 4.**
+**Delivered as:** branch `claude/funny-thompson-ncu476`. **Stages 1–3:
+discovery, architecture and this scope. On 4 November 2026 the product
+owner accepted P8 and asked for WP1a first: WP1a is built** (migration 0103,
+not applied to any Supabase project). Every other work package waits for its
+own review.
 
 On 4 November 2026 the product owner asked for PitchPeople to grow from
 registration and administration into a **connected financial intelligence
@@ -137,7 +139,7 @@ architectural change before it can be built.
 | 1 | Registration pricing | **Tested**; *Incomplete* at checkout | `src/web/registration-price.ts` (+ tests); 0100 `registration_breakdown`, trigger `registration_priced_from_the_schedule`; `supabase/tests/98_*`; BR195 | The family's form shows no breakdown and asks no acceptance of terms (scope 130 WP4, scope 131 gap note) |
 | 2 | Club fee schedules | **Tested** | 0099 (`fee_line`, `fee_settings`, `registration_terms`), 0100 (`team_fee_line`); `/registrar/registration-fees`; `src/web/registration-fee-form.ts`; `supabase/tests/97_*`; BR196 | No GST treatment, no currency |
 | 3 | Governing-body fees and levies | *Incomplete*; **Re-architect** | `fee_line.kind` ∈ {governing, levy}, typed per club per season (0099) | No source, version, effective dates or approval status; not authored by the governing body |
-| 4 | Payments | *Incomplete* — **defect** | `payment` (0007), `recordPayment` (`src/data/finance.ts`), `supabase/tests/14_*`; BR77, BR78 | **A treasurer-only account's payment does not move the balance** (see below); entry by hand only |
+| 4 | Payments | *Incomplete* — defect **fixed** | `payment` (0007), `recordPayment` (`src/data/finance.ts`), `supabase/tests/14_*`; BR77, BR78; since WP1a `app_record_payment` (0103), `supabase/tests/65_*` | A treasurer-only account's payment did not move the balance (F1, fixed by 0103); entry by hand only |
 | 5 | Refunds and reversals | *Incomplete* | Negative `payment` with `reverses_payment_id` (0007) | No refund kind or reason; refund and correction indistinguishable; no provider refund |
 | 6 | Payment plans and instalments | **Tested** | 0007; `src/domain/finance/plan.ts`, `finance.test.ts`; `supabase/tests/14_*`; `PaymentPlanPanel.tsx`; 0068; BR74–BR76 | — |
 | 7 | Outstanding balances | **Re-architect** | `registration.outstanding_amount_cents` (0001), written by `recordPayment` and overwritten by `setOutstandingAmount` (`src/data/queries.ts`), which `registration_manage` (0058) allows admin, registrar and IT manager; read through `app_registration_money()` (0070, 0077, 0088) | A typed running balance, not derived; the registrar may overwrite it although BR78 reserves money to admin and treasurer |
@@ -193,8 +195,8 @@ balance still $120.00 after a $50.00 payment.** The Treasurer office maps to
 also affects voucher relief, which goes through `recordPayment`. Because
 `app_finance_report` reads *collected* from `payment` and *outstanding* from
 the column, the report can show a season that billed $120, collected $50 and
-has $120 outstanding. **It is a pure bug fix and can ship ahead of this
-initiative** (WP1a).
+has $120 outstanding. **It was a pure bug fix and shipped ahead of the rest
+of this initiative** (WP1a, migration 0103).
 
 **F2 — Event money cannot be columns on the event.** `carnival_event_select_public`
 (0034) grants `select` to `anon, authenticated` on every column of a
@@ -408,14 +410,26 @@ flowchart LR
   classDef implementation fill:#ffd6d6,stroke:#c62828,color:#333
 ```
 
-### WP1a — The treasurer's payment moves the balance (bug fix, Release 1)
+### WP1a — The treasurer's payment moves the balance (bug fix, Release 1) — **built**
 
-- **Deliverables:** a migration with `app_record_payment()`, a definer
-  function that checks admin or treasurer, inserts the payment and updates
-  the balance in one transaction; `recordPayment` calls it; a suite proving
-  a treasurer-only payment moves the balance and a registrar's is refused.
-- **Outcome:** F1 is gone today, before WP1 replaces the column. Uses the
-  bugfix template; changes no documented behaviour.
+- **Deliverables, as built:**
+  - `supabase/migrations/0103_a_treasurers_payment_moves_the_balance.sql`:
+    `app_record_payment`, a definer function that resolves the club from the
+    registration (and refuses a mismatch with the club the caller acts in),
+    checks admin or treasurer (BR78), refuses a reversal naming another
+    registration's payment (BR77), and writes the payment, its audit line
+    and the balance in one transaction. The balance arithmetic is
+    `recordPayment`'s, unchanged. It registers its receipt.
+  - `recordPayment` (`src/data/finance.ts`) calls it, and its three callers
+    no longer pass an actor id: the database records who acted.
+  - `supabase/tests/65_a_treasurers_payment_moves_the_balance.sql`, 10
+    scenarios, passing among 87 suites. **Run against a copy of 0103 without
+    its balance update, it fails with the defect's exact figures** (balance
+    12000; billed 12000, collected 5000, outstanding 12000).
+  - **Not applied** to DEV or production.
+- **Outcome:** F1 is gone, before WP1 replaces the column. One documented
+  side effect: a payment against imported history (BR90), which used to
+  leave a stray receipt behind its error, is now refused whole.
 
 ### WP1 — Financial foundation (Release 1)
 
@@ -489,10 +503,10 @@ flowchart LR
 
 ## Acceptance criteria
 
-- **WP1a:** a `treasurer`-only account records $50.00 against $120.00 and the
-  balance reads $70.00; the same call by a `registrar` is refused; the
-  finance report's billed = collected + outstanding − credits for that
-  registration.
+- **WP1a (met):** a `treasurer`-only account records $50.00 against $120.00
+  and the balance reads $70.00; the same call by a `registrar` is refused;
+  the finance report's billed = collected + outstanding − credits for that
+  registration — scenarios 1, 2 and 6 of `supabase/tests/65_*`.
 - **WP1:** no code path writes `outstanding_amount_cents`; for every
   fixture, `ledger.ts` and `app_registration_balance()` agree; a voucher
   appears as relief and not as received; a waiver above the threshold
@@ -579,9 +593,14 @@ flowchart LR
 
 ## Gap notes
 
-- **The treasurer defect predates this initiative.** WP1a fixes the symptom
-  in a day; WP1 removes the cause. If WP1 slips, WP1a alone restores
-  correctness.
+- **The treasurer defect predated this initiative.** WP1a (0103) fixed the
+  symptom; WP1 removes the cause. If WP1 slips, WP1a alone keeps the balance
+  correct. **0103 does not correct a balance already left stale**: any
+  payment a treasurer-only account recorded before it shows in *collected*
+  and not in the balance. WP1's differences report will list them. Sooner,
+  where the season has a fee schedule, the treasurer's re-pricing from
+  *Current players* (0100) re-derives price less payments for registrations
+  without a live plan; otherwise an admin's audited *Outstanding* edit.
 - **The registrar can still overwrite a balance** until WP1 retires
   `setOutstandingAmount`. Narrowing `registration_manage`'s column reach
   sooner would be a policy change for its own small scope.
