@@ -112,7 +112,7 @@ is there.
 | # | Requirement group | Rules | Status | Designed in |
 | - | ----------------- | ----- | ------ | ----------- |
 | FR-C3.11 | A derived balance; adjustments and refunds as their own kinds; eight kinds of figure; currency; financial year and GST statement | BR200–BR204, BR219 | **Designed** | Scope 134 WP1 |
-| FR-C22.0 | **A public event calculator**: an account-free estimate of a carnival's or holiday clinic's financial impact from the visitor's own figures, computed in the browser by the event budget's functions, keeping nothing | BR209, BR222 | **Designed** — the first deliverable | Scope 134 WP2a |
+| FR-C22.0 | **A public event calculator**: an account-free estimate of a carnival's or holiday clinic's financial impact from the visitor's own figures, computed in the browser by the event budget's functions, keeping nothing | BR209, BR222 | **Verified** | [Scope 135](../scope/135_the_public_event_calculator.md): `src/domain/events/economics.ts` (14 tests), `src/web/event-calculator.ts` (11), `src/app/event-calculator/` with its boundary test |
 | FR-C22 | Event economics beside the existing event: budgets, basis, profitability, break-even, scenarios, approval, sanctioning | BR208–BR213 | **Designed** | Scope 134 WP2 |
 | FR-C24 | Provider port, adapters, signed idempotent webhooks, reconciliation, refunds | BR204–BR207 | **Designed** | Scope 134 WP3, [decision 20](../decisions/20_payments_through_a_provider_port_never_on_the_platform.md) |
 | FR-C8.x | Role financial dashboards, comparisons, export | BR142, BR143, BR202 | **Designed** | Scope 134 WP4 |

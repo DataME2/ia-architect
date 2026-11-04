@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import { SeasonPaths } from './SeasonPaths.tsx';
 
 /**
@@ -38,6 +40,10 @@ export default function SeasonPathsPage() {
         <p>
           Screens with a record in the address (a registration, a fixture) link to the list they
           are opened from. Club screens ask you to sign in first.
+        </p>
+        <p>
+          Planning a carnival or a holiday clinic? The <Link href="/event-calculator">event calculator</Link>{' '}
+          estimates what it would cost and earn, with no account.
         </p>
       </div>
     </>

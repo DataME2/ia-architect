@@ -9021,3 +9021,215 @@ html:has(.home) {
     grid-column: 1 / -1;
   }
 }
+
+/* ------------------------------------------------- the event calculator */
+/* Scope 135 (BR222). Tokens only, like every screen since scope 124: no
+   colour is stated here, so both themes and the print sheet follow. */
+
+.calc {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.calc-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 24rem);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 64rem) {
+  .calc-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Beside the inputs the estimate stays in view while they are edited; in one
+   column it follows them, and sticking would only cover the form. */
+@media (min-width: 64.01rem) {
+  .calc-results {
+    position: sticky;
+    top: var(--space-4);
+  }
+}
+
+.calc-inputs {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.calc-shape {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--space-3) var(--space-4);
+}
+
+.calc-shape .field {
+  margin: 0;
+}
+
+.calc-lines {
+  list-style: none;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+/* Two rows per line, so every select keeps a readable width beside the
+   results panel: name, amount and total above; how it is charged, who it
+   counts and Remove below. One column on a phone. */
+.calc-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  grid-template-areas:
+    'name amount total'
+    'unit who remove';
+  gap: var(--space-2) var(--space-3);
+  align-items: center;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.calc-line:last-child {
+  border-bottom: 0;
+}
+
+.calc-line-name { grid-area: name; }
+.calc-line-amount { grid-area: amount; }
+.calc-line-total { grid-area: total; }
+.calc-line-unit { grid-area: unit; }
+.calc-line-who { grid-area: who; }
+.calc-line-remove { grid-area: remove; justify-self: end; }
+
+@media (max-width: 40rem) {
+  .calc-line {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'name name'
+      'amount total'
+      'unit who'
+      'remove remove';
+  }
+}
+
+.calc-amount {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.calc-amount input {
+  min-width: 0;
+}
+
+.calc-line-total {
+  font-variant-numeric: tabular-nums;
+}
+
+.calc-line-total .hint {
+  display: block;
+  margin: 0;
+}
+
+.calc-results {
+  display: grid;
+  gap: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-xs);
+}
+
+.calc-results h3 {
+  margin: var(--space-2) 0 0;
+  font-size: 0.95rem;
+}
+
+.calc-figures {
+  display: grid;
+  /* Wide enough for A$000,000.00 at this size; one tile a row on a phone. */
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: var(--space-2);
+}
+
+.calc-figures .stat .n {
+  font-size: 1.35rem;
+}
+
+.calc-result-surplus .n {
+  color: var(--ok-text);
+}
+
+.calc-result-deficit .n,
+.calc-negative {
+  color: var(--stop-text);
+}
+
+.calc-breakeven {
+  margin: 0;
+  font-weight: 600;
+}
+
+.calc-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.calc-bars li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px var(--space-2);
+  font-size: 0.88rem;
+}
+
+.calc-bar-track {
+  grid-column: 1 / -1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.calc-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--info-dot);
+}
+
+.calc-bar-amount {
+  font-variant-numeric: tabular-nums;
+}
+
+.calc-error {
+  color: var(--stop-text);
+  font-size: 0.83rem;
+  margin: var(--space-1) 0 0;
+}
+
+.calc-notes p {
+  margin: 0 0 var(--space-2);
+}
+
+.calc-scenario-size {
+  display: block;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* The base table keeps a 34rem minimum and nowrap headings for the wide
+   registrar lists. The scenario table has two columns in a 24rem panel, so
+   it wraps instead of scrolling inside it. */
+.calc-results .table-wrap > table {
+  min-width: 0;
+}
+
+.calc-results th {
+  white-space: normal;
+}

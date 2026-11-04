@@ -43,7 +43,8 @@ them being present.
 | ---- | ----- |
 | `types.ts` | `Person`, `LegalName`, `Guardianship`, `Consent`, `Registration`, and the age/minority helpers (P1, BR55) |
 | `rules/` | The registration rules — BR1, BR2, BR3, BR48, BR55 — each in its own `br<n>-<name>.ts`, plus the registry and evaluator in `index.ts` and the derived status in `registration-status.ts` |
-| `finance/` | Cent-exact payment plans (BR74, BR76), oldest-first allocation, vouchers (BR81), and the no-pay-no-play verdict (BR79) asked fresh every time and never stored |
+| `finance/` | Cent-exact payment plans (BR74, BR76), oldest-first allocation, vouchers (BR81), and the no-pay-no-play verdict (BR79) asked fresh every time and never stored. `currency.ts`: money with its currency, never combined across two (BR200, scope 135) |
+| `events/` | Event economics (BR208, BR209): an event's figures and break-even from its budget lines, solved in integers. One function for the public event calculator (BR222, scope 135) and a club's own event budget |
 | `identity/` | BR5 duplicate candidates — for a human to confirm, never an automatic merge. Matching runs over a **date-of-birth index**, which is the rule read as an index rather than an approximation of it: both of BR5's bases already require the dates to agree, so people born on different days are work with a known answer (NFR-16) |
 | `officiating/` | Appointment conflicts (BR6–BR11, BR109, BR111) and fee resolution (BR115, BR116). BR8 compares only a **sighted** classification (BR138) — an unchecked level is reported as unchecked, never as the level it states |
 | `teams/` | Whether a Person may hold a team role, given their clearance (BR83, BR84, BR54) |
