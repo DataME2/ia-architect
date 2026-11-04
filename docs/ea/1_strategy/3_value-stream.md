@@ -72,9 +72,9 @@ flowchart LR
 | Stage | Delivers | Capabilities exercised | Built today |
 | ----- | -------- | ---------------------- | ----------- |
 | **Configure** | The club's fee schedule and terms, governing-body charges, the policies that apply to it, its financial year and its currency | C3, C23 | Fee schedule and terms ([scope 130](../../scope/130_the_clubs_fee_schedule.md)); **no** policy versions, financial year or currency |
-| **Plan** | An event's budget and its sanctioning estimate, before the club commits; scenarios compared | C22 | **Nothing** |
+| **Plan** | An event's budget and its sanctioning estimate, before the club commits; scenarios compared; a forecast to the season's and financial year's end (BR220) | C22, C26 | **Nothing** |
 | **Charge** | What each family and each event entrant owes, priced from the schedule and kept as history | C3, C22 | Registrations priced and the pricing kept ([scope 131](../../scope/131_every_registration_priced_from_the_schedule.md)); **no** event charges |
 | **Collect** | Payments, payment plans, voucher and hardship relief | C3, C24 | Recorded by hand (BR77), plans (BR74–BR76), vouchers (BR81), hardship (BR164); **no** provider |
 | **Reconcile** | The club's records matched to what a provider or bank confirms, with exceptions for a person | C24 | **Nothing** |
 | **Report & explain** | Role dashboards; every figure with its basis, period, currency and as-at (BR143); every charge with the policy version behind it | C8, C23 | The finance report across seasons ([scope 133](../../scope/133_the_finance_report.md)) and the arrears view ([scope 48](../../scope/48_arrears_visibility_wwcc_reminders_and_the_administrator_constraint.md)) |
-| **Improve** | Season-on-season comparison and, for a club that opted in, anonymised benchmarks | C8, C25 | Season comparison (scope 133); **no** benchmarking |
+| **Improve** | Season-on-season comparison, financial health indicators (BR221) and, for a club that opted in, anonymised benchmarks | C8, C25, C26 | Season comparison (scope 133); **no** benchmarking |

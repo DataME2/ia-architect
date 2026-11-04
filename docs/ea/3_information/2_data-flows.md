@@ -174,3 +174,15 @@ person, who uses or dismisses it (`AssistantNote.tsx`). Nothing flows from
 the Assistant into a financial table (BR218). No family-level or
 minor-level financial data reaches an uncontrolled AI service (P4), and
 today no model is called at all (`scripts/check_assistant.py`).
+
+## 7. Forecasts and health indicators
+
+Read-only, and computed rather than kept. The same derived figures the
+dashboards show (flow 1) feed `src/domain/finance/forecast.ts` and
+`health.ts`, together with the instalments still due under live plans, the
+club's own collection history by age of debt (live seasons and imported
+ones alike, scope 132), and approved event budgets (flow 3). What comes out
+carries its method, inputs, horizon and as-at moment, and **nothing flows
+back**: a forecast never becomes a stored figure (BR220), and an indicator
+never becomes a grade (BR221).
+

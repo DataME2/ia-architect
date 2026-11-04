@@ -75,20 +75,23 @@ not a backlog item that got forgotten.
 row. Each names the work package that would build it, and the planned
 components are listed in
 [2_application-components.md](./2_application-components.md#planned-components--financial-intelligence-scope-134).
+Rows are grouped by the [six connected domains](../1_strategy/2_capabilities-and-resources.md#financial-intelligence-as-six-connected-domains)
+and the shared services beneath them.
 
-| Application Service | Realises | What it would do | Work package | Conditional on |
-| ------------------- | -------- | ---------------- | ------------ | -------------- |
-| **Financial ledger** | C3 | One derived balance (BR201) from charges, receipts, relief, adjustments and refunds; adjustments and refunds as their own kinds (BR203, BR204); the eight kinds of figure (BR202); currency on every amount (BR200); the club's financial year and GST statement (BR219). Fixes the treasurer-payment defect at its cause | WP1 | — |
-| **Outstanding-debt dashboard** | C3, C8 | Charged, received, relief, adjusted, refunded, outstanding and overdue per season and per financial year, aged, with the arrears queue it already has | WP1, WP4 | WP1 |
-| **Event economics** | C22 | Budgets and lines beside the existing event, each figure with its basis (BR208); profitability, per-participant figures and break-even (BR209); scenarios that change nothing until adopted (BR212); approval by a person (BR213) | WP2 | WP1 (currency, ledger) |
-| **Sanctioning assessment** | C22, C23 | A pure calculator applying one versioned policy to one event (BR210, BR211), frozen once made; club-entered policies first, governing-body-published later | WP2, WP5 | — |
-| **Payment provider integration** | C24 | A provider port and one adapter per provider, each declaring its capabilities; collections, refunds and payouts as separate operations; signed, idempotent webhook ingestion (BR206); no card or secret on the platform (BR207); the referee and referral payouts moved onto the port with their simulation kept | WP3 | WP1; the first adapter chosen ([#126](../../scope/open-questions.md)) |
-| **Payment reconciliation** | C24 | Deterministic matching of provider transactions to the club's records, and a queue of exceptions resolved by a person with a reason (BR205) | WP3 | WP3's ingestion |
-| **Financial dashboards** | C8 | The president's, treasurer's, registrar's, events coordinator's and referee coordinator's views, each metric with its basis, period, currency and as-at (BR143), each refusing a reader who may not have it (BR142) | WP4 | WP1 |
-| **Financial governance** | C23 | Policy versions with sources, effective dates and approval status; charge explanations; clarification and exemption requests with their history; event approvals | WP5 | WP2 |
-| **Governing-body reporting** | C23 | Club grants (BR214) and the scoped read behind them, club-level only (BR215); transparency reports marked reported or audited (BR216) | WP5 | WP2; P8 (accepted) bounds it |
-| **Financial benchmarking** | C25 | Opt-in consent, club-level metrics, aggregation with cohort and dominance suppression (BR217) | WP6 | WP4; P8 (accepted) bounds it |
-| **Financial assistant** | C8, C7 | Drafts, summaries and flags over already-computed figures (BR218) | WP7 | WP4; a decision record before any model is called |
+| Domain | Application Service | Realises | What it would do | Work package | Conditional on |
+| ------ | ------------------- | -------- | ---------------- | ------------ | -------------- |
+| Shared services | **Financial ledger** | C3 | One derived balance (BR201) from charges, receipts, relief, adjustments and refunds; adjustments and refunds as their own kinds (BR203, BR204); the eight kinds of figure (BR202); currency on every amount (BR200); the club's financial year and GST statement (BR219). Fixes the treasurer-payment defect at its cause | WP1 | — |
+| Club Finance | **Outstanding-debt dashboard** | C3, C8 | Charged, received, relief, adjusted, refunded, outstanding and overdue per season and per financial year, aged, with the arrears queue it already has | WP1, WP4 | WP1 |
+| Event Economics | **Event economics** | C22 | Budgets and lines beside the existing event, each figure with its basis (BR208); profitability, per-participant figures and break-even (BR209); scenarios that change nothing until adopted (BR212); approval by a person (BR213) | WP2 | WP1 (currency, ledger) |
+| Event Economics | **Sanctioning assessment** | C22, C23 | A pure calculator applying one versioned policy to one event (BR210, BR211), frozen once made; club-entered policies first, governing-body-published later | WP2, WP5 | — |
+| Payment Services | **Payment provider integration** | C24 | A provider port and one adapter per provider, each declaring its capabilities; collections, refunds and payouts as separate operations; signed, idempotent webhook ingestion (BR206); no card or secret on the platform (BR207); the referee and referral payouts moved onto the port with their simulation kept | WP3 | WP1; the first adapter chosen ([#126](../../scope/open-questions.md)) |
+| Payment Services | **Payment reconciliation** | C24 | Deterministic matching of provider transactions to the club's records, and a queue of exceptions resolved by a person with a reason (BR205) | WP3 | WP3's ingestion |
+| Financial Governance | **Financial governance** | C23 | Policy versions with sources, effective dates and approval status; charge explanations; clarification and exemption requests with their history; event approvals | WP5 | WP2 |
+| Financial Governance | **Governing-body reporting** | C23 | Club grants (BR214) and the scoped read behind them, club-level only (BR215); transparency reports marked reported or audited (BR216) | WP5 | WP2; P8 (accepted) bounds it |
+| Financial Intelligence | **Financial dashboards** | C8 | The president's, treasurer's, registrar's, events coordinator's and referee coordinator's views, each metric with its basis, period, currency and as-at (BR143), each refusing a reader who may not have it (BR142) | WP4 | WP1 |
+| Financial Intelligence | **Forecasting and financial health** | C26 | Financial health as named, explained indicators (BR221); deterministic forecasts to the season's and financial year's end from scheduled instalments, the club's collection history and approved budgets, labelled as projections (BR220) | WP4 (Release 4) | WP1, WP2 |
+| Benchmarking | **Financial benchmarking** | C25 | Opt-in consent, club-level metrics, aggregation with cohort and dominance suppression (BR217) | WP6 | WP4; P8 (accepted) bounds it |
+| AI Financial Assistant | **Financial assistant** | C8, C7 | Drafts, summaries and flags over already-computed figures (BR218) | WP7 | WP4; a decision record before any model is called |
 
 ## Not started
 

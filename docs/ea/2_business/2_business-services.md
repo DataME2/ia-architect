@@ -47,17 +47,21 @@ means no code.
 
 ### Financial Intelligence services (proposed, November 2026)
 
-Added for Goal **G9** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md)).
-All four are **Pending**: none has code. Each extends a service above rather
-than standing beside it — event economics is the carnival's money, not a
-second event; reconciliation is Player and Referee finance's missing half.
+Added for Goal **G9** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md)),
+and organised by its [six connected domains](../1_strategy/2_capabilities-and-resources.md#financial-intelligence-as-six-connected-domains).
+**Club Finance** is the *Player finance* and *Referee finance* services above.
+The five below are the other domains, all **Pending**: none has code. Each
+extends a service above rather than standing beside it — event economics is
+the carnival's money, not a second event; reconciliation is Player and
+Referee finance's missing half.
 
-| Service | Offered to | What it does | Realized by process | Status |
+| Service (domain) | Offered to | What it does | Realized by process | Status |
 | ------- | ---------- | -------------- | --------------------- | ------ |
-| **Event economics** | Events Coordinator, Treasurer, President, Committee | Budgets an existing carnival or event: expected and actual revenue and expenses, the applicable sanctioning charge, profitability, cost and revenue per participant, break-even participants, and scenarios compared before the budget is approved (C22, BR208–BR213) | [Event budgeting and sanctioning assessment process](./3_business-processes.md#event-budgeting-and-sanctioning-assessment-process) | Pending |
-| **Payment collection & reconciliation** | Treasurer, Finance Admin, Parent/Guardian, Sponsor, Referee | Collects through an approved provider, ingests its signed events once each, keeps provider-confirmed transactions apart from the club's own records, matches the two, refunds where the provider supports it, and hands every unmatched item to a person (C24, BR204–BR207) | [Payment collection and reconciliation process](./3_business-processes.md#payment-collection-and-reconciliation-process) | Pending |
-| **Financial governance & transparency** | Treasurer, Committee, Events Coordinator; Governing Body Policy Administrator (prospective) | Holds fee and sanctioning policies as versioned, sourced configuration, explains each charge by the version that produced it, records event approvals and exemption requests, and — by the club's grant only — reports to a governing body, distinguishing reported allocation from audited expenditure (C23, BR210, BR211, BR214–BR216) | [Financial policy publication and consultation process](./3_business-processes.md#financial-policy-publication-and-consultation-process), [Governing-body access grant process](./3_business-processes.md#governing-body-access-grant-process) | Pending — the governing-body half within P8 |
-| **Financial benchmarking** | President, Treasurer, Committee of an opted-in club | Compares the club's own metrics with an anonymised cohort of opted-in clubs, suppressing any cohort small or lopsided enough to identify a member (C25, BR217) | [Benchmarking participation process](./3_business-processes.md#benchmarking-participation-process) | Pending — within P8 |
+| **Event economics** (Event Economics) | Events Coordinator, Treasurer, President, Committee | Budgets an existing carnival or event: expected and actual revenue and expenses, the applicable sanctioning charge, profitability, cost and revenue per participant, break-even participants, and scenarios compared before the budget is approved (C22, BR208–BR213) | [Event budgeting and sanctioning assessment process](./3_business-processes.md#event-budgeting-and-sanctioning-assessment-process) | Pending |
+| **Payment collection & reconciliation** (Payment Services) | Treasurer, Finance Admin, Parent/Guardian, Sponsor, Referee | Collects through an approved provider, ingests its signed events once each, keeps provider-confirmed transactions apart from the club's own records, matches the two, refunds where the provider supports it, and hands every unmatched item to a person (C24, BR204–BR207) | [Payment collection and reconciliation process](./3_business-processes.md#payment-collection-and-reconciliation-process) | Pending |
+| **Financial governance & transparency** (Financial Governance) | Treasurer, Committee, Events Coordinator; Governing Body Policy Administrator (prospective) | Holds fee and sanctioning policies as versioned, sourced configuration, explains each charge by the version that produced it, records event approvals and exemption requests, and — by the club's grant only — reports to a governing body, distinguishing reported allocation from audited expenditure (C23, BR210, BR211, BR214–BR216) | [Financial policy publication and consultation process](./3_business-processes.md#financial-policy-publication-and-consultation-process), [Governing-body access grant process](./3_business-processes.md#governing-body-access-grant-process) | Pending — the governing-body half within P8 |
+| **Financial intelligence** (Financial Intelligence) | President, Treasurer, Registrar, Events Coordinator, Referee Coordinator, Committee | Role dashboards; financial health as named, explained indicators (BR221); deterministic forecasts to the season's and financial year's end (BR220); season and financial-year performance (C8, C26) | Runs over every process above; no process of its own | Pending — scope 133's report and the arrears view exist |
+| **Financial benchmarking** (Benchmarking) | President, Treasurer, Committee of an opted-in club | Compares the club's own metrics with an anonymised cohort of opted-in clubs, suppressing any cohort small or lopsided enough to identify a member (C25, BR217) | [Benchmarking participation process](./3_business-processes.md#benchmarking-participation-process) | Pending — within P8 |
 
 See
 [4_application/1_application-services.md](../4_application/1_application-services.md)

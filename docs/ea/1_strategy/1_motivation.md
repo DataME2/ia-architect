@@ -120,6 +120,10 @@ _[← Strategy layer](./README.md) · [EA home](../README.md)_
   tax returns and audit stay with its treasurer, its accountant and its
   accounting software. **Pending — nothing beyond G3's existing slice and
   scope 133's report is built.**
+  Organised as **six connected domains** — Club Finance, Event Economics,
+  Payment Services, Financial Governance, Financial Intelligence and
+  Benchmarking — over shared financial services, with the AI Financial
+  Assistant serving all six ([2_capabilities-and-resources.md](./2_capabilities-and-resources.md#financial-intelligence-as-six-connected-domains)).
 
 ## Principles
 

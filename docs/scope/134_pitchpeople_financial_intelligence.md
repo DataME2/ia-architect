@@ -108,20 +108,32 @@ says what each may do.
 
 ## Capabilities
 
-C22 **Event economics**, C23 **Financial governance & transparency**, C24
-**Payment integration & reconciliation** and C25 **Financial benchmarking**
-are new; C3 and C8 are extended; C12's event is reused. All are in
-[2_capabilities-and-resources.md](../ea/1_strategy/2_capabilities-and-resources.md),
-serving the new Goal **G9**.
+Organised, at the product owner's direction (4 November 2026), as **six
+connected domains over shared financial services, with the AI Financial
+Assistant serving all six**. The domains, what each covers and its status
+live in [the capabilities document](../ea/1_strategy/2_capabilities-and-resources.md#financial-intelligence-as-six-connected-domains); this scope builds them as:
+
+| Domain | Capabilities | Work package | Release |
+| ------ | ------------ | ------------ | ------- |
+| Shared financial intelligence services | Foundation of C3 and C8 | WP1 | 1 |
+| Club Finance — *existing foundation* | C3, C5 | WP1a (built), WP1 | 1 |
+| Event Economics — *extends existing events* | C22 on C12's event | WP2 | 1 |
+| Payment Services — *new integrations* | C24 | WP3 | 2 |
+| Financial Governance — *new capabilities* | C23 | WP5 | 3 |
+| Financial Intelligence — *new capabilities* | C8 extended, **C26** (new) | WP4 | 1–2 dashboards; 4 health and forecasting |
+| Benchmarking — *future capability* | C25 | WP6 | 4 |
+| AI Financial Assistant | The Assistant actor, across C7 and C8 | WP7 | 4 |
+
+C22–C26 are new and serve the new Goal **G9**; C3, C5 and C8 are extended.
 
 ## EA alignment (assessed top-down before implementing)
 
 | Layer         | Impact |
 | ------------- | ------ |
-| 1_strategy    | **Changed.** Goal **G9**; two stakeholder rows (club financial officers; governing bodies as policy authors); **Principle P8** (accepted 4 November 2026) as P5's second scoped exception; capabilities **C22–C25**, with C3, C8 and C12 annotated; two resources (Football Queensland's Sanctioning Policy as an example of shape, unverified; payment provider capabilities); the Square resource restated per decision C; courses of action for the four releases, the two product experiences and the long-term vision; a second value stream (*Run a club's money*); positioning, traceability and five new claim boundaries in the value proposition |
-| 2_business    | **Changed.** Actors: the Payment Provider and the prospective Governing Body Policy Administrator; the Assistant's finance decision rights listed (autonomy unchanged — advisory); two stale Majestri cells corrected. Services: four proposed services; the Player finance row corrected and the defect recorded. Five proposed processes. A *Financial intelligence* section of business objects (built-but-unlisted and proposed). Seventeen glossary terms. **BR200–BR219 proposed.** A role × financial-operation matrix |
+| 1_strategy    | **Changed.** Goal **G9**; two stakeholder rows (club financial officers; governing bodies as policy authors); **Principle P8** (accepted 4 November 2026) as P5's second scoped exception; capabilities **C22–C26**, with C3, C8 and C12 annotated, organised as **six connected domains** over shared financial services; two resources (Football Queensland's Sanctioning Policy as an example of shape, unverified; payment provider capabilities); the Square resource restated per decision C; courses of action for the four releases, the two product experiences and the long-term vision; a second value stream (*Run a club's money*); positioning, traceability and five new claim boundaries in the value proposition |
+| 2_business    | **Changed.** Actors: the Payment Provider and the prospective Governing Body Policy Administrator; the Assistant's finance decision rights listed (autonomy unchanged — advisory); two stale Majestri cells corrected. Services: five proposed services, one per new domain; the Player finance row corrected and the defect recorded. Five proposed processes. A *Financial intelligence* section of business objects (built-but-unlisted and proposed). Twenty glossary terms. **BR200–BR221 proposed.** A role × financial-operation matrix |
 | 3_information | **Changed.** The finance tables built since scope 76 that the data objects never listed; the running-balance defect recorded; **all 26 candidate objects assessed** against the schema (reuse, extend or new, with source, retention, access, audit, sensitivity). A new [data flows](../ea/3_information/2_data-flows.md) document for the financial flows. Two classes and a sharpened one in [data architecture](../ea/3_information/3_data-architecture.md), and the retention rows the schedule still needs |
-| 4_application | **Changed.** Eleven proposed application services; seventeen planned components with intended paths; a new [solution design](../ea/4_application/4_solution-design.md) (the ledger, event economics beside the event, the provider port, webhooks, the adapter recipe, grant-scoped reads, benchmarks); a new [interface contracts](../ea/4_application/5_interface-contracts.md) document |
+| 4_application | **Changed.** Twelve proposed application services, grouped by domain; eighteen planned components with intended paths; a new [solution design](../ea/4_application/4_solution-design.md) (the ledger, event economics beside the event, the provider port, webhooks, the adapter recipe, grant-scoped reads, benchmarks); a new [interface contracts](../ea/4_application/5_interface-contracts.md) document |
 | 5_technology  | **Changed, no new infrastructure.** Supabase, Next.js Route Handlers and Vercel Cron cover every need; one new `createAdminClient` reason (`provider-webhook`); planned secrets and a `PAYMENTS_MODE` setting that refuses the simulation in production; Supabase Vault for per-club provider tokens; two `check_rls.py` exemptions to argue. What would justify a queue is named |
 
 ## Stage 1 — what discovery found
@@ -179,6 +191,8 @@ architectural change before it can be built.
 | 41 | Financial benchmarking | **Absent**; **Re-architect** | — | P8 accepted; nothing built |
 | 42 | AI assistant | **Documented**, surface built | [Decision 1](../decisions/1_ai-assistant-autonomy-level.md); `src/app/_components/AssistantNote.tsx`; `scripts/check_assistant.py` forbids any model client | No model is called; financial drafting **Absent** |
 | 43 | Tenant isolation of finance tables | **Tested** | `scripts/check_rls.py`; `scripts/test_rls.sh`; `supabase/tests/10_*` and each slice's suite | — |
+| 44 | Financial forecasting | **Absent** | — | Release 4 of the request; added to scope with the six domains (C26) |
+| 45 | Financial health indicators | **Absent** | — | Same; designed as named indicators, not a score (BR221) |
 
 ### Findings that change the plan
 
@@ -256,6 +270,8 @@ Grouped by work package; each traces to a rule in the
 | FI-27 | Club grants and grant-scoped reads, club-level only, every read logged | BR214, BR215 | 5 (P8) |
 | FI-28 | Transparency reports, marked reported or audited | BR216 | 5 |
 | FI-29 | Benchmarking opt-in, opt-out, aggregation and suppression | BR217 | 6 (P8) |
+| FI-31 | Financial health as named indicators — collection rate, share overdue, assistance share, event surplus, cash against commitments — each with its formula, base, period, currency and as-at; no composite score | BR221 | 4 |
+| FI-32 | Deterministic forecasts to the season's and financial year's end from scheduled instalments, aged balances against the club's own collection history, and approved event budgets; labelled as projections, shown apart from actuals | BR220 | 4 |
 | FI-30 | Assistant drafts: financial summaries, payment reminders, committee reports, anomaly and missing-budget flags, scenario explanations — all from computed figures | BR218 | 7 |
 
 ## Non-functional requirements
@@ -290,15 +306,16 @@ rewritten when a schedule or policy changes (BR116, BR196, BR210).
 
 ## Business rules
 
-**BR200–BR219 are proposed** and carry their rationale in the
+**BR200–BR221 are proposed** and carry their rationale in the
 [rules table](../ea/2_business/5_domain-context-and-rules.md#business-rules):
 currency (BR200), the derived balance (BR201), the eight kinds (BR202),
 adjustments (BR203), refunds (BR204), reconciliation (BR205), provider
 events (BR206), credentials (BR207), basis (BR208), profitability (BR209),
 policy versions (BR210), nothing hardcoded (BR211), scenarios (BR212),
 budget approval (BR213), governing-body grants (BR214, BR215), reported is
-not audited (BR216), benchmarking (BR217), the Assistant (BR218), and the
-club's financial year and GST (BR219). Unchanged and load-bearing: BR3,
+not audited (BR216), benchmarking (BR217), the Assistant (BR218), the
+club's financial year and GST (BR219), forecasts (BR220) and financial
+health indicators (BR221). Unchanged and load-bearing: BR3,
 BR77, BR78, BR79, BR81, BR116, BR142, BR143, BR164 — **hardship still
 forgives no debt.**
 
@@ -369,7 +386,7 @@ this branch delivers is the architecture and this document only.
 | The derived balance, adjustments, refunds, currency, financial year, GST statement (WP1) | A general ledger, chart of accounts, journals, BAS or GST returns — the club's accounting software's job |
 | Event economics beside the existing event (WP2) | A second event entity, or trials and social functions as new event types |
 | The provider port, one approved adapter, ingestion, reconciliation (WP3) | Every candidate adapter in the first release; direct debit mandates; card storage of any kind |
-| Role dashboards, comparisons, export (WP4) | Forecasting beyond straight-line projection from the season's own pattern |
+| Role dashboards, comparisons, export; financial health indicators and deterministic forecasts (WP4) | Statistical or machine-learned forecasting; a single financial-health score |
 | Policy register, explanations, consultation, returns; grants under P8 (WP5) | The association *tenant* of [#31](./open-questions.md); writing into any governing body's system (P2) |
 | Opt-in benchmarking under P8 (WP6) | Benchmarks from any club that has not opted in; differential privacy |
 | Assistant drafts from computed figures (WP7) | Any Assistant action with effect; a model call before its decision record |
@@ -386,16 +403,16 @@ and its behavioural suite (CLAUDE.md).
 
 ```mermaid
 flowchart LR
-  wp1a["WP1a<br>Treasurer payment<br>fix (bug)"]:::implementation
+  wp1a["WP1a · Club Finance<br>Treasurer payment<br>fix (built)"]:::implementation
   f3["F3<br>Harness glob"]:::implementation
-  wp1["WP1<br>Financial foundation"]:::implementation
-  wp2["WP2<br>Event economics"]:::implementation
-  wp4["WP4<br>Dashboards"]:::implementation
-  wp3["WP3<br>Provider port"]:::implementation
-  wp5["WP5<br>Governance"]:::implementation
+  wp1["WP1<br>Shared services<br>and Club Finance"]:::implementation
+  wp2["WP2<br>Event Economics"]:::implementation
+  wp4["WP4<br>Financial Intelligence"]:::implementation
+  wp3["WP3<br>Payment Services"]:::implementation
+  wp5["WP5<br>Financial Governance"]:::implementation
   p8{{"P8 accepted"}}:::implementation
   wp6["WP6<br>Benchmarking"]:::implementation
-  wp7["WP7<br>Assistant"]:::implementation
+  wp7["WP7<br>AI Financial Assistant"]:::implementation
 
   wp1a --> wp1
   f3 --> wp1
@@ -410,7 +427,7 @@ flowchart LR
   classDef implementation fill:#ffd6d6,stroke:#c62828,color:#333
 ```
 
-### WP1a — The treasurer's payment moves the balance (bug fix, Release 1) — **built**
+### WP1a — Club Finance: the treasurer's payment moves the balance (bug fix, Release 1) — **built**
 
 - **Deliverables, as built:**
   - `supabase/migrations/0103_a_treasurers_payment_moves_the_balance.sql`:
@@ -440,7 +457,7 @@ flowchart LR
   side effect: a payment against imported history (BR90), which used to
   leave a stray receipt behind its error, is now refused whole.
 
-### WP1 — Financial foundation (Release 1)
+### WP1 — Shared financial services and Club Finance (Release 1)
 
 - **Deliverables:** the F3 glob fix; club finance settings (currency,
   financial year, GST registration) and `fee_line` GST treatment;
@@ -453,7 +470,7 @@ flowchart LR
   outstanding-debt dashboard with ageing.
 - **Outcome:** the club's figures add up and say what they are.
 
-### WP2 — Event economics (Release 1)
+### WP2 — Event Economics (Release 1)
 
 - **Deliverables:** `event_budget`, `event_budget_line`, `event_entry_charge`,
   `sanctioning_assessment` and a club-scoped policy table, all host-club-only
@@ -464,7 +481,7 @@ flowchart LR
 - **Outcome:** a coordinator knows whether an event pays before the club
   commits, and why.
 
-### WP3 — Payment provider architecture (Release 2)
+### WP3 — Payment Services (Release 2)
 
 - **Deliverables:** the port and the simulation adapter (today's behaviour);
   the first approved adapter (#126) after a capability assessment;
@@ -476,15 +493,20 @@ flowchart LR
 - **Outcome:** collections arrive without re-keying, and every difference
   reaches a person.
 
-### WP4 — Financial intelligence dashboards (Release 1 for the treasurer and president; the rest Release 2)
+### WP4 — Financial Intelligence (dashboards in Releases 1–2; health and forecasting in Release 4)
 
 - **Deliverables:** `src/web/finance-dashboard.ts`; the president's and
-  treasurer's views, then the registrar's, events coordinator's and referee
-  coordinator's; financial-year comparisons; a spreadsheet export for the
-  admin and treasurer (scope 133's gap note).
-- **Outcome:** each role sees its own position at a glance.
+  treasurer's views (Release 1), then the registrar's, events coordinator's
+  and referee coordinator's (Release 2); financial-year comparisons; a
+  spreadsheet export for the admin and treasurer (scope 133's gap note).
+  Then, in Release 4, `src/domain/finance/health.ts` (BR221's named
+  indicators) and `src/domain/finance/forecast.ts` (BR220's projections to
+  the season's and financial year's end), shown on the president's and
+  treasurer's views with their method and inputs.
+- **Outcome:** each role sees its own position at a glance, how healthy it
+  is on measures it can check, and where the year is heading.
 
-### WP5 — Financial governance (Release 3)
+### WP5 — Financial Governance (Release 3)
 
 - **Deliverables:** `financial_policy`, `financial_policy_version` (shared
   reference, argued exemption), `policy_enquiry`; `/registrar/policies`;
@@ -502,7 +524,7 @@ flowchart LR
 - **Outcome:** an opted-in club sees where it stands without anyone seeing
   it.
 
-### WP7 — The Assistant (Release 4)
+### WP7 — AI Financial Assistant (Release 4)
 
 - **Deliverables:** deterministic drafts first — summaries, reminders,
   committee reports, anomaly and missing-budget flags, scenario
@@ -532,7 +554,9 @@ flowchart LR
   an exception; production refuses the simulation once a real adapter is
   enabled there; no card field exists on any platform page.
 - **WP4:** every metric carries kind, basis, period, currency and as-at; a
-  reader without the role is refused, never shown zero.
+  reader without the role is refused, never shown zero. A forecast names its
+  method and inputs, says what is missing rather than assuming it, and is
+  never added to an actual; no screen shows a combined health score.
 - **WP5:** an assessment names its policy version and every line applied;
   no governing-body read path exists outside the grant function; a read without a
   live grant raises and every read is logged.
@@ -546,7 +570,7 @@ flowchart LR
 
 | Kind | What | Where |
 | ---- | ---- | ----- |
-| Domain | Fee calculations, the derived balance, currency guards, refunds, profitability and break-even, sanctioning thresholds and exemptions, reconciliation matching, cohort suppression, report figures | `src/domain/**/*.test.ts`, `node --test` |
+| Domain | Fee calculations, the derived balance, currency guards, refunds, profitability and break-even, sanctioning thresholds and exemptions, reconciliation matching, cohort suppression, report figures, forecasts and health indicators against hand-worked fixtures | `src/domain/**/*.test.ts`, `node --test` |
 | Screen decisions | Dashboard metrics, budget and scenario views, adjustment and refund forms, consent and grant screens | `src/web/*.test.ts` |
 | Database | RLS isolation for every new table; role restrictions; append-only ledgers; audit rows; transaction integrity (payment and balance together); the public-column guard; grant-scoped reads; benchmark privacy | `supabase/tests/`, after the F3 glob fix |
 | Integration | Provider callbacks from documented sample payloads; duplicates; failures; refunds; exceptions; outage and retry with the same idempotency key | `src/data/payments/*.test.ts` against fixtures, then the provider's sandbox |
@@ -575,7 +599,7 @@ flowchart LR
 | **1 — Club Financial Control** | WP1a, F3, WP1, WP2, WP4 (treasurer, president) | A club understands its financial position and makes better event decisions |
 | **2 — Connected Payments** | WP3, WP4 (remaining roles) | Less re-keying; collection visible as it happens |
 | **3 — Financial Governance** | WP5 (returns and policies, then grants under P8) | Accountability between clubs and governing bodies |
-| **4 — Financial Intelligence** | WP6, WP7 | A differentiated financial intelligence platform |
+| **4 — Financial Intelligence** | WP4 (health and forecasting), WP6, WP7 | A differentiated financial intelligence platform |
 
 ## Risks
 
@@ -597,8 +621,8 @@ flowchart LR
 | Plateau                | State |
 | ---------------------- | ----- |
 | **Baseline** (before)  | Registration money priced and recorded by hand; a typed balance a treasurer's payment may not move; relief counted as collected; AUD assumed; carnivals with no money; no provider; no policy; no governing-body participation; no benchmarking |
-| **Transition** (this branch) | The architecture for all of it written into the five layers, three decisions recorded, twenty rules proposed, P8 accepted, and the defect and harness findings documented. Nothing built |
-| **Target** (Releases 1–4) | One derived, explained ledger per club; event economics before commitment; reconciled provider payments; versioned policies with explanations; club-granted governing-body reporting and opt-in benchmarks under P8; an Assistant that explains and decides nothing |
+| **Transition** (this branch) | The architecture for all of it written into the five layers, three decisions recorded, twenty-two rules proposed, P8 accepted, six domains adopted, and the defect and harness findings documented. Nothing built |
+| **Target** (Releases 1–4) | Six connected domains over one set of shared financial services: one derived, explained ledger per club; health indicators and forecasts that say how they were made; event economics before commitment; reconciled provider payments; versioned policies with explanations; club-granted governing-body reporting and opt-in benchmarks under P8; an Assistant that explains and decides nothing |
 
 ## Gap notes
 
@@ -626,8 +650,8 @@ flowchart LR
 
 ## Open questions
 
-Fourteen were raised, mirrored in the [open-questions log](./open-questions.md)
-as #121–#134. Thirteen are open, each with the interpretation this document
+Sixteen were raised, mirrored in the [open-questions log](./open-questions.md)
+as #121–#136. Fifteen are open, each with the interpretation this document
 adopted:
 
 - **#122** Who in a club grants a governing body access? *Adopted: a
@@ -660,6 +684,14 @@ adopted:
 - **#134** Which model, under what data agreement, may draft financial
   summaries? *Adopted: none yet; deterministic drafts only until a decision
   record.*
+- **#135** Which indicators make up financial health? *Adopted: collection
+  rate, share of charges overdue, assistance as a share of charges, event
+  surplus or deficit, and cash expected against commitments; thresholds only
+  where the club sets them.*
+- **#136** What does a forecast project from, and to when? *Adopted:
+  scheduled instalments, aged balances against the club's own collection
+  history (two seasons at least), and approved event budgets; to the
+  season's end and to the financial year's end.*
 
 ### Resolved
 

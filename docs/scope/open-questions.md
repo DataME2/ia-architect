@@ -49,7 +49,7 @@ Questions **19** (feed format), **35** (PlayFootball columns), **39**,
 stops treating Football Queensland's reply as a dependency for the
 registration path, without pretending those questions are answered.
 
-**Questions 121–134 were raised by [scope 134](./134_pitchpeople_financial_intelligence.md)** (Financial Intelligence, November 2026). **121** — whether Principle P8 is acceptable — was answered the same day: **accepted**. **123** — Football Queensland's published Sanctioning Policy — gates every *published-policy* sanctioning figure; **126** — the first payment adapter — gates Release 2.
+**Questions 121–136 were raised by [scope 134](./134_pitchpeople_financial_intelligence.md)** (Financial Intelligence, November 2026). **121** — whether Principle P8 is acceptable — was answered the same day: **accepted**. **123** — Football Queensland's published Sanctioning Policy — gates every *published-policy* sanctioning figure; **126** — the first payment adapter — gates Release 2. **135–136** came with the six domains: what financial health is made of, and what a forecast projects from.
 
 ## Pending
 
@@ -127,6 +127,8 @@ registration path, without pretending those questions are answered.
 | 132 | **Who authorises a refund through a provider, and is a large one a committee decision?** | Adopted: **the treasurer or admin**, with a reason; counted as refunded only when the provider confirms it (BR204). No committee threshold until the club asks for one | [134](./134_pitchpeople_financial_intelligence.md#open-questions) |
 | 133 | **Does any club, association or report need AUD and NZD together?** | Adopted: **no.** Figures are per currency and never combined (BR200); a trans-Tasman view would show them side by side. Conversion is not built | [134](./134_pitchpeople_financial_intelligence.md#open-questions) |
 | 134 | **Which model, under what data agreement, may draft financial summaries?** | Adopted: **none yet.** WP7 starts with deterministic drafts; a model needs a decision record extending decision 1 and `check_assistant.py`, and receives no family- or minor-level financial data (P4, BR218) | [134](./134_pitchpeople_financial_intelligence.md#open-questions) |
+| 135 | **Which indicators make up a club's financial health?** The Financial Intelligence domain asks for it, and BR221 refuses a single score | Adopted: **collection rate, share of charges overdue, assistance as a share of charges, event surplus or deficit, and cash expected against commitments**, each with its formula; coloured against a threshold only where the club sets one | [134](./134_pitchpeople_financial_intelligence.md#open-questions) |
+| 136 | **What does a forecast project from, and to when?** | Adopted: **scheduled instalments, outstanding balances aged against the club's own collection history (at least two seasons, imported or live), and approved event budgets**, to the season's end and to the financial year's end (BR220). Less history than that: the forecast says so instead of assuming a rate | [134](./134_pitchpeople_financial_intelligence.md#open-questions) |
 
 ## Resolved
 

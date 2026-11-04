@@ -27,6 +27,17 @@ disagreeing about a balance is the failure this design is built against.
 | Provider calls, webhook verification, secrets, queries | `src/data/` | The only layer allowed I/O. Every service-role use names its reason |
 | Constraints that must hold against any writer — append-only ledgers, the balance function, the grant check, the public-column guard | `supabase/migrations/` | BR74's lesson: a rule only the application enforces is a rule the next writer skips |
 
+**The six domains share one foundation rather than six ledgers.** Club
+Finance, Event Economics, Payment Services, Financial Governance, Financial
+Intelligence and Benchmarking ([capabilities](../1_strategy/2_capabilities-and-resources.md#financial-intelligence-as-six-connected-domains))
+each read the **shared financial services** — `Money` with its currency, the
+derived balance and its eight kinds of figure, the club's financial year,
+and the refusing, base-stating metric shape — and none keeps a figure of its
+own. A domain is a boundary in the code's folders and the docs, not a
+service or a database: one Next.js application, one Postgres, one tenancy
+model. Splitting them into deployables would buy nothing at one club's
+volume and would put a network call between two numbers that must agree.
+
 ## 2. The ledger: one derived balance
 
 `registration.outstanding_amount_cents` stops being written. A migration
@@ -203,11 +214,25 @@ reads the cohort figure beside its own. No function returns another club's
 value, and the result table has nothing to join back to a club.
 **Within P8 and [decision 21](../../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md).**
 
-## 7. Deliberately not designed
+## 7. Forecasts are arithmetic, not predictions
+
+`src/domain/finance/forecast.ts` projects to a stated horizon from three
+inputs only: instalments still due under live plans, outstanding balances
+weighted by the club's own historical collection rate for debt of that age
+(live and imported seasons alike), and approved event budgets' expected
+lines. The method is the output's first field, so a screen and the Assistant
+can say *how* the number was made (BR220). With fewer than two seasons of
+history the collection-rate input is absent and the forecast says so rather
+than assuming one. `health.ts` returns the named indicators of BR221, each
+with its formula, and no total.
+
+## 8. Deliberately not designed
 
 - **Accounting.** No general ledger, chart of accounts, journal or BAS. An
   export to the club's accounting software is a later integration (Xero is
   the named candidate), not part of this design.
+- **Statistical or machine-learned forecasting.** BR220's projection is
+  arithmetic over the club's own records; a model's forecast is out of scope.
 - **Currency conversion.** No exchange rates are held. BR200 says what a
   conversion would have to record; nothing converts.
 - **Tax computation beyond the club's statement.** A GST component is

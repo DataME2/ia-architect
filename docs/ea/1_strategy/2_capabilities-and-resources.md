@@ -36,6 +36,66 @@ What PitchPeople must be able to do to realize the goals in
 | C23 | **Financial governance & transparency** — versioned fee and sanctioning policies with an identifiable source, jurisdiction, version, effective dates and approval status; a charge explained by the policy version that produced it; publication, consultation and decision history; club-authorised reporting to a governing body; and published transparency reports that distinguish *reported* allocation from *audited* expenditure. Club side first; the governing-body side within **P8** (accepted 4 November 2026). **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP5) | G9 |
 | C24 | **Payment integration & reconciliation** — a provider-independent port with one adapter per provider (Square, Stripe, Australian and New Zealand bank files and statements), inbound collections and outbound payouts as separate capabilities, signed and idempotent webhook ingestion, provider transactions kept apart from the club's own records, and a reconciliation engine whose unmatched items are exceptions for a person, never silently closed. The platform records; a provider moves money ([decision 16](../../decisions/16_the_platform_records_a_payout_a_provider_moves_it.md), [decision 20](../../decisions/20_payments_through_a_provider_port_never_on_the_platform.md)). **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP3) | G9, G3, G4 |
 | C25 | **Financial benchmarking** — a club's figures compared with an anonymised, aggregated cohort of other clubs, only after it opts in, only for defined metric categories, and only above a minimum cohort size with small and dominated cohorts suppressed. Off by default; never a route around P5 ([decision 21](../../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md)). **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP6) | G9 |
+| C26 | **Financial insight & forecasting** — what the figures mean and where they are heading: a club's *financial health* as a small set of named, explained indicators (collection rate, share overdue, assistance as a share of charges, event surplus or deficit, cash expected against commitments) rather than one score, deterministic forecasts to the end of the season and the financial year from scheduled instalments, the club's own collection history and approved event budgets, and season-on-season performance. Builds on C8's reports; never a model's guess (BR220, BR221). **Pending** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md), WP4) | G9 |
+
+### Financial Intelligence, as six connected domains
+
+Adopted November 2026 at the product owner's direction ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md)).
+Goal **G9**'s capabilities are organised as **six connected domains over one
+set of shared financial services, with the Assistant serving all of them**.
+A domain groups capabilities; it is not a new tenant, product or
+application, and every domain reads the same ledger rather than keeping its
+own figures.
+
+```mermaid
+flowchart TB
+  shared["«Capability»<br>Shared financial intelligence services<br>money and currency · one derived ledger · financial year and GST ·<br>explained metrics · access and audit"]:::strategy
+
+  subgraph DOMAINS["Six connected domains"]
+    direction TB
+    subgraph ROW1[" "]
+      direction LR
+      cf["«Capability»<br>Club Finance<br><i>existing foundation</i>"]:::strategy
+      ee["«Capability»<br>Event Economics<br><i>extends existing events</i>"]:::strategy
+    end
+    subgraph ROW2[" "]
+      direction LR
+      ps["«Capability»<br>Payment Services<br><i>new integrations</i>"]:::strategy
+      fg["«Capability»<br>Financial Governance<br><i>new capabilities</i>"]:::strategy
+    end
+    subgraph ROW3[" "]
+      direction LR
+      fi["«Capability»<br>Financial Intelligence<br><i>new capabilities</i>"]:::strategy
+      bm["«Capability»<br>Benchmarking<br><i>future capability</i>"]:::strategy
+    end
+  end
+
+  ai["«Business Actor (AI)»<br>AI Financial Assistant<br>advisory — human decisions remain mandatory"]:::business
+
+  shared -->|serves| DOMAINS
+  ai -.->|explains, summarises, flags| DOMAINS
+
+  classDef strategy fill:#f5deaa,stroke:#c8a24a,color:#333
+  classDef business fill:#fffbb5,stroke:#b8a200,color:#333
+```
+
+| Domain | Covers | Capabilities | Status | Work package | Release |
+| ------ | ------ | ------------ | ------ | ------------ | ------- |
+| **Shared financial intelligence services** | Money with its currency (BR200); one derived balance and the eight kinds of figure (BR201, BR202); the club's financial year and GST statement (BR219); explained metrics — basis, period, currency, as-at (BR143, BR208); access, refusal and audit (BR142, P5, P8) | The foundation of C3 and C8, shared by every domain | Partly built: integer money, refusing reports, audit; **currency, the derived ledger and the financial year are not** | WP1 | 1 |
+| **Club Finance** | Billing, payments, payment plans, arrears, vouchers, hardship, refunds and adjustments, referee claims and batches | C3, C5 | **Existing foundation** — built and tested, with WP1a's fix (0103); adjustments, refunds as a kind and the debt dashboard are not | WP1a, WP1 | 1 |
+| **Event Economics** | Budgets, entry revenue, expenses, sanctioning estimates, profitability, break-even, scenarios — beside the existing event | C22 (on C12's event) | **Extends existing events** — nothing built | WP2 | 1 |
+| **Payment Services** | The provider port and adapters, collections, refunds, payouts, signed events, and reconciliation of provider records against Club Finance's | C24 | **New integrations** — payouts simulated only | WP3 | 2 |
+| **Financial Governance** | Versioned fee and sanctioning policies, charge explanations, approvals, consultation, financial returns, grants, transparency and allocation reporting (reported, never audited) | C23 | **New capabilities** — nothing built; grants within P8 | WP5 | 3 |
+| **Financial Intelligence** | Role dashboards, financial health indicators, forecasting, season and financial-year performance, insights | C8 (extended), C26 | **New capabilities** — scope 133's report and the arrears view exist | WP4 | 1–2 (dashboards), 4 (forecasting, health) |
+| **Benchmarking** | Opt-in, privacy-preserving comparison across clubs | C25 | **Future capability** — nothing built; within P8 | WP6 | 4 |
+| **AI Financial Assistant** | Advisory insight across authorised financial information: explain, summarise, flag, draft. Decides nothing | No capability of its own: the Assistant actor (decision 1), across C7 and C8 | Surface built (`AssistantNote.tsx`), no model and no financial drafting | WP7 | 4 |
+
+**Two placements worth stating.** *Reconciliation* lives in Payment Services:
+it matches what a provider reports against Club Finance's records, so Club
+Finance owns the ledger and Payment Services owns the matching. *Referee
+finance* (C5) is Club Finance's obligation and Payment Services' payout —
+the claim and the batch are the club's, the money movement is the
+provider's.
 
 ## Resources
 
@@ -317,7 +377,7 @@ What PitchPeople must be able to do to realize the goals in
   | **1 — Club Financial Control** | The existing finance made trustworthy (a derived balance, categorised adjustments, currency), an outstanding-debt dashboard, and event economics with profitability and scenarios | C3, C8, C22 | A club understands its financial position and makes better event decisions |
   | **2 — Connected Payments** | The provider port, the first approved adapter, transaction ingestion, reconciliation and refunds | C24 | Less re-keying, and collection visible as it happens |
   | **3 — Financial Governance** | Versioned fee and sanctioning policies, charge explanations, event approvals, club-authorised reporting to a governing body, consultation | C23 | Accountability and collaboration between clubs and governing bodies |
-  | **4 — Financial Intelligence** | Assistant-drafted reports and summaries, forecasting, anomaly flags, opt-in benchmarking | C8, C25 | A differentiated financial intelligence platform |
+  | **4 — Financial Intelligence** | Assistant-drafted reports and summaries, deterministic forecasting and financial health indicators, anomaly flags, opt-in benchmarking | C8, C25, C26 | A differentiated financial intelligence platform |
 
   Releases 3 and 4 both cross P5, within **P8**'s two exceptions
   (accepted 4 November 2026); releases 1 and 2 do not cross it at all.

@@ -182,6 +182,10 @@ decisions in `src/web/`, I/O and provider calls in `src/data/`, routes in
 migration. Each becomes a real row above as it lands. See the
 [solution design](./4_solution-design.md) for how they fit and the
 [interface contracts](./5_interface-contracts.md) for what each promises.
+By [domain](../1_strategy/2_capabilities-and-resources.md#financial-intelligence-as-six-connected-domains):
+WP1 builds the shared services and Club Finance, WP2 Event Economics, WP3
+Payment Services, WP4 Financial Intelligence, WP5 Financial Governance, WP6
+Benchmarking and WP7 the AI Financial Assistant.
 
 | Component | Intended source | Provides | Work package |
 | --------- | --------------- | -------- | ------------ |
@@ -198,6 +202,7 @@ migration. Each becomes a real row above as it lands. See the
 | **Webhook ingress** | `src/app/api/webhooks/[provider]/route.ts`; migration `ingest_provider_event()` | Verify, then record once (BR206), through one definer function and a new `createAdminClient('provider-webhook')` reason | WP3 |
 | **Reconciliation engine** | `src/domain/reconciliation/match.ts`; `/registrar/reconciliation` | BR205: deterministic matching and an exception queue | WP3 |
 | **Financial dashboards** | `src/web/finance-dashboard.ts`; `/registrar/reports` (extended) and the `/me` committee workspace | Role views over the derived figures, each with basis, period, currency and as-at (BR143) | WP4 |
+| **Forecasts and health indicators** | `src/domain/finance/forecast.ts`, `src/domain/finance/health.ts`; `src/web/finance-dashboard.ts` | BR220 projections with their method, inputs, horizon and as-at; BR221 named indicators, never a score — pure, and tested against hand-worked fixtures | WP4 (Release 4) |
 | **Policy register** | migration (`financial_policy`, `financial_policy_version`, `policy_enquiry`); `/registrar/policies` | BR210, BR211; club-entered policies first | WP5 |
 | **Governing-body grant** | migration (`governing_body_access_grant`, `governing_body_access_log`, `app_governing_body_read()`) | BR214, BR215 — within P8 | WP5 |
 | **Benchmarking** | `src/domain/benchmarking/suppression.ts`; migration (`benchmarking_consent`, `aggregated_financial_metric`, `app_run_benchmarks()`) | BR217 cohort and dominance rules, pure — within P8 | WP6 |

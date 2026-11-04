@@ -114,6 +114,30 @@ function assessSanctioning(
 | **Postconditions** | A result names the version and **every rule line it applied** with that line's contribution, so the charge can be explained line by line (C23). A version not *approved* yields basis *club assumption*, never *published policy* |
 | **Invariants** | No amount is a literal in the function: every amount comes from the policy's rule lines (BR211). An exemption that applies yields a zero charge *and* the exemption that produced it |
 
+## `forecast()` and `healthIndicators()`
+
+`src/domain/finance/forecast.ts`, `src/domain/finance/health.ts` — pure
+(BR220, BR221).
+
+```ts
+function forecast(
+  inputs: { scheduled: readonly Installment[]; outstanding: readonly AgedBalance[];
+            collectionHistory: readonly CollectionRate[] | null; eventBudgets: readonly BudgetLine[] },
+  horizon: IsoDate,
+  asAt: IsoInstant,
+): { method: string; inputs: readonly string[]; horizon: IsoDate; asAt: IsoInstant;
+     expectedReceipts: Money; expectedOutstanding: Money; expectedEventNet: Money;
+     missing: readonly string[] };
+
+function healthIndicators(figures: LedgerFigures, period: Period): readonly Indicator[];
+```
+
+| | |
+| - | - |
+| **Preconditions** | One club, one currency (else throws). The horizon is after `asAt` |
+| **Postconditions** | `method` and `inputs` name exactly what was used; `missing` names any input that was absent (no history, no budgets) instead of substituting a value. Each indicator carries its formula, base, period, currency and as-at |
+| **Invariants** | A forecast is never added to an actual figure. No indicator is a weighted sum of others, and there is no overall score |
+
 ## `suppressCohort()`
 
 `src/domain/benchmarking/suppression.ts` — pure (BR217).

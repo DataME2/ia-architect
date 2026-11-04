@@ -55,13 +55,15 @@ and that nothing moves money.
 
 Added for Goal **G9** ([scope 134](../../scope/134_pitchpeople_financial_intelligence.md)).
 **A statement of direction, not of the product today**: most of what it
-names is Pending (C22–C25). It is offered as two experiences over one
+names is Pending (C22–C26). It is offered as two experiences over one
 architecture:
 
 | Experience | Primary customer | Says to them |
 | ---------- | ---------------- | ------------ |
-| **PitchPeople Club Finance** | Clubs and academies | What you are owed, what you collected, what an event will cost you before you commit to it, and why every charge is what it is |
+| **PitchPeople Club Finance** | Clubs and academies | What you are owed, what you collected, what an event will cost you before you commit to it, where the year is heading, and why every charge is what it is — all six domains |
 | **PitchPeople Football Governance** | Associations and governing bodies | Publish a policy once, explain every charge it produces, receive your clubs' applications, and report what your revenue is said to fund — reading a club's figures only where the club has granted it (P8) |
+
+Both experiences sit on the same [six domains](./2_capabilities-and-resources.md#financial-intelligence-as-six-connected-domains): Club Finance uses all of them, and Football Governance is Financial Governance plus the aggregated side of Benchmarking.
 
 The commercial statement's "**replaces**" is deliberate and consistent
 with [decision 5](../../decisions/5_replace-the-incumbent-rather-than-integrate.md):
@@ -83,6 +85,7 @@ complementing it.
 | Replaces spreadsheets, registration systems, payment tools, communication channels | [Decision 5](../../decisions/5_replace-the-incumbent-rather-than-integrate.md); **C7**, **C8**, **C9** |
 | Complete view of every participant | **C8**, **G1** |
 | Understand and improve the club's financial position | **G9**, **C3**, **C8** — Pending beyond scope 133's report |
+| Forecasting and financial health | **C26**, BR220, BR221 — Pending |
 | Event profitability before committing | **G9**, **C22** — Pending |
 | Transparent policies; every charge explained | **G9**, **C23** — Pending |
 | Payment integration | **C24**, [decision 20](../../decisions/20_payments_through_a_provider_port_never_on_the_platform.md) — Pending |

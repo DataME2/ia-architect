@@ -100,10 +100,11 @@ a business rule without an intermediate mapping table.
 | FR-C3.9 | Money is **moved** — card, bank, reconciliation | — | **Not built** | Square is chosen and unintegrated. A treasurer types in what arrived. Designed as C24 in [scope 134](../scope/134_pitchpeople_financial_intelligence.md) WP3 ([decision 20](../decisions/20_payments_through_a_provider_port_never_on_the_platform.md)) |
 | FR-C3.10 | A payment recorded by **any** role that may record one moves the registration's balance, in the same transaction | BR77, BR78 | **Verified** | Found November 2026 ([scope 134](../scope/134_pitchpeople_financial_intelligence.md) F1): for a treasurer who was not also an admin, the balance update was refused with no error. Fixed by `app_record_payment` (migration 0103, WP1a) and proved by `supabase/tests/65_*`, which fails against the function without its update. BR201's derived balance removes the typed column later |
 
-### FR-C22–C25 — Financial Intelligence (proposed)
+### FR-C22–C26 — Financial Intelligence (proposed)
 
-Every requirement of [scope 134](../scope/134_pitchpeople_financial_intelligence.md) — FI-1 to FI-30 — is **Designed**:
-written into the five EA layers with proposed rules BR200–BR219, and no code
+Every requirement of [scope 134](../scope/134_pitchpeople_financial_intelligence.md) — FI-1 to FI-32 — is **Designed**:
+written into the five EA layers with proposed rules BR200–BR221, organised as
+six connected domains ([capabilities](../ea/1_strategy/2_capabilities-and-resources.md#financial-intelligence-as-six-connected-domains)), and no code
 does any of it. Listed by its scope rather than restated here, so the two
 cannot drift; this section exists so a reader of the spec knows the design
 is there.
@@ -116,6 +117,7 @@ is there.
 | FR-C8.x | Role financial dashboards, comparisons, export | BR142, BR143, BR202 | **Designed** | Scope 134 WP4 |
 | FR-C23 | Policy register, explanations, consultation, returns; grants | BR210, BR211, BR214–BR216 | **Designed**; grants within P8 | Scope 134 WP5, [decision 19](../decisions/19_a_club_grants_what_a_governing_body_reads.md) |
 | FR-C25 | Opt-in benchmarking | BR217 | **Designed**; within P8 | Scope 134 WP6, [decision 21](../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md) |
+| FR-C26 | Financial health as named indicators; deterministic forecasts | BR220, BR221 | **Designed** | Scope 134 WP4 (Release 4) |
 | FR-C8.y | Assistant financial drafts | BR218 | **Designed** | Scope 134 WP7 |
 
 ### FR-C4 — Referee lifecycle
