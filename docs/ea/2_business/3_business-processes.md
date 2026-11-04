@@ -576,6 +576,12 @@ flowchart LR
   classDef business fill:#fffbb5,stroke:#b8a200,color:#333
 ```
 
+**A public estimate can come first.** Anyone may run the same calculation
+on the public event calculator, with no account and no event record: the
+visitor enters the event's shape and figures, the page computes in their
+browser, and nothing is kept (BR222). Inside a club, the steps below then
+attach the figures to a real event.
+
 The Events Coordinator responsible for the event (BR29) classifies it —
 its type, duration, participant numbers, and whether it is commercial —
 because the classification is what a governing body's policy charges on.

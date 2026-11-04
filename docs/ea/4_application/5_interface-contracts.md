@@ -85,16 +85,17 @@ function reconcile(
 
 ```ts
 function eventEconomics(
-  lines: readonly BudgetLine[],          // revenue | expense, fixed | perParticipant, expected, actual?, basis
-  participants: { expected: number; actual?: number },
+  lines: readonly BudgetLine[],          // revenue | expense; unit: fixed | perDay | perTeam | perParticipant | perParticipantPerDay;
+                                         // expected, actual?, basis
+  shape: { days: number; teams?: number; participants: { expected: number; actual?: number } },
 ): EventFigures;                          // revenue, cost, surplus, per-participant, breakEven, each by basis
 ```
 
 | | |
 | - | - |
-| **Preconditions** | All lines in one currency (else throws). Participant counts are non-negative integers |
+| **Preconditions** | All lines in one currency (else throws). Days, teams and participant counts are non-negative integers; a per-team line needs a team count |
 | **Postconditions** | Expected and actual figures reported separately, never blended. `breakEven` is a non-negative integer or `'not-reachable'`. Per-participant figures are absent, not zero, when the count is zero |
-| **Invariants** | The basis of every output is the weakest basis of its inputs: a surplus computed from one *club assumption* is not a *published-policy* figure. A scenario is a call with modified lines; nothing is written |
+| **Invariants** | The basis of every output is the weakest basis of its inputs: a surplus computed from one *club assumption* is not a *published-policy* figure. A scenario is a call with modified lines; nothing is written. **The public event calculator calls exactly this function** (BR222), so a public estimate and a club's budget over the same lines cannot differ |
 
 ## `assessSanctioning()`
 

@@ -102,8 +102,8 @@ a business rule without an intermediate mapping table.
 
 ### FR-C22–C26 — Financial Intelligence (proposed)
 
-Every requirement of [scope 134](../scope/134_pitchpeople_financial_intelligence.md) — FI-1 to FI-32 — is **Designed**:
-written into the five EA layers with proposed rules BR200–BR221, organised as
+Every requirement of [scope 134](../scope/134_pitchpeople_financial_intelligence.md) — FI-1 to FI-33 — is **Designed**:
+written into the five EA layers with proposed rules BR200–BR222, organised as
 six connected domains ([capabilities](../ea/1_strategy/2_capabilities-and-resources.md#financial-intelligence-as-six-connected-domains)), and no code
 does any of it. Listed by its scope rather than restated here, so the two
 cannot drift; this section exists so a reader of the spec knows the design
@@ -112,6 +112,7 @@ is there.
 | # | Requirement group | Rules | Status | Designed in |
 | - | ----------------- | ----- | ------ | ----------- |
 | FR-C3.11 | A derived balance; adjustments and refunds as their own kinds; eight kinds of figure; currency; financial year and GST statement | BR200–BR204, BR219 | **Designed** | Scope 134 WP1 |
+| FR-C22.0 | **A public event calculator**: an account-free estimate of a carnival's or holiday clinic's financial impact from the visitor's own figures, computed in the browser by the event budget's functions, keeping nothing | BR209, BR222 | **Designed** — the first deliverable | Scope 134 WP2a |
 | FR-C22 | Event economics beside the existing event: budgets, basis, profitability, break-even, scenarios, approval, sanctioning | BR208–BR213 | **Designed** | Scope 134 WP2 |
 | FR-C24 | Provider port, adapters, signed idempotent webhooks, reconciliation, refunds | BR204–BR207 | **Designed** | Scope 134 WP3, [decision 20](../decisions/20_payments_through_a_provider_port_never_on_the_platform.md) |
 | FR-C8.x | Role financial dashboards, comparisons, export | BR142, BR143, BR202 | **Designed** | Scope 134 WP4 |

@@ -86,10 +86,15 @@ the three public carnival tables carries a financial column — the same way
 suite 37 asserts they carry no `person_id` (BR139).
 
 **The calculator is a pure function of lines.** Each line is revenue or
-expense, fixed or per participant, with expected and actual amounts and a
-basis (BR208). For a participant count *n*: revenue(*n*) = Σ fixed revenue +
-*n* × Σ per-participant revenue, and likewise for cost, the sanctioning
-charge being one cost line whose amount the sanctioning calculator supplies.
+expense with a unit — fixed, per day, per team, per participant, or per
+participant per day — expected and actual amounts, and a basis (BR208). The
+event's days *d* and teams *t* are inputs, so per-day lines become fixed
+(× *d*), per-team lines fixed for a stated *t*, and per-participant-per-day
+lines per-participant (× *d*). For a participant count *n*: revenue(*n*) =
+Σ fixed revenue + *n* × Σ per-participant revenue, and likewise for cost,
+the sanctioning charge being one cost line whose amount the sanctioning
+calculator supplies. A carnival charged per team states break-even in
+teams instead, by the same arithmetic.
 Break-even is the smallest integer *n* ≥ 0 with revenue(*n*) ≥ cost(*n*);
 when the per-participant contribution is zero or negative and fixed cost
 exceeds fixed revenue, it is *not reachable* (BR209). Thresholds in a
@@ -100,6 +105,16 @@ a single rate.
 
 **Scenarios** are the same calculation over a copy of the lines with named
 changes, stored only when adopted (BR212).
+
+**The public event calculator is the same function, with nothing around
+it** (BR222, WP2a). `/event-calculator` is a prerendered page whose one
+client component imports `src/domain/events/economics.ts` and computes in
+the visitor's browser: no server action, no route handler, no database
+call, no storage. Presets per event type (carnival, holiday clinic,
+tournament) only pre-fill lines the visitor can change; none is a
+governing body's amount (BR211). Because it is the same function, a club
+that later signs in and builds a budget from the same lines gets the same
+answer — the property the product owner asked for.
 
 ## 4. Payments through a port
 

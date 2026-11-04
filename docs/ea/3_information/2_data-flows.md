@@ -109,6 +109,11 @@ flowchart LR
   classDef application fill:#c2f0ff,stroke:#0288d1,color:#333
 ```
 
+**The public event calculator has no arrow into this diagram at all.** It
+runs the same profitability function in the visitor's browser over figures
+the visitor typed, reads shared reference policy versions at most, and sends
+nothing back (BR222) — so it needs no table, and crosses no tenant boundary.
+
 **The arrow that must never exist runs from HOST to PUBLIC.** The public
 policy on the carnival tables publishes every column of a published event,
 so a budget figure on those tables would be published with the draw. The

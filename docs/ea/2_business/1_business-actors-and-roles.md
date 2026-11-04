@@ -156,6 +156,7 @@ published carnival's public view, with no PitchPeople account.
 
 | Actor | Kind | Role | Concern |
 | ----- | ---- | ---- | ------- |
+| Visitor planning an event (a club officer, coach or academy owner) | Human, external, unauthenticated | **Prospective Event Organiser** — *Pending* | Estimates what a carnival, holiday clinic or tournament would cost and earn, with the public event calculator (BR222), before deciding to hold it — and before having any PitchPeople account |
 | Visitor (coach, parent, or anyone else) | Human, external, unauthenticated | **General Public / Spectator** | Follows a published carnival/grassroots event's schedule, draw, and results (club/team-level only by default, BR26) without needing an account |
 
 A Coach, Parent/Guardian, or Player who already has an account uses their

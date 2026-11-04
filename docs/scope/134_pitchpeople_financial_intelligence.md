@@ -75,9 +75,13 @@ our financial position, and why?* Today:
 
 1. A club can rely on its own figures: one derived balance, eight distinct
    kinds of figure, each in its currency (Release 1).
-2. An events coordinator can see an event's viability — profit, cost and
-   revenue per participant, break-even, scenarios — before the club commits
-   (Release 1).
+2. **Anyone planning a carnival, a football holiday clinic or a tournament
+   can estimate its financial impact on a public calculator, with no account,
+   using the same model PitchPeople's event budgets use** — the product
+   owner's stated objective for Event Economics (4 November 2026) and the
+   first thing Release 1 ships (WP2a). Then, inside a club, an events
+   coordinator sees an event's viability — profit, cost and revenue per
+   participant, break-even, scenarios — before the club commits (Release 1).
 3. Collections and payouts move through approved providers and reconcile
    against the club's records, with every difference handed to a person
    (Release 2).
@@ -117,7 +121,7 @@ live in [the capabilities document](../ea/1_strategy/2_capabilities-and-resource
 | ------ | ------------ | ------------ | ------- |
 | Shared financial intelligence services | Foundation of C3 and C8 | WP1 | 1 |
 | Club Finance — *existing foundation* | C3, C5 | WP1a (built), WP1 | 1 |
-| Event Economics — *extends existing events* | C22 on C12's event | WP2 | 1 |
+| Event Economics — *extends existing events* | C22 on C12's event | **WP2a (public calculator, first)**, WP2 | 1 |
 | Payment Services — *new integrations* | C24 | WP3 | 2 |
 | Financial Governance — *new capabilities* | C23 | WP5 | 3 |
 | Financial Intelligence — *new capabilities* | C8 extended, **C26** (new) | WP4 | 1–2 dashboards; 4 health and forecasting |
@@ -131,9 +135,9 @@ C22–C26 are new and serve the new Goal **G9**; C3, C5 and C8 are extended.
 | Layer         | Impact |
 | ------------- | ------ |
 | 1_strategy    | **Changed.** Goal **G9**; two stakeholder rows (club financial officers; governing bodies as policy authors); **Principle P8** (accepted 4 November 2026) as P5's second scoped exception; capabilities **C22–C26**, with C3, C8 and C12 annotated, organised as **six connected domains** over shared financial services; two resources (Football Queensland's Sanctioning Policy as an example of shape, unverified; payment provider capabilities); the Square resource restated per decision C; courses of action for the four releases, the two product experiences and the long-term vision; a second value stream (*Run a club's money*); positioning, traceability and five new claim boundaries in the value proposition |
-| 2_business    | **Changed.** Actors: the Payment Provider and the prospective Governing Body Policy Administrator; the Assistant's finance decision rights listed (autonomy unchanged — advisory); two stale Majestri cells corrected. Services: five proposed services, one per new domain; the Player finance row corrected and the defect recorded. Five proposed processes. A *Financial intelligence* section of business objects (built-but-unlisted and proposed). Twenty glossary terms. **BR200–BR221 proposed.** A role × financial-operation matrix |
+| 2_business    | **Changed.** Actors: the Payment Provider and the prospective Governing Body Policy Administrator; the Assistant's finance decision rights listed (autonomy unchanged — advisory); two stale Majestri cells corrected. Services: five proposed services, one per new domain; the Player finance row corrected and the defect recorded. Five proposed processes. A *Financial intelligence* section of business objects (built-but-unlisted and proposed). Twenty-two glossary terms. **BR200–BR222 proposed.** A role × financial-operation matrix |
 | 3_information | **Changed.** The finance tables built since scope 76 that the data objects never listed; the running-balance defect recorded; **all 26 candidate objects assessed** against the schema (reuse, extend or new, with source, retention, access, audit, sensitivity). A new [data flows](../ea/3_information/2_data-flows.md) document for the financial flows. Two classes and a sharpened one in [data architecture](../ea/3_information/3_data-architecture.md), and the retention rows the schedule still needs |
-| 4_application | **Changed.** Twelve proposed application services, grouped by domain; eighteen planned components with intended paths; a new [solution design](../ea/4_application/4_solution-design.md) (the ledger, event economics beside the event, the provider port, webhooks, the adapter recipe, grant-scoped reads, benchmarks); a new [interface contracts](../ea/4_application/5_interface-contracts.md) document |
+| 4_application | **Changed.** Thirteen proposed application services, grouped by domain; nineteen planned components with intended paths; a new [solution design](../ea/4_application/4_solution-design.md) (the ledger, event economics beside the event, the provider port, webhooks, the adapter recipe, grant-scoped reads, benchmarks); a new [interface contracts](../ea/4_application/5_interface-contracts.md) document |
 | 5_technology  | **Changed, no new infrastructure.** Supabase, Next.js Route Handlers and Vercel Cron cover every need; one new `createAdminClient` reason (`provider-webhook`); planned secrets and a `PAYMENTS_MODE` setting that refuses the simulation in production; Supabase Vault for per-club provider tokens; two `check_rls.py` exemptions to argue. What would justify a queue is named |
 
 ## Stage 1 — what discovery found
@@ -249,6 +253,7 @@ Grouped by work package; each traces to a rule in the
 | FI-6 | Refunds are their own kind, with a reason, distinct from corrections | BR204 | 1 |
 | FI-7 | Reports and dashboards show charged, received, relief, adjusted, refunded, outstanding, overdue and credit separately, per season and per financial year, per currency | BR202, BR143 | 1, 4 |
 | FI-8 | An outstanding-debt dashboard ages what is owed (current, 30, 60, 90+ days past due) and links each family to the arrears follow-up that exists | BR79, BR202 | 1 |
+| FI-33 | **A public event calculator**: without an account, a visitor describes an event (type, days, teams, junior and senior participants) and its lines (each revenue or expense, with a unit — fixed, per day, per team, per participant, per participant per day), chooses AUD or NZD, and sees revenue, costs by category, a governing-body charge, surplus or deficit, per-participant figures, break-even and simple scenarios; computed in the browser by the event budget's own functions; nothing sent, stored or emailed | BR209, BR222, BR200 | 2a |
 | FI-9 | An event records its type, duration, expected and actual participants (junior and senior), commercial classification and jurisdiction — beside the event, not on it | Decision A, BR208 | 2 |
 | FI-10 | An event budget holds revenue and expense lines by category (venue, equipment, coaching, referees, insurance, marketing, administration, sanctioning, other; entry fees, sponsorship, other income), each fixed or per participant, expected and actual, with a basis | BR208 | 2 |
 | FI-11 | Entry charges to participating clubs or teams are recorded per event, and their collection tracked (by hand until WP3) | BR201, BR202 | 2 |
@@ -306,7 +311,7 @@ rewritten when a schedule or policy changes (BR116, BR196, BR210).
 
 ## Business rules
 
-**BR200–BR221 are proposed** and carry their rationale in the
+**BR200–BR222 are proposed** and carry their rationale in the
 [rules table](../ea/2_business/5_domain-context-and-rules.md#business-rules):
 currency (BR200), the derived balance (BR201), the eight kinds (BR202),
 adjustments (BR203), refunds (BR204), reconciliation (BR205), provider
@@ -314,8 +319,8 @@ events (BR206), credentials (BR207), basis (BR208), profitability (BR209),
 policy versions (BR210), nothing hardcoded (BR211), scenarios (BR212),
 budget approval (BR213), governing-body grants (BR214, BR215), reported is
 not audited (BR216), benchmarking (BR217), the Assistant (BR218), the
-club's financial year and GST (BR219), forecasts (BR220) and financial
-health indicators (BR221). Unchanged and load-bearing: BR3,
+club's financial year and GST (BR219), forecasts (BR220), financial
+health indicators (BR221) and the public event calculator (BR222). Unchanged and load-bearing: BR3,
 BR77, BR78, BR79, BR81, BR116, BR142, BR143, BR164 — **hardship still
 forgives no debt.**
 
@@ -344,6 +349,10 @@ forgives no debt.**
 9. **Every privileged act is audited**: adjustments, refunds, manual
    matches, provider connections, budget approvals, grants and their reads,
    opt-ins.
+10. **The public event calculator sends nothing.** No server action, route
+   handler or database call exists behind it, and a test asserts the page's
+   module imports none (BR222). It needs no P5 exception because it holds no
+   club's data — which is the property to protect when it grows.
 
 ## Dependencies
 
@@ -384,6 +393,7 @@ this branch delivers is the architecture and this document only.
 | In scope | Out of scope (gaps, candidate future work) |
 | -------- | ------------------------------------------- |
 | The derived balance, adjustments, refunds, currency, financial year, GST statement (WP1) | A general ledger, chart of accounts, journals, BAS or GST returns — the club's accounting software's job |
+| The public event calculator — estimate only, in the browser (WP2a) | Saving, emailing or sharing a public estimate; capturing a visitor's details from it ([#138](./open-questions.md)) |
 | Event economics beside the existing event (WP2) | A second event entity, or trials and social functions as new event types |
 | The provider port, one approved adapter, ingestion, reconciliation (WP3) | Every candidate adapter in the first release; direct debit mandates; card storage of any kind |
 | Role dashboards, comparisons, export; financial health indicators and deterministic forecasts (WP4) | Statistical or machine-learned forecasting; a single financial-health score |
@@ -406,6 +416,7 @@ flowchart LR
   wp1a["WP1a · Club Finance<br>Treasurer payment<br>fix (built)"]:::implementation
   f3["F3<br>Harness glob"]:::implementation
   wp1["WP1<br>Shared services<br>and Club Finance"]:::implementation
+  wp2a["WP2a<br>Public event<br>calculator"]:::implementation
   wp2["WP2<br>Event Economics"]:::implementation
   wp4["WP4<br>Financial Intelligence"]:::implementation
   wp3["WP3<br>Payment Services"]:::implementation
@@ -416,6 +427,7 @@ flowchart LR
 
   wp1a --> wp1
   f3 --> wp1
+  wp2a --> wp2
   wp1 --> wp2 --> wp5
   wp1 --> wp4
   wp1 --> wp3
@@ -469,6 +481,29 @@ flowchart LR
   currency in `src/domain/finance/`; the finance report's eight kinds; an
   outstanding-debt dashboard with ageing.
 - **Outcome:** the club's figures add up and say what they are.
+
+### WP2a — Event Economics: the public event calculator (Release 1, first)
+
+- **Deliverables:**
+  - `src/domain/events/economics.ts` — BR209's profitability, per-participant
+    figures, break-even (or *not reachable*) and scenario comparison over
+    lines with units, pure and exhaustively tested; WP2 reuses it unchanged.
+  - The currency-aware `Money` of BR200 (`src/domain/finance/currency.ts`),
+    the part of WP1 the calculator needs, brought forward.
+  - `src/web/event-calculator.ts` — presets per event type (carnival, holiday
+    clinic, tournament, other) that only pre-fill editable lines and never a
+    governing body's amount, parsing the visitor's lines, and what the page
+    shows; tested.
+  - `src/app/event-calculator/page.tsx` — prerendered, with one client
+    component computing in the browser; the estimate's limits on the page
+    (an estimate, not a quote or advice); a governing-body charge entered
+    by the visitor and labelled *your assumption* until WP5 holds an
+    approved policy version to offer (BR211, [#123](./open-questions.md)).
+  - A link from the front door and the season paths page.
+- **Outcome:** an organiser sees what a carnival or holiday clinic would
+  cost and earn before deciding to hold it — and a club that later signs
+  in gets the same answer from the same lines.
+- **Depends on nothing else in this scope**, so it can ship first.
 
 ### WP2 — Event Economics (Release 1)
 
@@ -544,6 +579,13 @@ flowchart LR
   without a resolution is refused by the database; an NZ club's figures
   print NZD and an attempt to sum AUD and NZD throws; the differences report
   was reviewed before the switch.
+- **WP2a:** the page's modules import no server action, route handler or
+  Supabase client (asserted by a test); break-even is correct for a
+  per-participant clinic over several days, a per-team carnival, and an
+  unreachable case; a public estimate and `eventEconomics()` called directly
+  on the same lines agree; switching AUD to NZD changes the currency shown
+  and never converts an amount; no preset contains a governing body's
+  charge.
 - **WP2:** no financial column exists on `carnival_event`,
   `carnival_entry` or `carnival_fixture` (asserted); break-even is correct on
   fixed-only, per-participant-only, threshold and unreachable fixtures; a
@@ -574,7 +616,7 @@ flowchart LR
 | Screen decisions | Dashboard metrics, budget and scenario views, adjustment and refund forms, consent and grant screens | `src/web/*.test.ts` |
 | Database | RLS isolation for every new table; role restrictions; append-only ledgers; audit rows; transaction integrity (payment and balance together); the public-column guard; grant-scoped reads; benchmark privacy | `supabase/tests/`, after the F3 glob fix |
 | Integration | Provider callbacks from documented sample payloads; duplicates; failures; refunds; exceptions; outage and retry with the same idempotency key | `src/data/payments/*.test.ts` against fixtures, then the provider's sandbox |
-| Screens | Treasurer, president, events coordinator, governing-body and policy screens, benchmarking consent | Rendered and read in a browser at 360, 768 and 1024 px, as scopes 106 and 133 did; the repository has **no** browser test harness, and adding one is a separate decision |
+| Screens | The public event calculator at 360, 768 and 1024 px; treasurer, president, events coordinator, governing-body and policy screens, benchmarking consent | Rendered and read in a browser at 360, 768 and 1024 px, as scopes 106 and 133 did; the repository has **no** browser test harness, and adding one is a separate decision |
 | Gates | `npm run check`; `npm run check:full` (`test_rls.sh`, restore rehearsal); `check_migration_receipt.py`; `npm run build` for typed routes | CI, every pull request |
 
 ## Migration requirements
@@ -596,7 +638,7 @@ flowchart LR
 
 | Release | Work packages | Outcome |
 | ------- | ------------- | ------- |
-| **1 — Club Financial Control** | WP1a, F3, WP1, WP2, WP4 (treasurer, president) | A club understands its financial position and makes better event decisions |
+| **1 — Club Financial Control** | **WP2a (the public event calculator) first**; WP1a (built), F3, WP1, WP2, WP4 (treasurer, president) | A club understands its financial position and makes better event decisions |
 | **2 — Connected Payments** | WP3, WP4 (remaining roles) | Less re-keying; collection visible as it happens |
 | **3 — Financial Governance** | WP5 (returns and policies, then grants under P8) | Accountability between clubs and governing bodies |
 | **4 — Financial Intelligence** | WP4 (health and forecasting), WP6, WP7 | A differentiated financial intelligence platform |
@@ -613,7 +655,7 @@ flowchart LR
 | **Small cohorts identify a club** | Benchmarking discloses one club's figures to another | Suppression, medians and quartiles only, a privacy review, and selling it last (BR217) |
 | **Exception queues outgrow volunteers** | Unresolved reconciliation exceptions pile up unseen | Exceptions on the treasurer's dashboard with counts and age; a platform alert when they accumulate |
 | **Governing-body sensitivities** | Transparency features read as criticism of the federation the project needs as a partner | The strategy layer's discipline: never market against the governing body; *reported* never presented as *audited* (BR216) |
-| **One large release** | Hard to review, and one fault blocks everything | Eight work packages, each its own branch and pull request; WP1a ships alone |
+| **One large release** | Hard to review, and one fault blocks everything | Nine work packages, each its own branch and pull request; WP1a shipped alone and WP2a can |
 | **Ambiguity over whether merging applies a migration** (F4) | A schema change reaches a database before review | Every migration treated as irreversible on merge; applied to DEV only with approval and a green RLS job |
 
 ## Plateaus
@@ -621,7 +663,7 @@ flowchart LR
 | Plateau                | State |
 | ---------------------- | ----- |
 | **Baseline** (before)  | Registration money priced and recorded by hand; a typed balance a treasurer's payment may not move; relief counted as collected; AUD assumed; carnivals with no money; no provider; no policy; no governing-body participation; no benchmarking |
-| **Transition** (this branch) | The architecture for all of it written into the five layers, three decisions recorded, twenty-two rules proposed, P8 accepted, six domains adopted, and the defect and harness findings documented. Nothing built |
+| **Transition** (this branch) | The architecture for all of it written into the five layers, three decisions recorded, twenty-three rules proposed, P8 accepted, six domains adopted, and the defect and harness findings documented. Nothing built |
 | **Target** (Releases 1–4) | Six connected domains over one set of shared financial services: one derived, explained ledger per club; health indicators and forecasts that say how they were made; event economics before commitment; reconciled provider payments; versioned policies with explanations; club-granted governing-body reporting and opt-in benchmarks under P8; an Assistant that explains and decides nothing |
 
 ## Gap notes
@@ -650,9 +692,12 @@ flowchart LR
 
 ## Open questions
 
-Sixteen were raised, mirrored in the [open-questions log](./open-questions.md)
-as #121–#136. Fifteen are open, each with the interpretation this document
-adopted:
+Eighteen were raised, mirrored in the [open-questions log](./open-questions.md)
+as #121–#138. Seventeen are open, each with the interpretation this document
+adopted. On 4 November 2026 the product owner noted that financial reports
+need more information, and set the public event calculator as the objective:
+**#135 and #136 stay open** with their adopted interpretations, and WP4's
+health indicators and forecasts follow later.
 
 - **#122** Who in a club grants a governing body access? *Adopted: a
   committee resolution (BR123), recorded by the admin or treasurer.*
@@ -692,6 +737,14 @@ adopted:
   scheduled instalments, aged balances against the club's own collection
   history (two seasons at least), and approved event budgets; to the
   season's end and to the financial year's end.*
+- **#137** Which event types, presets and line units does the public
+  calculator offer? *Adopted: carnival (per team), holiday clinic (per
+  participant per day), tournament (per team) and other; units fixed, per
+  day, per team, per participant and per participant per day; presets
+  pre-fill editable lines and never a governing body's amount.*
+- **#138** May the public calculator save, send or share an estimate, or
+  ask for the visitor's details? *Adopted: no. It keeps nothing; a link to
+  the enquiry page at most, carrying none of the figures.*
 
 ### Resolved
 

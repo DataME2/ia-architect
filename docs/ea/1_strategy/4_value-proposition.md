@@ -87,6 +87,7 @@ complementing it.
 | Understand and improve the club's financial position | **G9**, **C3**, **C8** — Pending beyond scope 133's report |
 | Forecasting and financial health | **C26**, BR220, BR221 — Pending |
 | Event profitability before committing | **G9**, **C22** — Pending |
+| A public calculator for a carnival or holiday clinic | **C22**, BR222 — Pending (WP2a) |
 | Transparent policies; every charge explained | **G9**, **C23** — Pending |
 | Payment integration | **C24**, [decision 20](../../decisions/20_payments_through_a_provider_port_never_on_the_platform.md) — Pending |
 | Benchmarks against other clubs | **C25**, **P8** — Pending |
@@ -153,6 +154,11 @@ to drop, and each is load-bearing.
   cohort it did not join, and no figure is shown for a cohort small or
   lopsided enough to identify a member (BR217). It is never a way to see
   another club's numbers.
+- **"Calculator" means an estimate from the visitor's own figures, not a
+  quote.** The public event calculator (BR222) works only with what the
+  visitor enters, plus a governing body's charge only where a published,
+  approved policy version is held; it is not financial, tax or legal
+  advice, and it says so on the page.
 - **"Governing-body reporting" happens only by the club's grant.** An
   association is not entitled to a club's financial records by being its
   association (P8; BR214).
