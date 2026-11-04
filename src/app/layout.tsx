@@ -68,7 +68,7 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
               <a className="topbar-register" href={REGISTER_LINK.href}>
                 {REGISTER_LINK.label}
               </a>
-              {/* Below 1,200px the destinations fold in here. A native
+              {/* Below 1,248px the destinations fold in here. A native
                   disclosure, so the menu needs no script; every link is a
                   full page load, which closes it. */}
               <details className="topbar-menu">

@@ -121,7 +121,7 @@ the history complete; it does not make the CLI safe to point at DEV.
 | An estimate from the visitor's own figures, in AUD or NZD | A governing body's charge filled in from a published policy (needs scope 134's WP5 and [#123](./open-questions.md)) |
 | Presets per event type with blank amounts (#137) | Saving, emailing or sharing an estimate, or capturing the visitor's details (#138) |
 | Break-even over participants or teams; three scenarios | Actual figures beside expected ones — a club budget's job (134's WP2) |
-| A footer link and one on `/season-paths` | A link in the top bar, which is full; a place on the front door's homepage |
+| A footer link and one on `/season-paths` | A link in the top bar, which was full (made in [scope 136](./136_room_in_the_top_bar.md)); a place on the front door's homepage |
 
 ## Gap notes
 
@@ -130,7 +130,10 @@ the history complete; it does not make the CLI safe to point at DEV.
   WP5. Until a verified policy is held, the page says so beside the charge.
 - **The top bar has no room.** Six links overflow it at 1280 px. Giving the
   calculator a place there means removing or folding another link, which is
-  the front door's decision rather than this page's.
+  the front door's decision rather than this page's. **Closed by
+  [scope 136](./136_room_in_the_top_bar.md)**: the product owner asked for
+  the space, and two shorter labels, narrower pills and a later fold made
+  it.
 - **GST is as entered.** The page says amounts are as the visitor enters
   them; BR219's GST treatment belongs to a club's settings, which a public
   page does not have.

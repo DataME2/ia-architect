@@ -664,13 +664,15 @@ a:hover {
 
 /* 44px touch targets throughout (DESIGN.md). The destinations are strips:
    2px chalk pills, and the page you are on is the chalk-yellow one, at the
-   dark grounds' full strength in both schemes. */
+   dark grounds' full strength in both schemes. 0.75rem either side rather
+   than 1rem: the 56px it gives back across seven pills is part of the room
+   the sixth destination needed (scope 136). */
 .topbar-links a,
 .topbar-workspace {
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
-  padding: 0 var(--space-4);
+  padding: 0 var(--space-3);
   border: var(--border-width) solid color-mix(in srgb, var(--chalk-50) 28%, transparent);
   border-radius: var(--radius-full);
   color: var(--chalk-50);
@@ -798,8 +800,12 @@ a:hover {
   }
 }
 
-/* All six fit on one line from 1,200px; below that the four fold away. */
-@media (min-width: 75rem) {
+/* The destinations sit in the bar from 78rem (1,248px), the width at which
+   the bar stops growing (--shell-width; a media query cannot read a token),
+   and fold into the menu below it. From there every width has the same
+   24px to spare, measured with the web font and without it (scope 136).
+   At 75rem, where they used to appear, five already clipped Register. */
+@media (min-width: 78rem) {
   .topbar-links {
     display: flex;
   }
