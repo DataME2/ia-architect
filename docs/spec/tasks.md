@@ -94,6 +94,7 @@ worse than an absent feature, because somebody relies on it.
 | T2.3 | **BR15 made testable.** The assistant never changes a status — structurally true because no generative step exists. It should stay true *by test* before one does | BR15, P3 | S | A test that fails if an assistant surface gains a committing control |
 | T2.4 | **BR122 made a gate rather than a convention.** A read policy naming roles must ship with a scenario asserting the excluded role reads nothing — today that is discipline, not a check | BR122 | M | `check_rls.py` (or a sibling) fails a role-narrowed policy with no exclusion scenario |
 | T2.5 | **BR75 given a source reference.** The partial unique index enforces one live plan; no comment names the rule, so it is invisible to a reviewer diffing rules against code | BR75 | S | The identifier appears where the constraint is defined |
+| T2.6 | **A treasurer's payment moves the balance.** Recorded and shown as paid, while the balance stays where it was for a treasurer-only account ([scope 134](../scope/134_pitchpeople_financial_intelligence.md) F1) | BR77, BR78 | S | A suite: a `treasurer`-only payment moves the balance; a `registrar`'s is refused. Bugfix template — scope 134's WP1a |
 
 ---
 
@@ -125,7 +126,8 @@ the most.
 | ~~T4.5~~ | **C12 — Carnival and event management**, including the account-free public view — the one deliberate P5 exception. **Done** — [scope 40](../scope/40_carnivals_and_the_one_thing_the_public_may_see.md); BR28's conflict checks for carnival officials remain unwired | C11 | L |
 | T4.6 | **C17 — Native mobile client.** Recommended deferred (R5): `/me` already delivers the substance; offline (BR66) is the trigger to revisit | Nothing, but not yet warranted | L |
 | T4.7 | **C14 — External reconciliation** against SQUADI / PlayFootball | **Externally blocked.** API access is restricted to approved system partners; open questions [#39–#41](../scope/open-questions.md). A commercial motion, not a technical one | L |
-| T4.8 | **Payments (C3's remaining half).** Square is chosen and unintegrated; a treasurer types in what arrived | A decision that it is time | L |
+| T4.8 | **Payments (C3's remaining half).** Square is chosen and unintegrated; a treasurer types in what arrived. **Designed November 2026** as C24 behind a provider port ([scope 134](../scope/134_pitchpeople_financial_intelligence.md) WP3, [decision 20](../decisions/20_payments_through_a_provider_port_never_on_the_platform.md)) | The first adapter ([#126](../scope/open-questions.md)) | L |
+| T4.10 | **Financial Intelligence (G9).** The derived ledger, event economics, role dashboards, governance, benchmarking and the Assistant's financial drafts, in four releases ([scope 134](../scope/134_pitchpeople_financial_intelligence.md)) | WP1 nothing; WP5's grants and WP6 on proposed P8 ([#121](../scope/open-questions.md)) | L ×8 |
 | T4.9 | **The marketing surface's first third — *explain*.** [Scope 44](../scope/44_a_club_says_it_is_interested.md) built *qualify* and scope 28 §3's *capture* was already there; there is still no pricing page, feature tour or case study, so `/interest` assumes a visitor who already knows roughly what this is | Nothing | M |
 
 ---

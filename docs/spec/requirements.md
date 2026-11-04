@@ -97,7 +97,26 @@ a business rule without an intermediate mapping table.
 | FR-C3.6 | **No pay, no play** — evaluated fresh from status *and* balance, never stored | BR79 | **Verified** | `src/domain/finance/eligibility.ts` |
 | FR-C3.7 | An attached voucher reduces no balance until a human verifies it, whereupon it becomes an ordinary payment | BR81 | **Verified** | `src/domain/finance/voucher.ts`, `registration_voucher.relief_payment_id` |
 | FR-C3.8 | A voucher cannot be applied to more than one invoice | BR4 | **Not built** | No invoice object exists; the slice works from a registration balance |
-| FR-C3.9 | Money is **moved** — card, bank, reconciliation | — | **Not built** | Square is chosen and unintegrated. A treasurer types in what arrived |
+| FR-C3.9 | Money is **moved** — card, bank, reconciliation | — | **Not built** | Square is chosen and unintegrated. A treasurer types in what arrived. Designed as C24 in [scope 134](../scope/134_pitchpeople_financial_intelligence.md) WP3 ([decision 20](../decisions/20_payments_through_a_provider_port_never_on_the_platform.md)) |
+| FR-C3.10 | A payment recorded by **any** role that may record one moves the registration's balance, in the same transaction | BR77, BR78 | **Partial — defect** | Found November 2026 ([scope 134](../scope/134_pitchpeople_financial_intelligence.md) F1): for a treasurer who is not also an admin, `recordPayment`'s balance update is refused by `registration_manage` (0058) with no error, so the receipt is recorded and the balance does not move. FR-C3.5's *Verified* covers the insert, not the balance. Fixed by WP1a, then by BR201's derived balance |
+
+### FR-C22–C25 — Financial Intelligence (proposed)
+
+Every requirement of [scope 134](../scope/134_pitchpeople_financial_intelligence.md) — FI-1 to FI-30 — is **Designed**:
+written into the five EA layers with proposed rules BR200–BR219, and no code
+does any of it. Listed by its scope rather than restated here, so the two
+cannot drift; this section exists so a reader of the spec knows the design
+is there.
+
+| # | Requirement group | Rules | Status | Designed in |
+| - | ----------------- | ----- | ------ | ----------- |
+| FR-C3.11 | A derived balance; adjustments and refunds as their own kinds; eight kinds of figure; currency; financial year and GST statement | BR200–BR204, BR219 | **Designed** | Scope 134 WP1 |
+| FR-C22 | Event economics beside the existing event: budgets, basis, profitability, break-even, scenarios, approval, sanctioning | BR208–BR213 | **Designed** | Scope 134 WP2 |
+| FR-C24 | Provider port, adapters, signed idempotent webhooks, reconciliation, refunds | BR204–BR207 | **Designed** | Scope 134 WP3, [decision 20](../decisions/20_payments_through_a_provider_port_never_on_the_platform.md) |
+| FR-C8.x | Role financial dashboards, comparisons, export | BR142, BR143, BR202 | **Designed** | Scope 134 WP4 |
+| FR-C23 | Policy register, explanations, consultation, returns; grants | BR210, BR211, BR214–BR216 | **Designed**; grants conditional on P8 | Scope 134 WP5, [decision 19](../decisions/19_a_club_grants_what_a_governing_body_reads.md) |
+| FR-C25 | Opt-in benchmarking | BR217 | **Designed**; conditional on P8 | Scope 134 WP6, [decision 21](../decisions/21_benchmarking_is_opt_in_and_never_identifies_a_club.md) |
+| FR-C8.y | Assistant financial drafts | BR218 | **Designed** | Scope 134 WP7 |
 
 ### FR-C4 — Referee lifecycle
 
@@ -283,3 +302,11 @@ the one table named in no document, was added at the same time.)*
 > uncovered. It is the reason
 > [steering document 2, §3.3](../steering/2_code-commenting-and-documentation.md)
 > makes a stale README a defect rather than a tidy-up.
+
+**F5 (November 2026) — the first finding in the other direction.** FR-C3.5
+was marked *Verified* because its suite proves who may insert a payment.
+Nobody tested that the payment then moved the balance, and for a
+treasurer-only account it does not ([scope 134](../scope/134_pitchpeople_financial_intelligence.md), F1, reproduced against
+the real migrations). Documentation here had *overstated* what works — the
+direction §5's closing note said had not yet happened. A *Verified* row must
+name the test that proves the whole outcome, not its first step.
