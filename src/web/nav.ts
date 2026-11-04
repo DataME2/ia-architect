@@ -126,13 +126,21 @@ export interface SiteLink {
  * The top bar's destinations: only screens that exist. The bar is on every
  * screen, so the design's links to sections of the landing page would mean
  * nothing anywhere else.
+ *
+ * **The bar has no width to spare.** It stops growing at 1,248px, and these
+ * six, with Your workspace and Register, leave 24px of it (scope 136). Two
+ * labels are shortened here to make that room; the footer keeps them whole.
+ * A longer label or a seventh link pushes Register off the bar on every
+ * page, so `nav.test.ts` holds the labels to the length that was measured.
  */
 export const SITE_NAV: readonly SiteLink[] = [
   { href: '/seasons', label: 'Season calendars' },
   // Scope 117: the season walked step by step, rule by rule.
   { href: '/season-paths', label: 'Season paths' },
-  { href: '/registrar', label: 'Club administration' },
-  { href: '/demo', label: 'Demonstration club' },
+  // Scope 135 (BR222); in the bar since scope 136.
+  { href: '/event-calculator', label: 'Event calculator' },
+  { href: '/registrar', label: 'Club admin' },
+  { href: '/demo', label: 'Demo club' },
   { href: '/interest', label: 'For clubs' },
 ];
 
@@ -152,8 +160,7 @@ export const FOOTER_NAV: readonly { readonly heading: string; readonly links: re
     links: [
       { href: '/seasons', label: 'Season calendars' },
       { href: '/season-paths', label: 'Season paths' },
-      // Scope 135 (BR222). In the footer and not the bar: a sixth link in the
-      // bar pushed Register off it at 1280px, on every page.
+      // Scope 135 (BR222); in the bar as well since scope 136.
       { href: '/event-calculator', label: 'Event calculator' },
       { href: '/register', label: 'Start a registration' },
       { href: '/me', label: 'Your workspace' },

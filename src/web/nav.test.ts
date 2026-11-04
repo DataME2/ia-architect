@@ -79,3 +79,15 @@ test('every link in the bar, the footer and the club menu names a page that exis
     assert.ok(existsSync(new URL(`../app${href}/page.tsx`, import.meta.url)), href);
   }
 });
+
+test('the top bar holds no more than the room that was measured for it', () => {
+  // The bar stops growing at 1,248px, and these labels leave 24px of it
+  // (scope 136) — about three characters. Twice a link added here pushed
+  // Register off the bar on every page, which no other test sees. Counting
+  // characters is a proxy for width, so this is a tripwire, not a proof:
+  // to raise either number, render the bar at 1,248px and measure first.
+  const labels = [...SITE_NAV, WORKSPACE_LINK, REGISTER_LINK].map((l) => l.label);
+  assert.ok(SITE_NAV.length <= 6, `${SITE_NAV.length} destinations in the bar`);
+  const characters = labels.join('').length;
+  assert.ok(characters <= 94, `${characters} characters across the bar's labels`);
+});
